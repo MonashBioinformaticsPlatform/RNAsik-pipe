@@ -1,10 +1,16 @@
-# `RNAsik-pipe` is easy to use RNA-seq(uencing) pipeline
+# `RNAsik-pipe` easy and quick RNA-seq(uencing) pipeline
 
-### RNA-seq(uencing) a.k.a Whole-transcriptome sequencing
+## Content
+
+- [Introduction](##introduction)
+- [Quick start](##quickstart)
+- [Prerequisites](##prerequisites)
+
+## Introduction
 
 1. Get your FASTQ files
 
-Your raw data will always come in FASTQ format. The number of FASTQ files will really depend many things
+Your raw data will always come in FASTQ format. The number of FASTQ files will really depend on many things
 including:
 
   - Number of samples 
@@ -16,38 +22,65 @@ Also your FASTQ files might reside in one directory - directory per experiment
 OR 
 Each sample might be put into its own subdirectory 
 
-Well `RNAsik-pipe` can either take your project direcoty 
-### Caveats 
+Well, `RNAsik-pipe` can either take your project directory with FASTQ files with `-fqDir` parameter
+OR `RNAsik-pipe` can take your project directory with sub-directories for you replicates perphaps with 
+`-fqDirs` parameter
 
- - at the moment only can run `STAR` mapper with fixed options
- - right now `-fastqDir` parameter will only work with `.` i.e your execute `rnas-pipe` in the directory where
-   your fastq files are
- - `prePro` is a must if you want to gete RNA-SeQC report  
- - at the moment there isn't an option to choose the strand direction for read counts
-   right now `rnas-pipe` simply counts all bams against stranded NO and stranded REVERSE options
+2. Get RNA-seq metrics with RNA-SeQC report
 
-The `rnas-pipe` features:
+`RNAsik-pipe` takes care of long and laborious BAM file manipulation for RNA-SeQC tools, just flag 
+`-prePro` to get your BAMS in the right shape and `-RNAseQC` to get actual report
 
-1. Reads alignment. Currently it is set to `STAR` with predefined `STAR` input parameters
-   It is rather stringent at this stage and only through manual intervention one can change the input
-   parameters inside the source code. Feel free to `git clone` and edit source to your needs. 
-   There are the parameters `STAR` set up to run with in BDS by default.
+3. Get you read counts
 
-   ```
-   STAR --runThreadN 26 \
-        --genomeDir $genomeIndex \
-        --outSAMtype BAM Unsorted \
-        --outSAMattrRGline ID:$laneNumber CN:AGRF DS:RNA-seq PL:ILLUMINA PM:MiSeq SM:$uniqueName \
-        --outSAMunmapped Within \
-        --readFilesCommand zcat \
-        --readFilesIn $read1 $read2 \
-        --outFileNamePrefix $preFix
-   ```
-2. Several `picard` pre-processing steps for `RNA-SeQC` run later. `picard` produces, sorted, reordered bam files
-   with marked duplicates. This is prerequisite for `RNA-SeQC` run
+Do you want to do differential gene expression analysis..? just flag `-count` and you will get your counts
 
-3. `featureCouunts` that count how many reads mapped one genes 
+## Quick start
 
-### Work in progress 
 
-I'm working on including `fastqc` report at the first item to run in the pipeline
+1. Get [BigDataScript](http://pcingola.github.io/BigDataScript/)
+
+You need to have installed BDS first, which is rather straight forward just follow [BDS installation instructions](http://pcingola.github.io/BigDataScript/download.html)
+
+2. Get the pipeline
+
+`git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe.git` and you can run `RNAsik-pipe`
+simply by typing it in the command line. 
+
+Optionally you can add `RNAsik-pipe/` directory to the path 
+
+3. Run it !
+
+- To align `RNAsik-pipe -star -fqRegex A -genomeIndex path/to/yourIndexDirectory` 
+- To get counts `RNAsik-pipe -count -gtfFile path/to/yourGTFfile`
+- To get RNA-SeQC report `RNAsik-pipe -prePro -fastaRef path/to/yourFASTAreference-file -RNAseQC`
+
+You should really specify all options at the start and let `RNAsik-pipe` to take of everything else
+
+## Prerequisites
+
+- [BigDataScript](http://pcingola.github.io/BigDataScript/download.html)
+- [STAR aligner](https://github.com/alexdobin/STAR/releases)
+- [Picard tools](http://broadinstitute.github.io/picard/)
+- [RNA-SeQC](https://www.broadinstitute.org/cancer/cga/rna-seqc)
+- [featureCounts](http://subread.sourceforge.net/)
+
+## Caveats 
+
+- At the moment `STAR aligner` has fixed options, here is the default:
+
+```BASH
+STAR --runThreadN 26 \
+     --genomeDir $genomeIndex \
+     --outSAMtype BAM Unsorted \
+     --outSAMattrRGline ID:001 CN:AGRF DS:RNA-seq PL:ILLUMINA PM:MiSeq SM:$uniqueName \
+     --outSAMunmapped Within \
+     --readFilesCommand zcat \
+     --readFilesIn $read1 $read2 \
+     --outFileNamePrefix $preFix
+```
+
+- Right now only `featureCounts` is supported for read counting
+- At the moment there isn't an option to choose the strand direction for read counts. `RNAsik-pipe` simply
+counts using both stranded NO and stranded REVERSE options
+
