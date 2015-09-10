@@ -10,30 +10,30 @@
 
 1. Get your FASTQ files
 
-Your raw data will always come in FASTQ format. The number of FASTQ files will really depend on many things
-including:
+  Your raw data will always come in FASTQ format. The number of FASTQ files will really depend on many things
+  including:
 
   - Number of samples 
   - Number of replicates 
   - Your sample was split into different lanes
   - Your are sequencing paired-end data
 
-Also your FASTQ files might reside in one directory - directory per experiment 
-OR 
-Each sample might be put into its own subdirectory 
-
-Well, `RNAsik-pipe` can either take your project directory with FASTQ files with `-fqDir` parameter
-OR `RNAsik-pipe` can take your project directory with sub-directories for you replicates perphaps with 
-`-fqDirs` parameter
+  Also your FASTQ files might reside in one directory - directory per experiment 
+  OR 
+  Each sample might be put into its own subdirectory 
+  
+  Well, `RNAsik-pipe` can either take your project directory with FASTQ files with `-fqDir` parameter
+  OR `RNAsik-pipe` can take your project directory with sub-directories for you replicates perphaps with 
+  `-fqDirs` parameter
 
 2. Get RNA-seq metrics with RNA-SeQC report
 
-`RNAsik-pipe` takes care of long and laborious BAM file manipulation for RNA-SeQC tools, just flag 
-`-prePro` to get your BAMS in the right shape and `-RNAseQC` to get actual report
+  `RNAsik-pipe` takes care of long and laborious BAM file manipulation for RNA-SeQC tools, just flag 
+  `-prePro` to get your BAMS in the right shape and `-RNAseQC` to get actual report
 
 3. Get you read counts
 
-Do you want to do differential gene expression analysis..? just flag `-count` and you will get your counts
+  Do you want to do differential gene expression analysis..? just flag `-count` and you will get your counts
 
 ## Quick start
 
