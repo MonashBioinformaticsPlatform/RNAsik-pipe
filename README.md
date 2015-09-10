@@ -37,23 +37,20 @@
 
 ## Quick start
 
-
 1. Get [BigDataScript](http://pcingola.github.io/BigDataScript/)
 
-You need to have installed BDS first, which is rather straight forward just follow [BDS installation instructions](http://pcingola.github.io/BigDataScript/download.html)
+  You need to have installed BDS first, which is rather straight forward just follow [BDS installation instructions](http://pcingola.github.io/BigDataScript/download.html)
 
 2. Get the pipeline
 
-`git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe.git` and you can run `RNAsik-pipe`
-simply by typing it in the command line. 
-
-Optionally you can add `RNAsik-pipe/` directory to the path 
+  `git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe.git` and you can run `RNAsik-pipe`
+  simply by typing it in the command line. Optionally you can add `RNAsik-pipe/` directory to the path 
 
 3. Run it !
 
-- To align `RNAsik-pipe -star -fqRegex A -genomeIndex path/to/yourIndexDirectory` 
-- To get counts `RNAsik-pipe -count -gtfFile path/to/yourGTFfile`
-- To get RNA-SeQC report `RNAsik-pipe -prePro -fastaRef path/to/yourFASTAreference-file -RNAseQC`
+  - To align `RNAsik-pipe -star -fqRegex A -genomeIndex path/to/yourIndexDirectory` 
+  - To get counts `RNAsik-pipe -count -gtfFile path/to/yourGTFfile`
+  - To get RNA-SeQC report `RNAsik-pipe -prePro -fastaRef path/to/yourFASTAreference-file -RNAseQC`
 
 You should really specify all options at the start and let `RNAsik-pipe` to take of everything else
 
