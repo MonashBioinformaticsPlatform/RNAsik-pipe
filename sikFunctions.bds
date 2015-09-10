@@ -8,11 +8,10 @@ string preqcBamFiles = "preqcBamFiles"
 string featureNo = "featureNo"
 string featureReverse = "featureReverse"
 string fastqcReport = "fastqcReport"
-string clippedFastq = "clippedFastq"
+string RNAseQCreport = "RNAseQC-report"
 
 if((!bamFiles.exists()) && (star)) bamFiles.mkdir()
 if((!preqcBamFiles.exists()) && (prePro)) preqcBamFiles.mkdir()
-if((!clippedFastq.exists()) && (clip)) clippedFastq.mkdir()
 if((!featureNo.exists()) && (count)) featureNo.mkdir()
 if((!featureReverse.exists()) && (count)) featureReverse.mkdir()
 if((!fastqcReport.exists()) && (fastqc)) fastqcReport.mkdir()
@@ -27,23 +26,20 @@ string[] getDirs(string fqDirs) {
     string[] dirs
     for(string dir : fqDirs.dirPath()){
         string checkDir = dir.isDir()
-        if(checkDir){
-            dirs.add(dir)
-        }
+        if(checkDir) dirs.add(dir)
     }
     return dirs
 }
 
 string{} getUniqueNames(string fqDir) {
     # Map with unique root key
-    string{} uniqueNames 
+    string{} uniqueNames
     for(string fq : fqDir.dirPath(extn)) {
-        # make sure we have fastq files only
-        string getR1Index = fq.lastIndexOf("R1") 
+        string getR1Index = fq.lastIndexOf("R1")
         if(getR1Index != -1) {
             # get the root of the file name with regex
             string[] getFile = fq.split(fqRegex)
-            string rootName = getFile[0]
+            string rootName = getFile[0].baseName()
             # append to the list if it isn't in the list already
             if(!uniqueNames.hasKey(rootName)) uniqueNames{rootName}=""
             uniqueNames{rootName}+=fq+","
@@ -71,12 +67,13 @@ string[] getOrderedList(string[] readsList) {
         checkPair = pairedEnd.isFile()
         if(checkPair) orderedReadsList.add(pairedEnd)
     }
+
     orderedReadsList.add(checkPair)
     return orderedReadsList
 }
 
 string[] getSTARreads(string[] orderedList) {
-
+    
     string boolItem = orderedList.pop()
     bool checkPair = boolItem.parseBool()
     
@@ -88,7 +85,7 @@ string[] getSTARreads(string[] orderedList) {
             string read = orderedList.remove(orderedList[i])
             listR2.add(read)
         }
-        
+    
         listR2 = listR2.reverse()
         string read1 = orderedList.join(",")
         string read2 = listR2.join(",")
@@ -100,13 +97,36 @@ string[] getSTARreads(string[] orderedList) {
     }
 }
 
+string fixFileNames(string rootName, string fileFix) {
+    for(string line : fileFix.readLines()){
+        string[] namesList = line.split("\t")
+#string oldNamePrefix = "/"+namesList[0]+"_"
+#string newNamePrefix = "/"+namesList[1]+"_"
+        string oldNamePrefix = namesList[0]
+        string newNamePrefix = namesList[1]
+        string preFixIndex = rootName.indexOf(oldNamePrefix)
+        if(preFixIndex != -1){
+            string fixedFileName = rootName.replace(oldNamePrefix, newNamePrefix)
+            return fixedFileName
+        }
+    }
+}
 string mapSTAR(string rootName, string genomeIndex, string[] listOfReads, string[] rawReads) {
-
-    string rootBase = rootName.baseName()
+    
+    string fixedFileName
+    
+    if(!sampleNames.isEmpty()){
+        fixedFileName = fixFileNames(rootName, sampleNames)
+    }
+    else{
+        fixedFileName = rootName
+    }
+    
+    string rootBase = fixedFileName.baseName()
     string preFix = bamFiles+"/"+rootBase+"_"
     string bamOut = preFix+"Aligned.out.bam"
     string reads = listOfReads.join(" ")
-
+    
     task(bamOut <- rawReads) {
         sys STAR --runThreadN 30 \
                  --genomeDir $genomeIndex \
@@ -125,69 +145,13 @@ string mapSTAR(string rootName, string genomeIndex, string[] listOfReads, string
     return bamOut
 }
 
-string getNesoniReads(string[] orderedList) {
-
-    string boolItem = orderedList.pop()
-    bool checkPair = boolItem.parseBool()
-    int listSize = orderedList.size()
-    
-    if(checkPair) {
-        int numberOfPairs = listSize/2
-        int finalListSize = listSize+numberOfPairs
-        for (int i=0; i<finalListSize; i+=3) {
-            orderedList.add(i, "pairs:")
-        }
-    }
-    else {
-        int finalListSize = listSize*2
-        
-        for (int i=0; i<finalListSize; i+=2) {
-            orderedList.add(i, "reads:")
-        }
-    }
-    string nesoniReads = orderedList.join(" ")
-    return nesoniReads
-}
-
-string[] NesoniClip(string rootName, string nesoniReads, string[] rawReads) {
-
-    string preFix = clippedFastq+"/"+rootName.baseName()
-    string outfq = preFix+"_single.fq.gz"
-    string logFile = preFix+"_log.txt"
-    
-    string[] reads = nesoniReads.split(" ")
-    bool checkPair = reads.has("pairs:")
-    
-    if(checkPair) {
-        string outfq1 = preFix+"_R1.fq.gz"
-        string outfq2 = preFix+"_R2.fq.gz"
-        task([outfq, outfq1, outfq2, logFile] <- rawReads){
-            #sys source $HOME/pypyenv/bin/activate
-            sys nesoni clip: --quality 28 \
-                             --out-separate yes \
-                             $preFix \
-                             $nesoniReads
-        }
-        return [outfq1, outfq2]
-    }
-    else {
-        task([outfq, logFile] <- rawReads){
-            #sys source $HOME/pypyenv/bin/activate
-            sys nesoni clip: --quality 28 \
-                             --out-separate yes \
-                             $preFix \
-                             $nesoniReads
-        }
-        return [outfq]
-    }
-}
-
 string getPrePro(string bamFile, string fastaRef){
-
+    
     string sortedName = preqcBamFiles+"/"+bamFile.baseName().swapExt("Aligned.out.bam", "sorted.bam")
     task(sortedName <- bamFile) {
         sys picard SortSam TMP_DIR=tmp/ \
                            VALIDATION_STRINGENCY=LENIENT \
+                           CREATE_INDEX=true \
                            INPUT=$bamFile \
                            OUTPUT=$sortedName \
                            SORT_ORDER=coordinate
@@ -210,23 +174,19 @@ string getPrePro(string bamFile, string fastaRef){
                                   OUTPUT=$mdupsName \
                                   METRICS_FILE=$metricsName
     }
-    return "all done"
+    return mdupsName
 }
 
 string getReadsCount(string bamFile, string gtfFile) {
-
+    
     string reverseFeature = featureReverse+"/"+bamFile.baseName().swapExt("_Aligned.out.bam", ".txt")
-    #string reverseSummary = featureReverse+"/"+reverseFeature+".summary"
-    #task ([reverseFeature, reverseSummary] <- bamFile) {
     task (reverseFeature <- bamFile) {
         sys featureCounts -a $gtfFile \
                           -o $reverseFeature \
-                          $bamFile \
+                          $bamFile\
                           -s 2
     }
     string noFeature = featureNo+"/"+bamFile.baseName().swapExt("_Aligned.out.bam", ".txt")
-    #string noSummary = featureReverse+"/"+noFeature+".summary"
-    #task ([noFeature, noSummary] <- bamFile) {
     task (noFeature <- bamFile) {
         sys featureCounts -a $gtfFile \
                           -o $noFeature \
@@ -234,4 +194,30 @@ string getReadsCount(string bamFile, string gtfFile) {
                           -s 0
     }
     return reverseFeature
+}
+
+string getSampleIds(string[] markedBams){
+    bool header = true
+    string sampleIds
+    
+    for(string bamFile : markedBams){
+        string[] getSampleIds = bamFile.split("_")
+        string sampleId = getSampleIds[0].baseName()
+        if(header){
+            sampleIds += "Sample ID\tBam File\tNotes\n"
+            header = false
+        }
+        sampleIds += "$sampleId\t$bamFile\tNA\n"
+    }
+    return sampleIds
+}
+
+string getRNAseQC(string sampleIdsFile, string[] markedBams){
+    task(sampleIdsFile <- markedBams){
+        sys rna-seqc -o $RNAseQCreport\
+                     -r $fastaRef \
+                     -s $sampleIdsFile\
+                     -t $gtfFile
+    }
+    return "all good"
 }

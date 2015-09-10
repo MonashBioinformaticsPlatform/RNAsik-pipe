@@ -9,10 +9,15 @@
 #------------------------------
 
 #----------------------------------------------------------------------------------------------------
-#  About rnasPipe.bds
-# - takes a whole directory that contatins fastq files and maps to the reference genome
-# - identifies samples that span different lanes and merges then together during STAR run
-# - takes care of paired end data
+#
+#    About RNAsik-pipe
+#
+#   * Takes a whole directory with FASTQ files
+#   * Understands if FASTQ files are paired end or single end
+#   * Understands if samples span different lanes. Merges all sample's lane at the STAR runtime
+#   * Gets count data, checks both reverse strand and no strands 
+#   * Prepares BAM files for RNAseQC report
+#
 #----------------------------------------------------------------------------------------------------
 
 include "sikFunctions.bds" 
@@ -33,9 +38,6 @@ include "sikHeader.bds"
 if(fastqc) {
     if(fqDir.isEmpty()) error "Usage: -fqDir /path/to/fastq_reads/"
 }
-if(clip) {
-    if(fqDir.isEmpty()) error "Usage: -fqDir /path/to/fastq_reads/"
-}
 if(star) {
     if(!fqRegex.isEmpty()){
         if(fqRegex == "A") fqRegex = "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"
@@ -48,90 +50,107 @@ if(star) {
     if(genomeIndex.isEmpty())  error "Usage: -genomeIndex /path/to/genome_index/"
 }
 if(count) {
-    if(gtfFile.isEmpty())  error "Usage: -gtfFile /path/to/gtf_file/"
+    if(gtfFile.isEmpty())  error "Usage: -gtfFile /path/to/gtf_file"
 }
 if(prePro) {
     if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/reference_fasta_file"
+}
+if(RNAseQC){
+   if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/togtf_file"
 }
 if( args.isEmpty() ) {
     printHelp()
     exit(1)
 }
-##------------------------------
-## fastQC report
-##------------------------------
-#        if(fastqc) {
-#                sys module load fastqc
-#                string fastqcFiles = getList.join(" ")
-#                task fastqc -o $fastqcReport -f fastq $fastqcFiles
-#        }
+#------------------------------
+# fastQC report
+#------------------------------
+#if(fastqc) {
+#    string fastqcFiles = getList.join(" ")
+#    task fastqc -o $fastqcReport -f fastq $fastqcFiles
+#}
 
 #------------------------------
 # BAM generation step
 #------------------------------
+# list of bam files from STAR run
 string[] bamsList
-#string bamFile
-#if( (bamFiles.exists()) && (clip) ) bamsList = bamFiles
 
-if(!fqDirs.isEmpty()){
-    string[] dirs = getDirs(fqDirs)
-    int numberOfDirs = dirs.size()
+if(star){
+    if(!fqDir.isEmpty()) { 
+        string{} uniqueNames = getUniqueNames(fqDir)
 
-    for(int i=0; i < numberOfDirs; i++){
-    
-        string dir = dirs[i]
-        string makeDirPath = fqDirs+"/"+dir
-        string{} uniqueNames = getUniqueNames(makeDirPath)
-    
         for(string fqread : uniqueNames.keys()) {
             # get value for each key and break values into list
             string mapValue = uniqueNames{fqread} 
             string[] getList = mapValue.split(",")
             string[] orderedList = getOrderedList(getList)
-            
-            #if(star && !clip) {
-            if(star) {
-                string[] reads = getSTARreads(orderedList)
-                #print("$reads\n")
-                string bamFile = mapSTAR(fqread, genomeIndex, reads, orderedList) 
-                bamsList.add(bamFile)
-            }
-        }
-    }
-}
-
-if(!fqDir.isEmpty()) {
-    string{} uniqueNames = getUniqueNames(fqDir)
-    #loop over each key in the map
-    for(string fqread : uniqueNames.keys()) {
-        # get value for each key and break values into list
-        string mapValue = uniqueNames{fqread} 
-        string[] getList = mapValue.split(",")
-        string[] orderedList = getOrderedList(getList)
-        
-        if(star) {
+            # Do STAR mapping
             string[] reads = getSTARreads(orderedList)
-            #print("$reads\n")
             string bamFile = mapSTAR(fqread, genomeIndex, reads, orderedList) 
             bamsList.add(bamFile)
-            #bamFile = mapSTAR(fqread, genomeIndex, reads, orderedList) 
         }
     }
+
+#   if(!fqDirs.isEmpty()){
+#       string[] dirs = getDirs(fqDirs)
+#       int numberOfDirs = dirs.size()
+#   
+#       for(int i=0; i < numberOfDirs; i++){
+#       
+#           string dir = dirs[i]
+#           string makeDirPath = fqDirs+"/"+dir
+#           string{} uniqueNames
+#   
+#           if(!sampleNames.isEmpty()){
+#               string[] fixedFileNames = fixFileNames(makeDirPath, sampleNames)
+#               uniqueNames = getUniqueNames(fixedFileNames)
+#           }
+#           else{
+#               string[] fqList = getFqList(makeDirPath)
+#               uniqueNames = getUniqueNames(fqList)
+#           }
+#       
+#           for(string fqread : uniqueNames.keys()) {
+#               # get value for each key and break values into list
+#               string mapValue = uniqueNames{fqread} 
+#               string[] getList = mapValue.split(",")
+#               string[] orderedList = getOrderedList(getList)
+#               
+#               string[] reads = getSTARreads(orderedList)
+#               string bamFile = mapSTAR(fqread, genomeIndex, reads, orderedList) 
+#               bamsList.add(bamFile)
+#           }
+#       }
+#   }
 }
 #------------------------------
 # BAM processing
 #------------------------------
 string[] allReadsFiles
+string[] markedBams
 
 for(string bamFile : bamsList) {
     if(prePro) {
         string testCheck = getPrePro(bamFile, fastaRef)
+        markedBams.add(testCheck)
     }
 
     if(count) {
        string readsFile = getReadsCount(bamFile, gtfFile)
        allReadsFiles.add(readsFile)
     }
+}
+#----------------
+# RNAseQC report
+#----------------
+#TODO need to add `-singleEnd` to the pipeline. 
+#TODO if data is single end then RNAseQC neeed to run in such mode
+if(RNAseQC){
+    string sampleIdsFile = "RNAseQC-sampleIds.txt"
+    string RNAseQCsampleIds = getSampleIds(markedBams)
+    sampleIdsFile.write(RNAseQCsampleIds)
+    string check = getRNAseQC(sampleIdsFile, markedBams)
 }
 #----------------------------------------------------------------------------------------------------
 # End

@@ -4,39 +4,38 @@
 
 helpUnsorted := true
 
-help General options
+help FASTQ mapping options:
 
+bool star          help flag if you like to align with STAR
+string fqDir       help path to the directory with fastq file                                   
+string fqDirs      help path to the directory with fastq directories                                   
 string fqRegex     help select regex option that resembles your common fastq file ending\
                                    - A: "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"\
                                    - B: "_L[0-9]{3}_R[0-9].fastq.gz$"\
                                    - C: "_R[0-9]_[0-9]{3}.fastq.gz$"
 
-string extn        help optional, specify your files extension e.g fq or fastq.gz
-
-help To aling your reads using STAR
-
-bool star          help flag if you like to align with STAR
-string fqDir       help path to the directory with fastq file                                   
-string fqDirs      help path to the directory with fastq directories                                   
 string genomeIndex help path to the directory with genome index for the coresponding species
+string extn        help optional, specify your files extension default [fastq.gz]
+string sampleNames help optional, specify a text file with alternative sample names
 
-help To also count features using featureCounts
+help Reads count option [default featureCounts]:
 
 bool count         help flag if you like to count reads with featureCount
 string gtfFile     help path to the directory with gtf file
 
-help To pre process your bam files for RNA-SeQC report 
+help BAM files pre processing for RNA-SeQC report options:
 
 bool prePro        help flag if you like to preprocess your bam files
 string fastaRef    help path to the reference fasta file
 
-help To get fastqc report
+help fastQC report:
 
 bool fastqc        help flag if you like to run fastQC report on the files
 
-help To adaptor and quality trim your fastq files 
+help RNA-SeQC report option:
 
-bool clip          help flag if you like to trim your fastq files before processing further
+bool RNAseQC
+
 
 #------------------------------
 # Default parameters
