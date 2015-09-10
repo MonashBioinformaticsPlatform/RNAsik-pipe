@@ -1,11 +1,22 @@
-# This is documentation for `rnas-pipe` BDS script located in this sub-repository
+# `RNAsik-pipe` is easy to use RNA-seq(uencing) pipeline
 
 ### RNA-seq(uencing) a.k.a Whole-transcriptome sequencing
 
-First files biologist ever encounter from the sequencing facility are `FASTQ` files. These are really your raw data.
-The `rnas-pipe` allows you easily submit your fastq directory for read alignment. On top of that you can also get
-fastqc and RNA-SeQC reports and reads count for all of your bam files. 
+1. Get your FASTQ files
 
+Your raw data will always come in FASTQ format. The number of FASTQ files will really depend many things
+including:
+
+  - Number of samples 
+  - Number of replicates 
+  - Your sample was split into different lanes
+  - Your are sequencing paired-end data
+
+Also your FASTQ files might reside in one directory - directory per experiment 
+OR 
+Each sample might be put into its own subdirectory 
+
+Well `RNAsik-pipe` can either take your project direcoty 
 ### Caveats 
 
  - at the moment only can run `STAR` mapper with fixed options
