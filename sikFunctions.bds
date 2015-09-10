@@ -214,10 +214,11 @@ string getSampleIds(string[] markedBams){
 
 string getRNAseQC(string sampleIdsFile, string[] markedBams){
     task(RNAseQCreport <- markedBams){
-        sys rna-seqc -o $RNAseQCreport\
-                     -r $fastaRef \
-                     -s $sampleIdsFile\
-                     -t $gtfFile
+        sys PATH=/usr/lib/jvm/java-7-openjdk-amd64/bin/:$PATH rna-seqc -o $RNAseQCreport\
+                                                               -r $fastaRef \
+                                                               -s $sampleIdsFile\
+                                                               -t $gtfFile\
+                                                               -singleEnd
     }
     return "all good"
 }

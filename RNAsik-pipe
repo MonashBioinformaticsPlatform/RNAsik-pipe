@@ -50,13 +50,14 @@ if(star) {
     if(genomeIndex.isEmpty())  error "Usage: -genomeIndex /path/to/genome_index/"
 }
 if(count) {
-    if(gtfFile.isEmpty())  error "Usage: -gtfFile /path/to/gtf_file"
+    if(gtfFile.isEmpty())  error "Usage: -gtfFile /path/to/GTFfile"
 }
 if(prePro) {
     if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/reference_fasta_file"
 }
 if(RNAseQC){
-   if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/togtf_file"
+   if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
+   if(!preqcBamFiles.isDir()) error "It looks like you don't have pre-proccessed BAM files. Make sure your pre-proccessed BAM files located in `preqcBamFiles` directory Or simply re-run RNAsik-pipe with -prePro flag"
 }
 if( args.isEmpty() ) {
     printHelp()
