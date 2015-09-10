@@ -3,7 +3,7 @@
 ## Content
 
 - [Introduction](#introduction)
-- [Quick start](#quickstart)
+- [Quick start](#quick-start)
 - [Prerequisites](#prerequisites)
 
 ## Introduction
