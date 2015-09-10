@@ -1,0 +1,237 @@
+include "sikHeader.bds"
+
+#------------------------------
+# Make directories as required
+#------------------------------
+string bamFiles = "bamFiles"
+string preqcBamFiles = "preqcBamFiles"
+string featureNo = "featureNo"
+string featureReverse = "featureReverse"
+string fastqcReport = "fastqcReport"
+string clippedFastq = "clippedFastq"
+
+if((!bamFiles.exists()) && (star)) bamFiles.mkdir()
+if((!preqcBamFiles.exists()) && (prePro)) preqcBamFiles.mkdir()
+if((!clippedFastq.exists()) && (clip)) clippedFastq.mkdir()
+if((!featureNo.exists()) && (count)) featureNo.mkdir()
+if((!featureReverse.exists()) && (count)) featureReverse.mkdir()
+if((!fastqcReport.exists()) && (fastqc)) fastqcReport.mkdir()
+
+if(extn.isEmpty()) extn = "*fastq.gz"
+
+#------------------------------
+# Functions
+#------------------------------
+string[] getDirs(string fqDirs) {
+    
+    string[] dirs
+    for(string dir : fqDirs.dirPath()){
+        string checkDir = dir.isDir()
+        if(checkDir){
+            dirs.add(dir)
+        }
+    }
+    return dirs
+}
+
+string{} getUniqueNames(string fqDir) {
+    # Map with unique root key
+    string{} uniqueNames 
+    for(string fq : fqDir.dirPath(extn)) {
+        # make sure we have fastq files only
+        string getR1Index = fq.lastIndexOf("R1") 
+        if(getR1Index != -1) {
+            # get the root of the file name with regex
+            string[] getFile = fq.split(fqRegex)
+            string rootName = getFile[0]
+            # append to the list if it isn't in the list already
+            if(!uniqueNames.hasKey(rootName)) uniqueNames{rootName}=""
+            uniqueNames{rootName}+=fq+","
+        }
+    }
+    return uniqueNames
+}
+
+string[] getOrderedList(string[] readsList) {
+
+    string[] orderedReadsList
+    bool checkPair
+    int getListSize = readsList.size()-1
+    
+    for(int i : range(0,getListSize)) {
+        # get fastq reads and get it pair 
+        string singleRead = readsList[i]
+        string[] getLastBit = singleRead.split("R1")
+        string lastBit = getLastBit.pop()
+        string rOne = "R1"+lastBit
+        string rTwo = "R2"+lastBit
+        string pairedEnd = singleRead.swapExt(rOne, rTwo)
+        
+        orderedReadsList.add(singleRead)
+        checkPair = pairedEnd.isFile()
+        if(checkPair) orderedReadsList.add(pairedEnd)
+    }
+    orderedReadsList.add(checkPair)
+    return orderedReadsList
+}
+
+string[] getSTARreads(string[] orderedList) {
+
+    string boolItem = orderedList.pop()
+    bool checkPair = boolItem.parseBool()
+    
+    if(checkPair) {
+        int listSize = orderedList.size()-1
+        string[] listR2
+        
+        for (int i=listSize; i > 0; i -= 2) {
+            string read = orderedList.remove(orderedList[i])
+            listR2.add(read)
+        }
+        
+        listR2 = listR2.reverse()
+        string read1 = orderedList.join(",")
+        string read2 = listR2.join(",")
+        return [read1, read2]
+    }
+    else {
+        string read1 = orderedList.join(",")
+        return [read1]
+    }
+}
+
+string mapSTAR(string rootName, string genomeIndex, string[] listOfReads, string[] rawReads) {
+
+    string rootBase = rootName.baseName()
+    string preFix = bamFiles+"/"+rootBase+"_"
+    string bamOut = preFix+"Aligned.out.bam"
+    string reads = listOfReads.join(" ")
+
+    task(bamOut <- rawReads) {
+        sys STAR --runThreadN 30 \
+                 --genomeDir $genomeIndex \
+                 --outSAMtype BAM Unsorted \
+                 --outSAMunmapped Within \
+                 --outSAMattrRGline ID:001 CN:Unknown DS:RNA-seq PL:ILLUMINA PM:MiSeq SM:$rootBase \
+                 --readFilesCommand zcat \
+                 --readFilesIn $reads \
+                 --outFileNamePrefix $preFix
+    }
+    wait
+    # you can remove wait statement and reduce number of threads
+    # however this will run all your fastq files in parallel
+    # doing this I find a bit impractical on our server because of
+    # limited RAM - only 128 Gb
+    return bamOut
+}
+
+string getNesoniReads(string[] orderedList) {
+
+    string boolItem = orderedList.pop()
+    bool checkPair = boolItem.parseBool()
+    int listSize = orderedList.size()
+    
+    if(checkPair) {
+        int numberOfPairs = listSize/2
+        int finalListSize = listSize+numberOfPairs
+        for (int i=0; i<finalListSize; i+=3) {
+            orderedList.add(i, "pairs:")
+        }
+    }
+    else {
+        int finalListSize = listSize*2
+        
+        for (int i=0; i<finalListSize; i+=2) {
+            orderedList.add(i, "reads:")
+        }
+    }
+    string nesoniReads = orderedList.join(" ")
+    return nesoniReads
+}
+
+string[] NesoniClip(string rootName, string nesoniReads, string[] rawReads) {
+
+    string preFix = clippedFastq+"/"+rootName.baseName()
+    string outfq = preFix+"_single.fq.gz"
+    string logFile = preFix+"_log.txt"
+    
+    string[] reads = nesoniReads.split(" ")
+    bool checkPair = reads.has("pairs:")
+    
+    if(checkPair) {
+        string outfq1 = preFix+"_R1.fq.gz"
+        string outfq2 = preFix+"_R2.fq.gz"
+        task([outfq, outfq1, outfq2, logFile] <- rawReads){
+            #sys source $HOME/pypyenv/bin/activate
+            sys nesoni clip: --quality 28 \
+                             --out-separate yes \
+                             $preFix \
+                             $nesoniReads
+        }
+        return [outfq1, outfq2]
+    }
+    else {
+        task([outfq, logFile] <- rawReads){
+            #sys source $HOME/pypyenv/bin/activate
+            sys nesoni clip: --quality 28 \
+                             --out-separate yes \
+                             $preFix \
+                             $nesoniReads
+        }
+        return [outfq]
+    }
+}
+
+string getPrePro(string bamFile, string fastaRef){
+
+    string sortedName = preqcBamFiles+"/"+bamFile.baseName().swapExt("Aligned.out.bam", "sorted.bam")
+    task(sortedName <- bamFile) {
+        sys picard SortSam TMP_DIR=tmp/ \
+                           VALIDATION_STRINGENCY=LENIENT \
+                           INPUT=$bamFile \
+                           OUTPUT=$sortedName \
+                           SORT_ORDER=coordinate
+    }
+    string reorderedName = sortedName.swapExt(".bam", "_reordered.bam")
+    task(reorderedName <- sortedName) {
+        sys picard ReorderSam TMP_DIR=tmp/ \
+                              VALIDATION_STRINGENCY=LENIENT \
+                              INPUT=$sortedName \
+                              OUTPUT=$reorderedName \
+                              REFERENCE=$fastaRef
+    }
+    string mdupsName = reorderedName.swapExt(".bam", "_marked_dups.bam")
+    string metricsName = reorderedName.swapExt(".bam", "_marked_dups.metrics")
+    task(mdupsName <- reorderedName) {
+        sys picard MarkDuplicates TMP_DIR=tmp/ \
+                                  VALIDATION_STRINGENCY=LENIENT \
+                                  CREATE_INDEX=true \
+                                  INPUT=$reorderedName \
+                                  OUTPUT=$mdupsName \
+                                  METRICS_FILE=$metricsName
+    }
+    return "all done"
+}
+
+string getReadsCount(string bamFile, string gtfFile) {
+
+    string reverseFeature = featureReverse+"/"+bamFile.baseName().swapExt("_Aligned.out.bam", ".txt")
+    #string reverseSummary = featureReverse+"/"+reverseFeature+".summary"
+    #task ([reverseFeature, reverseSummary] <- bamFile) {
+    task (reverseFeature <- bamFile) {
+        sys featureCounts -a $gtfFile \
+                          -o $reverseFeature \
+                          $bamFile \
+                          -s 2
+    }
+    string noFeature = featureNo+"/"+bamFile.baseName().swapExt("_Aligned.out.bam", ".txt")
+    #string noSummary = featureReverse+"/"+noFeature+".summary"
+    #task ([noFeature, noSummary] <- bamFile) {
+    task (noFeature <- bamFile) {
+        sys featureCounts -a $gtfFile \
+                          -o $noFeature \
+                          $bamFile \
+                          -s 0
+    }
+    return reverseFeature
+}

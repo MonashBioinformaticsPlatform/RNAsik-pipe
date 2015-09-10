@@ -1,0 +1,47 @@
+#------------------------------
+#  Input Parametrs
+#------------------------------
+
+helpUnsorted := true
+
+help General options
+
+string fqRegex     help select regex option that resembles your common fastq file ending\
+                                   - A: "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"\
+                                   - B: "_L[0-9]{3}_R[0-9].fastq.gz$"\
+                                   - C: "_R[0-9]_[0-9]{3}.fastq.gz$"
+
+string extn        help optional, specify your files extension e.g fq or fastq.gz
+
+help To aling your reads using STAR
+
+bool star          help flag if you like to align with STAR
+string fqDir       help path to the directory with fastq file                                   
+string fqDirs      help path to the directory with fastq directories                                   
+string genomeIndex help path to the directory with genome index for the coresponding species
+
+help To also count features using featureCounts
+
+bool count         help flag if you like to count reads with featureCount
+string gtfFile     help path to the directory with gtf file
+
+help To pre process your bam files for RNA-SeQC report 
+
+bool prePro        help flag if you like to preprocess your bam files
+string fastaRef    help path to the reference fasta file
+
+help To get fastqc report
+
+bool fastqc        help flag if you like to run fastQC report on the files
+
+help To adaptor and quality trim your fastq files 
+
+bool clip          help flag if you like to trim your fastq files before processing further
+
+#------------------------------
+# Default parameters
+#------------------------------
+#if(fqRegex.isEmpty()) fqRegex = "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"
+#if(fqRegex.isEmpty()) fqRegex = "_L[0-9]{3}_R[0-9].fastq.gz$"
+#if(fqRegex.isEmpty()) fqRegex = "_R[0-9]_[0-9]{3}.fastq.gz$"
+#if(extn.isEmpty()) extn = "*fastq.gz"

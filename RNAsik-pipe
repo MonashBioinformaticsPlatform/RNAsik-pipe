@@ -1,0 +1,138 @@
+#!/home/kirill/.bds/bds
+
+#----------------------------------------------------------------------------------------------------
+#  Map Reads to the reference genome
+#----------------------------------------------------------------------------------------------------
+
+#------------------------------
+#  Serine #MonashFlavour
+#------------------------------
+
+#----------------------------------------------------------------------------------------------------
+#  About rnasPipe.bds
+# - takes a whole directory that contatins fastq files and maps to the reference genome
+# - identifies samples that span different lanes and merges then together during STAR run
+# - takes care of paired end data
+#----------------------------------------------------------------------------------------------------
+
+include "sikFunctions.bds" 
+include "sikHeader.bds"
+
+#------------------------------
+# Default parameters
+#------------------------------
+#if(fqRegex.isEmpty()) fqRegex = "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"
+#if(fqRegex.isEmpty()) fqRegex = "_L[0-9]{3}_R[0-9].fastq.gz$"
+#if(fqRegex.isEmpty()) fqRegex = "_R[0-9]_[0-9]{3}.fastq.gz$"
+#if(extn.isEmpty()) extn = "*fastq.gz"
+
+#------------------------------
+# Sanity check
+#------------------------------
+
+if(fastqc) {
+    if(fqDir.isEmpty()) error "Usage: -fqDir /path/to/fastq_reads/"
+}
+if(clip) {
+    if(fqDir.isEmpty()) error "Usage: -fqDir /path/to/fastq_reads/"
+}
+if(star) {
+    if(!fqRegex.isEmpty()){
+        if(fqRegex == "A") fqRegex = "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"
+        if(fqRegex == "B") fqRegex = "_L[0-9]{3}_R[0-9].fastq.gz$"
+        if(fqRegex == "C") fqRegex = "_R[0-9]_[0-9]{3}.fastq.gz$"
+    }
+    else error "Usage: please select A, B or C option"
+    
+    if((fqDirs.isEmpty()) && (fqDir.isEmpty())) error "Usage: you need to specify either -fqDir or -fqDirs"
+    if(genomeIndex.isEmpty())  error "Usage: -genomeIndex /path/to/genome_index/"
+}
+if(count) {
+    if(gtfFile.isEmpty())  error "Usage: -gtfFile /path/to/gtf_file/"
+}
+if(prePro) {
+    if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/reference_fasta_file"
+}
+if( args.isEmpty() ) {
+    printHelp()
+    exit(1)
+}
+##------------------------------
+## fastQC report
+##------------------------------
+#        if(fastqc) {
+#                sys module load fastqc
+#                string fastqcFiles = getList.join(" ")
+#                task fastqc -o $fastqcReport -f fastq $fastqcFiles
+#        }
+
+#------------------------------
+# BAM generation step
+#------------------------------
+string[] bamsList
+#string bamFile
+#if( (bamFiles.exists()) && (clip) ) bamsList = bamFiles
+
+if(!fqDirs.isEmpty()){
+    string[] dirs = getDirs(fqDirs)
+    int numberOfDirs = dirs.size()
+
+    for(int i=0; i < numberOfDirs; i++){
+    
+        string dir = dirs[i]
+        string makeDirPath = fqDirs+"/"+dir
+        string{} uniqueNames = getUniqueNames(makeDirPath)
+    
+        for(string fqread : uniqueNames.keys()) {
+            # get value for each key and break values into list
+            string mapValue = uniqueNames{fqread} 
+            string[] getList = mapValue.split(",")
+            string[] orderedList = getOrderedList(getList)
+            
+            #if(star && !clip) {
+            if(star) {
+                string[] reads = getSTARreads(orderedList)
+                #print("$reads\n")
+                string bamFile = mapSTAR(fqread, genomeIndex, reads, orderedList) 
+                bamsList.add(bamFile)
+            }
+        }
+    }
+}
+
+if(!fqDir.isEmpty()) {
+    string{} uniqueNames = getUniqueNames(fqDir)
+    #loop over each key in the map
+    for(string fqread : uniqueNames.keys()) {
+        # get value for each key and break values into list
+        string mapValue = uniqueNames{fqread} 
+        string[] getList = mapValue.split(",")
+        string[] orderedList = getOrderedList(getList)
+        
+        if(star) {
+            string[] reads = getSTARreads(orderedList)
+            #print("$reads\n")
+            string bamFile = mapSTAR(fqread, genomeIndex, reads, orderedList) 
+            bamsList.add(bamFile)
+            #bamFile = mapSTAR(fqread, genomeIndex, reads, orderedList) 
+        }
+    }
+}
+#------------------------------
+# BAM processing
+#------------------------------
+string[] allReadsFiles
+
+for(string bamFile : bamsList) {
+    if(prePro) {
+        string testCheck = getPrePro(bamFile, fastaRef)
+    }
+
+    if(count) {
+       string readsFile = getReadsCount(bamFile, gtfFile)
+       allReadsFiles.add(readsFile)
+    }
+}
+#----------------------------------------------------------------------------------------------------
+# End
+#----------------------------------------------------------------------------------------------------
