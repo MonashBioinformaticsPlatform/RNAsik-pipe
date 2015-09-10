@@ -213,7 +213,7 @@ string getSampleIds(string[] markedBams){
 }
 
 string getRNAseQC(string sampleIdsFile, string[] markedBams){
-    task(sampleIdsFile <- markedBams){
+    task(RNAseQCreport <- markedBams){
         sys rna-seqc -o $RNAseQCreport\
                      -r $fastaRef \
                      -s $sampleIdsFile\
