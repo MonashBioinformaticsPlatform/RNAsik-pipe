@@ -2,9 +2,9 @@
 
 ## Content
 
-- [Introduction](##introduction)
-- [Quick start](##quickstart)
-- [Prerequisites](##prerequisites)
+- [Introduction](#introduction)
+- [Quick start](#quickstart)
+- [Prerequisites](#prerequisites)
 
 ## Introduction
 
