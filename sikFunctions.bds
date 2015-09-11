@@ -1,5 +1,9 @@
 include "sikHeader.bds"
 
+sys module load RNA-SeQC/1.1.8
+sys module load picard/1.129
+sys module load fastqc/0.11.2
+
 #------------------------------
 # Make directories as required
 #------------------------------
@@ -127,7 +131,7 @@ string mapSTAR(string rootName, string genomeIndex, string[] listOfReads, string
     string bamOut = preFix+"Aligned.out.bam"
     string reads = listOfReads.join(" ")
     
-    task(bamOut <- rawReads) {
+    task(bamOut <- rawReads, taskName := "STAR aligning "+rootBase) {
         sys STAR --runThreadN 30 \
                  --genomeDir $genomeIndex \
                  --outSAMtype BAM Unsorted \
@@ -148,7 +152,7 @@ string mapSTAR(string rootName, string genomeIndex, string[] listOfReads, string
 string getPrePro(string bamFile, string fastaRef){
     
     string sortedName = preqcBamFiles+"/"+bamFile.baseName().swapExt("Aligned.out.bam", "sorted.bam")
-    task(sortedName <- bamFile) {
+    task(sortedName <- bamFile, taskName := "picard sorting "+bamFile) {
         sys picard SortSam TMP_DIR=tmp/ \
                            VALIDATION_STRINGENCY=LENIENT \
                            CREATE_INDEX=true \
@@ -157,7 +161,7 @@ string getPrePro(string bamFile, string fastaRef){
                            SORT_ORDER=coordinate
     }
     string reorderedName = sortedName.swapExt(".bam", "_reordered.bam")
-    task(reorderedName <- sortedName) {
+    task(reorderedName <- sortedName, taskName := "picard reordering "+reorderedName) {
         sys picard ReorderSam TMP_DIR=tmp/ \
                               VALIDATION_STRINGENCY=LENIENT \
                               INPUT=$sortedName \
@@ -166,7 +170,7 @@ string getPrePro(string bamFile, string fastaRef){
     }
     string mdupsName = reorderedName.swapExt(".bam", "_marked_dups.bam")
     string metricsName = reorderedName.swapExt(".bam", "_marked_dups.metrics")
-    task(mdupsName <- reorderedName) {
+    task(mdupsName <- reorderedName, taskName := "picard marking dups "+mdupsName) {
         sys picard MarkDuplicates TMP_DIR=tmp/ \
                                   VALIDATION_STRINGENCY=LENIENT \
                                   CREATE_INDEX=true \
@@ -180,14 +184,14 @@ string getPrePro(string bamFile, string fastaRef){
 string getReadsCount(string bamFile, string gtfFile) {
     
     string reverseFeature = featureReverse+"/"+bamFile.baseName().swapExt("_Aligned.out.bam", ".txt")
-    task (reverseFeature <- bamFile) {
+    task (reverseFeature <- bamFile, taskName := "counting reads "+bamFile) {
         sys featureCounts -a $gtfFile \
                           -o $reverseFeature \
                           $bamFile\
                           -s 2
     }
     string noFeature = featureNo+"/"+bamFile.baseName().swapExt("_Aligned.out.bam", ".txt")
-    task (noFeature <- bamFile) {
+    task (noFeature <- bamFile, taskName := "counting raeds "+bamFile) {
         sys featureCounts -a $gtfFile \
                           -o $noFeature \
                           $bamFile \
@@ -213,7 +217,7 @@ string getSampleIds(string[] markedBams){
 }
 
 string getRNAseQC(string sampleIdsFile, string[] markedBams){
-    task(RNAseQCreport <- markedBams){
+    task(RNAseQCreport <- markedBams, taskName := "Running RNAseQC report"){
         sys PATH=/usr/lib/jvm/java-7-openjdk-amd64/bin/:$PATH rna-seqc -o $RNAseQCreport\
                                                                -r $fastaRef \
                                                                -s $sampleIdsFile\
