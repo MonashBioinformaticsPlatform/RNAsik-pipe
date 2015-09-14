@@ -1,8 +1,8 @@
 include "sikHeader.bds"
 
-sys module load RNA-SeQC/1.1.8
-sys module load picard/1.129
-sys module load fastqc/0.11.2
+//sys module load RNA-SeQC/1.1.8
+//sys module load picard/1.129
+//sys module load fastqc/0.11.2
 
 #------------------------------
 # Make directories as required

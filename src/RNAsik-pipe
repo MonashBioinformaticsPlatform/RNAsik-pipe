@@ -1,60 +1,55 @@
 #!/home/kirill/.bds/bds
 
-
 #----------------------------------------------------------------------------------------------------
-#  Map Reads to the reference genome
+#  Align RNA-seq reads to the reference genome, get RNA-seq metrics and get reads counts
 #----------------------------------------------------------------------------------------------------
 
 #------------------------------
 #  Serine #MonashFlavour
 #------------------------------
 
-#----------------------------------------------------------------------------------------------------
-#
-#    About RNAsik-pipe
-#
+#---------------------------------------------------------------------------------------------------- # #    About RNAsik-pipe #
 #   * Takes a whole directory with FASTQ files
 #   * Understands if FASTQ files are paired end or single end
 #   * Understands if samples span different lanes. Merges all sample's lane at the STAR runtime
 #   * Gets count data, checks both reverse strand and no strands 
 #   * Prepares BAM files for RNAseQC report
+#   * Gets both RNA-SeQC report and Fastqc report
 #
 #----------------------------------------------------------------------------------------------------
 
 include "sikFunctions.bds" 
 include "sikHeader.bds"
-
-#------------------------------
-# Default parameters
-#------------------------------
-#if(fqRegex.isEmpty()) fqRegex = "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"
-#if(fqRegex.isEmpty()) fqRegex = "_L[0-9]{3}_R[0-9].fastq.gz$"
-#if(fqRegex.isEmpty()) fqRegex = "_R[0-9]_[0-9]{3}.fastq.gz$"
-#if(extn.isEmpty()) extn = "*fastq.gz"
+include "sikMakeIndices.bds"
 
 #------------------------------
 # Sanity check
 #------------------------------
-
+if(makeIndices){
+    if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
+    //if(gtfFile.isEmpty())  error "Usage: -gtfFile /path/to/GTFfile"
+}
 if(fastqc) {
-    if(fqDir.isEmpty()) error "Usage: -fqDir /path/to/fastq_reads/"
+    if( ((fqDir.isEmpty()) && (fqDirs.isEmpty())) || ((fqDirs.isEmpty()) && (fqDir.isEmpty()))) error "Usage: You need to specify either -fqDir or -fqDirs"
 }
 if(star) {
+    if(fqRegex.isEmpty()) error "test"
+
     if(!fqRegex.isEmpty()){
         if(fqRegex == "A") fqRegex = "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"
         if(fqRegex == "B") fqRegex = "_L[0-9]{3}_R[0-9].fastq.gz$"
         if(fqRegex == "C") fqRegex = "_R[0-9]_[0-9]{3}.fastq.gz$"
     }
-    else error "Usage: please select A, B or C option"
+    else error "Usage: You need to select A, B or C option for -fqRegex flag"
     
-    if((fqDirs.isEmpty()) && (fqDir.isEmpty())) error "Usage: you need to specify either -fqDir or -fqDirs"
-    if(genomeIndex.isEmpty())  error "Usage: -genomeIndex /path/to/genome_index/"
+    if((fqDirs.isEmpty()) && (fqDir.isEmpty())) error "Usage: You need to specify either -fqDir or -fqDirs"
+    if(genomeIndex.isEmpty() && (!makeIndices))  error "Usage: -genomeIndex /path/to/genomeIndex/"
 }
 if(count) {
     if(gtfFile.isEmpty())  error "Usage: -gtfFile /path/to/GTFfile"
 }
 if(prePro) {
-    if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/reference_fasta_file"
+    if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
 }
 if(RNAseQC){
    if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
@@ -64,14 +59,39 @@ if( args.isEmpty() ) {
     printHelp()
     exit(1)
 }
+
+#------------------------------
+# Make indices if required 
+#------------------------------
+if(makeIndices){
+
+    sys echo $(date) Copying files, be patient; cp -v $fastaRef $refFiles
+    
+    string sjdbArguments
+    
+    if(gtfFile) {
+        int readSize = 101
+        int overHang = readSize - 1
+    
+        sjdbArguments = "--sjdbGTFfile $gtfFile --sjdbOverhang $overHang"
+    }
+    else sjdbArguments = ""
+    
+    //string check = makeSTARindex(fastaRef, gtfFile, sjdbArguments)
+    genomeIndex = makeSTARindex(fastaRef, gtfFile, sjdbArguments)
+    wait
+}
 #------------------------------
 # fastQC report
 #------------------------------
-#if(fastqc) {
-#    string fastqcFiles = getList.join(" ")
-#    task fastqc -o $fastqcReport -f fastq $fastqcFiles
-#}
-
+if(fastqc) {
+    if(!fqDir.isEmpty()) {
+        string fastqcFiles = fqDir.dirPath().join(" ")
+        task fastqc --outdir $fastqcReport \
+                    --format fastq \
+                    $fastqcFiles
+    }
+}
 #------------------------------
 # BAM generation step
 #------------------------------
@@ -79,7 +99,7 @@ if( args.isEmpty() ) {
 string[] bamsList
 
 if(star){
-    if(!fqDir.isEmpty()) { 
+    if(!fqDir.isEmpty()) {
         string{} uniqueNames = getUniqueNames(fqDir)
 
         for(string fqread : uniqueNames.keys()) {
@@ -94,38 +114,31 @@ if(star){
         }
     }
 
-#   if(!fqDirs.isEmpty()){
-#       string[] dirs = getDirs(fqDirs)
-#       int numberOfDirs = dirs.size()
-#   
-#       for(int i=0; i < numberOfDirs; i++){
-#       
-#           string dir = dirs[i]
-#           string makeDirPath = fqDirs+"/"+dir
-#           string{} uniqueNames
-#   
-#           if(!sampleNames.isEmpty()){
-#               string[] fixedFileNames = fixFileNames(makeDirPath, sampleNames)
-#               uniqueNames = getUniqueNames(fixedFileNames)
-#           }
-#           else{
-#               string[] fqList = getFqList(makeDirPath)
-#               uniqueNames = getUniqueNames(fqList)
-#           }
-#       
-#           for(string fqread : uniqueNames.keys()) {
-#               # get value for each key and break values into list
-#               string mapValue = uniqueNames{fqread} 
-#               string[] getList = mapValue.split(",")
-#               string[] orderedList = getOrderedList(getList)
-#               
-#               string[] reads = getSTARreads(orderedList)
-#               string bamFile = mapSTAR(fqread, genomeIndex, reads, orderedList) 
-#               bamsList.add(bamFile)
-#           }
-#       }
-#   }
+    if(!fqDirs.isEmpty()) {
+        string[] dirs = getDirs(fqDirs)
+        int numberOfDirs = dirs.size()
+    
+        for(int i=0; i < numberOfDirs; i++){
+        
+            string dir = dirs[i]
+            string makeDirPath = fqDirs+"/"+dir
+            string{} uniqueNames = getUniqueNames(makeDirPath)
+    
+            for(string fqread : uniqueNames.keys()) {
+                # get value for each key and break values into list
+                string mapValue = uniqueNames{fqread} 
+                string[] getList = mapValue.split(",")
+                string[] orderedList = getOrderedList(getList)
+                
+                string[] reads = getSTARreads(orderedList)
+                string bamFile = mapSTAR(fqread, genomeIndex, reads, orderedList) 
+                bamsList.add(bamFile)
+            }
+        }
+    }
+    //else error "Can either specify `fqDir` or `fqDirs` not both. Run `RNAsik-pipe -help` for more help"
 }
+
 #------------------------------
 # BAM processing
 #------------------------------

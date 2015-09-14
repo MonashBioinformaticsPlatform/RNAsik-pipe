@@ -4,6 +4,11 @@
 
 helpUnsorted := true
 
+help Make Indices options:
+
+bool makeIndices   help flag if you need to make indices. Usualy if you are running the pipeline\
+                        for the first time you need to specify this flag.
+
 help FASTQ mapping options:
 
 bool star          help flag if you like to align with STAR
@@ -34,7 +39,7 @@ bool fastqc        help flag if you like to run fastQC report on the files
 
 help RNA-SeQC report option:
 
-bool RNAseQC
+bool RNAseQC       help flag if you like to run RNA-SeQC report
 
 
 #------------------------------

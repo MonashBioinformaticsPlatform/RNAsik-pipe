@@ -1,0 +1,40 @@
+#-----------------------------------------
+# Fucntion to make indices for RNAsik-pipe
+#-----------------------------------------
+
+include "sikHeader.bds"
+
+string refFiles = "refFiles"
+if((!refFiles.exists()) && (makeIndices)) refFiles.mkdir()
+
+
+string makeSTARindex(string fastaRef, string gtfFile, string additionalArgs) {
+    
+    string fastaRefBaseName = fastaRef.baseName()
+    string newFastaRef = refFiles+"/"+fastaRefBaseName
+    string starIndexDir = refFiles+"/"+fastaRefBaseName.removeExt()+"-Index"
+
+    if(!starIndexDir.exists()) starIndexDir.mkdir()
+    # This is just in case someone already had a directory with exact the same name
+    else warning "There was a directory named $starIndexDir. STAR has overwritten its content"
+
+    task(genomeIndex <- newFastaRef, taskName := "Making STAR index") {
+        sys STAR --runThreadN 30 \
+                 --runMode genomeGenerate \
+                 --genomeDir $starIndexDir \
+                 --genomeFastaFiles $fastaRef \
+                 $additionalArgs
+    }
+
+    task(taskName := "Indexing FASTA file") {
+        sys samtools faidx $newFastaRef
+    }
+
+    string fastaDictFile = newFastaRef.removeExt()+".dict"
+
+    task(fastaDictFile <- fastaRef, taskName := "Making dictionary File") {
+        sys picard CreateSequenceDictionary REFERENCE=$newFastaRef \
+                                            OUTPUT=$fastaDictFile
+    }
+    return starIndexDir
+}
