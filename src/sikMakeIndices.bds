@@ -3,22 +3,20 @@
 #-----------------------------------------
 
 include "sikHeader.bds"
+include "sikFunctions.bds"
 
 string refFiles = "refFiles"
 if((!refFiles.exists()) && (makeIndices)) refFiles.mkdir()
 
 
 string makeSTARindex(string fastaRef, string gtfFile, string additionalArgs) {
-    
-    string fastaRefBaseName = fastaRef.baseName()
-    string newFastaRef = refFiles+"/"+fastaRefBaseName
-    string starIndexDir = refFiles+"/"+fastaRefBaseName.removeExt()+"-Index"
+    string starIndexDir = fastaRef.removeExt()+"-starIndex"
 
     if(!starIndexDir.exists()) starIndexDir.mkdir()
     # This is just in case someone already had a directory with exact the same name
     else warning "There was a directory named $starIndexDir. STAR has overwritten its content"
 
-    task(genomeIndex <- newFastaRef, taskName := "Making STAR index") {
+    task(starIndexDir <- fastaRef, taskName := "Making STAR index") {
         sys STAR --runThreadN 30 \
                  --runMode genomeGenerate \
                  --genomeDir $starIndexDir \
@@ -27,13 +25,12 @@ string makeSTARindex(string fastaRef, string gtfFile, string additionalArgs) {
     }
 
     task(taskName := "Indexing FASTA file") {
-        sys samtools faidx $newFastaRef
+        sys samtools faidx $fastaRef
     }
 
-    string fastaDictFile = newFastaRef.removeExt()+".dict"
-
+    string fastaDictFile = fastaRef.removeExt()+".dict"
     task(fastaDictFile <- fastaRef, taskName := "Making dictionary File") {
-        sys picard CreateSequenceDictionary REFERENCE=$newFastaRef \
+        sys picard CreateSequenceDictionary REFERENCE=$fastaRef \
                                             OUTPUT=$fastaDictFile
     }
     return starIndexDir

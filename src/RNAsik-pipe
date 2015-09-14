@@ -8,7 +8,10 @@
 #  Serine #MonashFlavour
 #------------------------------
 
-#---------------------------------------------------------------------------------------------------- # #    About RNAsik-pipe #
+#----------------------------------------------------------------------------------------------------
+#
+#    About RNAsik-pipe
+#
 #   * Takes a whole directory with FASTQ files
 #   * Understands if FASTQ files are paired end or single end
 #   * Understands if samples span different lanes. Merges all sample's lane at the STAR runtime
@@ -18,16 +21,29 @@
 #
 #----------------------------------------------------------------------------------------------------
 
-include "sikFunctions.bds" 
 include "sikHeader.bds"
 include "sikMakeIndices.bds"
+include "sikFunctions.bds" 
+include "sikPrePro.bds"
+include "sikQCreports.bds"
 
+#------------------------------
+# Global Variables
+#------------------------------
+string localFastaRef
+# list of bam files from STAR run
+string[] bamsList
+# get bool for whether the data is paired end or not
+bool checkPair 
 #------------------------------
 # Sanity check
 #------------------------------
 if(makeIndices){
     if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
-    //if(gtfFile.isEmpty())  error "Usage: -gtfFile /path/to/GTFfile"
+    else{
+        string fastaRefBaseName = fastaRef.baseName()
+        localFastaRef = refFiles+"/"+fastaRefBaseName
+    }
 }
 if(fastqc) {
     if( ((fqDir.isEmpty()) && (fqDirs.isEmpty())) || ((fqDirs.isEmpty()) && (fqDir.isEmpty()))) error "Usage: You need to specify either -fqDir or -fqDirs"
@@ -48,8 +64,14 @@ if(star) {
 if(count) {
     if(gtfFile.isEmpty())  error "Usage: -gtfFile /path/to/GTFfile"
 }
-if(prePro) {
+if(prePro){
     if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
+    if(!makeIndices){
+        localFastaRef = fastaRef 
+        string exampleFastaDict = fastaRef.removeExt()+".dict"
+        string exampleFastaFai fastaRef+".fai"
+        warning "Make sure you have $exampleFastaDict and $exampleFastaFai in the same directory as your $fastaRef file, because downstream application will assume that. If unsure run RNAsik-pipe with -makeIndices option"
+    }
 }
 if(RNAseQC){
    if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
@@ -64,11 +86,8 @@ if( args.isEmpty() ) {
 # Make indices if required 
 #------------------------------
 if(makeIndices){
-
     sys echo $(date) Copying files, be patient; cp -v $fastaRef $refFiles
-    
     string sjdbArguments
-    
     if(gtfFile) {
         int readSize = 101
         int overHang = readSize - 1
@@ -76,27 +95,22 @@ if(makeIndices){
         sjdbArguments = "--sjdbGTFfile $gtfFile --sjdbOverhang $overHang"
     }
     else sjdbArguments = ""
-    
-    //string check = makeSTARindex(fastaRef, gtfFile, sjdbArguments)
-    genomeIndex = makeSTARindex(fastaRef, gtfFile, sjdbArguments)
-    wait
+    genomeIndex = makeSTARindex(localFastaRef, gtfFile, sjdbArguments)
 }
 #------------------------------
 # fastQC report
 #------------------------------
-if(fastqc) {
-    if(!fqDir.isEmpty()) {
-        string fastqcFiles = fqDir.dirPath().join(" ")
-        task fastqc --outdir $fastqcReport \
-                    --format fastq \
-                    $fastqcFiles
-    }
-}
+#if(fastqc) {
+#    if(!fqDir.isEmpty()) {
+#        string fastqcFiles = fqDir.dirPath().join(" ")
+#        task fastqc --outdir $fastqcReport \
+#                    --format fastq \
+#                    $fastqcFiles
+#    }
+#}
 #------------------------------
 # BAM generation step
 #------------------------------
-# list of bam files from STAR run
-string[] bamsList
 
 if(star){
     if(!fqDir.isEmpty()) {
@@ -107,9 +121,12 @@ if(star){
             string mapValue = uniqueNames{fqread} 
             string[] getList = mapValue.split(",")
             string[] orderedList = getOrderedList(getList)
-            # Do STAR mapping
-            string[] reads = getSTARreads(orderedList)
-            string bamFile = mapSTAR(fqread, genomeIndex, reads, orderedList) 
+            string boolItem = orderedList.pop()
+            checkPair = boolItem.parseBool()
+            # STAR aligning
+            string[] reads = getSTARreads(orderedList, checkPair)
+            //string bamFile = mapSTAR(fqread, genomeIndex, reads, orderedList) 
+            string bamFile = mapSTAR(fqread, reads, orderedList) 
             bamsList.add(bamFile)
         }
     }
@@ -129,16 +146,17 @@ if(star){
                 string mapValue = uniqueNames{fqread} 
                 string[] getList = mapValue.split(",")
                 string[] orderedList = getOrderedList(getList)
-                
-                string[] reads = getSTARreads(orderedList)
-                string bamFile = mapSTAR(fqread, genomeIndex, reads, orderedList) 
+                string boolItem = orderedList.pop()
+                checkPair = boolItem.parseBool()
+                # STAR aligning
+                string[] reads = getSTARreads(orderedList, checkPair)
+                string bamFile = mapSTAR(fqread, reads, orderedList) 
                 bamsList.add(bamFile)
             }
         }
     }
     //else error "Can either specify `fqDir` or `fqDirs` not both. Run `RNAsik-pipe -help` for more help"
 }
-
 #------------------------------
 # BAM processing
 #------------------------------
@@ -147,7 +165,7 @@ string[] markedBams
 
 for(string bamFile : bamsList) {
     if(prePro) {
-        string testCheck = getPrePro(bamFile, fastaRef)
+        string testCheck = getPrePro(bamFile, localFastaRef)
         markedBams.add(testCheck)
     }
 
@@ -159,13 +177,11 @@ for(string bamFile : bamsList) {
 #----------------
 # RNAseQC report
 #----------------
-#TODO need to add `-singleEnd` to the pipeline. 
-#TODO if data is single end then RNAseQC neeed to run in such mode
 if(RNAseQC){
     string sampleIdsFile = "RNAseQC-sampleIds.txt"
     string RNAseQCsampleIds = getSampleIds(markedBams)
     sampleIdsFile.write(RNAseQCsampleIds)
-    string check = getRNAseQC(sampleIdsFile, markedBams)
+    string check = getRNAseQC(sampleIdsFile, markedBams, checkPair)
 }
 #----------------------------------------------------------------------------------------------------
 # End

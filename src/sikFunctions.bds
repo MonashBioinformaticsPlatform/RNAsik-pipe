@@ -1,21 +1,19 @@
-include "sikHeader.bds"
+#--------------------------------------------------
+# Functions 
+#--------------------------------------------------
 
-//sys module load RNA-SeQC/1.1.8
-//sys module load picard/1.129
-//sys module load fastqc/0.11.2
+include "sikHeader.bds"
+include "sikMakeIndices.bds"
 
 #------------------------------
 # Make directories as required
 #------------------------------
 string bamFiles = "bamFiles"
-string preqcBamFiles = "preqcBamFiles"
 string featureNo = "featureNo"
 string featureReverse = "featureReverse"
 string fastqcReport = "fastqcReport"
-string RNAseQCreport = "RNAseQC-report"
 
 if((!bamFiles.exists()) && (star)) bamFiles.mkdir()
-if((!preqcBamFiles.exists()) && (prePro)) preqcBamFiles.mkdir()
 if((!featureNo.exists()) && (count)) featureNo.mkdir()
 if((!featureReverse.exists()) && (count)) featureReverse.mkdir()
 if((!fastqcReport.exists()) && (fastqc)) fastqcReport.mkdir()
@@ -76,10 +74,10 @@ string[] getOrderedList(string[] readsList) {
     return orderedReadsList
 }
 
-string[] getSTARreads(string[] orderedList) {
+string[] getSTARreads(string[] orderedList, bool checkPair) {
     
-    string boolItem = orderedList.pop()
-    bool checkPair = boolItem.parseBool()
+//    string boolItem = orderedList.pop()
+//    bool checkPair = boolItem.parseBool()
     
     if(checkPair) {
         int listSize = orderedList.size()-1
@@ -115,8 +113,8 @@ string fixFileNames(string rootName, string fileFix) {
         }
     }
 }
-string mapSTAR(string rootName, string genomeIndex, string[] listOfReads, string[] rawReads) {
-    
+//string mapSTAR(string rootName, string genomeIndex, string[] listOfReads, string[] rawReads) {
+string mapSTAR(string rootName, string[] listOfReads, string[] rawReads) {
     string fixedFileName
     
     if(!sampleNames.isEmpty()){
@@ -131,7 +129,8 @@ string mapSTAR(string rootName, string genomeIndex, string[] listOfReads, string
     string bamOut = preFix+"Aligned.out.bam"
     string reads = listOfReads.join(" ")
     
-    task(bamOut <- rawReads, taskName := "STAR aligning "+rootBase) {
+    //task(bamOut <- rawReads, taskName := "STAR aligning "+rootBase) {
+    task(bamOut <- genomeIndex, taskName := "STAR aligning "+rootBase) {
         sys STAR --runThreadN 30 \
                  --genomeDir $genomeIndex \
                  --outSAMtype BAM Unsorted \
@@ -149,37 +148,6 @@ string mapSTAR(string rootName, string genomeIndex, string[] listOfReads, string
     return bamOut
 }
 
-string getPrePro(string bamFile, string fastaRef){
-    
-    string sortedName = preqcBamFiles+"/"+bamFile.baseName().swapExt("Aligned.out.bam", "sorted.bam")
-    task(sortedName <- bamFile, taskName := "picard sorting "+bamFile) {
-        sys picard SortSam TMP_DIR=tmp/ \
-                           VALIDATION_STRINGENCY=LENIENT \
-                           CREATE_INDEX=true \
-                           INPUT=$bamFile \
-                           OUTPUT=$sortedName \
-                           SORT_ORDER=coordinate
-    }
-    string reorderedName = sortedName.swapExt(".bam", "_reordered.bam")
-    task(reorderedName <- sortedName, taskName := "picard reordering "+reorderedName) {
-        sys picard ReorderSam TMP_DIR=tmp/ \
-                              VALIDATION_STRINGENCY=LENIENT \
-                              INPUT=$sortedName \
-                              OUTPUT=$reorderedName \
-                              REFERENCE=$fastaRef
-    }
-    string mdupsName = reorderedName.swapExt(".bam", "_marked_dups.bam")
-    string metricsName = reorderedName.swapExt(".bam", "_marked_dups.metrics")
-    task(mdupsName <- reorderedName, taskName := "picard marking dups "+mdupsName) {
-        sys picard MarkDuplicates TMP_DIR=tmp/ \
-                                  VALIDATION_STRINGENCY=LENIENT \
-                                  CREATE_INDEX=true \
-                                  INPUT=$reorderedName \
-                                  OUTPUT=$mdupsName \
-                                  METRICS_FILE=$metricsName
-    }
-    return mdupsName
-}
 
 string getReadsCount(string bamFile, string gtfFile) {
     
@@ -216,13 +184,3 @@ string getSampleIds(string[] markedBams){
     return sampleIds
 }
 
-string getRNAseQC(string sampleIdsFile, string[] markedBams){
-    task(RNAseQCreport <- markedBams, taskName := "Running RNAseQC report"){
-        sys PATH=/usr/lib/jvm/java-7-openjdk-amd64/bin/:$PATH rna-seqc -o $RNAseQCreport\
-                                                               -r $fastaRef \
-                                                               -s $sampleIdsFile\
-                                                               -t $gtfFile\
-                                                               -singleEnd
-    }
-    return "all good"
-}

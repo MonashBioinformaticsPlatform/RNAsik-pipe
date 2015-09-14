@@ -1,0 +1,24 @@
+#--------------------------------------------------
+# Functions to get QC reports, RNAseQC and FASTQC
+#--------------------------------------------------
+
+include "sikHeader.bds"
+
+string RNAseQCreport = "RNAseQC-report"
+
+string getRNAseQC(string sampleIdsFile, string[] markedBams, bool checkPair){
+
+    string additionalArgs
+
+    if(!checkPair) additionalArgs = "-singleEnd"
+    else additionalArgs = ""
+
+    task(RNAseQCreport <- markedBams, taskName := "Running RNAseQC report"){
+        sys PATH=/usr/lib/jvm/java-7-openjdk-amd64/bin/:$PATH rna-seqc -o $RNAseQCreport\
+                                                               -r $fastaRef \
+                                                               -s $sampleIdsFile\
+                                                               -t $gtfFile\
+                                                                $additionalArgs
+    }
+    return "all good"
+}
