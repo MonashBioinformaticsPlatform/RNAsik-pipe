@@ -35,6 +35,11 @@ string localFastaRef
 string[] bamsList
 # get bool for whether the data is paired end or not
 bool checkPair 
+# List of all read counts files
+string[] readCountsFiles
+# list of all BAMS files,
+# where BAM had been sorted, reorted and duplicates marked
+string[] markedBams
 #------------------------------
 # Sanity check
 #------------------------------
@@ -160,9 +165,6 @@ if(star){
 #------------------------------
 # BAM processing
 #------------------------------
-string[] allReadsFiles
-string[] markedBams
-
 for(string bamFile : bamsList) {
     if(prePro) {
         string testCheck = getPrePro(bamFile, localFastaRef)
@@ -170,8 +172,8 @@ for(string bamFile : bamsList) {
     }
 
     if(count) {
-       string readsFile = getReadsCount(bamFile, gtfFile)
-       allReadsFiles.add(readsFile)
+       string readCountsFile = getReadsCount(bamFile, gtfFile)
+       readCountsFiles.add(readCountsFile)
     }
 }
 #----------------

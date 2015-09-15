@@ -76,9 +76,6 @@ string[] getOrderedList(string[] readsList) {
 
 string[] getSTARreads(string[] orderedList, bool checkPair) {
     
-//    string boolItem = orderedList.pop()
-//    bool checkPair = boolItem.parseBool()
-    
     if(checkPair) {
         int listSize = orderedList.size()-1
         string[] listR2
@@ -102,8 +99,6 @@ string[] getSTARreads(string[] orderedList, bool checkPair) {
 string fixFileNames(string rootName, string fileFix) {
     for(string line : fileFix.readLines()){
         string[] namesList = line.split("\t")
-#string oldNamePrefix = "/"+namesList[0]+"_"
-#string newNamePrefix = "/"+namesList[1]+"_"
         string oldNamePrefix = namesList[0]
         string newNamePrefix = namesList[1]
         string preFixIndex = rootName.indexOf(oldNamePrefix)
@@ -113,7 +108,7 @@ string fixFileNames(string rootName, string fileFix) {
         }
     }
 }
-//string mapSTAR(string rootName, string genomeIndex, string[] listOfReads, string[] rawReads) {
+
 string mapSTAR(string rootName, string[] listOfReads, string[] rawReads) {
     string fixedFileName
     
@@ -129,7 +124,6 @@ string mapSTAR(string rootName, string[] listOfReads, string[] rawReads) {
     string bamOut = preFix+"Aligned.out.bam"
     string reads = listOfReads.join(" ")
     
-    //task(bamOut <- rawReads, taskName := "STAR aligning "+rootBase) {
     task(bamOut <- genomeIndex, taskName := "STAR aligning "+rootBase) {
         sys STAR --runThreadN 30 \
                  --genomeDir $genomeIndex \
@@ -167,20 +161,3 @@ string getReadsCount(string bamFile, string gtfFile) {
     }
     return reverseFeature
 }
-
-string getSampleIds(string[] markedBams){
-    bool header = true
-    string sampleIds
-    
-    for(string bamFile : markedBams){
-        string[] getSampleIds = bamFile.split("_")
-        string sampleId = getSampleIds[0].baseName()
-        if(header){
-            sampleIds += "Sample ID\tBam File\tNotes\n"
-            header = false
-        }
-        sampleIds += "$sampleId\t$bamFile\tNA\n"
-    }
-    return sampleIds
-}
-

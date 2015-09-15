@@ -6,6 +6,7 @@ include "sikHeader.bds"
 include "sikMakeIndices.bds"
 include "sikFunctions.bds"
 
+# make directory as required
 string preqcBamFiles = "preqcBamFiles"
 if((!preqcBamFiles.exists()) && (prePro)) preqcBamFiles.mkdir()
 
@@ -40,3 +41,4 @@ string getPrePro(string bamFile, string fastaRef){
     }
     return mdupsName
 }
+
