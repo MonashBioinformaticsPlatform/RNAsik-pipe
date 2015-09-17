@@ -43,10 +43,6 @@ help RNA-SeQC report option:
 
 bool RNAseQC       help flag if you like to run RNA-SeQC report
 
-help general
-
-bool version       help Show RNAsik-pipe version installed
-
 if(version) sys echo $version
 
 #------------------------------
