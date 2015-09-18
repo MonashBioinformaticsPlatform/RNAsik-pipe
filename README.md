@@ -94,22 +94,24 @@ downloading `*tar.gz` file.
 
 `git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe.git`
 
-3. Run it !
-
-  - To align `RNAsik-pipe -star -fqRegex A -genomeIndex path/to/yourIndexDirectory` 
-  - To get counts `RNAsik-pipe -count -gtfFile path/to/yourGTFfile`
-  - To get RNA-SeQC report `RNAsik-pipe -prePro -fastaRef path/to/yourFASTAreference-file -RNAseQC`
-
-You should really specify all options at the start and let `RNAsik-pipe` to take of everything else
-
 ## Quick start
 
-- If you have a `module` system on you server/cluster make sure to module load all required tools e.g `module load STAR`
+- If you have a `module` system on you server/cluster make sure to `module load` all required tools e.g `module load STAR`
 
 - run `RNAsik-pipe` by pointing to the executable file. e.g if you downloaded `*tar.gz` file into `Downlaods`
 directory and unpacked there, then run `RNAsik-pipe` from anywhere as such `~/Downloads/RNAsik-pipe/src/RNAsik-pipe`
 
-- Then simply add all the options you need. `RNAsik-pipe` will guide you through. `RNAsik-pipe` will let you know if you have forgotten any files needed for your run. 
+- To align `RNAsik-pipe -star -fqRegex A -genomeIndex path/to/yourIndexDirectory` 
+- To get counts `RNAsik-pipe -count -gtfFile path/to/yourGTFfile`
+- To get RNA-SeQC report `RNAsik-pipe -prePro -fastaRef path/to/yourFASTAreference-file -RNAseQC`
+
+**You can simply specify all of the options at the start and let `RNAsik-pipe` to do everything for your**
+
+- `RNAsik-pipe` will guide you through. `RNAsik-pipe` will let you know if you have forgotten any files needed for your run. 
+
+## Documentation
+
+- `-makeIndices` by giving this flag you ask `RNAsik-pipe` to make all required indices
 
 ## Caveats 
 
