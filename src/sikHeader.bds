@@ -2,9 +2,10 @@
 #  Input Parametrs
 #------------------------------
 
-string version = "RNAsik-pipe version 1.1"
 
 helpUnsorted := true
+
+help RNAsik-pipe version 1.1
 
 help Make Indices options:
 
@@ -42,8 +43,6 @@ bool fastqc        help flag if you like to run fastQC report on the files
 help RNA-SeQC report option:
 
 bool RNAseQC       help flag if you like to run RNA-SeQC report
-
-if(version) sys echo $version
 
 #------------------------------
 # Default parameters
