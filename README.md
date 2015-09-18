@@ -12,8 +12,9 @@
 ## Content
 
 - [Introduction](#introduction)
-- [Quick start](#quick-start)
+- [Installation](#installation)
 - [Prerequisites](#prerequisites)
+- [Quick start](#quick-start)
 
 ## Introduction
 
@@ -31,35 +32,67 @@
 
   ![fqDir](supplementary/rawDataDir.png)
 
+  In this example sample 14-09157, which might WT is split across two lanes `L001` and `L002`, which is 
+  typical of Illumina sequencing. That is two files, one for each lane. We can also see that this is
+  paire end data. That means for each file there has to be a pair file, that is R1 and R2. In summary
+  single sample, e.g WT is covered by four FASTQ files:
+     - 14-09157_L001_R1.fastq.gz
+     - 14-09157_L001_R2.fastq.gz
+                 AND 
+     - 14-09157_L002_R1.fastq.gz
+     - 14-09157_L002_R2.fastq.gz
+  you can use `cat` command to concatenate files across different lanes
+  e.g `cat 14-09157_L001_R1.fastq.gz 14-09157_L002_R1.fastq.gz > 14-09157_merged.fastq.gz` or you can merge
+  BAM files with `samtools` later. `STAR` aligner can merger on the fly and what RNAsik-pipe is using.
+
   OR 
 
   Each sample might be put into its own subdirectory e.g
 
   ![test](supplementary/rawDataDirs.png)
   
-  Well, `RNAsik-pipe` can either take your project directory with FASTQ files with `-fqDir` parameter
-  OR `RNAsik-pipe` can take your project directory with sub-directories for you replicates perphaps with 
-  `-fqDirs` parameter
+  In this example each sample is placed into its own directory. Now we can see directory `Sample_14-09157`, 
+  which will hold four files for described above.
 
-2. Get RNA-seq metrics with RNA-SeQC report
+  `RNAsik-pipe` can work with either of those two options. Specify your "root" directory either with `-fqDir`
+  or `-fqDirs` options.
 
+2. Get RNA-sequencing metrics with RNA-SeQC report
+
+  [RNA-SeQC](https://www.broadinstitute.org/cancer/cga/rna-seqc) requires you BAM to be sorted,
+  reordered and have duplicates marked. Here is detailed [instructions](supplementary/RNAseQC-manual.pdf)
+  for how to prepare your BAMs files for RNAseQC, BUT the good news is you don't even need to worry about this!
   `RNAsik-pipe` takes care of long and laborious BAM file manipulation for RNA-SeQC tools, just flag 
-  `-prePro` to get your BAMS in the right shape and `-RNAseQC` to get actual report
+  `-prePro` to get your BAMS in the right shape and `-RNAseQC` to get the actual report
 
 3. Get you read counts
 
   Do you want to do differential gene expression analysis..? just flag `-count` and you will get your counts
 
-## Quick start
+## Prerequisites
 
-1. Get [BigDataScript](http://pcingola.github.io/BigDataScript/)
+- [BigDataScript](http://pcingola.github.io/BigDataScript/download.html)
+- [STAR aligner](https://github.com/alexdobin/STAR/releases)
+- [Picard tools](http://broadinstitute.github.io/picard/)
+- [RNA-SeQC](https://www.broadinstitute.org/cancer/cga/rna-seqc)
+- [featureCounts](http://subread.sourceforge.net/)
 
-  You need to have installed BDS first, which is rather straight forward just follow [BDS installation instructions](http://pcingola.github.io/BigDataScript/download.html)
+## Installation
 
-2. Get the pipeline
+Make sure to install [BigDataScript](http://pcingola.github.io/BigDataScript/) first. Follow [BDS installation instructions](http://pcingola.github.io/BigDataScript/download.html)
 
-  `git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe.git` and you can run `RNAsik-pipe`
-  simply by typing it in the command line. Optionally you can add `RNAsik-pipe/` directory to the path 
+**Recomended** 
+
+Get [latest stable release](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/releases) by 
+downloading `*tar.gz` file.
+
+1. Locate your `*tar.gz` file
+2. `tar zxvf *tar.gz file` 
+3. You `RNAsik-pipe` executable file is located in `src` directory
+ 
+**If you like to get developing version**
+
+`git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe.git`
 
 3. Run it !
 
@@ -69,13 +102,14 @@
 
 You should really specify all options at the start and let `RNAsik-pipe` to take of everything else
 
-## Prerequisites
+## Quick start
 
-- [BigDataScript](http://pcingola.github.io/BigDataScript/download.html)
-- [STAR aligner](https://github.com/alexdobin/STAR/releases)
-- [Picard tools](http://broadinstitute.github.io/picard/)
-- [RNA-SeQC](https://www.broadinstitute.org/cancer/cga/rna-seqc)
-- [featureCounts](http://subread.sourceforge.net/)
+- If you have a `module` system on you server/cluster make sure to module load all required tools e.g `module load STAR`
+
+- run `RNAsik-pipe` by pointing to the executable file. e.g if you downloaded `*tar.gz` file into `Downlaods`
+directory and unpacked there, then run `RNAsik-pipe` from anywhere as such `~/Downloads/RNAsik-pipe/src/RNAsik-pipe`
+
+- Then simply add all the options you need. `RNAsik-pipe` will guide you through. `RNAsik-pipe` will let you know if you have forgotten any files needed for your run. 
 
 ## Caveats 
 
@@ -95,4 +129,3 @@ STAR --runThreadN 26 \
 - Right now only `featureCounts` is supported for read counting
 - At the moment there isn't an option to choose the strand direction for read counts. `RNAsik-pipe` simply
 counts using both stranded NO and stranded REVERSE options
-
