@@ -1,4 +1,4 @@
-#!/home/kirill/.bds/bds
+#!/usr/bin/env bds
 
 #----------------------------------------------------------------------------------------------------
 #  Align RNA-seq reads to the reference genome, get RNA-seq metrics and get reads counts
