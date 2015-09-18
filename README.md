@@ -29,13 +29,13 @@
 
   Your FASTQ files might reside in one directory e.g directory per experiment
 
-  ![fqDir](supplementary/rawDataDir)
+  ![fqDir](supplementary/rawDataDir.png)
 
   OR 
 
   Each sample might be put into its own subdirectory e.g
 
-  ![test](supplementary/rawDataDirs)
+  ![test](supplementary/rawDataDirs.png)
   
   Well, `RNAsik-pipe` can either take your project directory with FASTQ files with `-fqDir` parameter
   OR `RNAsik-pipe` can take your project directory with sub-directories for you replicates perphaps with 
