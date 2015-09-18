@@ -1,5 +1,14 @@
 # `RNAsik-pipe` easy and quick RNA-seq(uencing) pipeline
 
+> RNAsik-pipe is written in pure [BigDataScrip](http://pcingola.github.io/BigDataScript/) (BDS) language
+> There are many advantages in using BDS, but the main ones are:
+>  1. One script works on your local machine, on your remote server and on you cluster
+>  2. Checkpoints - never need to run your job from the start in case it stopped. Start from where you left off
+>  3. Remote access to your data. Do need to worry about scping you data to your server, just point RNAsik-pipe
+> to your cloude store if you like
+> As for RNAsik-pipe itself it just makes your life easy. One script solves many problems. Simply give your
+> raw data to RNAsik-pipe and provide with the reference files and press go ! [Enter]
+
 ## Content
 
 - [Introduction](#introduction)
@@ -10,7 +19,7 @@
 
 1. Get your FASTQ files
 
-  Your raw data will always come in FASTQ format. The number of FASTQ files will really depend on many things
+  Your raw data will always come in FASTQ format. The number of FASTQ files will depend on many things
   including:
 
   - Number of samples 
@@ -18,9 +27,15 @@
   - Your sample was split into different lanes
   - Your are sequencing paired-end data
 
-  Also your FASTQ files might reside in one directory - directory per experiment 
+  Your FASTQ files might reside in one directory e.g directory per experiment
+
+  ![fqDir](supplementary/rawDataDir)
+
   OR 
-  Each sample might be put into its own subdirectory 
+
+  Each sample might be put into its own subdirectory e.g
+
+  ![test](supplementary/rawDataDirs)
   
   Well, `RNAsik-pipe` can either take your project directory with FASTQ files with `-fqDir` parameter
   OR `RNAsik-pipe` can take your project directory with sub-directories for you replicates perphaps with 
