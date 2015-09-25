@@ -171,7 +171,7 @@ reference genome**
 
    - `-fqRegex` specify one of the three possible options (A,B or C) that are inbuilt in `RNAsik-pipe`
 
-   ![fqRegex-sample](supplimentary/fqRegex-sample.png)
+   ![fqRegex-sample](supplementary/fqRegex-sample.png)
 
       - `-fqRegex A` targets files alike `sample-FASTQ-file_L001_R1_001.fastq.gz` 
       - `-fqRegex B` targets files alike `sample-FASTQ-file_L001_R1.fastq.gz` 
