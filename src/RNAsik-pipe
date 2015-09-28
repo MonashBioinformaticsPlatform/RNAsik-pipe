@@ -91,7 +91,7 @@ if( args.isEmpty() ) {
 # Make indices if required 
 #------------------------------
 if(makeIndices){
-    sys echo $(date) Copying files, be patient; cp -v $fastaRef $refFiles
+    task(refFiles <- fastaRef, taskName := "Copying files") sys echo $(date) Copying files, be patient; cp -v $fastaRef $refFiles
     string sjdbArguments
     if(gtfFile) {
         int readSize = 101
@@ -141,10 +141,11 @@ if(star){
         int numberOfDirs = dirs.size()
     
         for(int i=0; i < numberOfDirs; i++){
+
         
             string dir = dirs[i]
             string makeDirPath = fqDirs+"/"+dir
-            string{} uniqueNames = getUniqueNames(makeDirPath)
+            string{} uniqueNames = getUniqueNames(dir)
     
             for(string fqread : uniqueNames.keys()) {
                 # get value for each key and break values into list
