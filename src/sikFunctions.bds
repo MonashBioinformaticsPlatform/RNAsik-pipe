@@ -134,7 +134,7 @@ string mapSTAR(string rootName, string[] listOfReads, string[] rawReads) {
                  --readFilesIn $reads \
                  --outFileNamePrefix $preFix
     }
-    wait
+    #wait
     # you can remove wait statement and reduce number of threads
     # however this will run all your fastq files in parallel
     # doing this I find a bit impractical on our server because of

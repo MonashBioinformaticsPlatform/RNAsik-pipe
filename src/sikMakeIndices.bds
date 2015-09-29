@@ -14,8 +14,6 @@ string localFastaFile = refFiles+"/"+fastaRef.baseName()
 
 string makeSTARindex(string fastaRef, string additionalArgs) {
     string starIndexDir = fastaRef.removeExt()+"-starIndex"
-    string fastaRefDep = refFiles+"/"+fastaRef
-
     if(!starIndexDir.exists()) starIndexDir.mkdir()
     # This is just in case someone already had a directory with exact the same name
     else warning "There was a directory named $starIndexDir. STAR has overwritten its content"
@@ -28,14 +26,15 @@ string makeSTARindex(string fastaRef, string additionalArgs) {
                  $additionalArgs
     }
 
-    string fastaFaiFile = fastaRef.removeExt()+".fai"
+    string fastaFaiFile = fastaRef+".fai"
     task(fastaFaiFile <- localFastaFile, taskName := "Indexing FASTA file") {
         sys samtools faidx $fastaRef
     }
 
     string fastaDictFile = fastaRef.removeExt()+".dict"
     task(fastaDictFile <- localFastaFile, taskName := "Making dictionary File") {
-        sys picard CreateSequenceDictionary REFERENCE=$fastaRef \
+	    #sys picard CreateSequenceDictionary REFERENCE=$fastaRef \
+        sys /opt/sw/jdk1.7.0_21/bin/java -Xmx3g -jar /opt/sw/picard/1.139/picard.jar CreateSequenceDictionary REFERENCE=$fastaRef \
                                             OUTPUT=$fastaDictFile
     }
     return starIndexDir
