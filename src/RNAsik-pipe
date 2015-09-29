@@ -91,7 +91,7 @@ if( args.isEmpty() ) {
 # Make indices if required 
 #------------------------------
 if(makeIndices){
-    task(refFiles <- fastaRef, taskName := "Copying files") sys echo $(date) Copying files, be patient; cp -v $fastaRef $refFiles
+    task(localFastaRef <- fastaRef, taskName := "Copying files") sys echo $(date) Copying files, be patient; cp -v $fastaRef $refFiles
     string sjdbArguments
     if(gtfFile) {
         int readSize = 101
@@ -100,7 +100,7 @@ if(makeIndices){
         sjdbArguments = "--sjdbGTFfile $gtfFile --sjdbOverhang $overHang"
     }
     else sjdbArguments = ""
-    genomeIndex = makeSTARindex(localFastaRef, gtfFile, sjdbArguments)
+    genomeIndex = makeSTARindex(localFastaRef, sjdbArguments)
 }
 #------------------------------
 # fastQC report
