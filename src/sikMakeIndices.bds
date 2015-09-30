@@ -14,7 +14,6 @@ string localFastaFile = refFiles+"/"+fastaRef.baseName()
 
 string makeSTARindex(string fastaRef, string additionalArgs) {
     string starIndexDir = fastaRef.removeExt()+"-starIndex"
-    string fastaRefDep = refFiles+"/"+fastaRef
 
     if(!starIndexDir.exists()) starIndexDir.mkdir()
     # This is just in case someone already had a directory with exact the same name
@@ -28,7 +27,7 @@ string makeSTARindex(string fastaRef, string additionalArgs) {
                  $additionalArgs
     }
 
-    string fastaFaiFile = fastaRef.removeExt()+".fai"
+    string fastaFaiFile = fastaRef+".fai"
     task(fastaFaiFile <- localFastaFile, taskName := "Indexing FASTA file") {
         sys samtools faidx $fastaRef
     }
