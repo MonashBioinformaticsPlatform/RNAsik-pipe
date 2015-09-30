@@ -15,7 +15,10 @@ if((!refFiles.exists()) && (makeIndices)) refFiles.mkdir()
 # Body
 #------
 string makeSTARindex(string fastaRef, string additionalArgs) {
+
+    string starDepFile = "SAindex"
     string starIndexDir = fastaRef.removeExt()+"-starIndex"
+    string starDepFile = starIndexDir+"/"+starSAindexFile
 
     if(!starIndexDir.exists()) starIndexDir.mkdir()
     # This is just in case someone already had a directory with exact the same name
@@ -36,7 +39,7 @@ string makeSTARindex(string fastaRef, string additionalArgs) {
 
     string fastaDictFile = fastaRef.removeExt()+".dict"
     task(fastaDictFile <- fastaRef, taskName := "Making dictionary File") {
-        sys picard CreateSequenceDictionary REFERENCE=$localFastaRef \
+        sys picard CreateSequenceDictionary REFERENCE=$fastaRef \
                                             OUTPUT=$fastaDictFile
     }
     return starIndexDir
