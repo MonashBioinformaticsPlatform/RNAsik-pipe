@@ -9,13 +9,9 @@ include "sikMakeIndices.bds"
 # Make directories as required
 #------------------------------
 string bamFiles = "bamFiles"
-string featureNo = "featureNo"
-string featureReverse = "featureReverse"
 string fastqcReport = "fastqcReport"
 
 if((!bamFiles.exists()) && (star)) bamFiles.mkdir()
-if((!featureNo.exists()) && (count)) featureNo.mkdir()
-if((!featureReverse.exists()) && (count)) featureReverse.mkdir()
 if((!fastqcReport.exists()) && (fastqc)) fastqcReport.mkdir()
 
 if(extn.isEmpty()) extn = "*fastq.gz"
@@ -140,24 +136,4 @@ string mapSTAR(string rootName, string[] listOfReads, string[] rawReads) {
     # doing this I find a bit impractical on our server because of
     # limited RAM - only 128 Gb
     return bamOut
-}
-
-
-string getReadsCount(string bamFile, string gtfFile) {
-    
-    string reverseFeature = featureReverse+"/"+bamFile.baseName().swapExt("_Aligned.out.bam", ".txt")
-    task (reverseFeature <- bamFile, taskName := "counting reads "+bamFile) {
-        sys featureCounts -a $gtfFile \
-                          -o $reverseFeature \
-                          $bamFile\
-                          -s 2
-    }
-    string noFeature = featureNo+"/"+bamFile.baseName().swapExt("_Aligned.out.bam", ".txt")
-    task (noFeature <- bamFile, taskName := "counting raeds "+bamFile) {
-        sys featureCounts -a $gtfFile \
-                          -o $noFeature \
-                          $bamFile \
-                          -s 0
-    }
-    return reverseFeature
 }

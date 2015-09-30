@@ -1,0 +1,37 @@
+#----------------------------------------
+# Counts
+#----------------------------------------
+
+include "sikHeader.bds"
+include "sikSanityCheck.bds"
+
+#------------------------------
+# Make directories as required
+#------------------------------
+string featureNo = "featureNo"
+string featureReverse = "featureReverse"
+
+if((!featureNo.exists()) && (count)) featureNo.mkdir()
+if((!featureReverse.exists()) && (count)) featureReverse.mkdir()
+
+#------
+# Body
+#------
+string getReadsCount(string bamFile, string gtfFile) {
+    
+    string reverseFeature = featureReverse+"/"+bamFile.baseName().swapExt("_Aligned.out.bam", ".txt")
+    task(reverseFeature <- bamFile, taskName := "counting reads "+bamFile) {
+        sys featureCounts -a $gtfFile \
+                          -o $reverseFeature \
+                          $bamFile\
+                          -s 2
+    }
+    string noFeature = featureNo+"/"+bamFile.baseName().swapExt("_Aligned.out.bam", ".txt")
+    task(noFeature <- bamFile, taskName := "counting raeds "+bamFile) {
+        sys featureCounts -a $gtfFile \
+                          -o $noFeature \
+                          $bamFile \
+                          -s 0
+    }
+    return reverseFeature
+}

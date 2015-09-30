@@ -6,10 +6,15 @@ include "sikHeader.bds"
 include "sikMakeIndices.bds"
 include "sikFunctions.bds"
 
-# make directory as required
+#------------------------------
+# Make directories as required
+#------------------------------
 string preqcBamFiles = "preqcBamFiles"
 if((!preqcBamFiles.exists()) && (prePro)) preqcBamFiles.mkdir()
 
+#------
+# Body
+#------
 string getPrePro(string bamFile, string fastaRef){
     string sortedName = preqcBamFiles+"/"+bamFile.baseName().swapExt("Aligned.out.bam", "sorted.bam")
     task(sortedName <- bamFile, taskName := "picard sorting "+bamFile) {

@@ -1,8 +1,10 @@
+#---------------------------------
+# The Header File 
+#---------------------------------
+
 #------------------------------
 #  Input Parametrs
 #------------------------------
-
-
 helpUnsorted := true
 
 help RNAsik-pipe version 1.1
@@ -45,9 +47,15 @@ help RNA-SeQC report option:
 bool RNAseQC       help flag if you like to run RNA-SeQC report
 
 #------------------------------
-# Default parameters
+# Global Variables
 #------------------------------
-#if(fqRegex.isEmpty()) fqRegex = "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"
-#if(fqRegex.isEmpty()) fqRegex = "_L[0-9]{3}_R[0-9].fastq.gz$"
-#if(fqRegex.isEmpty()) fqRegex = "_R[0-9]_[0-9]{3}.fastq.gz$"
-#if(extn.isEmpty()) extn = "*fastq.gz"
+string localFastaRef
+# list of bam files from STAR run
+string[] bamsList
+# get bool for whether the data is paired end or not
+bool checkPair 
+# List of all read counts files
+string[] readCountsFiles
+# list of all BAMS files,
+# where BAM had been sorted, reorted and duplicates marked
+string[] markedBams

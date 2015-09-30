@@ -22,70 +22,12 @@
 #----------------------------------------------------------------------------------------------------
 
 include "sikHeader.bds"
+include "sikSanityCheck.bds"
 include "sikMakeIndices.bds"
 include "sikFunctions.bds" 
 include "sikPrePro.bds"
+include "sikCounts.bds"
 include "sikQCreports.bds"
-
-#------------------------------
-# Global Variables
-#------------------------------
-string localFastaRef
-# list of bam files from STAR run
-string[] bamsList
-# get bool for whether the data is paired end or not
-bool checkPair 
-# List of all read counts files
-string[] readCountsFiles
-# list of all BAMS files,
-# where BAM had been sorted, reorted and duplicates marked
-string[] markedBams
-#------------------------------
-# Sanity check
-#------------------------------
-if(makeIndices){
-    if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
-    else{
-        string fastaRefBaseName = fastaRef.baseName()
-        localFastaRef = refFiles+"/"+fastaRefBaseName
-    }
-}
-if(fastqc) {
-    if( ((fqDir.isEmpty()) && (fqDirs.isEmpty())) || ((fqDirs.isEmpty()) && (fqDir.isEmpty()))) error "Usage: You need to specify either -fqDir or -fqDirs"
-}
-if(star) {
-    if(fqRegex.isEmpty()) error "test"
-
-    if(!fqRegex.isEmpty()){
-        if(fqRegex == "A") fqRegex = "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"
-        if(fqRegex == "B") fqRegex = "_L[0-9]{3}_R[0-9].fastq.gz$"
-        if(fqRegex == "C") fqRegex = "_R[0-9]_[0-9]{3}.fastq.gz$"
-    }
-    else error "Usage: You need to select A, B or C option for -fqRegex flag"
-    
-    if((fqDirs.isEmpty()) && (fqDir.isEmpty())) error "Usage: You need to specify either -fqDir or -fqDirs"
-    if(genomeIndex.isEmpty() && (!makeIndices))  error "Usage: -genomeIndex /path/to/genomeIndex/"
-}
-if(count) {
-    if(gtfFile.isEmpty())  error "Usage: -gtfFile /path/to/GTFfile"
-}
-if(prePro){
-    if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
-    if(!makeIndices){
-        localFastaRef = fastaRef 
-        string exampleFastaDict = fastaRef.removeExt()+".dict"
-        string exampleFastaFai fastaRef+".fai"
-        warning "Make sure you have $exampleFastaDict and $exampleFastaFai in the same directory as your $fastaRef file, because downstream application will assume that. If unsure run RNAsik-pipe with -makeIndices option"
-    }
-}
-if(RNAseQC){
-   if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
-   if(!preqcBamFiles.isDir()) error "It looks like you don't have pre-proccessed BAM files. Make sure your pre-proccessed BAM files located in `preqcBamFiles` directory Or simply re-run RNAsik-pipe with -prePro flag"
-}
-if( args.isEmpty() ) {
-    printHelp()
-    exit(1)
-}
 
 #------------------------------
 # Make indices if required 

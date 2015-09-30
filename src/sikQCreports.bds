@@ -3,6 +3,7 @@
 #--------------------------------------------------
 
 include "sikHeader.bds"
+include "sikMakeIndices.bds"
 
 # define directory name
 string RNAseQCreport = "RNAseQC-report"
@@ -25,14 +26,14 @@ string getSampleIds(string[] markedBams){
 }
 
 string getRNAseQC(string sampleIdsFile, string[] markedBams, bool checkPair){
-    string additionalArgs
 
+    string additionalArgs
     if(!checkPair) additionalArgs = "-singleEnd"
     else additionalArgs = ""
 
     task(RNAseQCreport <- markedBams, taskName := "Running RNAseQC report"){
         sys PATH=/usr/lib/jvm/java-7-openjdk-amd64/bin/:$PATH rna-seqc -o $RNAseQCreport\
-                                                               -r $fastaRef \
+                                                               -r $localFastaRef \
                                                                -s $sampleIdsFile\
                                                                -t $gtfFile\
                                                                 $additionalArgs

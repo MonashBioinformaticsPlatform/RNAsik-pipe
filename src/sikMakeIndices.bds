@@ -5,13 +5,15 @@
 include "sikHeader.bds"
 include "sikFunctions.bds"
 
+#------------------------------
+# Make directories as required
+#------------------------------
 string refFiles = "refFiles"
 if((!refFiles.exists()) && (makeIndices)) refFiles.mkdir()
 
-# Make a dependency string. This is exactly the same `localFastaFile`
-# as defined in `RNAsik-pipe`. I just needed it here
-string localFastaFile = refFiles+"/"+fastaRef.baseName()
-
+#------
+# Body
+#------
 string makeSTARindex(string fastaRef, string additionalArgs) {
     string starIndexDir = fastaRef.removeExt()+"-starIndex"
 
@@ -19,7 +21,7 @@ string makeSTARindex(string fastaRef, string additionalArgs) {
     # This is just in case someone already had a directory with exact the same name
     else warning "There was a directory named $starIndexDir. STAR has overwritten its content"
 
-    task(starIndexDir <- localFastaFile, taskName := "Making STAR index") {
+    task(starIndexDir <- fastaRef, taskName := "Making STAR index") {
         sys STAR --runThreadN 30 \
                  --runMode genomeGenerate \
                  --genomeDir $starIndexDir \
@@ -28,13 +30,13 @@ string makeSTARindex(string fastaRef, string additionalArgs) {
     }
 
     string fastaFaiFile = fastaRef+".fai"
-    task(fastaFaiFile <- localFastaFile, taskName := "Indexing FASTA file") {
+    task(fastaFaiFile <- fastaRef, taskName := "Indexing FASTA file") {
         sys samtools faidx $fastaRef
     }
 
     string fastaDictFile = fastaRef.removeExt()+".dict"
-    task(fastaDictFile <- localFastaFile, taskName := "Making dictionary File") {
-        sys picard CreateSequenceDictionary REFERENCE=$localFastaFile \
+    task(fastaDictFile <- fastaRef, taskName := "Making dictionary File") {
+        sys picard CreateSequenceDictionary REFERENCE=$localFastaRef \
                                             OUTPUT=$fastaDictFile
     }
     return starIndexDir
