@@ -34,7 +34,7 @@ string makeSTARindex(string fastaRef, string additionalArgs) {
 
     string fastaDictFile = fastaRef.removeExt()+".dict"
     task(fastaDictFile <- localFastaFile, taskName := "Making dictionary File") {
-        sys picard CreateSequenceDictionary REFERENCE=$localFastaRef \
+        sys picard CreateSequenceDictionary REFERENCE=$localFastaFile \
                                             OUTPUT=$fastaDictFile
     }
     return starIndexDir
