@@ -13,13 +13,16 @@ if((!refFiles.exists()) && (makeIndices)) refFiles.mkdir()
 string localFastaFile = refFiles+"/"+fastaRef.baseName()
 
 string makeSTARindex(string fastaRef, string additionalArgs) {
+    string starSAindexFile = "SAindex"
     string starIndexDir = fastaRef.removeExt()+"-starIndex"
+    string starDepFile = starIndexDir+"/"+starSAindexFile
+
     if(!starIndexDir.exists()) starIndexDir.mkdir()
     # This is just in case someone already had a directory with exact the same name
     else warning "There was a directory named $starIndexDir. STAR has overwritten its content"
 
-    task(starIndexDir <- localFastaFile, taskName := "Making STAR index") {
-        sys STAR --runThreadN 30 \
+    task(starDepFile <- localFastaFile, mem := 40000000000, taskName := "Making STAR index") {
+        sys /opt/sw/STAR/2.4.2a/STAR --runThreadN 30 \
                  --runMode genomeGenerate \
                  --genomeDir $starIndexDir \
                  --genomeFastaFiles $fastaRef \
@@ -28,12 +31,11 @@ string makeSTARindex(string fastaRef, string additionalArgs) {
 
     string fastaFaiFile = fastaRef+".fai"
     task(fastaFaiFile <- localFastaFile, taskName := "Indexing FASTA file") {
-        sys samtools faidx $fastaRef
+        sys /opt/sw/samtools/1.2.0/bin/samtools faidx $fastaRef
     }
 
     string fastaDictFile = fastaRef.removeExt()+".dict"
     task(fastaDictFile <- localFastaFile, taskName := "Making dictionary File") {
-	    #sys picard CreateSequenceDictionary REFERENCE=$fastaRef \
         sys /opt/sw/jdk1.7.0_21/bin/java -Xmx3g -jar /opt/sw/picard/1.139/picard.jar CreateSequenceDictionary REFERENCE=$fastaRef \
                                             OUTPUT=$fastaDictFile
     }

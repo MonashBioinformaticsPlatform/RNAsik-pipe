@@ -31,7 +31,6 @@ string getRNAseQC(string sampleIdsFile, string[] markedBams, bool checkPair){
     else additionalArgs = ""
 
     task(RNAseQCreport <- markedBams, taskName := "Running RNAseQC report"){
-	    #sys PATH=/usr/lib/jvm/java-7-openjdk-amd64/bin/:$PATH rna-seqc -o $RNAseQCreport\
         # Changed this for cluster
         sys /opt/sw/jdk1.7.0_21/bin/java -Xmx3g -jar $HOME/software/RNA-SeQC_v1.1.8.jar  -o $RNAseQCreport\
                                                                                    -r $fastaRef \

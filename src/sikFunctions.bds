@@ -124,7 +124,7 @@ string mapSTAR(string rootName, string[] listOfReads, string[] rawReads) {
     string bamOut = preFix+"Aligned.out.bam"
     string reads = listOfReads.join(" ")
     
-    task(bamOut <- genomeIndex, taskName := "STAR aligning "+rootBase) {
+    task(bamOut <- genomeIndex, mem := 40000000000, taskName := "STAR aligning "+rootBase) {
         sys STAR --runThreadN 30 \
                  --genomeDir $genomeIndex \
                  --outSAMtype BAM Unsorted \
