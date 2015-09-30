@@ -3,6 +3,7 @@
 #--------------------------------------------------
 
 include "sikHeader.bds"
+include "sikMakeIndices.bds"
 
 # define directory name
 string RNAseQCreport = "RNAseQC-report"
@@ -25,8 +26,8 @@ string getSampleIds(string[] markedBams){
 }
 
 string getRNAseQC(string sampleIdsFile, string[] markedBams, bool checkPair){
-    string additionalArgs
 
+    string additionalArgs
     if(!checkPair) additionalArgs = "-singleEnd"
     else additionalArgs = ""
 

@@ -5,14 +5,17 @@
 include "sikHeader.bds"
 include "sikFunctions.bds"
 
+#------------------------------
+# Make directories as required
+#------------------------------
 string refFiles = "refFiles"
 if((!refFiles.exists()) && (makeIndices)) refFiles.mkdir()
 
-# Make a dependency string. This is exactly the same `localFastaFile`
-# as defined in `RNAsik-pipe`. I just needed it here
-string localFastaFile = refFiles+"/"+fastaRef.baseName()
-
+#------
+# Body
+#------
 string makeSTARindex(string fastaRef, string additionalArgs) {
+
     string starSAindexFile = "SAindex"
     string starIndexDir = fastaRef.removeExt()+"-starIndex"
     string starDepFile = starIndexDir+"/"+starSAindexFile
@@ -21,12 +24,12 @@ string makeSTARindex(string fastaRef, string additionalArgs) {
     # This is just in case someone already had a directory with exact the same name
     else warning "There was a directory named $starIndexDir. STAR has overwritten its content"
 
-    task(starDepFile <- localFastaFile, mem := 40000000000, taskName := "Making STAR index") {
+    task(starDepFile <- fastaRef, mem := 40000000000, taskName := "Making STAR index") {
         sys /opt/sw/STAR/2.4.2a/STAR --runThreadN 30 \
-                 --runMode genomeGenerate \
-                 --genomeDir $starIndexDir \
-                 --genomeFastaFiles $fastaRef \
-                 $additionalArgs
+                                     --runMode genomeGenerate \
+                                     --genomeDir $starIndexDir \
+                                     --genomeFastaFiles $fastaRef \
+                                     $additionalArgs
     }
 
     string fastaFaiFile = fastaRef+".fai"
