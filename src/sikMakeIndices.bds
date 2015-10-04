@@ -14,20 +14,19 @@ if((!refFiles.exists()) && (makeIndices)) refFiles.mkdir()
 #------
 # Body
 #------
-string makeSTARindex(string fastaRef, string additionalArgs) {
+string[] makeSTARindex(string fastaRef, string additionalArgs) {
 
-    string starDepFile = "SAindex"
-    string starIndexDir = fastaRef.removeExt()+"-starIndex"
-    string starDepFile = starIndexDir+"/"+starSAindexFile
-
-    if(!starIndexDir.exists()) starIndexDir.mkdir()
+    string localGenomeIndex = localFastaRef.removeExt()+"-starIndex"
+    if(!localGenomeIndex.exists()) localGenomeIndex.mkdir()
     # This is just in case someone already had a directory with exact the same name
-    else warning "There was a directory named $starIndexDir. STAR has overwritten its content"
+    else warning "There was a directory named $localGenomeIndex. STAR has overwritten its content"
 
-    task(starIndexDir <- fastaRef, taskName := "Making STAR index") {
-        sys STAR --runThreadN 30 \
+    string starSAindexFile = localGenomeIndex+"/"+"SAindex"
+
+    task([localGenomeIndex, starSAindexFile] <- fastaRef, mem := 40000000000, taskName := "Making STAR index") {
+        sys STAR --runThreadN 32 \
                  --runMode genomeGenerate \
-                 --genomeDir $starIndexDir \
+                 --genomeDir $localGenomeIndex \
                  --genomeFastaFiles $fastaRef \
                  $additionalArgs
     }
@@ -38,9 +37,9 @@ string makeSTARindex(string fastaRef, string additionalArgs) {
     }
 
     string fastaDictFile = fastaRef.removeExt()+".dict"
-    task(fastaDictFile <- fastaRef, taskName := "Making dictionary File") {
+    task(fastaDictFile <- fastaRef, mem = 10000000000, taskName := "Making dictionary File") {
         sys picard CreateSequenceDictionary REFERENCE=$fastaRef \
                                             OUTPUT=$fastaDictFile
     }
-    return starIndexDir
+    return [starSAindexFile, localGenomeIndex]
 }

@@ -25,18 +25,20 @@ string getSampleIds(string[] markedBams){
     return sampleIds
 }
 
-string getRNAseQC(string sampleIdsFile, string[] markedBams, bool checkPair){
+string getRNAseQC(string sampleIdsFile, string[] markedBams, bool checkPair, string fastaRef){
 
     string additionalArgs
     if(!checkPair) additionalArgs = "-singleEnd"
     else additionalArgs = ""
 
+    //task(RNAseQCreport <- [markedBams, sampleIdsFile, fastaFaiFile], mem = 10000000000, taskName := "Running RNAseQC report"){
     task(RNAseQCreport <- markedBams, taskName := "Running RNAseQC report"){
-        sys PATH=/usr/lib/jvm/java-7-openjdk-amd64/bin/:$PATH rna-seqc -o $RNAseQCreport\
-                                                               -r $localFastaRef \
-                                                               -s $sampleIdsFile\
-                                                               -t $gtfFile\
-                                                                $additionalArgs
+        # Changed this for cluster
+        sys PATH=/usr/lib/jvm/java-7-openjdk-amd64/bin/:$PATH rna-seqc  -o $RNAseQCreport\
+                                                                        -r $fastaRef \
+                                                                        -s $sampleIdsFile\
+                                                                        -t $gtfFile\
+                                                                         $additionalArgs
     }
     return "all good"
 }

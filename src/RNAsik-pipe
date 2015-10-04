@@ -42,7 +42,9 @@ if(makeIndices){
         sjdbArguments = "--sjdbGTFfile $gtfFile --sjdbOverhang $overHang"
     }
     else sjdbArguments = ""
-    genomeIndex = makeSTARindex(localFastaRef, sjdbArguments)
+    string[] localIndexList = makeSTARindex(localFastaRef, sjdbArguments)
+    localSAindexFile = localIndexList[0]
+    localGenomeIndex = localIndexList[1]
 }
 #------------------------------
 # fastQC report
@@ -72,8 +74,8 @@ if(star){
             checkPair = boolItem.parseBool()
             # STAR aligning
             string[] reads = getSTARreads(orderedList, checkPair)
-            //string bamFile = mapSTAR(fqread, genomeIndex, reads, orderedList) 
-            string bamFile = mapSTAR(fqread, reads, orderedList) 
+            string bamFile = mapSTAR(fqread, localGenomeIndex, localSAindexFile, reads, orderedList) 
+            //string bamFile = mapSTAR(fqread, reads, orderedList) 
             bamsList.add(bamFile)
         }
     }
@@ -98,12 +100,11 @@ if(star){
                 checkPair = boolItem.parseBool()
                 # STAR aligning
                 string[] reads = getSTARreads(orderedList, checkPair)
-                string bamFile = mapSTAR(fqread, reads, orderedList) 
+                string bamFile = mapSTAR(fqread, localGenomeIndex, localSAindexFile, reads, orderedList) 
                 bamsList.add(bamFile)
             }
         }
     }
-    //else error "Can either specify `fqDir` or `fqDirs` not both. Run `RNAsik-pipe -help` for more help"
 }
 #------------------------------
 # BAM processing
@@ -126,7 +127,7 @@ if(RNAseQC){
     string sampleIdsFile = "RNAseQC-sampleIds.txt"
     string RNAseQCsampleIds = getSampleIds(markedBams)
     sampleIdsFile.write(RNAseQCsampleIds)
-    string check = getRNAseQC(sampleIdsFile, markedBams, checkPair)
+    string check = getRNAseQC(sampleIdsFile, markedBams, checkPair, localFastaRef)
 }
 #----------------------------------------------------------------------------------------------------
 # End

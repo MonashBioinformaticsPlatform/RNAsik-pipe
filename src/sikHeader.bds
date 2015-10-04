@@ -49,8 +49,12 @@ bool RNAseQC       help flag if you like to run RNA-SeQC report
 #------------------------------
 # Global Variables
 #------------------------------
+# set localFastaRef
 string localFastaRef
-# list of bam files from STAR run
+# set locaGenomeIndex 
+string localGenomeIndex
+string localSAindexFile 
+#string  list of bam files from STAR run
 string[] bamsList
 # get bool for whether the data is paired end or not
 bool checkPair 

@@ -105,7 +105,7 @@ string fixFileNames(string rootName, string fileFix) {
     }
 }
 
-string mapSTAR(string rootName, string[] listOfReads, string[] rawReads) {
+string mapSTAR(string rootName, string genomeIndex, string SAindexFile, string[] listOfReads, string[] rawReads) {
     string fixedFileName
     
     if(!sampleNames.isEmpty()){
@@ -120,8 +120,8 @@ string mapSTAR(string rootName, string[] listOfReads, string[] rawReads) {
     string bamOut = preFix+"Aligned.out.bam"
     string reads = listOfReads.join(" ")
     
-    task(bamOut <- genomeIndex, taskName := "STAR aligning "+rootBase) {
-        sys STAR --runThreadN 30 \
+    task(bamOut <- [genomeIndex, SAindexFile], taskName := "STAR aligning "+rootBase) {
+        sys STAR --runThreadN 32 \
                  --genomeDir $genomeIndex \
                  --outSAMtype BAM Unsorted \
                  --outSAMunmapped Within \
