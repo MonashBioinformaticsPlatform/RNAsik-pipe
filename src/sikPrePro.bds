@@ -17,8 +17,8 @@ if((!preqcBamFiles.exists()) && (prePro)) preqcBamFiles.mkdir()
 #------
 string getPrePro(string bamFile, string fastaRef){
     string sortedName = preqcBamFiles+"/"+bamFile.baseName().swapExt("Aligned.out.bam", "sorted.bam")
-    task(sortedName <- bamFile, taskName := "picard sorting "+bamFile) {
-        sys /opt/sw/jdk1.7.0_21/bin/java -Xmx3g -jar /opt/sw/picard/1.139/picard.jar SortSam TMP_DIR=tmp/ \
+    task(sortedName <- bamFile, mem = 10000000000, taskName := "picard sorting "+bamFile) {
+        sys /opt/sw/jdk1.7.0_21/bin/java -Xmx6g -jar /opt/sw/picard/1.139/picard.jar SortSam TMP_DIR=/scratch/picard/tmp/ \
                            VALIDATION_STRINGENCY=LENIENT \
                            CREATE_INDEX=true \
                            INPUT=$bamFile \
@@ -26,17 +26,17 @@ string getPrePro(string bamFile, string fastaRef){
                            SORT_ORDER=coordinate
     }
     string reorderedName = sortedName.swapExt(".bam", "_reordered.bam")
-    task(reorderedName <- sortedName, taskName := "picard reordering "+reorderedName) {
-        sys /opt/sw/jdk1.7.0_21/bin/java -Xmx3g -jar /opt/sw/picard/1.139/picard.jar ReorderSam TMP_DIR=tmp/ \
-                              VALIDATION_STRINGENCY=LENIENT \
-                              INPUT=$sortedName \
-                              OUTPUT=$reorderedName \
-                              REFERENCE=$fastaRef
+    task(reorderedName <- sortedName, mem = 10000000000, taskName := "picard reordering "+reorderedName) {
+        sys /opt/sw/jdk1.7.0_21/bin/java -Xmx6g -jar /opt/sw/picard/1.139/picard.jar ReorderSam TMP_DIR=/scratch/picard/tmp/ \
+                                                                                                VALIDATION_STRINGENCY=LENIENT \
+                                                                                                INPUT=$sortedName \
+                                                                                                OUTPUT=$reorderedName \
+                                                                                                REFERENCE=$fastaRef
     }
     string mdupsName = reorderedName.swapExt(".bam", "_marked_dups.bam")
     string metricsName = reorderedName.swapExt(".bam", "_marked_dups.metrics")
-    task(mdupsName <- reorderedName, taskName := "picard marking dups "+mdupsName) {
-        sys /opt/sw/jdk1.7.0_21/bin/java -Xmx3g -jar /opt/sw/picard/1.139/picard.jar MarkDuplicates TMP_DIR=tmp/ \
+    task(mdupsName <- reorderedName, mem = 10000000000, taskName := "picard marking dups "+mdupsName) {
+        sys /opt/sw/jdk1.7.0_21/bin/java -Xmx6g -jar /opt/sw/picard/1.139/picard.jar MarkDuplicates TMP_DIR=/scratch/picard/tmp/ \
                                   VALIDATION_STRINGENCY=LENIENT \
                                   CREATE_INDEX=true \
                                   INPUT=$reorderedName \

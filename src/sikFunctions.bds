@@ -105,7 +105,7 @@ string fixFileNames(string rootName, string fileFix) {
     }
 }
 
-string mapSTAR(string rootName, string[] listOfReads, string[] rawReads) {
+string mapSTAR(string rootName, string genomeIndex, string SAindexFile, string[] listOfReads, string[] rawReads) {
     string fixedFileName
     
     if(!sampleNames.isEmpty()){
@@ -120,15 +120,15 @@ string mapSTAR(string rootName, string[] listOfReads, string[] rawReads) {
     string bamOut = preFix+"Aligned.out.bam"
     string reads = listOfReads.join(" ")
     
-    task(bamOut <- genomeIndex, mem := 40000000000, taskName := "STAR aligning "+rootBase) {
-        sys STAR --runThreadN 30 \
-                 --genomeDir $genomeIndex \
-                 --outSAMtype BAM Unsorted \
-                 --outSAMunmapped Within \
-                 --outSAMattrRGline ID:001 CN:Unknown DS:RNA-seq PL:ILLUMINA PM:MiSeq SM:$rootBase \
-                 --readFilesCommand zcat \
-                 --readFilesIn $reads \
-                 --outFileNamePrefix $preFix
+    task(bamOut <- [genomeIndex, SAindexFile], mem := 40000000000, taskName := "STAR aligning "+rootBase) {
+        sys /opt/sw/STAR/2.4.2a/STAR --runThreadN 20 \
+                                     --genomeDir $genomeIndex \
+                                     --outSAMtype BAM Unsorted \
+                                     --outSAMunmapped Within \
+                                     --outSAMattrRGline ID:001 CN:Unknown DS:RNA-seq PL:ILLUMINA PM:MiSeq SM:$rootBase \
+                                     --readFilesCommand zcat \
+                                     --readFilesIn $reads \
+                                     --outFileNamePrefix $preFix
     }
     #wait
     # you can remove wait statement and reduce number of threads
