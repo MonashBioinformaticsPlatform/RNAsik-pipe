@@ -17,8 +17,10 @@ if((!preqcBamFiles.exists()) && (prePro)) preqcBamFiles.mkdir()
 #------
 string getPrePro(string bamFile, string fastaRef){
     string sortedName = preqcBamFiles+"/"+bamFile.baseName().swapExt("Aligned.out.bam", "sorted.bam")
-    task(sortedName <- bamFile, taskName := "picard sorting "+bamFile) {
-        sys picard SortSam TMP_DIR=/scratch/picard/tmp/ \
+    // try using 8 cpus to limit how picard processes can be run at a time
+    // this should imporve I/O (input / output) performance
+    task(sortedName <- bamFile, cpus := 8, taskName := "picard sorting "+bamFile) {
+        sys picard SortSam TMP_DIR=tmp/ \
                            VALIDATION_STRINGENCY=LENIENT \
                            CREATE_INDEX=true \
                            INPUT=$bamFile \
@@ -27,7 +29,7 @@ string getPrePro(string bamFile, string fastaRef){
     }
     string reorderedName = sortedName.swapExt(".bam", "_reordered.bam")
     task(reorderedName <- sortedName, taskName := "picard reordering "+reorderedName) {
-        sys picard ReorderSam TMP_DIR=/scratch/picard/tmp/ \
+        sys picard ReorderSam TMP_DIR=tmp/ \
                               VALIDATION_STRINGENCY=LENIENT \
                               INPUT=$sortedName \
                               OUTPUT=$reorderedName \
@@ -36,7 +38,7 @@ string getPrePro(string bamFile, string fastaRef){
     string mdupsName = reorderedName.swapExt(".bam", "_marked_dups.bam")
     string metricsName = reorderedName.swapExt(".bam", "_marked_dups.metrics")
     task(mdupsName <- reorderedName, taskName := "picard marking dups "+mdupsName) {
-        sys picard MarkDuplicates TMP_DIR=/scratch/picard/tmp/ \
+        sys picard MarkDuplicates TMP_DIR=tmp/ \
                                   VALIDATION_STRINGENCY=LENIENT \
                                   CREATE_INDEX=true \
                                   INPUT=$reorderedName \

@@ -120,6 +120,7 @@ string mapSTAR(string rootName, string genomeIndex, string SAindexFile, string[]
     string bamOut = preFix+"Aligned.out.bam"
     string reads = listOfReads.join(" ")
     
+    //task(bamOut <- [genomeIndex, SAindexFile], cpu := 32, taskName := "STAR aligning "+rootBase) {
     task(bamOut <- [genomeIndex, SAindexFile], taskName := "STAR aligning "+rootBase) {
         sys STAR --runThreadN 32 \
                  --genomeDir $genomeIndex \
