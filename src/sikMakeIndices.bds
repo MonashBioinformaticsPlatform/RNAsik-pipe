@@ -14,9 +14,17 @@ if((!refFiles.exists()) && (makeIndices)) refFiles.mkdir()
 #------
 # Body
 #------
+string makeLocalFastaRef(string fastaRef) {
+    string localFastaRef = refFiles+"/"+fastaRef.baseName()
+    task(localFastaRef <- fastaRef, taskName := "Copying files") {
+        sys echo $(date) Copying files, be patient; cp -v $fastaRef $refFiles
+    }
+    return localFastaRef
+}
+
 string[] makeSTARindex(string fastaRef, string additionalArgs) {
 
-    string localGenomeIndex = localFastaRef.removeExt()+"-starIndex"
+    string localGenomeIndex = fastaRef.removeExt()+"-starIndex"
     if(!localGenomeIndex.exists()) localGenomeIndex.mkdir()
     # This is just in case someone already had a directory with exact the same name
     else warning "There was a directory named $localGenomeIndex. STAR has overwritten its content"
@@ -24,7 +32,7 @@ string[] makeSTARindex(string fastaRef, string additionalArgs) {
     string starSAindexFile = localGenomeIndex+"/"+"SAindex"
 
     task([localGenomeIndex, starSAindexFile] <- fastaRef, mem := 40000000000, taskName := "Making STAR index") {
-        sys STAR --runThreadN 32 \
+        sys STAR --runThreadN 22 \
                  --runMode genomeGenerate \
                  --genomeDir $localGenomeIndex \
                  --genomeFastaFiles $fastaRef \

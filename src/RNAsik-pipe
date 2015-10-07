@@ -33,7 +33,7 @@ include "sikQCreports.bds"
 # Make indices if required 
 #------------------------------
 if(makeIndices){
-    task(localFastaRef <- fastaRef, taskName := "Copying files") sys echo $(date) Copying files, be patient; cp -v $fastaRef $refFiles
+    localFastaRef = makeLocalFastaRef(fastaRef)
     string sjdbArguments
     if(gtfFile) {
         int readSize = 101
@@ -49,14 +49,20 @@ if(makeIndices){
 #------------------------------
 # fastQC report
 #------------------------------
-#if(fastqc) {
-#    if(!fqDir.isEmpty()) {
-#        string fastqcFiles = fqDir.dirPath().join(" ")
-#        task fastqc --outdir $fastqcReport \
-#                    --format fastq \
-#                    $fastqcFiles
-#    }
-#}
+if(fastqc) {
+    if(!fqDir.isEmpty()) {
+        string fqcReport = getFastqcReport(fqDir)
+    }
+    if(!fqDirs.isEmpty()) {
+        string[] dirs = getDirs(fqDirs)
+        int numberOfDirs = dirs.size()
+
+        for(int i=0; i < numberOfDirs; i++){
+            string dir = dirs[i]
+            string fqcReport = getFastqcReport(dir)
+        }
+    }
+}
 #------------------------------
 # BAM generation step
 #------------------------------
@@ -75,7 +81,6 @@ if(star){
             # STAR aligning
             string[] reads = getSTARreads(orderedList, checkPair)
             string bamFile = mapSTAR(fqread, localGenomeIndex, localSAindexFile, reads, orderedList) 
-            //string bamFile = mapSTAR(fqread, reads, orderedList) 
             bamsList.add(bamFile)
         }
     }
@@ -85,10 +90,8 @@ if(star){
         int numberOfDirs = dirs.size()
     
         for(int i=0; i < numberOfDirs; i++){
-
         
             string dir = dirs[i]
-            string makeDirPath = fqDirs+"/"+dir
             string{} uniqueNames = getUniqueNames(dir)
     
             for(string fqread : uniqueNames.keys()) {

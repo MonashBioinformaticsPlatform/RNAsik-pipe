@@ -4,6 +4,7 @@
 
 include "sikHeader.bds"
 include "sikMakeIndices.bds"
+include "sikFunctions.bds"
 
 # define directory name
 string RNAseQCreport = "RNAseQC-report"
@@ -41,4 +42,16 @@ string getRNAseQC(string sampleIdsFile, string[] markedBams, bool checkPair, str
                                                                          $additionalArgs
     }
     return "all good"
+}
+
+string fastqcReport = "fastqcReport"
+if((!fastqcReport.exists()) && (fastqc)) fastqcReport.mkdir()
+string getFastqcReport(string fqDir){
+    string fastqcFiles = fqDir.dirPath(extn).join(" ")
+    task(taskName := "Running FASTQC") { 
+        sys fastqc --outdir $fastqcReport \
+                   --format fastq \
+                   $fastqcFiles
+    }
+    return "all done"
 }
