@@ -48,7 +48,7 @@ string fastqcReport = "fastqcReport"
 if((!fastqcReport.exists()) && (fastqc)) fastqcReport.mkdir()
 string getFastqcReport(string fqDir){
     string fastqcFiles = fqDir.dirPath(extn).join(" ")
-    task(taskName := "Running FASTQC") { 
+    task(fastqcReport <- fastqcFiles, taskName := "Running FASTQC") { 
         sys fastqc --outdir $fastqcReport \
                    --format fastq \
                    $fastqcFiles
