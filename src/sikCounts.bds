@@ -8,30 +8,33 @@ include "sikSanityCheck.bds"
 #------------------------------
 # Make directories as required
 #------------------------------
-string featureNo = "featureNo"
-string featureReverse = "featureReverse"
-
-if((!featureNo.exists()) && (count)) featureNo.mkdir()
-if((!featureReverse.exists()) && (count)) featureReverse.mkdir()
 
 #------
 # Body
 #------
-string getReadsCount(string bamFile, string gtfFile) {
-    
-    string reverseFeature = featureReverse+"/"+bamFile.baseName().swapExt("_Aligned.out.bam", ".txt")
-    task(reverseFeature <- bamFile, taskName := "counting reads "+bamFile) {
+string[] getReadsCount(string[] bamsList, string gtfFile, bool checkPair) {
+   
+    string additionalArgs
+    if(checkPair) additionalArgs = "-T 32 -p"
+    else additionalArgs = "-T 32"
+
+    string bamString = bamsList.join(" ")
+
+    string featureReverse = "featureReverse.txt"
+    task(featureReverse <- bamsList, taskName := "counting reads") {
         sys featureCounts -a $gtfFile \
-                          -o $reverseFeature \
-                          $bamFile\
-                          -s 2
+                          -o $featureReverse \
+                          -s 2 \
+                          $additionalArgs \
+                          $bamString
     }
-    string noFeature = featureNo+"/"+bamFile.baseName().swapExt("_Aligned.out.bam", ".txt")
-    task(noFeature <- bamFile, taskName := "counting raeds "+bamFile) {
+    string featureNo = "featureNo.txt"
+    task(featureNo <- bamsList, taskName := "counting reads") {
         sys featureCounts -a $gtfFile \
-                          -o $noFeature \
-                          $bamFile \
-                          -s 0
+                          -o $featureNo \
+                          -s 0 \
+                          $additionalArgs \
+                          $bamString
     }
-    return reverseFeature
+    return [featureNo, featureReverse] 
 }

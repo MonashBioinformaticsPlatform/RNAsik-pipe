@@ -58,8 +58,6 @@ string localSAindexFile
 string[] bamsList
 # get bool for whether the data is paired end or not
 bool checkPair 
-# List of all read counts files
-string[] readCountsFiles
 # list of all BAMS files,
 # where BAM had been sorted, reorted and duplicates marked
 string[] markedBams

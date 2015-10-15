@@ -1,4 +1,5 @@
-#!/usr/bin/env bds
+#!/home/kirill/.bds/bds
+#/usr/bin/env bds
 
 #----------------------------------------------------------------------------------------------------
 #  Align RNA-seq reads to the reference genome, get RNA-seq metrics and get reads counts
@@ -109,6 +110,24 @@ if(star){
         }
     }
 }
+string featureNoCounts = "featureNoCounts.txt"
+string featureReversCounts = "featureReversCounts.txt"
+
+if(count) {
+   string[] featureCounts = getReadsCount(bamsList, gtfFile, checkPair)
+
+   string countsNo = featureCounts[0]
+   string countsRevers = featureCounts[1]
+
+   int numberOfBamFiles = bamsList.size()+7
+   int[] theRange = range(7, numberOfBamFiles)
+   string numberOfFields = theRange.join(",")
+
+   task([featureNoCounts, featureReversCounts] <- featureCounts, taskName := "massage") {
+       sys grep -v "#" $countsNo | cut -f1,$numberOfFields | perl -pe 's{/\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $featureNoCounts
+       sys grep -v "#" $countsRevers | cut -f1,$numberOfFields | perl -pe 's{/\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $featureReversCounts
+   }
+}
 #------------------------------
 # BAM processing
 #------------------------------
@@ -116,11 +135,6 @@ for(string bamFile : bamsList) {
     if(prePro) {
         string testCheck = getPrePro(bamFile, localFastaRef)
         markedBams.add(testCheck)
-    }
-
-    if(count) {
-       string readCountsFile = getReadsCount(bamFile, gtfFile)
-       readCountsFiles.add(readCountsFile)
     }
 }
 #----------------

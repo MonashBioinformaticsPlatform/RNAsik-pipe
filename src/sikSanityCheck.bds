@@ -16,7 +16,7 @@ if(fastqc) {
     if( ((fqDir.isEmpty()) && (fqDirs.isEmpty())) || ((fqDirs.isEmpty()) && (fqDir.isEmpty()))) error "Usage: You need to specify either -fqDir or -fqDirs"
 }
 if(star) {
-    if(fqRegex.isEmpty()) error "test"
+    if(fqRegex.isEmpty()) error "Please specify which regex option you like to use A,B or C Or provide your own regex pattern"
 
     if(!fqRegex.isEmpty()){
         if(fqRegex == "A") fqRegex = "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"
@@ -25,15 +25,19 @@ if(star) {
     }
     else error "Usage: You need to select A, B or C option for -fqRegex flag"
     
-    if((fqDirs.isEmpty()) && (fqDir.isEmpty())) error "Usage: You need to specify either -fqDir or -fqDirs"
+    //if((fqDirs.isEmpty()) && (fqDir.isEmpty())) error "Usage: You need to specify either -fqDir or -fqDirs"
+    if(fqDir.isEmpty()) error "Usage: You need to specify either -fqDir or -fqDirs"
     if(genomeIndex.isEmpty() && (!makeIndices))  error "Usage: -genomeIndex /path/to/genomeIndex/"
     # setting some of the global variables
     if(!makeIndices) localGenomeIndex = genomeIndex
 }
 if(count) {
+	#if(!star) bamsList = bamFiles.dirPath("*.bam")
+    if(!star) bamsList = bamFiles.dirPath("*.bam")
     if(gtfFile.isEmpty())  error "Usage: -gtfFile /path/to/GTFfile"
 }
 if(prePro){
+    if(!star) bamsList = bamFiles.dirPath("*.bam")
     if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
     if(!makeIndices){
 //        # setting some of the global variables	    
