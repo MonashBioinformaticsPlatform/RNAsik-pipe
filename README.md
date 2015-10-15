@@ -202,5 +202,5 @@ counts using both stranded NO and stranded REVERSE options
 
 ## Release notes
 
-- [Version 1.2](#supplementary/releaseNotes1.2.md)
+- [Version 1.2](supplementary/releaseNotes1.2.md)
 
