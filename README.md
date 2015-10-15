@@ -24,7 +24,7 @@
   - [Best practice tip](#best-practice-tip)
   - [Options](#options)
 - [Release notes](#release-notes)
-  - [version 1.2](#version-1.2)
+  - [Version 1.2](#version-1.2)
 
 ## Introduction
 
