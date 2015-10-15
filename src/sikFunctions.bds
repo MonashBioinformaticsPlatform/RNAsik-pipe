@@ -11,8 +11,6 @@ include "sikMakeIndices.bds"
 string bamFiles = "bamFiles"
 if((!bamFiles.exists()) && (star)) bamFiles.mkdir()
 
-if(extn.isEmpty()) extn = "*fastq.gz"
-
 #------------------------------
 # Functions
 #------------------------------
@@ -119,7 +117,7 @@ string mapSTAR(string rootName, string genomeIndex, string SAindexFile, string[]
     
     //task(bamOut <- [genomeIndex, SAindexFile], cpu := 32, taskName := "STAR aligning "+rootBase) {
     task(bamOut <- [genomeIndex, SAindexFile], taskName := "STAR aligning "+rootBase) {
-        sys STAR --runThreadN 20 \
+        sys STAR --runThreadN $threads \
                  --genomeDir $genomeIndex \
                  --outSAMtype BAM Unsorted \
                  --outSAMunmapped Within \

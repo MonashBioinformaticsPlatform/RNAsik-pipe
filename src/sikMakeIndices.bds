@@ -26,18 +26,20 @@ string[] makeSTARindex(string fastaRef, string additionalArgs) {
 
     string localGenomeIndex = fastaRef.removeExt()+"-starIndex"
     if(!localGenomeIndex.exists()) localGenomeIndex.mkdir()
-    # This is just in case someone already had a directory with exact the same name
-    else warning "There was a directory named $localGenomeIndex. STAR has overwritten its content"
 
     string starSAindexFile = localGenomeIndex+"/"+"SAindex"
 
     task([localGenomeIndex, starSAindexFile] <- fastaRef, mem := 40000000000, taskName := "Making STAR index") {
-        sys STAR --runThreadN 22 \
+        sys STAR --runThreadN $threads \
                  --runMode genomeGenerate \
                  --genomeDir $localGenomeIndex \
                  --genomeFastaFiles $fastaRef \
                  $additionalArgs
     }
+    return [starSAindexFile, localGenomeIndex]
+}
+
+string makeOtherIndices(string fastaRef) {
 
     string fastaFaiFile = fastaRef+".fai"
     task(fastaFaiFile <- fastaRef, taskName := "Indexing FASTA file") {
@@ -49,5 +51,5 @@ string[] makeSTARindex(string fastaRef, string additionalArgs) {
         sys picard CreateSequenceDictionary REFERENCE=$fastaRef \
                                             OUTPUT=$fastaDictFile
     }
-    return [starSAindexFile, localGenomeIndex]
+    return fastaFaiFile
 }

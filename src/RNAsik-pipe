@@ -1,8 +1,7 @@
-#!/home/kirill/.bds/bds
-#/usr/bin/env bds
+#!/usr/bin/env bds
 
 #----------------------------------------------------------------------------------------------------
-#  Align RNA-seq reads to the reference genome, get RNA-seq metrics and get reads counts
+# RNAsik-pipe is an easy way from FASTQ to differential gene expression #degust
 #----------------------------------------------------------------------------------------------------
 
 #------------------------------
@@ -46,6 +45,12 @@ if(makeIndices){
     string[] localIndexList = makeSTARindex(localFastaRef, sjdbArguments)
     localSAindexFile = localIndexList[0]
     localGenomeIndex = localIndexList[1]
+    string fastaFaiFile = makeOtherIndices(localFastaRef)
+}
+
+if(makeIndex){
+
+    string fastaFaiFile = makeOtherIndices(localFastaRef)
 }
 #------------------------------
 # fastQC report
@@ -123,7 +128,7 @@ if(count) {
    int[] theRange = range(7, numberOfBamFiles)
    string numberOfFields = theRange.join(",")
 
-   task([featureNoCounts, featureReversCounts] <- featureCounts, taskName := "massage") {
+   task([featureNoCounts, featureReversCounts] <- featureCounts, taskName := "back massage") {
        sys grep -v "#" $countsNo | cut -f1,$numberOfFields | perl -pe 's{/\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $featureNoCounts
        sys grep -v "#" $countsRevers | cut -f1,$numberOfFields | perl -pe 's{/\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $featureReversCounts
    }

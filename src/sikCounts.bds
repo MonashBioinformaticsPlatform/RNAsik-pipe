@@ -15,8 +15,8 @@ include "sikSanityCheck.bds"
 string[] getReadsCount(string[] bamsList, string gtfFile, bool checkPair) {
    
     string additionalArgs
-    if(checkPair) additionalArgs = "-T 32 -p"
-    else additionalArgs = "-T 32"
+    if(checkPair) additionalArgs = "-p"
+    else additionalArgs = ""
 
     string bamString = bamsList.join(" ")
 
@@ -25,6 +25,7 @@ string[] getReadsCount(string[] bamsList, string gtfFile, bool checkPair) {
         sys featureCounts -a $gtfFile \
                           -o $featureReverse \
                           -s 2 \
+                          -T $threads \
                           $additionalArgs \
                           $bamString
     }
@@ -33,6 +34,7 @@ string[] getReadsCount(string[] bamsList, string gtfFile, bool checkPair) {
         sys featureCounts -a $gtfFile \
                           -o $featureNo \
                           -s 0 \
+                          -T $threads \
                           $additionalArgs \
                           $bamString
     }

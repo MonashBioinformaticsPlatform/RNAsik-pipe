@@ -7,12 +7,17 @@
 #------------------------------
 helpUnsorted := true
 
-help RNAsik-pipe version 1.1-beta
+help RNAsik-pipe version 1.2
+help Usage: RNAsik-pipe <star|count|prePro|fastqc> [options]
 
 help Make Indices options:
 
 bool makeIndices   help flag if you need to make indices. Usualy if you are running the pipeline\
-                        for the first time you need to specify this flag.
+                        for the first time you need to specify this flag. This will make STAR index\
+                        picard special .dict file and index your FASTA file. 
+
+bool makeIndex     help if you already have STAR index or just wishing to use other bits of the pipeline,\
+                        but the alignment specify this option.
 
 help FASTQ mapping options:
 
@@ -25,8 +30,6 @@ string fqRegex     help select regex option that resembles your common fastq fil
                                    - C: "_R[0-9]_[0-9]{3}.fastq.gz$"
 
 string genomeIndex help path to the directory with genome index for the coresponding species
-string extn        help optional, specify your files extension default [fastq.gz]
-string sampleNames help optional, specify a text file with alternative sample names
 
 help Reads count option [default featureCounts]:
 
@@ -46,6 +49,13 @@ help RNA-SeQC report option:
 
 bool RNAseQC       help flag if you like to run RNA-SeQC report
 
+help Other options
+
+int threads        help specify number of threads to use. This number will be used for STAR genome indexing\
+                        and STAR raed alignment as well as for featureCounts
+string extn        help optional, specify your files extension default [fastq.gz]
+string sampleNames help optional, specify a text file with alternative sample names
+
 #------------------------------
 # Global Variables
 #------------------------------
@@ -61,3 +71,5 @@ bool checkPair
 # list of all BAMS files,
 # where BAM had been sorted, reorted and duplicates marked
 string[] markedBams
+# defualt file extention
+if(extn.isEmpty()) extn = "*fastq.gz"

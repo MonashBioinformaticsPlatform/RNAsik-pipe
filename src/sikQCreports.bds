@@ -46,8 +46,11 @@ string getRNAseQC(string sampleIdsFile, string[] markedBams, bool checkPair, str
 
 string fastqcReport = "fastqcReport"
 if((!fastqcReport.exists()) && (fastqc)) fastqcReport.mkdir()
+
 string getFastqcReport(string fqDir){
+
     string fastqcFiles = fqDir.dirPath(extn).join(" ")
+
     task(fastqcReport <- fastqcFiles, taskName := "Running FASTQC") { 
         sys fastqc --outdir $fastqcReport \
                    --format fastq \

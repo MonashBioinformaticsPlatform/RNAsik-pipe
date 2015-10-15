@@ -7,9 +7,8 @@ include "sikHeader.bds"
 include "sikMakeIndices.bds"
 # to include `preqcBamFiles` into this file scope
 include "sikPrePro.bds"
-#if(extn.isEmpty()) extn = "*fastq.gz"
 
-if(makeIndices){
+if(makeIndices || makeIndex){
     if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
 }
 if(fastqc) {
@@ -25,8 +24,7 @@ if(star) {
     }
     else error "Usage: You need to select A, B or C option for -fqRegex flag"
     
-    //if((fqDirs.isEmpty()) && (fqDir.isEmpty())) error "Usage: You need to specify either -fqDir or -fqDirs"
-    if(fqDir.isEmpty()) error "Usage: You need to specify either -fqDir or -fqDirs"
+    if((fqDirs.isEmpty()) && (fqDir.isEmpty())) error "Usage: You need to specify either -fqDir or -fqDirs"
     if(genomeIndex.isEmpty() && (!makeIndices))  error "Usage: -genomeIndex /path/to/genomeIndex/"
     # setting some of the global variables
     if(!makeIndices) localGenomeIndex = genomeIndex
@@ -40,7 +38,7 @@ if(prePro){
     if(!star) bamsList = bamFiles.dirPath("*.bam")
     if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
     if(!makeIndices){
-//        # setting some of the global variables	    
+        # setting some of the global variables	    
         localFastaRef = fastaRef 
         string exampleFastaDict = fastaRef.removeExt()+".dict"
         string exampleFastaFai fastaRef+".fai"
