@@ -23,6 +23,8 @@
   - [Additional and optional files](#additional-and-optional-files)
   - [Best practice tip](#best-practice-tip)
   - [Options](#options)
+- [Release notes](#release-notes)
+  - [version 1.2](#version-1.2)
 
 ## Introduction
 
@@ -197,3 +199,8 @@ STAR --runThreadN 26 \
 - Right now only `featureCounts` is supported for read counting
 - At the moment there isn't an option to choose the strand direction for read counts. `RNAsik-pipe` simply
 counts using both stranded NO and stranded REVERSE options
+
+## Release notes
+
+- [Version 1.2](#supplementary/releaseNotes1.2.md)
+
