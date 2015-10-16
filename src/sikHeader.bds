@@ -73,4 +73,4 @@ bool checkPair
 string[] markedBams
 # defualt file extention
 if(extn.isEmpty()) extn = "*fastq.gz"
-if(threads.isEmpty()) threads = 1
+#if(threads.isEmpty()) threads = 1
