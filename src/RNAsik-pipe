@@ -72,7 +72,6 @@ if(fastqc) {
 #------------------------------
 # BAM generation step
 #------------------------------
-
 if(star){
     if(!fqDir.isEmpty()) {
         string{} uniqueNames = getUniqueNames(fqDir)
@@ -115,6 +114,7 @@ if(star){
         }
     }
 }
+
 string featureNoCounts = "featureNoCounts.txt"
 string featureReversCounts = "featureReversCounts.txt"
 
@@ -132,6 +132,7 @@ if(count) {
        sys grep -v "#" $countsNo | cut -f1,$numberOfFields | perl -pe 's{/\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $featureNoCounts
        sys grep -v "#" $countsRevers | cut -f1,$numberOfFields | perl -pe 's{/\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $featureReversCounts
    }
+   goal featureCounts
 }
 #------------------------------
 # BAM processing

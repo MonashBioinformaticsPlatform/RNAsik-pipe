@@ -13,7 +13,7 @@ include "sikSanityCheck.bds"
 # Body
 #------
 string[] getReadsCount(string[] bamsList, string gtfFile, bool checkPair) {
-   
+
     string additionalArgs
     if(checkPair) additionalArgs = "-p"
     else additionalArgs = ""
@@ -21,8 +21,8 @@ string[] getReadsCount(string[] bamsList, string gtfFile, bool checkPair) {
     string bamString = bamsList.join(" ")
 
     string featureReverse = "featureReverse.txt"
-    task(featureReverse <- bamsList, taskName := "counting reads") {
-        sys featureCounts -a $gtfFile \
+    task(featureReverse <- bamFiles, taskName := "counting reads") {
+        sys echo featureCounts -a $gtfFile \
                           -o $featureReverse \
                           -s 2 \
                           -T $threads \
@@ -30,8 +30,8 @@ string[] getReadsCount(string[] bamsList, string gtfFile, bool checkPair) {
                           $bamString
     }
     string featureNo = "featureNo.txt"
-    task(featureNo <- bamsList, taskName := "counting reads") {
-        sys featureCounts -a $gtfFile \
+    task(featureNo <- bamFiles, taskName := "counting reads") {
+        sys echo featureCounts -a $gtfFile \
                           -o $featureNo \
                           -s 0 \
                           -T $threads \
