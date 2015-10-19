@@ -22,7 +22,7 @@ string[] getReadsCount(string[] bamsList, string gtfFile, bool checkPair) {
 
     string featureReverse = "featureReverse.txt"
     task(featureReverse <- bamFiles, taskName := "counting reads") {
-        sys echo featureCounts -a $gtfFile \
+        sys featureCounts -a $gtfFile \
                           -o $featureReverse \
                           -s 2 \
                           -T $threads \
@@ -31,7 +31,7 @@ string[] getReadsCount(string[] bamsList, string gtfFile, bool checkPair) {
     }
     string featureNo = "featureNo.txt"
     task(featureNo <- bamFiles, taskName := "counting reads") {
-        sys echo featureCounts -a $gtfFile \
+        sys featureCounts -a $gtfFile \
                           -o $featureNo \
                           -s 0 \
                           -T $threads \

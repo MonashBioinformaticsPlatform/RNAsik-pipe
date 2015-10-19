@@ -129,8 +129,8 @@ if(count) {
    string numberOfFields = theRange.join(",")
 
    task([featureNoCounts, featureReversCounts] <- featureCounts, taskName := "back massage") {
-       sys grep -v "#" $countsNo | cut -f1,$numberOfFields | perl -pe 's{/\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $featureNoCounts
-       sys grep -v "#" $countsRevers | cut -f1,$numberOfFields | perl -pe 's{/\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $featureReversCounts
+       sys grep -v "#" $countsNo | cut -f1,$numberOfFields | perl -pe 's{\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $featureNoCounts
+       sys grep -v "#" $countsRevers | cut -f1,$numberOfFields | perl -pe 's{\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $featureReversCounts
    }
    goal featureCounts
 }
