@@ -83,9 +83,10 @@
 
 - [BigDataScript](http://pcingola.github.io/BigDataScript/download.html)
 - [STAR aligner](https://github.com/alexdobin/STAR/releases)
+- [featureCounts](http://subread.sourceforge.net/)
+- [samtools](http://www.htslib.org/download/)
 - [Picard tools](http://broadinstitute.github.io/picard/)
 - [RNA-SeQC](https://www.broadinstitute.org/cancer/cga/rna-seqc)
-- [featureCounts](http://subread.sourceforge.net/)
 
 ## Installation
 
