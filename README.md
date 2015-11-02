@@ -88,8 +88,10 @@
 - [Picard tools](http://broadinstitute.github.io/picard/)
 - [RNA-SeQC](https://www.broadinstitute.org/cancer/cga/rna-seqc)
 
-For [STAR aligner](https://github.com/alexdobin/STAR/releases) you will need 100 Gb of disk space during 
-making an index step. The index itself isn't 100 Gb, but that much space is required.
+### System requirements 
+
+- At least 100 Gb of disk space. [STAR aligner](https://github.com/alexdobin/STAR/releases) you will need 100 Gb of disk space during making an index step. The index itself isn't 100 Gb, but that much space is required. 
+- At least 32 Gb of RAM
 
 ## Installation
 
