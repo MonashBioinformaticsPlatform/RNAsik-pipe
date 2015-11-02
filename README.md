@@ -88,6 +88,9 @@
 - [Picard tools](http://broadinstitute.github.io/picard/)
 - [RNA-SeQC](https://www.broadinstitute.org/cancer/cga/rna-seqc)
 
+For [STAR aligner](https://github.com/alexdobin/STAR/releases) you will need 100 Gb of disk space during 
+making an index step. The index itself isn't 100 Gb, but that much space is required.
+
 ## Installation
 
 Make sure to install [BigDataScript](http://pcingola.github.io/BigDataScript/) first. Follow [BDS installation instructions](http://pcingola.github.io/BigDataScript/download.html)
