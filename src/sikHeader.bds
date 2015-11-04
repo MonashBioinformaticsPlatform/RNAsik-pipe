@@ -61,6 +61,10 @@ string sampleNames help optional, specify a text file with alternative sample na
 #------------------------------
 # set localFastaRef
 string localFastaRef
+# set fastaDictFile
+string fastaDictFile
+# set fastaFaiFile
+string fastaFaiFile
 # set locaGenomeIndex 
 string localGenomeIndex
 string localSAindexFile 

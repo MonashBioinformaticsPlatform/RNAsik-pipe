@@ -28,7 +28,7 @@ string getPrePro(string bamFile, string fastaRef){
                            SORT_ORDER=coordinate
     }
     string reorderedName = sortedName.swapExt(".bam", "_reordered.bam")
-    task(reorderedName <- sortedName, taskName := "picard reordering "+reorderedName) {
+    task(reorderedName <- [sortedName, fastaDictFile], taskName := "picard reordering "+reorderedName) {
         sys picard ReorderSam TMP_DIR=tmp/ \
                               VALIDATION_STRINGENCY=LENIENT \
                               INPUT=$sortedName \

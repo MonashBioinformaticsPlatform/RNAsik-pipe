@@ -9,8 +9,7 @@ include "sikFunctions.bds"
 # Make directories as required
 #------------------------------
 string refFiles = "refFiles"
-if((!refFiles.exists()) && (makeIndices)) refFiles.mkdir()
-
+if((!refFiles.exists()) && ((makeIndices) || (makeIndex))) refFiles.mkdir()
 #------
 # Body
 #------
@@ -36,10 +35,10 @@ string[] makeSTARindex(string fastaRef, string additionalArgs) {
                  --genomeFastaFiles $fastaRef \
                  $additionalArgs
     }
-    return [starSAindexFile, localGenomeIndex]
+    return [starSAindexFile, localGenomeIndex, fastaDictFile]
 }
 
-string makeOtherIndices(string fastaRef) {
+string[] makeOtherIndices(string fastaRef) {
 
     string fastaFaiFile = fastaRef+".fai"
     task(fastaFaiFile <- fastaRef, taskName := "Indexing FASTA file") {
@@ -51,5 +50,5 @@ string makeOtherIndices(string fastaRef) {
         sys picard CreateSequenceDictionary REFERENCE=$fastaRef \
                                             OUTPUT=$fastaDictFile
     }
-    return fastaFaiFile
+    return [fastaFaiFile, fastaDictFile]
 }

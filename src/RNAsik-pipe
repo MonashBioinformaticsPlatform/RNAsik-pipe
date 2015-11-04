@@ -45,12 +45,13 @@ if(makeIndices){
     string[] localIndexList = makeSTARindex(localFastaRef, sjdbArguments)
     localSAindexFile = localIndexList[0]
     localGenomeIndex = localIndexList[1]
-    string fastaFaiFile = makeOtherIndices(localFastaRef)
 }
 
 if(makeIndex){
-
-    string fastaFaiFile = makeOtherIndices(localFastaRef)
+    localFastaRef = makeLocalFastaRef(fastaRef)
+    string[] fastaIndexFiles = makeOtherIndices(localFastaRef)
+    fastaDictFile = fastaIndexFiles.pop()
+    fastaFaiFile = fastaIndexFiles.pop()
 }
 #------------------------------
 # fastQC report

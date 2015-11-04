@@ -37,12 +37,16 @@ if(count) {
 if(prePro){
     if(!star) bamsList = bamFiles.dirPath("*.bam")
     if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
-    if(!makeIndices){
+    if((!makeIndex) && (!makeIndices)) {
         # setting some of the global variables	    
         localFastaRef = fastaRef 
-        string exampleFastaDict = fastaRef.removeExt()+".dict"
-        string exampleFastaFai fastaRef+".fai"
-        warning "Make sure you have $exampleFastaDict and $exampleFastaFai in the same directory as your $fastaRef file, because downstream application will assume that. If unsure run RNAsik-pipe with -makeIndices option"
+        fastaDictFile = localFastaRef.removeExt()+".dict"
+        fastaFaiFile = localFastaRef+".fai"
+        if(!fastaDictFile.isFile()) error "It doesn't look like you have $fastaDictFile file. Either use `picard CreateSequenceDictionary` command Or run RNAsik-pipe with -makeIndices|-makeIndex option."
+        if(!fastaFaiFile.isFile()) error "It doesn't look like you have $fastaFaiFile file. Either use `samtools faidx` command Or run RNAsik-pipe with -makeIndices|-makeIndex option."
+        //string exampleFastaDict = fastaRef.removeExt()+".dict"
+        //string exampleFastaFai = fastaRef+".fai"
+        //warning "Make sure you have $exampleFastaDict and $exampleFastaFai in the same directory as your $fastaRef file, because downstream application will assume that. If unsure run RNAsik-pipe with -makeIndices option"
     }
 }
 if(RNAseQC){
