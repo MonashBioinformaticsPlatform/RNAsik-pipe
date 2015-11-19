@@ -28,7 +28,8 @@ string{} getUniqueNames(string fqDir) {
     # Map with unique root key
     string{} uniqueNames
     for(string fq : fqDir.dirPath(extn)) {
-        string getR1Index = fq.lastIndexOf("R1")
+        int getR1Index = fq.lastIndexOf("_R1_")
+        int getR2Index = fq.lastIndexOf("_R2_")
         if(getR1Index != -1) {
             # get the root of the file name with regex
             string[] getFile = fq.split(fqRegex)
@@ -36,6 +37,15 @@ string{} getUniqueNames(string fqDir) {
             # append to the list if it isn't in the list already
             if(!uniqueNames.hasKey(rootName)) uniqueNames{rootName}=""
             uniqueNames{rootName}+=fq+","
+        }
+        # Sometime data doesn't have neither R1 or R2 in them so this block
+        # will insure that RNAsik-pipe still works correctly
+        if((getR1Index && getR2Index) == -1) {
+    	    string[] getFile = fq.split(fqRegex)
+    	    string rootName = getFile[0].baseName()
+    	    # append to the list if it isn't in the list already
+    	    if(!uniqueNames.hasKey(rootName)) uniqueNames{rootName}=""
+    	    uniqueNames{rootName}+=fq+","
         }
     }
     return uniqueNames
