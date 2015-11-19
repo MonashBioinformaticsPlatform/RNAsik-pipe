@@ -7,8 +7,10 @@
 #------------------------------
 helpUnsorted := true
 
-help RNAsik-pipe version 1.2
-help Usage: RNAsik-pipe <star|count|prePro|fastqc> [options]
+help RNAsik-pipe version 1.3-aplpha
+help Usage: RNAsik-pipe [options]
+help Example1: RNAsik-pip -makeIndices -fastaRef /path/to/your/referenceFile.fa
+help Example2: RNAsik-pip -makeIndices -fastaRef /path/to/your/referenceFile.fa -star -fqDir /path/to/your/fastqFiles/directory -fqRegex A
 
 help Make Indices options:
 

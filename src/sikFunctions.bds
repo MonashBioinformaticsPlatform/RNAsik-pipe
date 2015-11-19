@@ -28,8 +28,8 @@ string{} getUniqueNames(string fqDir) {
     # Map with unique root key
     string{} uniqueNames
     for(string fq : fqDir.dirPath(extn)) {
-        int getR1Index = fq.lastIndexOf("_R1_")
-        int getR2Index = fq.lastIndexOf("_R2_")
+        int getR1Index = fq.lastIndexOf("_R1")
+        int getR2Index = fq.lastIndexOf("_R2")
         if(getR1Index != -1) {
             # get the root of the file name with regex
             string[] getFile = fq.split(fqRegex)

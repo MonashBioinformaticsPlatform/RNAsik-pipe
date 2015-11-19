@@ -116,7 +116,7 @@ if(star){
 }
 
 string featureNoCounts = "featureNoCounts.txt"
-string featureReversCounts = "featureReversCounts.txt"
+string featureReversCounts = "featureReverseCounts.txt"
 
 if(count) {
    string[] featureCounts = getReadsCount(bamsList, gtfFile, checkPair)
