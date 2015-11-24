@@ -21,6 +21,7 @@ if(star) {
         if(fqRegex == "A") fqRegex = "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"
         if(fqRegex == "B") fqRegex = "_L[0-9]{3}_R[0-9].fastq.gz$"
         if(fqRegex == "C") fqRegex = "_R[0-9]_[0-9]{3}.fastq.gz$"
+        if(fqRegex == "D") fqRegex = "_R[0-9].fastq.gz$"
     }
     else error "Usage: You need to select A, B or C option for -fqRegex flag"
     

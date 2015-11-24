@@ -41,9 +41,14 @@ if(makeIndices){
         sjdbArguments = "--sjdbGTFfile $gtfFile --sjdbOverhang $overHang"
     }
     else sjdbArguments = ""
+
     string[] localIndexList = makeSTARindex(localFastaRef, sjdbArguments)
     localSAindexFile = localIndexList[0]
     localGenomeIndex = localIndexList[1]
+
+    string[] fastaIndexFiles = makeOtherIndices(localFastaRef)
+    fastaDictFile = fastaIndexFiles.pop()
+    fastaFaiFile = fastaIndexFiles.pop()
 }
 
 if(makeIndex){

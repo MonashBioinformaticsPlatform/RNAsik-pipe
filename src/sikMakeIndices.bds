@@ -46,7 +46,7 @@ string[] makeOtherIndices(string fastaRef) {
     }
 
     string fastaDictFile = fastaRef.removeExt()+".dict"
-    task(fastaDictFile <- fastaRef, mem = 10000000000, taskName := "Making dictionary File") {
+    task(fastaDictFile <- fastaRef, taskName := "Making dictionary File") {
         sys picard CreateSequenceDictionary REFERENCE=$fastaRef \
                                             OUTPUT=$fastaDictFile
     }

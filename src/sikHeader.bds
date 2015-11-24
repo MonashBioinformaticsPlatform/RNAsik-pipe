@@ -29,7 +29,8 @@ string fqDirs      help path to the directory with fastq directories
 string fqRegex     help select regex option that resembles your common fastq file ending\
                                    - A: "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"\
                                    - B: "_L[0-9]{3}_R[0-9].fastq.gz$"\
-                                   - C: "_R[0-9]_[0-9]{3}.fastq.gz$"
+                                   - C: "_R[0-9]_[0-9]{3}.fastq.gz$"\
+                                   - D: "_R[0-9].fastq.gz$"
 
 string genomeIndex help path to the directory with genome index for the coresponding species
 
