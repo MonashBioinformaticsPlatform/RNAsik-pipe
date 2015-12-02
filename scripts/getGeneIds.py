@@ -17,31 +17,36 @@ parser.add_argument('--dbFile',
                           Public gene names and Biotype"
                     )
 
-parser.add_argument('--outfile',
-                    help = ''
-                    )
-
 args = parser.parse_args()
 dbFile = args.dbFile
-outfile = args.outfile
 
 db = gffutils.FeatureDB(dbFile, keep_order=True)
 features = db.all_features()
 
 genesAttributes = {}
 
-for line in features:
-    geneId = line.attributes['gene_id'].pop()
-    geneName = line.attributes['gene_name'].pop()
-    geneType = line.attributes['gene_biotype'].pop()
+for i in features:
+    line = i.attributes
+    geneId = line['gene_id'].pop()
+
+    if line.get('gene_name'):
+        geneName = line['gene_name'].pop()
+    else:
+        geneName = 'NA'
+
+    if line.get('gene_biotype'):
+        geneType = line['gene_biotype'].pop()
+    else:
+        geneType = 'NA'
+
     if geneId not in genesAttributes:
         genesAttributes[geneId] = [geneName, geneType]
 
+header = True
 
-with open(outfile, 'w') as o:
-    for k,v in genesAttributes.items():
-        if header:
-            o.write('\t'.join(("Gene.ID", "Gene.Name", "Biotype\n")))
-            header = False
-        items = '\t'.join(v)
-        o.write('\t'.join((k, items))+'\n')
+for k,v in genesAttributes.items():
+    if header:
+        print '\t'.join(("Gene.ID", "Gene.Name", "Biotype"))
+        header = False
+    items = '\t'.join(v)
+    print '\t'.join((k, items))
