@@ -121,21 +121,29 @@ if(star){
 }
 
 string featureNoCounts = "featureNoCounts.txt"
-string featureReversCounts = "featureReverseCounts.txt"
+string featureReverseCounts = "featureReverseCounts.txt"
 
-if(count) {
+if(count) { 
+   string geneIds = getGeneIds()
+
    string[] featureCounts = getReadsCount(bamsList, gtfFile, checkPair)
 
    string countsNo = featureCounts[0]
-   string countsRevers = featureCounts[1]
+   string countsReverse = featureCounts[1]
+
+   string checkOne = 'checkNo.txt'
+   string checkTwo = 'checkReverse.txt'
 
    int numberOfBamFiles = bamsList.size()+7
    int[] theRange = range(7, numberOfBamFiles)
    string numberOfFields = theRange.join(",")
 
-   task([featureNoCounts, featureReversCounts] <- featureCounts, taskName := "back massage") {
+task([featureNoCounts, featureReverseCounts] <- [featureCounts, geneIds], taskName := "back massage") {
        sys grep -v "#" $countsNo | cut -f1,$numberOfFields | perl -pe 's{\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $featureNoCounts
-       sys grep -v "#" $countsRevers | cut -f1,$numberOfFields | perl -pe 's{\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $featureReversCounts
+       sys join -j 1 <(sort -k1,1 $geneIds) <(sort -k1,1 $featureNoCounts) > $checkOne
+
+       sys grep -v "#" $countsReverse | cut -f1,$numberOfFields | perl -pe 's{\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $featureReverseCounts
+       sys join -j 1 <(sort -k1,1 $geneIds) <(sort -k1,1 $featureReverseCounts) > $checkTwo
    }
    goal featureCounts
 }

@@ -40,3 +40,21 @@ string[] getReadsCount(string[] bamsList, string gtfFile, bool checkPair) {
     }
     return [featureNo, featureReverse] 
 }
+
+string getGeneIds(){
+    string getProgPath = programPath.pathName()
+
+    string makeDB = getProgPath+"/../scripts/make-gtf-db.py" 
+    string dbName = gtfFile.baseName().removeExt()+'.db'
+    task(dbName <- gtfFile, taskName := "Making db file"){
+        sys python $makeDB $gtfFile $dbName
+    }
+
+    string getGeneIds = getProgPath+"/../scripts/getGeneIds.py"
+    string geneIds = "gene_ids.txt"
+    task(geneIds <- dbName, taskName := "getting gene_ids.txt file") {
+        sys python getGeneIds --dbFile $dbName --outfile $geneIds
+    }
+
+    return geneIds
+}
