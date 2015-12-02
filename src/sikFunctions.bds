@@ -40,7 +40,7 @@ string{} getUniqueNames(string fqDir) {
         }
         # Sometime data doesn't have neither R1 or R2 in them so this block
         # will insure that RNAsik-pipe still works correctly
-        if((getR1Index && getR2Index) == -1) {
+        if((getR1Index == -1) && (getR2Index == -1)) {
     	    string[] getFile = fq.split(fqRegex)
     	    string rootName = getFile[0].baseName()
     	    # append to the list if it isn't in the list already
