@@ -17,6 +17,8 @@ string[] getReadsCount(string[] bamsList, string gtfFile, bool checkPair) {
     string additionalArgs
     if(checkPair) additionalArgs = "-p"
     else additionalArgs = ""
+   
+    int featureThreads = threads/2
 
     string bamString = bamsList.join(" ")
 
@@ -25,7 +27,7 @@ string[] getReadsCount(string[] bamsList, string gtfFile, bool checkPair) {
         sys featureCounts -a $gtfFile \
                           -o $featureReverse \
                           -s 2 \
-                          -T $threads \
+                          -T $featureThreads \
                           $additionalArgs \
                           $bamString
     }
@@ -34,7 +36,7 @@ string[] getReadsCount(string[] bamsList, string gtfFile, bool checkPair) {
         sys featureCounts -a $gtfFile \
                           -o $featureNo \
                           -s 0 \
-                          -T $threads \
+                          -T $featureThreads \
                           $additionalArgs \
                           $bamString
     }

@@ -1,0 +1,26 @@
+#----------------------------------------
+# Info gathering
+#----------------------------------------
+
+string getInfo() {
+
+    string info = "info.txt"
+
+    task(taskName := "Gather versions and files infomation") {
+        sys date >> $info
+        sys echo "----" >> $info
+        sys RNAsik-pipe -version >> $info
+        sys echo "----" >> $info
+        sys STAR --version >> $info 
+        sys echo "----" >> $info
+        sys featureCounts -v 2>> $info
+        sys echo "----" >> $info
+        sys samtools --version >> $info
+        sys echo "----" >> $info
+        sys echo "Files used" >> $info
+        sys echo $gtfFile >> $info
+        sys echo $fastaRef >> $info
+    }
+
+    return info
+}

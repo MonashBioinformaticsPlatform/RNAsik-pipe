@@ -7,6 +7,7 @@ include "sikHeader.bds"
 include "sikMakeIndices.bds"
 # to include `preqcBamFiles` into this file scope
 include "sikPrePro.bds"
+include "sikInfo.bds"
 
 if(makeIndices || makeIndex){
     if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
@@ -54,6 +55,9 @@ if(RNAseQC){
    if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
    if(!preqcBamFiles.isDir()) error "It looks like you don't have pre-proccessed BAM files. Make sure your pre-proccessed BAM files located in `preqcBamFiles` directory Or simply re-run RNAsik-pipe with -prePro flag"
 }
+# Get general info about tools versions and files used 
+if(star || makeIndices || makeIndex || count || fastqc) string generalInfo = getInfo()
+
 if( args.isEmpty() ) {
     printHelp()
     exit(1)
