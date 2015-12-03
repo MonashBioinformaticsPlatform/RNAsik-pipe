@@ -1,13 +1,14 @@
 # `RNAsik-pipe` easy and quick RNA-seq(uencing) pipeline
 
-> RNAsik-pipe is written in pure [BigDataScrip](http://pcingola.github.io/BigDataScript/) (BDS) language
-> There are many advantages in using BDS, but the main ones are:
->  1. One script works on your local machine, on your remote server and on you cluster
+> RNAsik-pipe is written in [BigDataScrip](http://pcingola.github.io/BigDataScript/) (BDS) language
+> There are many advantages in using BDS, but main ones are:
+>
+>  1. One script works on your local machine, on your remote server and on your cluster
 >  2. Checkpoints - never need to run your job from the start in case it stopped. Start from where you left off
->  3. Remote access to your data. Do need to worry about `scp`ing you data to your server, just point RNAsik-pipe
-> to your cloud store if you like
-> As for RNAsik-pipe itself it just makes your life easy. One script solves many problems. Simply give your
-> raw data to RNAsik-pipe and provide with the reference files and press go ! [Enter]
+>  3. Remote access to your data. Don't need to worry about `scp`ing you data to the server, just point RNAsik-pipe to your cloud store if you like
+>
+> As for `RNAsik-pipe` itself it makes your life easy. One single command line can give you list of differrentially expressed genes.
+> Simply give your FASTQ files to RNAsik-pipe with reference files and press go ! [Enter]
 
 ## Content
 
@@ -16,6 +17,8 @@
   - [Get RNAseq metrics](#get-rnaseq-metrics)
   - [get your counts](#get-your-counts)
 - [Installation](#installation)
+  - [The easy way](#the-easy-way)
+  - [The other way](#the-other-way)
 - [Prerequisites](#prerequisites)
 - [Quick start](#quick-start)
 - [User manual](#user-manual)
@@ -106,9 +109,17 @@ One important note about [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) fil
 
 ## Installation
 
-Make sure to install [BigDataScript](http://pcingola.github.io/BigDataScript/) first. Follow [BDS installation instructions](http://pcingola.github.io/BigDataScript/download.html)
+### The easy way
 
-**Recomended** 
+**It is recommended that you use ansible to install RNAsik-pipe with all dependencies**
+
+The easiest way to get `RNAsik-pipe` installed together with all dependencies is to use [ansible RNAsik-playbook](https://github.com/MonashBioinformaticsPlatform/ansible-RNAsik-REST).
+All you will need to do is install ansible `sudo pip install ansible`, clone the [ansible RNAsik-playbook](https://github.com/MonashBioinformaticsPlatform/ansible-RNAsik-REST)
+`git clone https://github.com/MonashBioinformaticsPlatform/ansible-RNAsik-REST.git` and run ansible `sudo ansible-playbook -i local_server_hosts site.yml`. [Look here for more help](https://github.com/MonashBioinformaticsPlatform/ansible-RNAsik-REST).
+
+### The other way
+
+Make sure to install [BigDataScript](http://pcingola.github.io/BigDataScript/) first. Follow [BDS installation instructions](http://pcingola.github.io/BigDataScript/download.html)
 
 Get [latest stable release](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/releases) by 
 downloading `*tar.gz` file.
@@ -162,4 +173,3 @@ counts using both stranded NO and stranded REVERSE options
 ## Release notes
 
 - [Version 1.2](supplementary/releaseNotes1.2.md)
-
