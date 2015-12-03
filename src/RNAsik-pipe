@@ -131,14 +131,14 @@ if(count) {
    string featureNo = featureCounts[0]
    string featureReverse = featureCounts[1]
 
-   string featureNoCounts = "featureNoCounts.txt"
-   string featureReverseCounts = "featureReverseCounts.txt"
+   string featureNoCounts = countFiles+"/"+"featureNoCounts.txt"
+   string featureReverseCounts = countFiles+"/"+"featureReverseCounts.txt"
 
-   string tempNo = "tempNo.txt"
-   string tempReverse = "tempReverse.txt"
+   string tempNo = countFiles+"/"+"tempNo.txt"
+   string tempReverse = countFiles+"/"+"tempReverse.txt"
 
-   string featureNoCountsWithNames = "featureNoCounts-withNames.txt"
-   string featureReverseCountsWithNames = "featureReverseCounts-withNames.txt"
+   string featureNoCountsWithNames = countFiles+"/"+"featureNoCounts-withNames.txt"
+   string featureReverseCountsWithNames = countFiles+"/"+"featureReverseCounts-withNames.txt"
 
    string geneIdsFile = getGeneIds()
 
@@ -146,7 +146,7 @@ if(count) {
    int[] theRange = range(7, numberOfBamFiles)
    string numberOfFields = theRange.join(",")
 
-task([featureNoCounts, featureReverseCounts] <- [featureCounts, geneIdsFile], taskName := "Making Degust-ready counts file") {
+task([featureNoCountsWithNames, featureReverseCountsWithNames] <- [featureNo, featureReverse, geneIdsFile], taskName := "Making Degust-ready counts file") {
        sys grep -v "#" $featureNo | cut -f1,$numberOfFields | perl -pe 's{\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $featureNoCounts
        sys sed -i '0,/Geneid/s/Geneid/Gene.ID/' $featureNoCounts
        sys /bin/bash -c "join -j 1 <(sort -k1,1 $geneIdsFile) <(sort -k1,1 $featureNoCounts) -t $'\t' > $tempNo"
@@ -161,7 +161,6 @@ task([featureNoCounts, featureReverseCounts] <- [featureCounts, geneIdsFile], ta
        sys grep -v "Biotype" $tempReverse >> $featureReverseCountsWithNames
        sys rm $tempReverse
    }
-   goal [featureNoCounts, featureReverseCounts]
 }
 #------------------------------
 # BAM processing

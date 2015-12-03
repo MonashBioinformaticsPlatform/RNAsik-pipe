@@ -8,7 +8,8 @@ include "sikSanityCheck.bds"
 #------------------------------
 # Make directories as required
 #------------------------------
-
+string countFiles = "countFiles"
+if((!countFiles.exists()) && (count)) countFiles.mkdir()
 #------
 # Body
 #------
@@ -22,8 +23,8 @@ string[] getReadsCount(string[] bamsList, string gtfFile, bool checkPair) {
 
     string bamString = bamsList.join(" ")
 
-    string featureReverse = "featureReverse.txt"
-    task(featureReverse <- bamFiles, taskName := "counting reads") {
+    string featureReverse = countFiles+"/"+"featureReverse.txt"
+    task(featureReverse <- bamFiles, taskName := "Counting features") {
         sys featureCounts -a $gtfFile \
                           -o $featureReverse \
                           -s 2 \
@@ -31,8 +32,8 @@ string[] getReadsCount(string[] bamsList, string gtfFile, bool checkPair) {
                           $additionalArgs \
                           $bamString
     }
-    string featureNo = "featureNo.txt"
-    task(featureNo <- bamFiles, taskName := "counting reads") {
+    string featureNo = countFiles+"/"+"featureNo.txt"
+    task(featureNo <- bamFiles, taskName := "Counting features") {
         sys featureCounts -a $gtfFile \
                           -o $featureNo \
                           -s 0 \
