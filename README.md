@@ -64,7 +64,7 @@ In this example sample _14-09157_, which might be _WT_ sample was split across t
   - *14-09157_L001_R1.fastq.gz*
   - *14-09157_L001_R2.fastq.gz*
 
-              AND             
+   And 
 
   - *14-09157_L002_R1.fastq.gz*
   - *14-09157_L002_R2.fastq.gz*
