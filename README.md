@@ -14,6 +14,8 @@
 
 - [Introduction](#introduction)
   - [FASTQ files explained](#fastq-files-explained)
+    - [Directory with FASTQ files](#directory-with-fastq-files)
+    - [Directory with subdirectories with FASTQ files](#directory-with-subdirectories-with-fastq-files)
   - [Get RNAseq metrics](#get-rnaseq-metrics)
   - [get your counts](#get-your-counts)
 - [Installation](#installation)
@@ -51,34 +53,36 @@ Your raw data will always come in [FASTQ](https://en.wikipedia.org/wiki/FASTQ_fo
   - Your sample was split into different lanes
   - Your are sequencing paired-end data
 
+#### Directory with FASTQ files
+
 Your [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files might reside in one directory e.g directory per experiment
 
 ![fqDir](supplementary/rawDataDir.png)
 
-In this example sample 14-09157, which might WT is split across two lanes `L001` and `L002`, which is 
-typical of Illumina sequencing. That is two files, one for each lane. We can also see that this is
-paire end data. That means for each file there has to be a pair file, that is R1 and R2. In summary
-single sample, e.g WT is covered by four FASTQ files:
-   - 14-09157_L001_R1.fastq.gz
-   - 14-09157_L001_R2.fastq.gz
-               AND 
-   - 14-09157_L002_R1.fastq.gz
-   - 14-09157_L002_R2.fastq.gz
-you can use `cat` command to concatenate files across different lanes
-e.g `cat 14-09157_L001_R1.fastq.gz 14-09157_L002_R1.fastq.gz > 14-09157_merged.fastq.gz` or you can merge
-BAM files with `samtools` later. `STAR` aligner can merger on the fly and what RNAsik-pipe is using.
+In this example sample _14-09157_, which might be _WT_ sample was split across two lanes `L001` and `L002` during sequencing, this is some what typical of Illumina data. Therefore one sample is represented by two files, one for each lane. We can also see that this is paired end data, which means for each file there has to be a pair file, that is _R1_ and _R2_. In summary single sample, e.g _WT_ is covered by four FASTQ files:
 
-OR 
+  - *14-09157_L001_R1.fastq.gz*
+  - *14-09157_L001_R2.fastq.gz*
+              AND             
+  - *14-09157_L002_R1.fastq.gz*
+  - *14-09157_L002_R2.fastq.gz*
 
-Each sample might be put into its own subdirectory e.g
+The files for the same sample that were split across multiple lanes need to be merged together at some point during analysis. There are at least two most common ways to go about merging them together:
+
+  1. Using `cat` command to concatenate files across different lanes e.g `cat 14-09157_L001_R1.fastq.gz 14-09157_L002_R1.fastq.gz > 14-09157_merged.fastq.gz`
+
+  2. Let your aligner (if it is capable) to merge your files for you on the fly (during alignment step). [STAR aligner](https://github.com/alexdobin/STAR) can merger [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) on the fly.
+
+#### Directory with subdirectories with FASTQ files
+
+Your [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files might also reside in their own subdirectory e.g  subdirectory per sample inside directory per experiment
 
 ![test](supplementary/rawDataDirs.png)
 
 In this example each sample is placed into its own directory. Now we can see directory `Sample_14-09157`, 
-which will hold four files for described above.
+which will hold four files described above.
 
-`RNAsik-pipe` can work with either of those two options. Specify your "root" directory either with `-fqDir`
-or `-fqDirs` options.
+**`RNAsik-pipe` can work with either of those two options. Specify your "root" directory either with `-fqDir` or `-fqDirs` options.**
 
 ### Get RNAseq metrics
 
