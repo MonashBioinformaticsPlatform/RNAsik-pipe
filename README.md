@@ -44,42 +44,41 @@ One important note about [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) fil
 
 ### FASTQ files explained
 
-  Your raw data will always come in FASTQ format. The number of FASTQ files will depend on many things
-  including:
+Your raw data will always come in [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) format. The number of [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files will depend on many things including:
 
   - Number of samples 
   - Number of replicates 
   - Your sample was split into different lanes
   - Your are sequencing paired-end data
 
-  Your FASTQ files might reside in one directory e.g directory per experiment
+Your [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files might reside in one directory e.g directory per experiment
 
-  ![fqDir](supplementary/rawDataDir.png)
+![fqDir](supplementary/rawDataDir.png)
 
-  In this example sample 14-09157, which might WT is split across two lanes `L001` and `L002`, which is 
-  typical of Illumina sequencing. That is two files, one for each lane. We can also see that this is
-  paire end data. That means for each file there has to be a pair file, that is R1 and R2. In summary
-  single sample, e.g WT is covered by four FASTQ files:
-     - 14-09157_L001_R1.fastq.gz
-     - 14-09157_L001_R2.fastq.gz
-                 AND 
-     - 14-09157_L002_R1.fastq.gz
-     - 14-09157_L002_R2.fastq.gz
-  you can use `cat` command to concatenate files across different lanes
-  e.g `cat 14-09157_L001_R1.fastq.gz 14-09157_L002_R1.fastq.gz > 14-09157_merged.fastq.gz` or you can merge
-  BAM files with `samtools` later. `STAR` aligner can merger on the fly and what RNAsik-pipe is using.
+In this example sample 14-09157, which might WT is split across two lanes `L001` and `L002`, which is 
+typical of Illumina sequencing. That is two files, one for each lane. We can also see that this is
+paire end data. That means for each file there has to be a pair file, that is R1 and R2. In summary
+single sample, e.g WT is covered by four FASTQ files:
+   - 14-09157_L001_R1.fastq.gz
+   - 14-09157_L001_R2.fastq.gz
+               AND 
+   - 14-09157_L002_R1.fastq.gz
+   - 14-09157_L002_R2.fastq.gz
+you can use `cat` command to concatenate files across different lanes
+e.g `cat 14-09157_L001_R1.fastq.gz 14-09157_L002_R1.fastq.gz > 14-09157_merged.fastq.gz` or you can merge
+BAM files with `samtools` later. `STAR` aligner can merger on the fly and what RNAsik-pipe is using.
 
-  OR 
+OR 
 
-  Each sample might be put into its own subdirectory e.g
+Each sample might be put into its own subdirectory e.g
 
-  ![test](supplementary/rawDataDirs.png)
-  
-  In this example each sample is placed into its own directory. Now we can see directory `Sample_14-09157`, 
-  which will hold four files for described above.
+![test](supplementary/rawDataDirs.png)
 
-  `RNAsik-pipe` can work with either of those two options. Specify your "root" directory either with `-fqDir`
-  or `-fqDirs` options.
+In this example each sample is placed into its own directory. Now we can see directory `Sample_14-09157`, 
+which will hold four files for described above.
+
+`RNAsik-pipe` can work with either of those two options. Specify your "root" directory either with `-fqDir`
+or `-fqDirs` options.
 
 ### Get RNAseq metrics
 
