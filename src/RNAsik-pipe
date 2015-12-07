@@ -1,4 +1,5 @@
-#!/usr/bin/env bds
+#!/home/kirill/.bds/bds
+#/usr/bin/env bds
 
 #----------------------------------------------------------------------------------------------------
 # RNAsik-pipe is an easy way from FASTQ to differential gene expression #degust
@@ -93,6 +94,7 @@ if(star){
             string[] orderedList = getOrderedList(getList)
             string boolItem = orderedList.pop()
             checkPair = boolItem.parseBool()
+            print("$checkPair $orderedList $extn $fqRegex\n")
             # STAR aligning
             string[] reads = getSTARreads(orderedList, checkPair)
             string bamFile = mapSTAR(fqread, localGenomeIndex, localSAindexFile, reads, orderedList) 
