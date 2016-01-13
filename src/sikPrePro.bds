@@ -4,7 +4,7 @@
 
 include "sikHeader.bds"
 include "sikMakeIndices.bds"
-include "sikFunctions.bds"
+include "sikSortFastqs.bds"
 
 #------------------------------
 # Make directories as required

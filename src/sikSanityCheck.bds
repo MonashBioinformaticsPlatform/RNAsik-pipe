@@ -8,14 +8,15 @@ include "sikMakeIndices.bds"
 # to include `preqcBamFiles` into this file scope
 include "sikPrePro.bds"
 include "sikInfo.bds"
+include "sikSTARaligner.bds"
 
 if(makeIndices || makeIndex){
     if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
 }
 if(fastqc) {
-    if( ((fqDir.isEmpty()) && (fqDirs.isEmpty())) || ((fqDirs.isEmpty()) && (fqDir.isEmpty()))) error "Usage: You need to specify either -fqDir or -fqDirs"
+    if(fqDir.isEmpty()) error "Usage: You need to specify path to directory with FASTQ files"
 }
-if(star) {
+if(align == "star") {
     if(fqRegex.isEmpty()) error "Please specify which regex option you like to use A,B or C Or provide your own regex pattern"
 
     if(!fqRegex.isEmpty()){
@@ -26,18 +27,18 @@ if(star) {
     }
     else error "Usage: You need to select A, B or C option for -fqRegex flag"
     
-    if((fqDirs.isEmpty()) && (fqDir.isEmpty())) error "Usage: You need to specify either -fqDir or -fqDirs"
+    if(fqDir.isEmpty()) error "Usage: You need to specify path to directory with FASTQ files"
     if(genomeIndex.isEmpty() && (!makeIndices))  error "Usage: -genomeIndex /path/to/genomeIndex/"
     # setting some of the global variables
     if(!makeIndices) localGenomeIndex = genomeIndex
 }
 if(count) {
 	#if(!star) bamsList = bamFiles.dirPath("*.bam")
-    if(!star) bamsList = bamFiles.dirPath("*.bam")
+    if(align != "star") bamsList = bamFiles.dirPath("*.bam")
     if(gtfFile.isEmpty())  error "Usage: -gtfFile /path/to/GTFfile"
 }
 if(prePro){
-    if(!star) bamsList = bamFiles.dirPath("*.bam")
+    if(align != "star") bamsList = bamFiles.dirPath("*.bam")
     if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
     if((!makeIndex) && (!makeIndices)) {
         # setting some of the global variables	    
@@ -56,7 +57,7 @@ if(RNAseQC){
    if(!preqcBamFiles.isDir()) error "It looks like you don't have pre-proccessed BAM files. Make sure your pre-proccessed BAM files located in `preqcBamFiles` directory Or simply re-run RNAsik-pipe with -prePro flag"
 }
 # Get general info about tools versions and files used 
-if(star || makeIndices || makeIndex || count || fastqc) string generalInfo = getInfo()
+if(align == "star" || makeIndices || makeIndex || count || fastqc) string generalInfo = getInfo()
 
 if( args.isEmpty() ) {
     printHelp()

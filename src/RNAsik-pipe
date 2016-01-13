@@ -1,5 +1,4 @@
-#!/home/kirill/.bds/bds
-#/usr/bin/env bds
+#!/usr/bin/env bds
 
 #----------------------------------------------------------------------------------------------------
 # RNAsik-pipe is an easy way from FASTQ to differential gene expression #degust
@@ -25,7 +24,8 @@
 include "sikHeader.bds"
 include "sikSanityCheck.bds"
 include "sikMakeIndices.bds"
-include "sikFunctions.bds" 
+include "sikSortFastqs.bds" 
+include "sikSTARaligner.bds"
 include "sikPrePro.bds"
 include "sikCounts.bds"
 include "sikQCreports.bds"
@@ -68,61 +68,41 @@ if(makeIndex){
 #------------------------------
 if(fastqc) {
     if(!fqDir.isEmpty()) {
-        string fqcReport = getFastqcReport(fqDir)
-    }
-    if(!fqDirs.isEmpty()) {
-        string[] dirs = getDirs(fqDirs)
-        int numberOfDirs = dirs.size()
-
-        for(int i=0; i < numberOfDirs; i++){
-            string dir = dirs[i]
-            string fqcReport = getFastqcReport(dir)
-        }
+        string[] allFastqFiles = getAllFastqFiles(fqDir)	
+        string fqcReport = getFastqcReport(allFastqFiles)
     }
 }
 #------------------------------
 # BAM generation step
 #------------------------------
-if(star){
+if(align == "star"){
     if(!fqDir.isEmpty()) {
+
         string{} uniqueNames = getUniqueNames(fqDir)
-
-        for(string fqread : uniqueNames.keys()) {
-            # get value for each key and break values into list
-            string mapValue = uniqueNames{fqread} 
-            string[] getList = mapValue.split(",")
-            string[] orderedList = getOrderedList(getList)
-            string boolItem = orderedList.pop()
-            checkPair = boolItem.parseBool()
-            print("$checkPair $orderedList $extn $fqRegex\n")
-            # STAR aligning
-            string[] reads = getSTARreads(orderedList, checkPair)
-            string bamFile = mapSTAR(fqread, localGenomeIndex, localSAindexFile, reads, orderedList) 
-            bamsList.add(bamFile)
-        }
-    }
-
-    if(!fqDirs.isEmpty()) {
-        string[] dirs = getDirs(fqDirs)
-        int numberOfDirs = dirs.size()
-    
-        for(int i=0; i < numberOfDirs; i++){
+        string[] getStats = getFqReadsStats(fqDir)
+        checkPair = getStats.pop()
         
-            string dir = dirs[i]
-            string{} uniqueNames = getUniqueNames(dir)
-    
-            for(string fqread : uniqueNames.keys()) {
-                # get value for each key and break values into list
-                string mapValue = uniqueNames{fqread} 
-                string[] getList = mapValue.split(",")
-                string[] orderedList = getOrderedList(getList)
-                string boolItem = orderedList.pop()
-                checkPair = boolItem.parseBool()
-                # STAR aligning
-                string[] reads = getSTARreads(orderedList, checkPair)
-                string bamFile = mapSTAR(fqread, localGenomeIndex, localSAindexFile, reads, orderedList) 
-                bamsList.add(bamFile)
+        for(string rootName : uniqueNames.keys()) {
+            string[] reads 
+            # get value for each key and break values into list
+            string singleEndValues
+            string pairedEndValues
+
+            if(checkPair) {
+                singleEndValues = uniqueNames{rootName} 
+                pairedEndValues = singleEndValues.replace("_R1", "_R2")
+
+                reads.add(singleEndValues)
+                reads.add(pairedEndValues)
             }
+            else {
+                singleEndValues = uniqueNames{rootName} 
+                reads.add(singleEndValues)
+            }
+
+            # STAR aligning
+            string bamFile = mapSTAR(rootName, localGenomeIndex, localSAindexFile, reads) 
+            bamsList.add(bamFile)
         }
     }
 }
