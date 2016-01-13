@@ -1,0 +1,118 @@
+#------------------------
+# Organising FASTQ files 
+#------------------------
+
+include "sikHeader.bds"
+
+# This function loops over directory
+# and returns list of FASTQ files
+string[] getFastqFiles(string dir) {
+    string[] fqFiles 
+
+    for(string fq : dir.dirPath(extn)) {
+    	fqFiles.add(fq)
+    }
+    return fqFiles
+}
+
+# This function return all FASTQ files found in the current directory
+# and all sub directories
+string[] getAllFastqFiles(string fqDir) {
+    # 
+    string[] allFastqFiles
+    # loop over all items in the current directory
+    # and check if the item is the directory or a file
+    for(string item : fqDir.dirPath()){
+        bool dir = item.isDir()
+        # if its a directory then apply `getFastqFiles` function
+        if(dir) {
+           string[] tmpFastqList = getFastqFiles(item)
+    
+           for(string fq : tmpFastqList) {
+               allFastqFiles.add(fq)
+           } 
+        }
+        # otherwise check if the file is FASTQ file 
+        # and append FASTQ file to a list
+        else {
+            bool fqFile = item.endsWith("fastq.gz")
+            if(fqFile) {
+                allFastqFiles.add(item)
+            }
+        }
+    }
+    # return all FASTQ file found
+    return allFastqFiles
+}
+
+# This function return hash with key set to root name 
+# and value is the list of all associated FASTQ files
+# that are spread across multiple lane during sequencing
+string{} getUniqueNames(string fqDir) {
+    # get list of all FASTQ files
+    string[] fqList = getAllFastqFiles(fqDir) 
+    # Map with unique root key
+    string{} uniqueNames
+    # loop over FASTQ files
+    for(string fq : fqList) {
+
+        int getR1Index = fq.lastIndexOf("_R1")
+        int getR2Index = fq.lastIndexOf("_R2")
+
+        if(getR1Index != -1) {
+            # get the root of the file name with regex
+            string[] getFile = fq.split(fqRegex)
+            string rootName = getFile[0].baseName()
+            # append to the list if it isn't in the list already
+            if(!uniqueNames.hasKey(rootName)) uniqueNames{rootName}=""
+            uniqueNames{rootName}+=fq+","
+        }
+        # Sometime data doesn't have neither R1 nor R2 in the file name
+        # this block will insure that RNAsik-pipe still works correctly
+        if((getR1Index == -1) && (getR2Index == -1)) {
+                string[] getFile = fq.split(fqRegex)
+                string rootName = getFile[0].baseName()
+                # append to the list if it isn't in the list already
+                if(!uniqueNames.hasKey(rootName)) uniqueNames{rootName}=""
+                uniqueNames{rootName}+=fq+","
+        }
+    }
+    return uniqueNames
+}
+
+string[] getFqReadsStats(string fqDir) {
+    string[] allFastqFiles = getAllFastqFiles(fqDir)
+                                                   
+    int numberOfMates = 0
+    int numberOfSingles = 0
+    int totalNumberOfReads = 0
+    
+    bool readPaired
+    
+    for(string fq : allFastqFiles){
+        totalNumberOfReads += 1
+        int getR1Index = fq.lastIndexOf("_R1")
+        int getR2Index = fq.lastIndexOf("_R2")
+    
+        if(getR1Index != -1) {
+            string pairedEnd = fq.replace("_R1", "_R2")
+            bool checkPair = pairedEnd.exists()
+            if(checkPair) numberOfMates += 1
+            else numberOfSingles += 1
+    
+            if(numberOfMates > numberOfSingles) readPaired = true
+            else readPaired = false
+        }
+        if((getR1Index == -1) && (getR2Index == -1)) {
+            int allFastqFilesSize = allFastqFiles.size()
+            totalNumberOfReads = allFastqFilesSize
+            numberOfSingles = allFastqFilesSize
+            string stat = "Total number of reads: "+totalNumberOfReads+"\nNumber of single end reads: "+numberOfSingles+"\nNumber of paired end pairs: "+numberOfMates
+            readPaired = false
+            return [stat, readPaired]
+        }
+    }
+    
+    string stat = "Total number of reads: "+totalNumberOfReads+"\nNumber of single end reads: "+numberOfSingles+"\nNumber of paired end pairs: "+numberOfMates
+    return [stat, readPaired]
+}

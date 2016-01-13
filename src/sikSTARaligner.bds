@@ -1,0 +1,61 @@
+#------------------------------
+# Functions
+#------------------------------
+
+include "sikHeader.bds"
+include "sikMakeIndices.bds"
+include "sikSortFastqs.bds"
+
+#------------------------------
+# Make directories as required
+#------------------------------
+string bamFiles = "bamFiles"
+if((!bamFiles.exists()) && (align == "star")) bamFiles.mkdir()
+#----------------------------------------------------------------------------------------------------
+
+string fixFileNames(string rootName, string fileFix) {
+    for(string line : fileFix.readLines()){
+        string[] namesList = line.split("\t")
+        string oldNamePrefix = namesList[0]
+        string newNamePrefix = namesList[1]
+        string preFixIndex = rootName.indexOf(oldNamePrefix)
+        if(preFixIndex != -1){
+            string fixedFileName = rootName.replace(oldNamePrefix, newNamePrefix)
+            return fixedFileName
+        }
+    }
+}
+
+string mapSTAR(string rootName, string genomeIndex, string SAindexFile, string[] listOfReads) {
+    string fixedFileName
+    
+    if(!sampleNames.isEmpty()){
+        fixedFileName = fixFileNames(rootName, sampleNames)
+    }
+    else{
+        fixedFileName = rootName
+    }
+    
+    string rootBase = fixedFileName.baseName()
+    string preFix = bamFiles+"/"+rootBase+"_"
+    string bamOut = preFix+"Aligned.out.bam"
+    string reads = listOfReads.join(" ")
+    
+    //task(bamOut <- [genomeIndex, SAindexFile], cpu := 32, taskName := "STAR aligning "+rootBase) {
+    task(bamOut <- [genomeIndex, SAindexFile], taskName := "STAR aligning "+rootBase) {
+        sys STAR --runThreadN $threads \
+                 --genomeDir $genomeIndex \
+                 --outSAMtype BAM Unsorted \
+                 --outSAMunmapped Within \
+                 --outSAMattrRGline ID:001 CN:Unknown DS:RNA-seq PL:ILLUMINA PM:MiSeq SM:$rootBase \
+                 --readFilesCommand zcat \
+                 --readFilesIn $reads \
+                 --outFileNamePrefix $preFix
+    }
+    wait
+    # you can remove wait statement and reduce number of threads
+    # however this will run all your fastq files in parallel
+    # doing this I find a bit impractical on our server because of
+    # limited RAM - only 128 Gb
+    return bamOut
+}
