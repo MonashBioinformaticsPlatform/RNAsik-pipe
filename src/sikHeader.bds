@@ -9,19 +9,14 @@ helpUnsorted := true
 
 help RNAsik-pipe version 1.4-alpha
 help Usage: RNAsik-pipe [options]
-help Example1: RNAsik-pip -makeIndices -fastaRef /path/to/your/referenceFile.fa
-help Example2: RNAsik-pip -makeIndices -fastaRef /path/to/your/referenceFile.fa -align star -fqDir /path/to/your/fastqFiles/directory -fqRegex A
+help Example1: RNAsik-pip -makeIndex -fastaRef /path/to/your/referenceFile.fa
+help Example2: RNAsik-pip -makeIndex -fastaRef /path/to/your/referenceFile.fa -align star -fqDir /path/to/your/fastqFiles/directory -fqRegex A
 
 help Make Indices options:
 
-bool makeIndices    help flag if you need to make indices. Usualy if you are running the pipeline\
-                         for the first time you need to specify this flag. This will make STAR index\
-                         picard special .dict file and index your FASTA file. 
+bool makeIndex = false    help flag if you need to make STAR index. You must have indexed your reference genome or other FASTA file in order to do STAR alignemnt. If `-genomeIndex` option isn't give and `-align` option is specified `RNAsik-pipe` will automatically make an index. You can use this option alone to index you FASTA file.
 
-bool makeIndex      help if you already have STAR index or just wishing to use other bits of the pipeline,\
-                         but the alignment specify this option.
-
-help FASTQ mapping  options:
+help FASTQ mapping options:
 
 string align        help please specify your aligner of choice for the alignment step [star]
 string fqDir        help path to the directory with fastq file                                   
@@ -31,7 +26,7 @@ string fqRegex      help select regex option that resembles your common fastq fi
                                     - C: "_R[0-9]_[0-9]{3}.fastq.gz$"\
                                     - D: "_R[0-9].fastq.gz$"
 
-string genomeIndex  help path to the directory with genome index for the coresponding species
+string genomeIndex  help path to the directory with genome index for the coresponding species. If not specified then `-makeIndex` option is assumed
 
 help Reads count op tion [default featureCounts]:
 
@@ -59,22 +54,3 @@ string extn = "*fastq.gz"        help optional, specify your files extension def
 string sampleNames  help optional, specify a text file with alternative sample names
 //bool version      help if you need to get RNAsik-pipe version 
 
-#------------------------------
-# Global Variables
-#------------------------------
-# set localFastaRef
-string localFastaRef
-# set fastaDictFile
-string fastaDictFile
-# set fastaFaiFile
-string fastaFaiFile
-# set locaGenomeIndex 
-string localGenomeIndex
-string localSAindexFile 
-#string  list of bam files from STAR run
-string[] bamsList
-# get bool for whether the data is paired end or not
-bool checkPair = false
-# list of all BAMS files,
-# where BAM had been sorted, reorted and duplicates marked
-string[] markedBams

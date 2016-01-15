@@ -10,54 +10,43 @@ include "sikPrePro.bds"
 include "sikInfo.bds"
 include "sikSTARaligner.bds"
 
-if(makeIndices || makeIndex){
-    if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
-}
 if(fastqc) {
     if(fqDir.isEmpty()) error "Usage: You need to specify path to directory with FASTQ files"
 }
 if(align == "star") {
-    if(fqRegex.isEmpty()) error "Please specify which regex option you like to use A,B or C Or provide your own regex pattern"
-
+    // if niether genomeIndex not makeIndex options are specified then
+    // makeIndex is set to true and index is being made during runtime
+    if(genomeIndex.isEmpty() && (!makeIndex)) makeIndex = true
+    // if regex string was given, be sure to set the right regex
     if(!fqRegex.isEmpty()){
         if(fqRegex == "A") fqRegex = "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"
         if(fqRegex == "B") fqRegex = "_L[0-9]{3}_R[0-9].fastq.gz$"
         if(fqRegex == "C") fqRegex = "_R[0-9]_[0-9]{3}.fastq.gz$"
         if(fqRegex == "D") fqRegex = "_R[0-9].fastq.gz$"
     }
-    else error "Usage: You need to select A, B or C option for -fqRegex flag"
-    
+    else error "Usage: You need to select A, B, C or D options for -fqRegex"
+    // check if FASTQ directory is given 
     if(fqDir.isEmpty()) error "Usage: You need to specify path to directory with FASTQ files"
-    if(genomeIndex.isEmpty() && (!makeIndices))  error "Usage: -genomeIndex /path/to/genomeIndex/"
-    # setting some of the global variables
-    if(!makeIndices) localGenomeIndex = genomeIndex
+    // set global genomeIndex variable
+    if(!makeIndex) localGenomeIndex = genomeIndex
+}
+if(makeIndex){
+    if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
 }
 if(count) {
-	#if(!star) bamsList = bamFiles.dirPath("*.bam")
     if(align != "star") bamsList = bamFiles.dirPath("*.bam")
-    if(gtfFile.isEmpty())  error "Usage: -gtfFile /path/to/GTFfile"
+    if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
 }
 if(prePro){
     if(align != "star") bamsList = bamFiles.dirPath("*.bam")
     if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
-    if((!makeIndex) && (!makeIndices)) {
-        # setting some of the global variables	    
-        localFastaRef = fastaRef 
-        fastaDictFile = localFastaRef.removeExt()+".dict"
-        fastaFaiFile = localFastaRef+".fai"
-        if(!fastaDictFile.isFile()) error "It doesn't look like you have $fastaDictFile file. Either use `picard CreateSequenceDictionary` command Or run RNAsik-pipe with -makeIndices|-makeIndex option."
-        if(!fastaFaiFile.isFile()) error "It doesn't look like you have $fastaFaiFile file. Either use `samtools faidx` command Or run RNAsik-pipe with -makeIndices|-makeIndex option."
-        //string exampleFastaDict = fastaRef.removeExt()+".dict"
-        //string exampleFastaFai = fastaRef+".fai"
-        //warning "Make sure you have $exampleFastaDict and $exampleFastaFai in the same directory as your $fastaRef file, because downstream application will assume that. If unsure run RNAsik-pipe with -makeIndices option"
-    }
 }
 if(RNAseQC){
    if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
    if(!preqcBamFiles.isDir()) error "It looks like you don't have pre-proccessed BAM files. Make sure your pre-proccessed BAM files located in `preqcBamFiles` directory Or simply re-run RNAsik-pipe with -prePro flag"
 }
 # Get general info about tools versions and files used 
-if(align == "star" || makeIndices || makeIndex || count || fastqc) string generalInfo = getInfo()
+//if(align == "star" || || makeIndex || count || fastqc) string generalInfo = getInfo()
 
 if( args.isEmpty() ) {
     printHelp()

@@ -33,12 +33,36 @@ include "sikQCreports.bds"
 # Print version
 #------------------------------
 if(args[0] == "-version") print("RNAsik-pipe version 1.3-alpha\n")
-
+#------------------------------
+# Global Variables
+#------------------------------
+# set fastaDictFile
+string fastaDictFile
+# set fastaFaiFile
+string fastaFaiFile
+# set locaGenomeIndex 
+string localGenomeIndex
+string localSAindexFile 
+#string  list of bam files from STAR run
+string[] bamsList
+# list of all BAMS files,
+# where BAM had been sorted, reorted and duplicates marked
+string[] markedBams
+// initialise empty variable
+string localFastaRef 
+// initialise empty variable
+string localGTF
+// check if data is paired end or not
+bool checkPair = false
+#-------------------
+# Copy files across
+#-------------------
+if(fastaRef) localFastaRef = makeLocalFastaRef(fastaRef)
+if(gtfFile) localGTF = makeLocalGTF(gtfFile)
 #------------------------------
 # Make indices if required 
 #------------------------------
-if(makeIndices){
-    localFastaRef = makeLocalFastaRef(fastaRef)
+if(makeIndex){
     string sjdbArguments
     if(gtfFile) {
         int readSize = 101
@@ -51,18 +75,8 @@ if(makeIndices){
     string[] localIndexList = makeSTARindex(localFastaRef, sjdbArguments)
     localSAindexFile = localIndexList[0]
     localGenomeIndex = localIndexList[1]
-
-    string[] fastaIndexFiles = makeOtherIndices(localFastaRef)
-    fastaDictFile = fastaIndexFiles.pop()
-    fastaFaiFile = fastaIndexFiles.pop()
 }
 
-if(makeIndex){
-    localFastaRef = makeLocalFastaRef(fastaRef)
-    string[] fastaIndexFiles = makeOtherIndices(localFastaRef)
-    fastaDictFile = fastaIndexFiles.pop()
-    fastaFaiFile = fastaIndexFiles.pop()
-}
 #------------------------------
 # fastQC report
 #------------------------------
@@ -107,26 +121,25 @@ if(align == "star"){
     }
 }
 
-
 if(count) { 
-   string[] featureCounts = getReadsCount(bamsList, gtfFile, checkPair)
-   string featureNo = featureCounts[0]
-   string featureReverse = featureCounts[1]
+    string[] featureCounts = getReadsCount(bamsList, gtfFile, checkPair)
+    string featureNo = featureCounts[0]
+    string featureReverse = featureCounts[1]
 
-   string featureNoCounts = countFiles+"/"+"featureNoCounts.txt"
-   string featureReverseCounts = countFiles+"/"+"featureReverseCounts.txt"
+    string featureNoCounts = countFiles+"/"+"featureNoCounts.txt"
+    string featureReverseCounts = countFiles+"/"+"featureReverseCounts.txt"
 
-   string tempNo = countFiles+"/"+"tempNo.txt"
-   string tempReverse = countFiles+"/"+"tempReverse.txt"
+    string tempNo = countFiles+"/"+"tempNo.txt"
+    string tempReverse = countFiles+"/"+"tempReverse.txt"
 
-   string featureNoCountsWithNames = countFiles+"/"+"featureNoCounts-withNames.txt"
-   string featureReverseCountsWithNames = countFiles+"/"+"featureReverseCounts-withNames.txt"
+    string featureNoCountsWithNames = countFiles+"/"+"featureNoCounts-withNames.txt"
+    string featureReverseCountsWithNames = countFiles+"/"+"featureReverseCounts-withNames.txt"
 
-   string geneIdsFile = getGeneIds()
+    string geneIdsFile = getGeneIds()
 
-   int numberOfBamFiles = bamsList.size()+7
-   int[] theRange = range(7, numberOfBamFiles)
-   string numberOfFields = theRange.join(",")
+    int numberOfBamFiles = bamsList.size()+7
+    int[] theRange = range(7, numberOfBamFiles)
+    string numberOfFields = theRange.join(",")
 
 task([featureNoCountsWithNames, featureReverseCountsWithNames] <- [featureNo, featureReverse, geneIdsFile], taskName := "Making Degust-ready counts file") {
        sys grep -v "#" $featureNo | cut -f1,$numberOfFields | perl -pe 's{\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $featureNoCounts
@@ -149,14 +162,16 @@ task([featureNoCountsWithNames, featureReverseCountsWithNames] <- [featureNo, fe
 #------------------------------
 for(string bamFile : bamsList) {
     if(prePro) {
-        string testCheck = getPrePro(bamFile, localFastaRef)
-        markedBams.add(testCheck)
+	if(!fastaDictFile.exists()) fastaDictFile = makeDictFile(localFastaRef)
+        string mdupsBam = getPrePro(bamFile, localFastaRef)
+        markedBams.add(mdupsBam)
     }
 }
 #----------------
 # RNAseQC report
 #----------------
 if(RNAseQC){
+    if(!fastaFaiFile.exists()) fastaFaiFile = makeFaiFile(localFastaRef)
     string sampleIdsFile = "RNAseQC-sampleIds.txt"
     string RNAseQCsampleIds = getSampleIds(markedBams)
     sampleIdsFile.write(RNAseQCsampleIds)

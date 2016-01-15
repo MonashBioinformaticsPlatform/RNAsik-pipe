@@ -9,16 +9,24 @@ include "sikSortFastqs.bds"
 # Make directories as required
 #------------------------------
 string refFiles = "refFiles"
-if((!refFiles.exists()) && ((makeIndices) || (makeIndex))) refFiles.mkdir()
+if((!refFiles.exists()) && (makeIndex)) refFiles.mkdir()
 #------
 # Body
 #------
 string makeLocalFastaRef(string fastaRef) {
     string localFastaRef = refFiles+"/"+fastaRef.baseName()
-    task(localFastaRef <- fastaRef, taskName := "Copying files") {
-        sys echo $(date) Copying files, be patient; cp -v $fastaRef $refFiles
+    task(localFastaRef <- fastaRef, taskName := "Copying FASTA file") {
+        sys echo $(date) Copying FASTA file, be patient; cp -v $fastaRef $refFiles
     }
     return localFastaRef
+}
+
+string makeLocalGTF(string gtfFile) {
+    string localGTF = refFiles+"/"+gtfFile.baseName()
+    task(localGTF <- gtfFile, taskName := "Copying GTF file") {
+        sys echo $(date) Copying GTF file, be patient; cp -v $gtfFile $refFiles
+    }
+    return localGTF
 }
 
 string[] makeSTARindex(string fastaRef, string additionalArgs) {
@@ -38,17 +46,21 @@ string[] makeSTARindex(string fastaRef, string additionalArgs) {
     return [starSAindexFile, localGenomeIndex, fastaDictFile]
 }
 
-string[] makeOtherIndices(string fastaRef) {
+string makeFaiFile(string fastaRef) {
 
     string fastaFaiFile = fastaRef+".fai"
     task(fastaFaiFile <- fastaRef, taskName := "Indexing FASTA file") {
         sys samtools faidx $fastaRef
     }
+    return fastaFaiFile
+}
+
+string makeDictFile(string fastaRef) {
 
     string fastaDictFile = fastaRef.removeExt()+".dict"
     task(fastaDictFile <- fastaRef, taskName := "Making dictionary File") {
         sys picard CreateSequenceDictionary REFERENCE=$fastaRef \
                                             OUTPUT=$fastaDictFile
     }
-    return [fastaFaiFile, fastaDictFile]
+    return fastaDictFile
 }
