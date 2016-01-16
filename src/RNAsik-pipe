@@ -77,6 +77,9 @@ if(makeIndex){
     localGenomeIndex = localIndexList[1]
 }
 
+// set global genomeIndex variable
+if(!makeIndex) localGenomeIndex = genomeIndex
+
 #------------------------------
 # fastQC report
 #------------------------------
@@ -115,7 +118,7 @@ if(align == "star"){
             }
 
             # STAR aligning
-            string bamFile = mapSTAR(rootName, localGenomeIndex, localSAindexFile, reads) 
+            string bamFile = mapSTAR(rootName, localGenomeIndex, localSAindexFile, reads, starOptions) 
             bamsList.add(bamFile)
         }
     }
@@ -160,10 +163,12 @@ task([featureNoCountsWithNames, featureReverseCountsWithNames] <- [featureNo, fe
 #------------------------------
 # BAM processing
 #------------------------------
+if(align != "star") bamsList = bamFiles.dirPath("*.bam")
+
 for(string bamFile : bamsList) {
     if(prePro) {
 	if(!fastaDictFile.exists()) fastaDictFile = makeDictFile(localFastaRef)
-        string mdupsBam = getPrePro(bamFile, localFastaRef)
+        string mdupsBam = getPrePro(bamFile, localFastaRef, fastaDictFile)
         markedBams.add(mdupsBam)
     }
 }
@@ -175,7 +180,7 @@ if(RNAseQC){
     string sampleIdsFile = "RNAseQC-sampleIds.txt"
     string RNAseQCsampleIds = getSampleIds(markedBams)
     sampleIdsFile.write(RNAseQCsampleIds)
-    string check = getRNAseQC(sampleIdsFile, markedBams, checkPair, localFastaRef)
+    string check = getRNAseQC(sampleIdsFile, markedBams, checkPair, localFastaRef, fastaFaiFile)
 }
 #----------------------------------------------------------------------------------------------------
 # End

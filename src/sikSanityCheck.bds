@@ -27,18 +27,14 @@ if(align == "star") {
     else error "Usage: You need to select A, B, C or D options for -fqRegex"
     // check if FASTQ directory is given 
     if(fqDir.isEmpty()) error "Usage: You need to specify path to directory with FASTQ files"
-    // set global genomeIndex variable
-    if(!makeIndex) localGenomeIndex = genomeIndex
 }
 if(makeIndex){
     if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
 }
 if(count) {
-    if(align != "star") bamsList = bamFiles.dirPath("*.bam")
     if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
 }
 if(prePro){
-    if(align != "star") bamsList = bamFiles.dirPath("*.bam")
     if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
 }
 if(RNAseQC){

@@ -12,7 +12,7 @@ include "sikSortFastqs.bds"
 string bamFiles = "bamFiles"
 if((!bamFiles.exists()) && (align == "star")) bamFiles.mkdir()
 #----------------------------------------------------------------------------------------------------
-
+// This function fill fix bam files prefix 
 string fixFileNames(string rootName, string fileFix) {
     for(string line : fileFix.readLines()){
         string[] namesList = line.split("\t")
@@ -26,7 +26,56 @@ string fixFileNames(string rootName, string fileFix) {
     }
 }
 
-string mapSTAR(string rootName, string genomeIndex, string SAindexFile, string[] listOfReads) {
+string{} getNewHash(string starOptions, string{} currentOptions) {
+
+    string[] cmdArgs = starOptions.split(",")
+    string{} newHash
+    
+    for(string option : cmdArgs){ 
+        string cleanString = option.trim()
+        string[] tmp = cleanString.split(" ")
+        string starOption = tmp[0]
+        string starValue = tmp[1]
+      
+        for(string key : currentOptions.keys()){
+            bool isIn = starOption.startsWith(key)
+            if(isIn) newHash{key}=starValue
+            else newHash{starOption}=starValue
+        }
+    } 
+    return newHash
+}
+
+string getOptionsString(string{} dictionary) {
+    string[] argsList 
+    
+    for(string key : dictionary.keys()) {
+        argsList.add(key)    
+        argsList.add(dictionary{key})    
+    }
+    string newOptions = argsList.join(" ")
+
+    return newOptions
+}
+
+string mapSTAR(string rootName, string genomeIndex, string SAindexFile, string[] listOfReads, string starOptions) {
+    # current options
+    string{} currentOptions = {"--outSAMtype" => "BAM Unsorted", "--outSAMunmapped" => "Within", "--readFilesCommand" => "zcat"}
+    #----------------------------------------
+    # Get extra options if available
+    #----------------------------------------
+    string extraOptions
+
+    if(starOptions) {
+        string{} newHash = getNewHash(starOptions, currentOptions)
+        extraOptions = getOptionsString(newHash)
+    } 
+    if(!starOptions) {
+        extraOptions = getOptionsString(currentOptions)
+    }
+    #-----------------------------------------------
+    # Fix file names if sample names file was given
+    #-----------------------------------------------
     string fixedFileName
     
     if(!sampleNames.isEmpty()){
@@ -35,22 +84,20 @@ string mapSTAR(string rootName, string genomeIndex, string SAindexFile, string[]
     else{
         fixedFileName = rootName
     }
-    
+    #-----------------------------------------------
     string rootBase = fixedFileName.baseName()
     string preFix = bamFiles+"/"+rootBase+"_"
     string bamOut = preFix+"Aligned.out.bam"
     string reads = listOfReads.join(" ")
-    
     //task(bamOut <- [genomeIndex, SAindexFile], cpu := 32, taskName := "STAR aligning "+rootBase) {
     task(bamOut <- [genomeIndex, SAindexFile], taskName := "STAR aligning "+rootBase) {
         sys STAR --runThreadN $threads \
                  --genomeDir $genomeIndex \
-                 --outSAMtype BAM Unsorted \
-                 --outSAMunmapped Within \
                  --outSAMattrRGline ID:001 CN:Unknown DS:RNA-seq PL:ILLUMINA PM:MiSeq SM:$rootBase \
-                 --readFilesCommand zcat \
                  --readFilesIn $reads \
-                 --outFileNamePrefix $preFix
+                 --outFileNamePrefix $preFix \
+                 $extraOptions
+                 
     }
     wait
     # you can remove wait statement and reduce number of threads

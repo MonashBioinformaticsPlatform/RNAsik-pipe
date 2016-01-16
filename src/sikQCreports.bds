@@ -26,7 +26,7 @@ string getSampleIds(string[] markedBams){
     return sampleIds
 }
 
-string getRNAseQC(string sampleIdsFile, string[] markedBams, bool checkPair, string fastaRef){
+string getRNAseQC(string sampleIdsFile, string[] markedBams, bool checkPair, string fastaRef, string fastaFaiFile){
 
     string additionalArgs
     if(!checkPair) additionalArgs = "-singleEnd"

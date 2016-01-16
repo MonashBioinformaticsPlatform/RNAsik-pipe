@@ -43,7 +43,7 @@ string[] makeSTARindex(string fastaRef, string additionalArgs) {
                  --genomeFastaFiles $fastaRef \
                  $additionalArgs
     }
-    return [starSAindexFile, localGenomeIndex, fastaDictFile]
+    return [starSAindexFile, localGenomeIndex]
 }
 
 string makeFaiFile(string fastaRef) {

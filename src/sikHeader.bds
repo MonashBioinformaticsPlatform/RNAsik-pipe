@@ -27,6 +27,7 @@ string fqRegex      help select regex option that resembles your common fastq fi
                                     - D: "_R[0-9].fastq.gz$"
 
 string genomeIndex  help path to the directory with genome index for the coresponding species. If not specified then `-makeIndex` option is assumed
+string starOptions  help you can add extra option to STAR aligner follow the syntax in the example: "--outSAMtype BAM Unsorted, --outReadsUnmapped Fastx"
 
 help Reads count op tion [default featureCounts]:
 
