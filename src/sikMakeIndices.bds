@@ -14,18 +14,60 @@ if((!refFiles.exists()) && (makeIndex)) refFiles.mkdir()
 # Body
 #------
 string makeLocalFastaRef(string fastaRef) {
-    string localFastaRef = refFiles+"/"+fastaRef.baseName()
-    task(localFastaRef <- fastaRef, taskName := "Copying FASTA file") {
-        sys echo $(date) Copying FASTA file, be patient; cp -v $fastaRef $refFiles
+
+    string localFastaRef
+
+    bool gZipped
+    string getExtn = fastaRef.extName()
+
+    if(getExtn == "gz") {
+	localFastaRef = refFiles+"/"+fastaRef.baseName().removeExt()
+        gZipped = true
+    } 
+    else localFastaRef = refFiles+"/"+fastaRef.baseName()
+
+    if(gZipped) {
+        task(localFastaRef <- fastaRef, taskName := "Copying FASTA file") {
+            sys echo $(date) Copying FASTA file, be patient; cp -v $fastaRef $refFiles
+            sys echo $(date) Also unzipping your FASTA file; gunzip $localFastaRef
+        }
+    }
+
+    if(!gZipped) {
+        task(localFastaRef <- fastaRef, taskName := "Copying FASTA file") {
+            sys echo $(date) Copying FASTA file, be patient; cp -v $fastaRef $refFiles
+        }
+
     }
     return localFastaRef
 }
 
 string makeLocalGTF(string gtfFile) {
-    string localGTF = refFiles+"/"+gtfFile.baseName()
-    task(localGTF <- gtfFile, taskName := "Copying GTF file") {
-        sys echo $(date) Copying GTF file, be patient; cp -v $gtfFile $refFiles
+
+    string localGTF
+
+    bool gZipped
+    string getExtn = gtfFile.extName()
+
+    if(getExtn == "gz") {
+        localGTF = refFiles+"/"+gtfFile.baseName().removeExt()
+        gZipped = true
+    } 
+    else localGTF = refFiles+"/"+gtfFile.baseName()
+
+    if(gZipped) {
+        task(localGTF <- gtfFile, taskName := "Copying GTF file") {
+            sys echo $(date) Copying GTF file, be patient; cp -v $gtfFile $refFiles
+            sys echo $(date) Also unzipping your GTF file; gunzip $localGTF
+        }
     }
+
+    if(!gZipped) {
+        task(localGTF <- gtfFile, taskName := "Copying GTF file") {
+            sys echo $(date) Copying GTF file, be patient; cp -v $gtfFile $refFiles
+        }
+    }
+
     return localGTF
 }
 
@@ -36,7 +78,8 @@ string[] makeSTARindex(string fastaRef, string additionalArgs) {
 
     string starSAindexFile = localGenomeIndex+"/"+"SAindex"
 
-    task([localGenomeIndex, starSAindexFile] <- fastaRef, mem := 40000000000, taskName := "Making STAR index") {
+    //task([localGenomeIndex, starSAindexFile] <- fastaRef, mem := 40000000000, taskName := "Making STAR index") {
+    task([localGenomeIndex, starSAindexFile] <- fastaRef, taskName := "Making STAR index") {
         sys STAR --runThreadN $threads \
                  --runMode genomeGenerate \
                  --genomeDir $localGenomeIndex \
