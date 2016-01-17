@@ -2,20 +2,34 @@
 # Info gathering
 #----------------------------------------
 
+include "sikHeader.bds"
+include "sikSTARaligner.bds"
+
 string getInfo() {
 
-    string info = "info.txt"
+    string getDate = sys date --rfc-3339="seconds"
+    string cleanDate = getDate.trim()
+    string[] dateList = cleanDate.split(" ")
+    string theDate = dateList.join("_")
 
-    task(taskName := "Gather versions and files infomation") {
+    string info = theDate+"_info.txt"
+
+    if(align == "star") {
+        task([bamFiles, theDate] <- "check", taskName := "Gathering information") {
+            sys STAR --version >> $info; sys echo "----" >> $info
+        }
+    }
+
+    if(count) {
+        task([bamFiles, theDate] <- "check", taskName := "Gathering information") {
+            sys featureCounts -v 2>> $info; sys echo "----" >> $info
+        }
+    }
+
+    task([bamFiles, theDate] <- "check", taskName := "Gathering information") {
         sys date >> $info
         sys echo "----" >> $info
         sys RNAsik-pipe -version >> $info
-        sys echo "----" >> $info
-        sys STAR --version >> $info 
-        sys echo "----" >> $info
-        sys featureCounts -v 2>> $info
-        sys echo "----" >> $info
-        sys samtools --version >> $info
         sys echo "----" >> $info
         sys echo "Files used" >> $info
         sys echo $gtfFile >> $info

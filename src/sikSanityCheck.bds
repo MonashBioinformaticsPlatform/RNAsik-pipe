@@ -41,8 +41,6 @@ if(RNAseQC){
    if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
    if(!preqcBamFiles.isDir()) error "It looks like you don't have pre-proccessed BAM files. Make sure your pre-proccessed BAM files located in `preqcBamFiles` directory Or simply re-run RNAsik-pipe with -prePro flag"
 }
-# Get general info about tools versions and files used 
-//if(align == "star" || || makeIndex || count || fastqc) string generalInfo = getInfo()
 
 if( args.isEmpty() ) {
     printHelp()
