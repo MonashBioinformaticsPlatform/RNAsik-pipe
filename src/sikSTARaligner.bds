@@ -29,18 +29,18 @@ string fixFileNames(string rootName, string fileFix) {
 string{} getNewHash(string starOptions, string{} currentOptions) {
 
     string[] cmdArgs = starOptions.split(",")
-    string{} newHash
-    
+    string{} newHash = currentOptions
+     
     for(string option : cmdArgs){ 
         string cleanString = option.trim()
-        string[] tmp = cleanString.split(" ")
-        string starOption = tmp[0]
-        string starValue = tmp[1]
-      
+        string[] listOfOptions = cleanString.split(" ")
+        string starOption = listOfOptions.removeIdx(0)
+        string starValue = listOfOptions.join(" ")
+
         for(string key : currentOptions.keys()){
-            bool isIn = starOption.startsWith(key)
-            if(isIn) newHash{key}=starValue
-            else newHash{starOption}=starValue
+
+            if(starOption.startsWith(key)) newHash{key} = starValue
+            else newHash{starOption} = starValue
         }
     } 
     return newHash
@@ -60,7 +60,7 @@ string getOptionsString(string{} dictionary) {
 
 string mapSTAR(string rootName, string genomeIndex, string SAindexFile, string[] listOfReads, string starOptions) {
     # current options
-    string{} currentOptions = {"--outSAMtype" => "BAM Unsorted", "--outSAMunmapped" => "Within", "--readFilesCommand" => "zcat"}
+    string{} currentOptions = { "--outSAMtype" => "BAM Unsorted", "--outSAMunmapped" => "Within", "--readFilesCommand" => "zcat" }
     #----------------------------------------
     # Get extra options if available
     #----------------------------------------
