@@ -1,6 +1,6 @@
-# `RNAsik-pipe` easy and quick RNA-seq(uencing) pipeline
+# RNAsik-pipe quick and easy way to get differentially expressed genes
 
-> RNAsik-pipe is written in [BigDataScrip](http://pcingola.github.io/BigDataScript/) (BDS) language
+> `RNAsik-pipe` is written in [BigDataScrip](http://pcingola.github.io/BigDataScript/) (BDS) language.
 > There are many advantages in using BDS, but main ones are:
 >
 >  1. One script works on your local machine, on your remote server and on your cluster
