@@ -87,7 +87,15 @@ string mapSTAR(string rootName, string genomeIndex, string SAindexFile, string[]
     #-----------------------------------------------
     string rootBase = fixedFileName.baseName()
     string preFix = bamFiles+"/"+rootBase+"_"
-    string bamOut = preFix+"Aligned.out.bam"
+    
+    string bamOut
+
+    int checkUnsorted = extraOptions.indexOf("Unsorted")
+    int checkSorted = extraOptions.indexOf("SortedByCoordinate")
+
+    if(checkUnsorted != -1) bamOut = preFix+"Aligned.out.bam"
+    if(checkSorted != -1) bamOut = preFix+"Aligned.sortedByCoord.out.bam"
+
     string reads = listOfReads.join(" ")
     //task(bamOut <- [genomeIndex, SAindexFile], cpu := 32, taskName := "STAR aligning "+rootBase) {
     task(bamOut <- [genomeIndex, SAindexFile], taskName := "STAR aligning "+rootBase) {
