@@ -63,16 +63,8 @@ if(gtfFile) localGTF = makeLocalGTF(gtfFile)
 # Make indices if required 
 #------------------------------
 if(makeIndex){
-    string sjdbArguments
-    if(gtfFile) {
-        int readSize = 101
-        int overHang = readSize - 1
-    
-        sjdbArguments = "--sjdbGTFfile $gtfFile --sjdbOverhang $overHang"
-    }
-    else sjdbArguments = ""
 
-    string[] localIndexList = makeSTARindex(localFastaRef, sjdbArguments)
+    string[] localIndexList = makeSTARindex(localFastaRef, starOptions)
     localSAindexFile = localIndexList[0]
     localGenomeIndex = localIndexList[1]
 }
