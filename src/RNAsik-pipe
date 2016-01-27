@@ -53,7 +53,7 @@ string localFastaRef
 // initialise empty variable
 string localGTF
 // check if data is paired end or not
-bool checkPair = false
+bool checkPair
 #-------------------
 # Copy files across
 #-------------------
@@ -64,7 +64,13 @@ if(gtfFile) localGTF = makeLocalGTF(gtfFile)
 #------------------------------
 if(makeIndex){
 
-    string[] localIndexList = makeSTARindex(localFastaRef, starOptions)
+    string{} currentIndexOptions = {}
+    string additionalIndexOptions
+
+    if(extraOptions) additionalIndexOptions = getOptionsString("starIndex", currentIndexOptions)
+    else additionalIndexOptions = currentIndexOptions
+
+    string[] localIndexList = makeSTARindex(localFastaRef, additionalIndexOptions)
     localSAindexFile = localIndexList[0]
     localGenomeIndex = localIndexList[1]
 }
@@ -109,8 +115,13 @@ if(align == "star"){
                 reads.add(singleEndValues)
             }
 
-            # STAR aligning
-            string bamFile = mapSTAR(rootName, localGenomeIndex, localSAindexFile, reads, starOptions) 
+            string{} currentSTARoptions = { "--outSAMtype" => "BAM Unsorted", "--outSAMunmapped" => "Within", "--readFilesCommand" => "zcat" }
+            string additionalSTARoptions
+
+            if(extraOptions) additionalSTARoptions = getOptionsString("STAR", currentSTARoptions)
+            else additionalSTARoptions = currentSTARoptions
+            // STAR aligning
+            string bamFile = mapSTAR(rootName, localGenomeIndex, localSAindexFile, reads, additionalSTARoptions) 
             bamsList.add(bamFile)
         }
     }

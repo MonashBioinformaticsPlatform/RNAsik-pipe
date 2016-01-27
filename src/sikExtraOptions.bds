@@ -1,0 +1,101 @@
+#-------------------------
+# Extra option processing
+#-------------------------
+
+include "sikHeader.bds"
+include "sikMakeIndices.bds"
+include "sikSortFastqs.bds"
+
+// this function steps through the extraOptions string given by the user and 
+// returns a list of indicies where it finds tool names
+// thus far I only going to include STAR, STAR index and featureCounts
+// by it'll be very to implement other tools now
+int[] getListOfIndicies(string extraOptions) {
+    string[] optionsList = ["STAR", "starIndex", "featureCounts"]
+    
+    int[] listOfIndicies
+    for(string option : optionsList) {
+        int optionsIndex = extraOptions.lastIndexOf(option)
+        if(optionsIndex != -1) listOfIndicies.add(optionsIndex)
+    }
+    int veryLastIndex = extraOptions.length()
+    listOfIndicies.add(veryLastIndex)
+   
+    return listOfIndicies
+}
+// this function take a litsOfIndicies and returns a listOfOptions
+// where each option is a substring spliced from main extraOptions string
+// each substring is tool with its options
+string[] getListOfOptions(string extraOptions) {
+    string[] listOfOptions
+
+    int[] listOfIndicies = getListOfIndicies(extraOptions)
+    // sort inidicies numerically and reverse the order
+    int[] orderedListOfIndicies = listOfIndicies.sort().reverse()
+    int sizeOfOrderedListOfIndicies = orderedListOfIndicies.size()
+    // step through the indicies list and splice substring using indicies
+    for(int idx; idx < sizeOfOrderedListOfIndicies-1; idx++) {
+        int starIdx = orderedListOfIndicies.pop()
+        int endIdx = orderedListOfIndicies.reverse()[0]
+        string optionString = extraOptions.substr(starIdx, endIdx)
+        listOfOptions.add(optionString)
+    }
+
+    return listOfOptions
+}
+// Once you have a list of substrings i.e list of all tools and their additional options
+// you can now specify your tool name and get only those options
+// so this function will be used in different places passing in different tools name
+string getToolsOptions (string nameOfTheTool, string extraOptions) {
+    string[] listOfOptions = getListOfOptions(extraOptions)
+    
+    for(string option : listOfOptions) { 
+        int checkName = option.indexOf(nameOfTheTool)
+        if(checkName != -1) {
+            string[] splitOption = option.split(":")
+            string toolName = splitOption[0].trim()
+            string toolsOptions = splitOption[1].trim()
+    
+            return toolsOptions
+        } 
+    }
+}
+// this function can check if options passed on the command line under extraOptions flag 
+// are actually already given options or not
+// if already given than just the value will change according to extraOptions value
+// else new key:value pair is appended to hash
+// this is actually transitional function for getOptionsString
+string{} getNewOptionsHash(string toolsOptions, string{} currentOptions) {
+    
+    string[] cmdArgs = toolsOptions.split(",")
+    string{} newHash = currentOptions
+     
+    for(string option : cmdArgs){ 
+        string cleanString = option.trim()
+        string[] listOfOptions = cleanString.split(" ")
+        string newOption = listOfOptions.removeIdx(0)
+        string optionsValue = listOfOptions.join(" ")
+
+        for(string key : currentOptions.keys()){
+            if(newOption.startsWith(key)) newHash{key} = optionsValue
+            else newHash{newOption} = optionsValue
+        }
+    } 
+    return newHash
+}
+// this function takes your tool name and current options for this tools
+// and returns new options string according to extra options value
+string getOptionsString(string toolsOptions, string{} currentOptions) {
+
+    string[] argsList 
+
+    string{} newOptionsHash = getNewOptionsHash(toolsOptions, currentOptions)
+    
+    for(string key : newOptionsHash.keys()) {
+        argsList.add(key)    
+        argsList.add(newOptionsHash{key})    
+    }
+    string newOptions = argsList.join(" ")
+
+    return newOptions
+}

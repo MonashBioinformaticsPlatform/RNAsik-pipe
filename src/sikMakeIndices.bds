@@ -4,6 +4,7 @@
 
 include "sikHeader.bds"
 include "sikSortFastqs.bds"
+include "sikExtraOptions.bds"
 
 #------------------------------
 # Make directories as required
@@ -71,7 +72,7 @@ string makeLocalGTF(string gtfFile) {
     return localGTF
 }
 
-string[] makeSTARindex(string fastaRef, string additionalArgs) {
+string[] makeSTARindex(string fastaRef, string additionalIndexOptions) {
 
     string localGenomeIndex = fastaRef.removeExt()+"-starIndex"
     if(!localGenomeIndex.exists()) localGenomeIndex.mkdir()
@@ -84,7 +85,7 @@ string[] makeSTARindex(string fastaRef, string additionalArgs) {
                  --runMode genomeGenerate \
                  --genomeDir $localGenomeIndex \
                  --genomeFastaFiles $fastaRef \
-                 $additionalArgs
+                 $additionalIndexOptions
     }
     return [starSAindexFile, localGenomeIndex]
 }

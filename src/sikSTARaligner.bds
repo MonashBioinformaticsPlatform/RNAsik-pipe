@@ -59,20 +59,6 @@ string getOptionsString(string{} dictionary) {
 }
 
 string mapSTAR(string rootName, string genomeIndex, string SAindexFile, string[] listOfReads, string starOptions) {
-    # current options
-    string{} currentOptions = { "--outSAMtype" => "BAM Unsorted", "--outSAMunmapped" => "Within", "--readFilesCommand" => "zcat" }
-    #----------------------------------------
-    # Get extra options if available
-    #----------------------------------------
-    string extraOptions
-
-    if(starOptions) {
-        string{} newHash = getNewHash(starOptions, currentOptions)
-        extraOptions = getOptionsString(newHash)
-    } 
-    if(!starOptions) {
-        extraOptions = getOptionsString(currentOptions)
-    }
     #-----------------------------------------------
     # Fix file names if sample names file was given
     #-----------------------------------------------
@@ -90,8 +76,8 @@ string mapSTAR(string rootName, string genomeIndex, string SAindexFile, string[]
     
     string bamOut
 
-    int checkUnsorted = extraOptions.indexOf("Unsorted")
-    int checkSorted = extraOptions.indexOf("SortedByCoordinate")
+    int checkUnsorted = starOptions.indexOf("Unsorted")
+    int checkSorted = starOptions.indexOf("SortedByCoordinate")
 
     if(checkUnsorted != -1) bamOut = preFix+"Aligned.out.bam"
     if(checkSorted != -1) bamOut = preFix+"Aligned.sortedByCoord.out.bam"
@@ -104,7 +90,7 @@ string mapSTAR(string rootName, string genomeIndex, string SAindexFile, string[]
                  --outSAMattrRGline ID:001 CN:Unknown DS:RNA-seq PL:ILLUMINA PM:MiSeq SM:$rootBase \
                  --readFilesIn $reads \
                  --outFileNamePrefix $preFix \
-                 $extraOptions
+                 $starOptions
                  
     }
     wait
