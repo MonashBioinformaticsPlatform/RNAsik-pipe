@@ -32,7 +32,7 @@ include "sikQCreports.bds"
 #------------------------------
 # Print version
 #------------------------------
-if(args[0] == "-version") print("RNAsik-pipe version 1.4-beta\n")
+if(args[0] == "-version") print("RNAsik-pipe version 1.3a\n")
 #------------------------------
 # Global Variables
 #------------------------------
