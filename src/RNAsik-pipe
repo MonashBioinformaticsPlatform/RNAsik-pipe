@@ -29,6 +29,7 @@ include "sikSTARaligner.bds"
 include "sikPrePro.bds"
 include "sikCounts.bds"
 include "sikQCreports.bds"
+include "sikExtraOptions.bds"
 #------------------------------
 # Print version
 #------------------------------
@@ -128,7 +129,14 @@ if(align == "star"){
 }
 
 if(count) { 
-    string[] featureCounts = getReadsCount(bamsList, gtfFile, checkPair)
+    string{} currentFeatureCountsOptions
+    string additionalFeatureCountsOptions
+    if(checkPair) currentFeatureCountsOptions = { "-p" => "" }
+
+    if(extraOptions) additionalFeatureCountsOptions = getOptionsString("featureCounts", currentFeatureCountsOptions)
+    else additionalFeatureCountsOptions = currentFeatureCountsOptions
+
+    string[] featureCounts = getReadsCount(bamsList, gtfFile, additionalFeatureCountsOptions)
     string featureNo = featureCounts[0]
     string featureReverse = featureCounts[1]
 

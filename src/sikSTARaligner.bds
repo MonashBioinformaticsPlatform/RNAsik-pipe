@@ -26,38 +26,6 @@ string fixFileNames(string rootName, string fileFix) {
     }
 }
 
-string{} getNewHash(string starOptions, string{} currentOptions) {
-
-    string[] cmdArgs = starOptions.split(",")
-    string{} newHash = currentOptions
-     
-    for(string option : cmdArgs){ 
-        string cleanString = option.trim()
-        string[] listOfOptions = cleanString.split(" ")
-        string starOption = listOfOptions.removeIdx(0)
-        string starValue = listOfOptions.join(" ")
-
-        for(string key : currentOptions.keys()){
-
-            if(starOption.startsWith(key)) newHash{key} = starValue
-            else newHash{starOption} = starValue
-        }
-    } 
-    return newHash
-}
-
-string getOptionsString(string{} dictionary) {
-    string[] argsList 
-    
-    for(string key : dictionary.keys()) {
-        argsList.add(key)    
-        argsList.add(dictionary{key})    
-    }
-    string newOptions = argsList.join(" ")
-
-    return newOptions
-}
-
 string mapSTAR(string rootName, string genomeIndex, string SAindexFile, string[] listOfReads, string starOptions) {
     #-----------------------------------------------
     # Fix file names if sample names file was given

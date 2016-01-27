@@ -13,12 +13,8 @@ if((!countFiles.exists()) && (count)) countFiles.mkdir()
 #------
 # Body
 #------
-string[] getReadsCount(string[] bamsList, string gtfFile, bool checkPair) {
+string[] getReadsCount(string[] bamsList, string gtfFile, string additionalArgs) {
 
-    string additionalArgs
-    if(checkPair) additionalArgs = "-p"
-    else additionalArgs = ""
-   
     int featureThreads = threads/2
 
     string bamString = bamsList.join(" ")
