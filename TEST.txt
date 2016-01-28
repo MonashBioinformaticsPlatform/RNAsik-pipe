@@ -1,0 +1,79 @@
+## Need to run some tests on the RNAsik-pipe
+
+1. simple case - just want to make STAR index
+```
+RNAsik-pipe -makeIndex \
+            -fastaRef /home/kirillt/ilustre/ref-files/Mammalian/Mus_musculus/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa
+```
+
+2. just want to make STAR index with some additional options
+```
+RNAsik-pipe -makeIndex \
+            -fastaRef /home/kirillt/ilustre/ref-files/Mammalian/Mus_musculus/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa \
+            -extraOptions "starIndex: --sjdbGTFfile /home/kirillt/ilustre/ref-files/Mammalian/Mus_musculus/Mus_musculus.GRCm38.82.gtf, --sjdbOverhang 99"
+```
+
+3. Run STAR alignment and make STAR index on the fly
+```
+RNAsik-pipe -makeIndex \
+            -fastaRef /home/kirillt/ilustre/ref-files/Mammalian/Mus_musculus/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa \
+            -align star \
+            -fqRegex B \
+            -fqDir /home/kirillt/lustre/raw-data/david.curtis/prmt5-cd34-rnaseq/
+```
+
+4. Run STAR alignment and make STAR index on the fly, but don't specify `-makeIndex` flag pipeline should take care of that. Time wise 3 and 4 have to identical
+```
+RNAsik-pipe -fastaRef /home/kirillt/ilustre/ref-files/Mammalian/Mus_musculus/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa \
+            -align star \
+            -fqRegex B \
+            -fqDir /home/kirillt/lustre/raw-data/david.curtis/prmt5-cd34-rnaseq/
+```
+
+5. Run STAR alignment and make STAR index on the fly with additional options for STAR
+```
+RNAsik-pipe -fastaRef /home/kirillt/ilustre/ref-files/Mammalian/Mus_musculus/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa \
+            -align star \
+            -fqRegex B \
+            -fqDir /home/kirillt/lustre/raw-data/david.curtis/prmt5-cd34-rnaseq/ \
+            -extraOptions "STAR: --outSAMtype BAM SortedByCoordinates, --outReadsUnmapped Fastx"
+```
+
+6. Run STAR alignment and make STAR index on the fly with additional options for STAR and STAR index
+```
+RNAsik-pipe -fastaRef /home/kirillt/ilustre/ref-files/Mammalian/Mus_musculus/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa \
+            -align star \
+            -fqRegex B \
+            -fqDir /home/kirillt/lustre/raw-data/david.curtis/prmt5-cd34-rnaseq/ \
+            -extraOptions "STAR: --outSAMtype BAM SortedByCoordinates, --outReadsUnmapped Fastx starIndex: --sjdbGTFfile /home/kirillt/ilustre/ref-files/Mammalian/Mus_musculus/Mus_musculus.GRCm38.82.gtf, --sjdbOverhang 99"
+```
+
+7. Run STAR alignment and use pre-made STAR index
+```
+RNAsik-pipe -align star \
+            -fqRegex B \
+            -fqDir /home/kirillt/lustre/raw-data/david.curtis/prmt5-cd34-rnaseq/ \
+            -genomeIndex /home/kirillt/ilustre/ref-files/Mammalian/Mus_musculus/starIndex-MusGRCm38 \
+
+```
+8. Run STAR alignment and use pre-made STAR index, with additional options
+```
+RNAsik-pipe -align star \
+            -fqRegex B \
+            -fqDir /home/kirillt/lustre/raw-data/david.curtis/prmt5-cd34-rnaseq/ \
+            -genomeIndex /home/kirillt/ilustre/ref-files/Mammalian/Mus_musculus/starIndex-MusGRCm38 \
+            -extraOptions "STAR: --outSAMtype BAM SortedByCoordinates, --outReadsUnmapped Fastx"
+```
+#----------------------------------------------------------------------------------------------------
+# This should conclude testing of running STAR and its index with and without extraOptions
+#----------------------------------------------------------------------------------------------------
+
+1. Run STAR alignment and make STAR index on the fly with additional options for STAR and STAR index
+```
+RNAsik-pipe -fastaRef /home/kirillt/ilustre/ref-files/Mammalian/Mus_musculus/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa \
+            -align star \
+            -fqRegex B \
+            -fqDir /home/kirillt/lustre/raw-data/david.curtis/prmt5-cd34-rnaseq/ \
+            -count \
+            -gtfFile /home/kirillt/ilustre/ref-files/Mammalian/Mus_musculus/Mus_musculus.GRCm38.82.gtf.gz
+```

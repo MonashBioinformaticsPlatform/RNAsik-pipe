@@ -27,6 +27,9 @@
 - [Release notes](#release-notes)
   - [Version 1.2](#version-1.2)
 
+## check
+
+`RNAsik-pipe` can't handle gzipped files inside `-extraOptions` flag. You have to specify any additional files exactly how the tools will want it.
 ## Introduction
 
 Your standard [RNA-seq](https://en.wikipedia.org/wiki/RNA-Seq) workflow as follows:

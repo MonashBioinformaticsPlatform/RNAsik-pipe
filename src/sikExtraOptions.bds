@@ -66,7 +66,7 @@ string getToolsOptions (string nameOfTheTool, string extraOptions) {
 // else new key:value pair is appended to hash
 // this is actually transitional function for getOptionsString
 string{} getNewOptionsHash(string toolsOptions, string{} currentOptions) {
-    
+
     string[] cmdArgs = toolsOptions.split(",")
     string{} newHash = currentOptions
      
@@ -76,9 +76,12 @@ string{} getNewOptionsHash(string toolsOptions, string{} currentOptions) {
         string newOption = listOfOptions.removeIdx(0)
         string optionsValue = listOfOptions.join(" ")
 
-        for(string key : currentOptions.keys()){
-            if(newOption.startsWith(key)) newHash{key} = optionsValue
-            else newHash{newOption} = optionsValue
+        if(!currentOptions) newHash{newOption} = optionsValue
+        else { 
+            for(string key : currentOptions.keys()){
+                if(newOption.startsWith(key)) newHash{key} = optionsValue
+                else newHash{newOption} = optionsValue
+            }
         }
     } 
     return newHash

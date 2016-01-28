@@ -15,7 +15,6 @@ if((!refFiles.exists()) && (makeIndex)) refFiles.mkdir()
 # Body
 #------
 string makeLocalFastaRef(string fastaRef) {
-
     string localFastaRef
 
     bool gZipped
@@ -33,8 +32,7 @@ string makeLocalFastaRef(string fastaRef) {
             sys echo $(date) Also unzipping your FASTA file; gunzip $localFastaRef
         }
     }
-
-    if(!gZipped) {
+    else {
         task(localFastaRef <- fastaRef, taskName := "Copying FASTA file") {
             sys echo $(date) Copying FASTA file, be patient; cp -v $fastaRef $refFiles
         }

@@ -65,11 +65,15 @@ if(gtfFile) localGTF = makeLocalGTF(gtfFile)
 #------------------------------
 if(makeIndex){
 
-    string{} currentIndexOptions = {}
+    string{} currentIndexOptions
     string additionalIndexOptions
 
-    if(extraOptions) additionalIndexOptions = getOptionsString("starIndex", currentIndexOptions)
-    else additionalIndexOptions = currentIndexOptions
+    if(extraOptions) {
+        string toolsOptions = getToolsOptions("starIndex", extraOptions)
+        additionalIndexOptions = getOptionsString(toolsOptions, currentIndexOptions)
+        print("$additionalIndexOptions \n")
+    }
+    else additionalIndexOptions = getOptionsString("", currentIndexOptions)
 
     string[] localIndexList = makeSTARindex(localFastaRef, additionalIndexOptions)
     localSAindexFile = localIndexList[0]
@@ -119,8 +123,11 @@ if(align == "star"){
             string{} currentSTARoptions = { "--outSAMtype" => "BAM Unsorted", "--outSAMunmapped" => "Within", "--readFilesCommand" => "zcat" }
             string additionalSTARoptions
 
-            if(extraOptions) additionalSTARoptions = getOptionsString("STAR", currentSTARoptions)
-            else additionalSTARoptions = currentSTARoptions
+            if(extraOptions) {
+		string toolsOptions = getToolsOptions("STAR", extraOptions)
+                additionalSTARoptions = getOptionsString(toolsOptions, currentSTARoptions)
+            }
+            else additionalSTARoptions = getOptionsString("", currentSTARoptions)
             // STAR aligning
             string bamFile = mapSTAR(rootName, localGenomeIndex, localSAindexFile, reads, additionalSTARoptions) 
             bamsList.add(bamFile)
