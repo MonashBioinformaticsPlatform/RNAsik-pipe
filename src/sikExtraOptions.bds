@@ -48,7 +48,7 @@ string[] getListOfOptions(string extraOptions) {
 // so this function will be used in different places passing in different tools name
 string getToolsOptions (string nameOfTheTool, string extraOptions) {
     string[] listOfOptions = getListOfOptions(extraOptions)
-    
+
     for(string option : listOfOptions) { 
         int checkName = option.indexOf(nameOfTheTool)
         if(checkName != -1) {
@@ -58,6 +58,7 @@ string getToolsOptions (string nameOfTheTool, string extraOptions) {
     
             return toolsOptions
         } 
+        else return ""
     }
 }
 // this function can check if options passed on the command line under extraOptions flag 
@@ -66,7 +67,6 @@ string getToolsOptions (string nameOfTheTool, string extraOptions) {
 // else new key:value pair is appended to hash
 // this is actually transitional function for getOptionsString
 string{} getNewOptionsHash(string toolsOptions, string{} currentOptions) {
-
     string[] cmdArgs = toolsOptions.split(",")
     string{} newHash = currentOptions
      

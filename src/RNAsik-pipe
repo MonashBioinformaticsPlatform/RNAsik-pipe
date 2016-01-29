@@ -71,10 +71,8 @@ if(makeIndex){
     if(extraOptions) {
         string toolsOptions = getToolsOptions("starIndex", extraOptions)
         additionalIndexOptions = getOptionsString(toolsOptions, currentIndexOptions)
-        print("$additionalIndexOptions \n")
     }
     else additionalIndexOptions = getOptionsString("", currentIndexOptions)
-
     string[] localIndexList = makeSTARindex(localFastaRef, additionalIndexOptions)
     localSAindexFile = localIndexList[0]
     localGenomeIndex = localIndexList[1]
