@@ -142,6 +142,8 @@ if(align == "star"){
 }
 
 if(count) { 
+    if(align != "star") bamsList = bamFiles.dirPath("*.bam")
+
     string{} currentFeatureCountsOptions
     string additionalFeatureCountsOptions
     if(checkPair) currentFeatureCountsOptions = { "-p" => "" }
@@ -149,6 +151,7 @@ if(count) {
     if(extraOptions) additionalFeatureCountsOptions = getOptionsString("featureCounts", currentFeatureCountsOptions)
     else additionalFeatureCountsOptions = currentFeatureCountsOptions
 
+    if(!bamsList) error "No BAM files were found, either used -align options or specify directory with BAM files using `-bamFiles path/to/you/bams/directory`"
     string[] featureCounts = getReadsCount(bamsList, gtfFile, additionalFeatureCountsOptions)
     string featureNo = featureCounts[0]
     string featureReverse = featureCounts[1]
@@ -191,8 +194,7 @@ if(align != "star") bamsList = bamFiles.dirPath("*.bam")
 
 for(string bamFile : bamsList) {
     if(prePro) {
-	if(!fastaDictFile.exists()) fastaDictFile = makeDictFile(localFastaRef)
-        string mdupsBam = getPrePro(bamFile, localFastaRef, fastaDictFile)
+        string mdupsBam = getPrePro(bamFile, localFastaRef)
         markedBams.add(mdupsBam)
     }
 }
@@ -200,11 +202,10 @@ for(string bamFile : bamsList) {
 # RNAseQC report
 #----------------
 if(RNAseQC){
-    if(!fastaFaiFile.exists()) fastaFaiFile = makeFaiFile(localFastaRef)
     string sampleIdsFile = "RNAseQC-sampleIds.txt"
     string RNAseQCsampleIds = getSampleIds(markedBams)
     sampleIdsFile.write(RNAseQCsampleIds)
-    string check = getRNAseQC(sampleIdsFile, markedBams, checkPair, localFastaRef, fastaFaiFile)
+    string check = getRNAseQC(sampleIdsFile, markedBams, checkPair, localFastaRef)
 }
 #----------------------------------------------------------------------------------------------------
 # End

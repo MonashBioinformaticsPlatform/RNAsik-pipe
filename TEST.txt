@@ -77,3 +77,6 @@ RNAsik-pipe -fastaRef /home/kirillt/ilustre/ref-files/Mammalian/Mus_musculus/Mus
             -count \
             -gtfFile /home/kirillt/ilustre/ref-files/Mammalian/Mus_musculus/Mus_musculus.GRCm38.82.gtf.gz
 ```
+
+Need to test with some files already there
+Also test with files copied across, I think copying doesn't work

@@ -26,11 +26,14 @@ string getSampleIds(string[] markedBams){
     return sampleIds
 }
 
-string getRNAseQC(string sampleIdsFile, string[] markedBams, bool checkPair, string fastaRef, string fastaFaiFile){
+string getRNAseQC(string sampleIdsFile, string[] markedBams, bool checkPair, string fastaRef){
 
     string additionalArgs
     if(!checkPair) additionalArgs = "-singleEnd"
     else additionalArgs = ""
+    // check if fasta files had been indexed before, if not make an index
+    string fastaFaiFile = fastaRef+".fai"
+    if(!fastaFaiFile.exists()) fastaFaiFile = makeFaiFile(fastaRef, fastaFaiFile)
 
     //task(RNAseQCreport <- [markedBams, sampleIdsFile, fastaFaiFile], mem = 10000000000, taskName := "Running RNAseQC report"){
     task(RNAseQCreport <- [markedBams, fastaFaiFile], taskName := "Running RNAseQC report"){
