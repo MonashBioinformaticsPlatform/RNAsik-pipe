@@ -12,6 +12,7 @@
 
 ## Content
 
+- [Quick start](#quick-start)
 - [Introduction](#introduction)
   - [FASTQ files explained](#fastq-files-explained)
     - [Directory with FASTQ files](#directory-with-fastq-files)
@@ -22,14 +23,44 @@
   - [The easy way](#the-easy-way)
   - [The other way](#the-other-way)
 - [Prerequisites](#prerequisites)
-- [Quick start](#quick-start)
 - [User manual](#user-manual)
 - [Release notes](#release-notes)
   - [Version 1.2](#version-1.2)
 
-## check
+## Quick start
+
+If you have a `module` system on you server/cluster make sure to `module load` all required tools e.g `module load STAR`
+**Need to have [all of these tools](#prerequisites) in your enviroment**
+
+Use `RNAsik-pipe` executable file to run it e.g `./RNAsik-pipe`. Everything else will depend on what you want to do, some examples below
+
+### RNAsik-pipe commands examples
+
+- To align FASTQ files in `raw-data/data-a` directory use 
+
+```BASH
+RNAsik-pipe -align star \
+            -fqRegex A \
+            -fqDir raw-data/data-a \
+            -genomeIndex path/to/yourIndexDirectory
+```
+
+- To just get counts on already existing bam files you must have directory `bamFiles` with all BAM files with either `_Aligned.out.bam` or `_Aligned.sortedByCoord.out.bam` postfix at per STAR aligner output
+
+```BASH
+RNAsik-pipe -count \
+            -gtfFile path/to/your/annotation/file \
+```
+
+- To get RNA-SeQC report `RNAsik-pipe -prePro -fastaRef path/to/yourFASTAreference-file -RNAseQC`
+
+**You can simply specify all of the options at the start and let `RNAsik-pipe` to do everything for your**
+
+- `RNAsik-pipe` will guide you through. `RNAsik-pipe` will let you know if you have forgotten any files needed for your run. 
+
 
 `RNAsik-pipe` can't handle gzipped files inside `-extraOptions` flag. You have to specify any additional files exactly how the tools will want it.
+
 ## Introduction
 
 Your standard [RNA-seq](https://en.wikipedia.org/wiki/RNA-Seq) workflow as follows:
@@ -139,21 +170,6 @@ downloading `*tar.gz` file.
 **If you like to get developing version**
 
 `git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe.git`
-
-## Quick start
-
-- If you have a `module` system on you server/cluster make sure to `module load` all required tools e.g `module load STAR`
-
-- run `RNAsik-pipe` by pointing to the executable file. e.g if you downloaded `*tar.gz` file into `Downlaods`
-directory and unpacked there, then run `RNAsik-pipe` from anywhere as such `~/Downloads/RNAsik-pipe/src/RNAsik-pipe`
-
-- To align `RNAsik-pipe -star -fqRegex A -genomeIndex path/to/yourIndexDirectory` 
-- To get counts `RNAsik-pipe -count -gtfFile path/to/yourGTFfile`
-- To get RNA-SeQC report `RNAsik-pipe -prePro -fastaRef path/to/yourFASTAreference-file -RNAseQC`
-
-**You can simply specify all of the options at the start and let `RNAsik-pipe` to do everything for your**
-
-- `RNAsik-pipe` will guide you through. `RNAsik-pipe` will let you know if you have forgotten any files needed for your run. 
 
 ## User manual
 
