@@ -11,7 +11,7 @@ include "sikSortFastqs.bds"
 // thus far I only going to include STAR, STAR index and featureCounts
 // by it'll be very to implement other tools now
 int[] getListOfIndicies(string extraOptions) {
-    string[] optionsList = ["STAR", "starIndex", "featureCounts"]
+    string[] optionsList = ["STAR", "starIndex", "featureCounts", "RNAseQC"]
     
     int[] listOfIndicies
     for(string option : optionsList) {

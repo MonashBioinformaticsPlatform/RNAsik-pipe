@@ -146,10 +146,10 @@ if(count) {
 
     string{} currentFeatureCountsOptions
     string additionalFeatureCountsOptions
-    if(checkPair) currentFeatureCountsOptions = { "-p" => "" }
+    if(checkPair) currentFeatureCountsOptions{"-p"} = ""
 
     if(extraOptions) additionalFeatureCountsOptions = getOptionsString("featureCounts", currentFeatureCountsOptions)
-    else additionalFeatureCountsOptions = currentFeatureCountsOptions
+    else additionalFeatureCountsOptions = getOptionsString("", currentFeatureCountsOptions)
 
     if(!bamsList) error "No BAM files were found, either used -align options or specify directory with BAM files using `-bamFiles path/to/you/bams/directory`"
     string[] featureCounts = getReadsCount(bamsList, gtfFile, additionalFeatureCountsOptions)
@@ -202,10 +202,18 @@ for(string bamFile : bamsList) {
 # RNAseQC report
 #----------------
 if(RNAseQC){
+
+    string{} currentRNAseQCoptions
+    string additionalRNAseQCoptions
+    if(!checkPair) currentRNAseQCoptions{"-singleEnd"} = ""
+
+    if(extraOptions) additionalRNAseQCoptions = getOptionsString("RNAseQC", currentRNAseQCoptions)
+    else additionalRNAseQCoptions = getOptionsString("", currentRNAseQCoptions)
+
     string sampleIdsFile = "RNAseQC-sampleIds.txt"
     string RNAseQCsampleIds = getSampleIds(markedBams)
     sampleIdsFile.write(RNAseQCsampleIds)
-    string check = getRNAseQC(sampleIdsFile, markedBams, checkPair, localFastaRef)
+    string check = getRNAseQC(sampleIdsFile, markedBams, checkPair, localFastaRef, additionalRNAseQCoptions)
 }
 #----------------------------------------------------------------------------------------------------
 # End

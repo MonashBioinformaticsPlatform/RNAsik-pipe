@@ -26,11 +26,7 @@ string getSampleIds(string[] markedBams){
     return sampleIds
 }
 
-string getRNAseQC(string sampleIdsFile, string[] markedBams, bool checkPair, string fastaRef){
-
-    string additionalArgs
-    if(!checkPair) additionalArgs = "-singleEnd"
-    else additionalArgs = ""
+string getRNAseQC(string sampleIdsFile, string[] markedBams, bool checkPair, string fastaRef, string additionalRNAseQCoptions){
     // check if fasta files had been indexed before, if not make an index
     string fastaFaiFile = fastaRef+".fai"
     if(!fastaFaiFile.exists()) fastaFaiFile = makeFaiFile(fastaRef, fastaFaiFile)
@@ -42,7 +38,7 @@ string getRNAseQC(string sampleIdsFile, string[] markedBams, bool checkPair, str
                                                                         -r $fastaRef \
                                                                         -s $sampleIdsFile\
                                                                         -t $gtfFile\
-                                                                         $additionalArgs
+                                                                         $additionalRNAseQCoptions
     }
     return "all good"
 }
