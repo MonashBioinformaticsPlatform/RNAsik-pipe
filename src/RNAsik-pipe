@@ -110,12 +110,20 @@ if(align == "star"){
                 singleEndValues = uniqueNames{rootName} 
                 pairedEndValues = singleEndValues.replace("_R1", "_R2")
 
-                reads.add(singleEndValues)
-                reads.add(pairedEndValues)
+                int getSingleLength = singleEndValues.length()-1
+                int getPairedLength = pairedEndValues.length()-1
+
+                string cleanSingle = singleEndValues.substr(0,getSingleLength)
+                string cleanPaired = pairedEndValues.substr(0,getPairedLength)
+
+                reads.add(cleanSingle)
+                reads.add(cleanPaired)
             }
             else {
                 singleEndValues = uniqueNames{rootName} 
-                reads.add(singleEndValues)
+                int getSingleLength = singleEndValues.length()-1
+                string cleanSingle = singleEndValues.substr(0,getSingleLength)
+                reads.add(cleanSingle)
             }
 
             string{} currentSTARoptions = { "--outSAMtype" => "BAM Unsorted", "--outSAMunmapped" => "Within", "--readFilesCommand" => "zcat" }
