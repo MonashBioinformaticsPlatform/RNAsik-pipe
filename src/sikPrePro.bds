@@ -20,7 +20,8 @@ if((!preqcBamFiles.exists()) && (prePro)) preqcBamFiles.mkdir()
 string getPrePro(string bamFile, string fastaRef){
 
     string fastaDictFile = fastaRef.removeExt()+".dict"
-    if(!fastaDictFile.exists()) fastaDictFile = makeDictFile(fastaRef, fastaDictFile)
+    //if(!fastaDictFile.exists()) fastaDictFile = makeDictFile(fastaRef, fastaDictFile)
+    fastaDictFile = makeDictFile(fastaRef, fastaDictFile)
 
     string sortedName = preqcBamFiles+"/"+bamFile.baseName().swapExt("Aligned.out.bam", "sorted.bam")
     // try using 8 cpus to limit how picard processes can be run at a time
@@ -35,7 +36,8 @@ string getPrePro(string bamFile, string fastaRef){
     }
 
     string fastaFaiFile = fastaRef+".fai"
-    if(!fastaFaiFile.exists()) fastaFaiFile = makeFaiFile(fastaRef, fastaFaiFile)
+    //if(!fastaFaiFile.exists()) fastaFaiFile = makeFaiFile(fastaRef, fastaFaiFile)
+    fastaFaiFile = makeFaiFile(fastaRef, fastaFaiFile)
 
     string reorderedName = sortedName.swapExt(".bam", "_reordered.bam")
     task(reorderedName <- [sortedName, fastaDictFile], taskName := "picard reordering "+reorderedName) {

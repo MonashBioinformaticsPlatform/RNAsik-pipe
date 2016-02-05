@@ -87,17 +87,15 @@ string[] makeSTARindex(string fastaRef, string additionalIndexOptions) {
     }
     return [starSAindexFile, localGenomeIndex]
 }
-
+// Index FASTA reference file when needed
 string makeFaiFile(string fastaRef, string fastaFaiFile) {
-
     task(fastaFaiFile <- fastaRef, taskName := "Indexing FASTA file") {
         sys samtools faidx $fastaRef
     }
     return fastaFaiFile
 }
-
+// make dictionary for picard pre-processing
 string makeDictFile(string fastaRef, string fastaDictFile) {
-
     task(fastaDictFile <- fastaRef, taskName := "Making dictionary File") {
         sys picard CreateSequenceDictionary REFERENCE=$fastaRef \
                                             OUTPUT=$fastaDictFile

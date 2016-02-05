@@ -37,10 +37,6 @@ if(args[0] == "-version") print("RNAsik-pipe version 1.3a\n")
 #------------------------------
 # Global Variables
 #------------------------------
-# set fastaDictFile
-string fastaDictFile
-# set fastaFaiFile
-string fastaFaiFile
 # set locaGenomeIndex 
 string localGenomeIndex
 string localSAindexFile 
@@ -190,18 +186,23 @@ task([featureNoCountsWithNames, featureReverseCountsWithNames] <- [featureNo, fe
 #------------------------------
 # BAM processing
 #------------------------------
-if(align != "star") bamsList = bamFiles.dirPath("*.bam")
-
-for(string bamFile : bamsList) {
-    if(prePro) {
-        string mdupsBam = getPrePro(bamFile, localFastaRef)
-        markedBams.add(mdupsBam)
-    }
+if(prePro) {
+    // check that not aligners had been specified
+    if(align != "star") bamsList = bamFiles.dirPath("*.bam")
+    // make sure we have BAM files to work with
+    if(!bamsList) error "No BAM files were found, either used -align options or specify directory with BAM files using `-bamFiles path/to/you/bams/directory`"
+    // loop over BAM files do pre-processing 
+    for(string bamFile : bamsList) {
+            string mdupsBam = getPrePro(bamFile, localFastaRef)
+            markedBams.add(mdupsBam)
+        }
 }
 #----------------
 # RNAseQC report
 #----------------
 if(RNAseQC){
+     
+    if(!markedBams) error "No pre-processed BAM files were found, either used -prePro options or specify directory with appropriate BAM files using `-markedBams path/to/you/bams/directory`"
 
     string{} currentRNAseQCoptions
     string additionalRNAseQCoptions
