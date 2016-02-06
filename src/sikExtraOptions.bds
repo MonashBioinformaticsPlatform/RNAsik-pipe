@@ -7,7 +7,7 @@ string getCmdOptions(string toolName, string extraOptions) {
     if(toolName.isEmpty()) return ""
 
     if(!extraOptions.isEmpty()) { 
-        // if no toolName found in the extraOptions string return empty string
+       // if no toolName found in the extraOptions string return empty string
         int checkForName = extraOptions.indexOf(toolName)
         if(checkForName == -1) return ""
 
@@ -21,7 +21,7 @@ string getCmdOptions(string toolName, string extraOptions) {
             if(checkToolIdx != -1) counter += 1
         }
         
-        if(counter > getOptionsListLength) warning "It appears that you have incorect information in your -extraOptions string \n ** $extraOptions ** \n Make sure each tool is spelled right and seperated by semicolon and make sure tool name and it's options are separated by greater than sign (>)"
+        if(counter > getOptionsListLength) error "It appears that you have incorect information in your -extraOptions string \n ** $extraOptions ** \n Make sure each tool is spelled right and seperated by semicolon and make sure tool name and it's options are separated by greater than sign (>)"
 
         for(string item : getOptions) {
 
@@ -32,14 +32,14 @@ string getCmdOptions(string toolName, string extraOptions) {
                 string[] tmpList = cleanItem.split(">")
 
                 int checkForSeparator = cleanItem.indexOf(">")
-                if(checkForSeparator == -1) warning "It appears that you have incorect information in your -extraOption string \n ** $cleanItem ** \n Make sure tool name and it's options are separated by greater than sign (>)"
+                if(checkForSeparator == -1) error "It appears that you have incorect information in your -extraOption string \n ** $cleanItem ** \n Make sure tool name and it's options are separated by greater than sign (>)"
 
                 string theName = tmpList.removeIdx(0)
                 string tmpOptions = tmpList.join(" <-- error --> ")
                 string theOptions = tmpOptions.trim()
 
                 int checkString = theOptions.indexOf(" <-- error --> ")
-                if(checkString != -1) warning "It appears that you have incorect information in your -extraOptions string \n  ** $theOptions ** \n Make sure each tool is spelled right and seperated by semicolon"
+                if(checkString != -1) error "It appears that you have incorect information in your -extraOptions string \n  ** $theOptions ** \n Make sure each tool is spelled right and seperated by semicolon"
 
                 return theOptions
             }
