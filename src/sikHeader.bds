@@ -60,5 +60,7 @@ string extn = "*fastq.gz"        help optional, specify your files extension def
 string sampleNames  help optional, specify a text file with alternative sample names
 string extraOptions help you can add extra option to any of the tools used in the pipeline using the following syntax in quotes, name of the tools: options like you'd pass them on the command line e.g  -extraOptions "STAR: --outSAMtype BAM Unsorted, --outReadsUnmapped Fastx, starIndex: --sjdbGTFfile /path/to/GTF/file, --sjdbOverhang 99, featureCounts: -t gene". You can have as many or as little tools inside the quotes e.g -extraOptioins "featureCounts: -t gene" 
 
+// check if data is paired end or not
+bool checkPair
 # Get general info about tools versions and files used 
 //string generalInfo = getInfo()

@@ -49,8 +49,6 @@ string[] markedBams
 string localFastaRef 
 // initialise empty variable
 string localGTF
-// check if data is paired end or not
-bool checkPair
 #-------------------
 # Copy files across
 #-------------------
@@ -90,6 +88,7 @@ if(align == "star"){
 
         string{} uniqueNames = getUniqueNames(fqDir)
         if(!uniqueNames) error "It appears that you don't have any FASTQ files specified. Check -fqDir path and make sure it point to FASTQ files directory"
+        // This returns a list with first item being a stats string and second a bool for checkPair
         string[] getStats = getFqReadsStats(fqDir)
         checkPair = getStats.pop()
         
