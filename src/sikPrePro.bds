@@ -24,7 +24,7 @@ string getPrePro(string bamFile, string fastaRef){
                            OUTPUT=$sortedName \
                            SORT_ORDER=coordinate
     }
-
+    // this file should have been created previously
     string fastaDictFile = fastaRef.removeExt()+".dict"
 
     string reorderedName = sortedName.swapExt(".bam", "_reordered.bam")
