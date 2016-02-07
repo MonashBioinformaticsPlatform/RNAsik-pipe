@@ -1,4 +1,4 @@
-# RNAsik-pipe is undergoing changes for most up to date changes refere to [1.3-beta branch](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/tree/1.3-beta)
+# RNAsik-pipe is undergoing changes. For most up to date changes and documentations please refer to [1.3-beta branch](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/tree/1.3-beta)
 
 # `RNAsik-pipe` easy and quick RNA-seq(uencing) pipeline
 
