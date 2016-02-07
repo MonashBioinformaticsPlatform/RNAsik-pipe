@@ -140,7 +140,7 @@ if(count) {
     string additionalCountsOptions = getAllOptions(cmdOptions, currentCountsOptions)
 
     if(!bamsList) error "No BAM files were found, either used -align options or specify directory with BAM files using `-bamFiles path/to/you/bams/directory`"
-    string[] featureCounts = getReadsCount(bamsList, gtfFile, additionalCountsOptions)
+    string[] featureCounts = getReadsCount(bamsList, gtfFile, additionalCountsOptions, threads)
     string featureNo = featureCounts[0]
     string featureReverse = featureCounts[1]
 
@@ -153,7 +153,7 @@ if(count) {
     string featureNoCountsWithNames = countFiles+"/"+"featureNoCounts-withNames.txt"
     string featureReverseCountsWithNames = countFiles+"/"+"featureReverseCounts-withNames.txt"
 
-    string geneIdsFile = getGeneIds()
+    string geneIdsFile = getGeneIds(gtfFile)
 
     int numberOfBamFiles = bamsList.size()+7
     int[] theRange = range(7, numberOfBamFiles)

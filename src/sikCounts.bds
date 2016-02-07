@@ -2,9 +2,6 @@
 # Counts
 #----------------------------------------
 
-//include "sikHeader.bds"
-//include "sikSanityCheck.bds"
-
 #------------------------------
 # Make directories as required
 #------------------------------
@@ -13,7 +10,7 @@ if((!countFiles.exists()) && (count)) countFiles.mkdir()
 #------
 # Body
 #------
-string[] getReadsCount(string[] bamsList, string gtfFile, string additionalArgs) {
+string[] getReadsCount(string[] bamsList, string gtfFile, string additionalArgs, int threads) {
 
     int featureThreads = threads/2
 
@@ -21,26 +18,26 @@ string[] getReadsCount(string[] bamsList, string gtfFile, string additionalArgs)
 
     string featureReverse = countFiles+"/"+"featureReverse.txt"
     task(featureReverse <- bamFiles, taskName := "Counting features") {
-        sys featureCounts -a $gtfFile \
-                          -o $featureReverse \
+        sys featureCounts -T $featureThreads \
                           -s 2 \
-                          -T $featureThreads \
                           $additionalArgs \
+                          -a $gtfFile \
+                          -o $featureReverse \
                           $bamString
     }
     string featureNo = countFiles+"/"+"featureNo.txt"
     task(featureNo <- bamFiles, taskName := "Counting features") {
-        sys featureCounts -a $gtfFile \
-                          -o $featureNo \
+        sys featureCounts -T $featureThreads \
                           -s 0 \
-                          -T $featureThreads \
                           $additionalArgs \
+                          -a $gtfFile \
+                          -o $featureNo \
                           $bamString
     }
     return [featureNo, featureReverse] 
 }
 
-string getGeneIds(){
+string getGeneIds(string gtfFile){
     string getProgPath = programPath.pathName()
 
     string makeDB = getProgPath+"/../scripts/make-gtf-db.py" 
