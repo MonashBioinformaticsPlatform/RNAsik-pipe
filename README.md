@@ -152,9 +152,8 @@ which will hold four files described above.
 
 **It is recommended that you use ansible to install RNAsik-pipe with all dependencies**
 
-The easiest way to get `RNAsik-pipe` installed together with all dependencies is to use [ansible RNAsik-playbook](https://github.com/MonashBioinformaticsPlatform/ansible-RNAsik-REST).
-All you will need to do is install ansible `sudo pip install ansible`, clone the [ansible RNAsik-playbook](https://github.com/MonashBioinformaticsPlatform/ansible-RNAsik-REST)
-`git clone https://github.com/MonashBioinformaticsPlatform/ansible-RNAsik-REST.git` and run ansible `sudo ansible-playbook -i local_server_hosts site.yml`. [Look here for more help](https://github.com/MonashBioinformaticsPlatform/ansible-RNAsik-REST).
+The easiest way to get `RNAsik-pipe` installed together with all dependencies is to use [ansible RNAsik-playbook](https://github.com/serine/sik_ansible).
+All you will need to do is install ansible `sudo pip install ansible`, clone the [ansible RNAsik-playbook](https://github.com/serine/sik_ansible)
 
 ### The other way
 
