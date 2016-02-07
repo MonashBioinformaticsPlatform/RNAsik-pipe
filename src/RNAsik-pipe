@@ -45,10 +45,6 @@ string[] bamsList
 // list of all BAMS files,
 //# where BAM had been sorted, reorted and duplicates marked
 string[] markedBams
-// initialise empty variable
-string localFastaRef 
-// initialise empty variable
-string localGTF
 #-------------------
 # Copy files across
 #-------------------

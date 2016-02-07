@@ -2,10 +2,6 @@
 # Fucntion to make indices for RNAsik-pipe
 #-----------------------------------------
 
-include "sikHeader.bds"
-include "sikSortFastqs.bds"
-include "sikExtraOptions.bds"
-
 #------------------------------
 # Make directories as required
 #------------------------------

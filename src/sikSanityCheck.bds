@@ -3,8 +3,6 @@
 #------------------------------
 
 include "sikHeader.bds"
-//include "sikInfo.bds"
-//include "sikSTARaligner.bds"
 
 if(fastqc) {
     if(fqDir.isEmpty()) error "Usage: You need to specify path to directory with FASTQ files"

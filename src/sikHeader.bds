@@ -62,5 +62,9 @@ string extraOptions help you can add extra option to any of the tools used in th
 
 // check if data is paired end or not
 bool checkPair
+// initialise empty variable
+string localFastaRef 
+// initialise empty variable
+string localGTF
 # Get general info about tools versions and files used 
 //string generalInfo = getInfo()
