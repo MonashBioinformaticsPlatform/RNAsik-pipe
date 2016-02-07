@@ -89,6 +89,7 @@ if(align == "star"){
     if(!fqDir.isEmpty()) {
 
         string{} uniqueNames = getUniqueNames(fqDir)
+        if(!uniqueNames) error "It appears that you don't have any FASTQ files specified. Check -fqDir path and make sure it point to FASTQ files directory"
         string[] getStats = getFqReadsStats(fqDir)
         checkPair = getStats.pop()
         
