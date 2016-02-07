@@ -72,8 +72,8 @@ if(!makeIndex) localGenomeIndex = genomeIndex
 #------------------------------
 if(fastqc) {
     if(!fqDir.isEmpty()) {
-        string[] allFastqFiles = getAllFastqFiles(fqDir)	
-        string fqcReport = getFastqcReport(allFastqFiles)
+        string[] allFastqFiles = getAllFastqFiles(fqDir)
+        string fqcReport = getFastqcReport(allFastqFiles, threads)
     }
 }
 #------------------------------
