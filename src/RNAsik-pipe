@@ -40,10 +40,10 @@ if(args[0] == "-version") print("RNAsik-pipe version 1.3a\n")
 # set locaGenomeIndex 
 string localGenomeIndex
 string localSAindexFile 
-#string  list of bam files from STAR run
+//string  list of bam files from STAR run
 string[] bamsList
-# list of all BAMS files,
-# where BAM had been sorted, reorted and duplicates marked
+// list of all BAMS files,
+//# where BAM had been sorted, reorted and duplicates marked
 string[] markedBams
 // initialise empty variable
 string localFastaRef 
@@ -158,21 +158,22 @@ if(count) {
     int[] theRange = range(7, numberOfBamFiles)
     string numberOfFields = theRange.join(",")
 
-task([featureNoCountsWithNames, featureReverseCountsWithNames] <- [featureNo, featureReverse, geneIdsFile], taskName := "Making Degust-ready counts file") {
-       sys grep -v "#" $featureNo | cut -f1,$numberOfFields | perl -pe 's{\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $featureNoCounts
-       sys sed -i '0,/Geneid/s/Geneid/Gene.ID/' $featureNoCounts
-       sys /bin/bash -c "join -j 1 <(sort -k1,1 $geneIdsFile) <(sort -k1,1 $featureNoCounts) -t $'\t' > $tempNo"
-       sys grep "Biotype" $tempNo > $featureNoCountsWithNames
-       sys grep -v "Biotype" $tempNo >> $featureNoCountsWithNames
-       sys rm $tempNo
-
-       sys grep -v "#" $featureReverse | cut -f1,$numberOfFields | perl -pe 's{\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $featureReverseCounts
-       sys sed -i '0,/Geneid/s/Geneid/Gene.ID/' $featureReverseCounts
-       sys /bin/bash -c "join -j 1 <(sort -k1,1 $geneIdsFile) <(sort -k1,1 $featureReverseCounts) -t $'\t' > $tempReverse"
-       sys grep "Biotype" $tempReverse > $featureReverseCountsWithNames
-       sys grep -v "Biotype" $tempReverse >> $featureReverseCountsWithNames
-       sys rm $tempReverse
-   }
+    task([featureNoCountsWithNames, featureReverseCountsWithNames] <- [featureNo, featureReverse, geneIdsFile], taskName := "Making Degust-ready counts file") {
+        sys grep -v "#" $featureNo | cut -f1,$numberOfFields | perl -pe 's{\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $featureNoCounts
+        sys sed -i '0,/Geneid/s/Geneid/Gene.ID/' $featureNoCounts
+        sys /bin/bash -c "join -j 1 <(sort -k1,1 $geneIdsFile) <(sort -k1,1 $featureNoCounts) -t $'\t' > $tempNo"
+        sys grep "Biotype" $tempNo > $featureNoCountsWithNames
+        sys grep -v "Biotype" $tempNo >> $featureNoCountsWithNames
+        sys rm $tempNo
+        
+        sys grep -v "#" $featureReverse | cut -f1,$numberOfFields | perl -pe 's{\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $featureReverseCounts
+        sys sed -i '0,/Geneid/s/Geneid/Gene.ID/' $featureReverseCounts
+        sys /bin/bash -c "join -j 1 <(sort -k1,1 $geneIdsFile) <(sort -k1,1 $featureReverseCounts) -t $'\t' > $tempReverse"
+        sys grep "Biotype" $tempReverse > $featureReverseCountsWithNames
+        sys grep -v "Biotype" $tempReverse >> $featureReverseCountsWithNames
+        sys rm $tempReverse
+    }
+    wait
 }
 #------------------------------
 # BAM processing
@@ -190,9 +191,9 @@ if(prePro) {
     if(!fastaDictFile.exists()) fastaDictFile = makeDictFile(localFastaRef, fastaDictFile)
     // loop over BAM files do pre-processing 
     for(string bamFile : bamsList) {
-            string mdupsBam = getPrePro(bamFile, localFastaRef)
-            markedBams.add(mdupsBam)
-        }
+        string mdupsBam = getPrePro(bamFile, localFastaRef)
+        markedBams.add(mdupsBam)
+    }
 }
 #----------------
 # RNAseQC report
@@ -205,19 +206,18 @@ if(RNAseQC){
     string cmdOptions = getCmdOptions("RNAseQC", extraOptions)
     string additionalRNAseQCoptions = getAllOptions(cmdOptions, currentRNAseQCoptions)
    
-    if(markedBams) {
-        // make Fai file if dosen't exist
-        string fastaFaiFile = localFastaRef+".fai"
-        if(!fastaFaiFile.exists()) fastaFaiFile = makeFaiFile(localFastaRef, fastaFaiFile)
+    // make Fai file if dosen't exist
+    string fastaFaiFile = localFastaRef+".fai"
+    if(!fastaFaiFile.exists()) fastaFaiFile = makeFaiFile(localFastaRef, fastaFaiFile)
 
-        string sampleIdsFile = "RNAseQC-sampleIds.txt"
-        string RNAseQCsampleIds = getSampleIds(markedBams)
-        sampleIdsFile.write(RNAseQCsampleIds)
+    string sampleIdsFile = "RNAseQC-sampleIds.txt"
+    string RNAseQCsampleIds = getSampleIds(markedBams)
+    sampleIdsFile.write(RNAseQCsampleIds)
 
-        int checkFileSize = RNAseQCsampleIds.size()
-        if(checkFileSize != 0) string qcReport = getRNAseQC(sampleIdsFile, markedBams, localFastaRef, additionalRNAseQCoptions)
-    }  
-    else error "No pre-processed BAM files were found, either used -prePro options or specify directory with appropriate BAM files using `-markedBams path/to/you/bams/directory`"
+    int checkFileSize = RNAseQCsampleIds.size()
+    if(!markedBams) error "No pre-processed BAM files were found, either used -prePro options or specify directory with appropriate BAM files using `-markedBams path/to/you/bams/directory`"
+
+    if(checkFileSize != 0) string qcReport = getRNAseQC(sampleIdsFile, markedBams, localFastaRef, additionalRNAseQCoptions)
 }
 #----------------------------------------------------------------------------------------------------
 # End

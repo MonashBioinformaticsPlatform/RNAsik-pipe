@@ -2,10 +2,6 @@
 # Functions to get QC reports, RNAseQC and FASTQC
 #--------------------------------------------------
 
-//include "sikHeader.bds"
-//include "sikMakeIndices.bds"
-//include "sikSortFastqs.bds"
-
 // make SampleIds.txt file for RNAseQC report
 string getSampleIds(string[] markedBams){
     bool header = true

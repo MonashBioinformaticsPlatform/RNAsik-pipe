@@ -2,19 +2,14 @@
 # Functions to pre-process BAM files - picard
 #--------------------------------------------------
 
-//include "sikHeader.bds"
-//include "sikSortFastqs.bds"
-
 #------------------------------
 # Make directories as required
 #------------------------------
 string preqcBamFiles = "preqcBamFiles"
 if((!preqcBamFiles.exists()) && (prePro)) preqcBamFiles.mkdir()
-
 #------
 # Body
 #------
-
 
 string getPrePro(string bamFile, string fastaRef){
 
@@ -52,4 +47,3 @@ string getPrePro(string bamFile, string fastaRef){
     }
     return mdupsName
 }
-

@@ -2,8 +2,8 @@
 # Counts
 #----------------------------------------
 
-include "sikHeader.bds"
-include "sikSanityCheck.bds"
+//include "sikHeader.bds"
+//include "sikSanityCheck.bds"
 
 #------------------------------
 # Make directories as required
