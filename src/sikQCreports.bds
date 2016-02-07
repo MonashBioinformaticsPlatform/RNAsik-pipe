@@ -2,14 +2,11 @@
 # Functions to get QC reports, RNAseQC and FASTQC
 #--------------------------------------------------
 
-include "sikHeader.bds"
-include "sikMakeIndices.bds"
-include "sikSortFastqs.bds"
+//include "sikHeader.bds"
+//include "sikMakeIndices.bds"
+//include "sikSortFastqs.bds"
 
-# define directory name
-string RNAseQCreport = "RNAseQC-report"
-
-# make SampleIds.txt file for RNAseQC report
+// make SampleIds.txt file for RNAseQC report
 string getSampleIds(string[] markedBams){
     bool header = true
     string sampleIds
@@ -26,15 +23,13 @@ string getSampleIds(string[] markedBams){
     return sampleIds
 }
 
-string getRNAseQC(string sampleIdsFile, string[] markedBams, bool checkPair, string fastaRef, string additionalRNAseQCoptions){
-    // check if fasta files had been indexed before, if not make an index
+string getRNAseQC(string sampleIdsFile, string[] markedBams, string fastaRef, string additionalRNAseQCoptions){
     string fastaFaiFile = fastaRef+".fai"
-    if(!fastaFaiFile.exists()) fastaFaiFile = makeFaiFile(fastaRef, fastaFaiFile)
-
+    string RNAseQCreport = "RNAseQC-report"
     //task(RNAseQCreport <- [markedBams, sampleIdsFile, fastaFaiFile], mem = 10000000000, taskName := "Running RNAseQC report"){
     task(RNAseQCreport <- [markedBams, fastaFaiFile], taskName := "Running RNAseQC report"){
         # Changed this for cluster
-        sys PATH=/usr/lib/jvm/java-7-openjdk-amd64/bin/:$PATH rna-seqc  -o $RNAseQCreport\
+        sys PATH=/usr/lib/jvm/java-7-openjdk-amd64/bin/:$PATH rna-seqc  -o $RNAseQC-report \
                                                                         -r $fastaRef \
                                                                         -s $sampleIdsFile\
                                                                         -t $gtfFile\

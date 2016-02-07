@@ -2,9 +2,8 @@
 # Functions to pre-process BAM files - picard
 #--------------------------------------------------
 
-include "sikHeader.bds"
-include "sikMakeIndices.bds"
-include "sikSortFastqs.bds"
+//include "sikHeader.bds"
+//include "sikSortFastqs.bds"
 
 #------------------------------
 # Make directories as required
@@ -19,10 +18,6 @@ if((!preqcBamFiles.exists()) && (prePro)) preqcBamFiles.mkdir()
 
 string getPrePro(string bamFile, string fastaRef){
 
-    string fastaDictFile = fastaRef.removeExt()+".dict"
-    //if(!fastaDictFile.exists()) fastaDictFile = makeDictFile(fastaRef, fastaDictFile)
-    fastaDictFile = makeDictFile(fastaRef, fastaDictFile)
-
     string sortedName = preqcBamFiles+"/"+bamFile.baseName().swapExt("Aligned.out.bam", "sorted.bam")
     // try using 8 cpus to limit how picard processes can be run at a time
     // this should imporve I/O (input / output) performance
@@ -35,9 +30,7 @@ string getPrePro(string bamFile, string fastaRef){
                            SORT_ORDER=coordinate
     }
 
-    string fastaFaiFile = fastaRef+".fai"
-    //if(!fastaFaiFile.exists()) fastaFaiFile = makeFaiFile(fastaRef, fastaFaiFile)
-    fastaFaiFile = makeFaiFile(fastaRef, fastaFaiFile)
+    string fastaDictFile = fastaRef.removeExt()+".dict"
 
     string reorderedName = sortedName.swapExt(".bam", "_reordered.bam")
     task(reorderedName <- [sortedName, fastaDictFile], taskName := "picard reordering "+reorderedName) {

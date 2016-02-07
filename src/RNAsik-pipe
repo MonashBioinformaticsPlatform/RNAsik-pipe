@@ -182,6 +182,12 @@ if(prePro) {
     if(align != "star") bamsList = bamFiles.dirPath("*.bam")
     // make sure we have BAM files to work with
     if(!bamsList) error "No BAM files were found, either used -align options or specify directory with BAM files using `-bamFiles path/to/you/bams/directory`"
+    // make Fai file if dosen't exist
+    string fastaFaiFile = localFastaRef+".fai"
+    if(!fastaFaiFile.exists()) fastaFaiFile = makeFaiFile(localFastaRef, fastaFaiFile)
+    // make dict file if doesn't exist
+    string fastaDictFile = localFastaRef.removeExt()+".dict"
+    if(!fastaDictFile.exists()) fastaDictFile = makeDictFile(localFastaRef, fastaDictFile)
     // loop over BAM files do pre-processing 
     for(string bamFile : bamsList) {
             string mdupsBam = getPrePro(bamFile, localFastaRef)
@@ -193,18 +199,25 @@ if(prePro) {
 #----------------
 if(RNAseQC){
      
-    if(!markedBams) error "No pre-processed BAM files were found, either used -prePro options or specify directory with appropriate BAM files using `-markedBams path/to/you/bams/directory`"
-
     string{} currentRNAseQCoptions
     if(!checkPair) currentRNAseQCoptions = { "-singleEnd" => "" }
 
     string cmdOptions = getCmdOptions("RNAseQC", extraOptions)
     string additionalRNAseQCoptions = getAllOptions(cmdOptions, currentRNAseQCoptions)
+   
+    if(markedBams) {
+        // make Fai file if dosen't exist
+        string fastaFaiFile = localFastaRef+".fai"
+        if(!fastaFaiFile.exists()) fastaFaiFile = makeFaiFile(localFastaRef, fastaFaiFile)
 
-    string sampleIdsFile = "RNAseQC-sampleIds.txt"
-    string RNAseQCsampleIds = getSampleIds(markedBams)
-    sampleIdsFile.write(RNAseQCsampleIds)
-    string check = getRNAseQC(sampleIdsFile, markedBams, checkPair, localFastaRef, additionalRNAseQCoptions)
+        string sampleIdsFile = "RNAseQC-sampleIds.txt"
+        string RNAseQCsampleIds = getSampleIds(markedBams)
+        sampleIdsFile.write(RNAseQCsampleIds)
+
+        int checkFileSize = RNAseQCsampleIds.size()
+        if(checkFileSize != 0) string qcReport = getRNAseQC(sampleIdsFile, markedBams, localFastaRef, additionalRNAseQCoptions)
+    }  
+    else error "No pre-processed BAM files were found, either used -prePro options or specify directory with appropriate BAM files using `-markedBams path/to/you/bams/directory`"
 }
 #----------------------------------------------------------------------------------------------------
 # End
