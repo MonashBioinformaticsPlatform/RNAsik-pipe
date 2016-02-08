@@ -37,15 +37,21 @@ string getRNAseQC(string sampleIdsFile, string[] markedBams, string fastaRef, st
 string fastqcReport = "fastqcReport"
 if((!fastqcReport.exists()) && (fastqc)) fastqcReport.mkdir()
 
-string getFastqcReport(string fqDir, int threads){
+string getFastqcReport(string[] fqFiles, int threads){
+    // fastqc doesn't need alot of cpu (I think)
+    // for now I'm just gonig to half the cpu that are given
+    // in future might need to improve that
+    string newThreads
+    if(threads != 1) newThreads = threads/2
+    else newThreads = threads
 
-    string fastqcFiles = fqDir.dirPath(extn).join(" ")
+    string fqs = fqFiles.join(" ")
 
-    task(fastqcReport <- fastqcFiles, taskName := "Running FASTQC") { 
-        sys fastqc --threads $threads \
+    task(fastqcReport <- fqs, taskName := "Running FASTQC") { 
+        sys fastqc --threads $newThreads \
                    --outdir $fastqcReport \
                    --format fastq \
-                   $fastqcFiles
+                   $fqs
     }
     return "all done"
 }

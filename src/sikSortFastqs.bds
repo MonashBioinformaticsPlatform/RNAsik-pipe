@@ -2,11 +2,9 @@
 # Organising FASTQ files 
 #------------------------
 
-include "sikHeader.bds"
-
-# This function loops over directory
-# and returns list of FASTQ files
-string[] getFastqFiles(string dir) {
+// This function loops over directory
+// and returns list of FASTQ files
+string[] getFastqFiles(string dir, string extn) {
     string[] fqFiles 
 
     for(string fq : dir.dirPath(extn)) {
@@ -15,10 +13,10 @@ string[] getFastqFiles(string dir) {
     return fqFiles
 }
 
-# This function return all FASTQ files found in the current directory
-# and all sub directories
-string[] getAllFastqFiles(string fqDir) {
-    # 
+// This function return all FASTQ files found in the current directory
+// and all sub directories
+// only looks one level deep
+string[] getAllFastqFiles(string fqDir, string extn) {
     string[] allFastqFiles
     # loop over all items in the current directory
     # and check if the item is the directory or a file
@@ -26,7 +24,7 @@ string[] getAllFastqFiles(string fqDir) {
         bool dir = item.isDir()
         # if its a directory then apply `getFastqFiles` function
         if(dir) {
-           string[] tmpFastqList = getFastqFiles(item)
+           string[] tmpFastqList = getFastqFiles(item, extn)
     
            for(string fq : tmpFastqList) {
                allFastqFiles.add(fq)
@@ -48,9 +46,9 @@ string[] getAllFastqFiles(string fqDir) {
 # This function return hash with key set to root name 
 # and value is the list of all associated FASTQ files
 # that are spread across multiple lane during sequencing
-string{} getUniqueNames(string fqDir) {
+string{} getUniqueNames(string fqDir, string fqRegex, string extn) {
     # get list of all FASTQ files
-    string[] fqList = getAllFastqFiles(fqDir) 
+    string[] fqList = getAllFastqFiles(fqDir, extn) 
     # Map with unique root key
     string{} uniqueNames
     # loop over FASTQ files
@@ -80,8 +78,8 @@ string{} getUniqueNames(string fqDir) {
     return uniqueNames
 }
 
-string[] getFqReadsStats(string fqDir) {
-    string[] allFastqFiles = getAllFastqFiles(fqDir)
+string[] getFqReadsStats(string fqDir, string extn) {
+    string[] allFastqFiles = getAllFastqFiles(fqDir, extn)
                                                    
     int numberOfMates = 0
     int numberOfSingles = 0
