@@ -36,6 +36,8 @@ Use `RNAsik-pipe` executable file to run it e.g `./RNAsik-pipe`. Everything else
 
 ### RNAsik-pipe commands examples
 
+![RNAsik-pipe-menu](supplementary/RNAsik-pipe-menu.png)
+
 - To align FASTQ files in `raw-data/data-a` directory use 
 
 ```BASH
@@ -45,19 +47,35 @@ RNAsik-pipe -align star \
             -genomeIndex path/to/yourIndexDirectory
 ```
 
-- To just get counts on already existing bam files you must have directory `bamFiles` with all BAM files with either `_Aligned.out.bam` or `_Aligned.sortedByCoord.out.bam` postfix at per STAR aligner output
+- To just get counts on already existing bam files you must have directory `bamFiles` with all BAM files with either `_Aligned.out.bam` or `_Aligned.sortedByCoord.out.bam` postfix as per STAR aligner output.
 
 ```BASH
 RNAsik-pipe -count \
             -gtfFile path/to/your/annotation/file \
 ```
 
-- To get RNA-SeQC report `RNAsik-pipe -prePro -fastaRef path/to/yourFASTAreference-file -RNAseQC`
+- To get RNA-SeQC report
 
-**You can simply specify all of the options at the start and let `RNAsik-pipe` to do everything for your**
+```BASH
+RNAsik-pipe -prePro \
+            -fastaRef path/to/yourFASTAreference-file \
+            -RNAseQC
+```
 
-- `RNAsik-pipe` will guide you through. `RNAsik-pipe` will let you know if you have forgotten any files needed for your run. 
+**You can simply specify all of the options at the start and let `RNAsik-pipe` to do everything for your and it will guide you through. `RNAsik-pipe` will let you know if you have forgotten any files needed for your run**
 
+```BASH
+RNAsik-pipe -align star \
+            -fqRegex A \
+            -fqDir raw-data/data-a \
+            -genomeIndex path/to/yourIndexDirectory
+            -count \
+            -gtfFile path/to/your/annotation/file \
+            -prePro \
+            -fastaRef path/to/yourFASTAreference-file \
+            -RNAseQC \
+            -threads 15
+```
 
 `RNAsik-pipe` can't handle gzipped files inside `-extraOptions` flag. You have to specify any additional files exactly how the tools will want it.
 
@@ -139,6 +157,8 @@ which will hold four files described above.
 - [featureCounts](http://subread.sourceforge.net/)
 - [samtools](http://www.htslib.org/download/)
 - [Picard tools](http://broadinstitute.github.io/picard/)
+- [python](https://www.python.org/downloads/) usually pre-installed on most Linux distributions
+- [gffutils](https://pypi.python.org/pypi/gffutils) python package, can use `(sudo) pip install gffutils`
 - [RNA-SeQC](https://www.broadinstitute.org/cancer/cga/rna-seqc)
 
 ### System requirements 
