@@ -68,6 +68,7 @@ string{} getUniqueNames(string fqDir, string fqRegex, string extn) {
         # Sometime data doesn't have neither R1 nor R2 in the file name
         # this block will insure that RNAsik-pipe still works correctly
         if((getR1Index == -1) && (getR2Index == -1)) {
+		fqRegex = extn
                 string[] getFile = fq.split(fqRegex)
                 string rootName = getFile[0].baseName()
                 # append to the list if it isn't in the list already
@@ -91,17 +92,18 @@ string[] getFqReadsStats(string fqDir, string extn) {
         totalNumberOfReads += 1
         int getR1Index = fq.lastIndexOf("_R1")
         int getR2Index = fq.lastIndexOf("_R2")
-    
+
         if(getR1Index != -1) {
             string pairedEnd = fq.replace("_R1", "_R2")
             bool checkPair = pairedEnd.exists()
-            if(checkPair) numberOfMates += 1
+            if(checkPair) {
+                numberOfMates += 1
+                numberOfSingles += 1
+            }
             else numberOfSingles += 1
     
-            if(numberOfMates > numberOfSingles) readPaired = true
-            else readPaired = false
         }
-        if((getR1Index == -1) && (getR2Index == -1)) {
+        if( (getR1Index == -1) && (getR2Index == -1) ) {
             int allFastqFilesSize = allFastqFiles.size()
             totalNumberOfReads = allFastqFilesSize
             numberOfSingles = allFastqFilesSize
@@ -110,7 +112,11 @@ string[] getFqReadsStats(string fqDir, string extn) {
             return [stat, readPaired]
         }
     }
-    
+
+    if( (numberOfMates < numberOfSingles) && (numberOfMates != 0) ) error "It appears that the number of mates doesn't match"
+    if(numberOfMates == 0) readPaired = false
+    if(numberOfMates == numberOfSingles) readPaired = true
+
     string stat = "Total number of reads: "+totalNumberOfReads+"\nNumber of single end reads: "+numberOfSingles+"\nNumber of paired end pairs: "+numberOfMates
     return [stat, readPaired]
 }

@@ -86,7 +86,7 @@ if(align == "star"){
         if(!uniqueNames) error "It appears that you don't have any FASTQ files specified. Check -fqDir path and make sure it point to FASTQ files directory"
         // This returns a list with first item being a stats string and second a bool for checkPair
         string[] getStats = getFqReadsStats(fqDir, extn)
-        checkPair = getStats.pop()
+        checkPair = getStats.pop().parseBool()
         
         for(string rootName : uniqueNames.keys()) {
             string[] reads 
