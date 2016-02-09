@@ -19,7 +19,7 @@ string getSampleIds(string[] markedBams){
     return sampleIds
 }
 
-string getRNAseQC(string sampleIdsFile, string[] markedBams, string fastaRef, string fastaFai string additionalRNAseQCoptions){
+string getRNAseQC(string sampleIdsFile, string[] markedBams, string fastaRef, string fastaFai, string additionalRNAseQCoptions){
     string RNAseQCreport = "RNAseQC-report"
     //task(RNAseQCreport <- [markedBams, sampleIdsFile, fastaFaiFile], mem = 10000000000, taskName := "Running RNAseQC report"){
     task(RNAseQCreport <- [markedBams, fastaRef, fastaFai, sampleIdsFile], taskName := "Running RNAseQC report"){
