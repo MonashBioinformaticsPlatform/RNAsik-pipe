@@ -23,7 +23,7 @@ string getRNAseQC(string sampleIdsFile, string[] markedBams, string fastaRef, st
     string fastaFaiFile = fastaRef+".fai"
     string RNAseQCreport = "RNAseQC-report"
     //task(RNAseQCreport <- [markedBams, sampleIdsFile, fastaFaiFile], mem = 10000000000, taskName := "Running RNAseQC report"){
-    task(RNAseQCreport <- [markedBams, fastaFaiFile], taskName := "Running RNAseQC report"){
+    task(RNAseQCreport <- [markedBams, fastaFaiFile, sampleIdsFile], taskName := "Running RNAseQC report"){
         # Changed this for cluster
         sys PATH=/usr/lib/jvm/java-7-openjdk-amd64/bin/:$PATH rna-seqc  -o $RNAseQC-report \
                                                                         -r $fastaRef \

@@ -195,6 +195,11 @@ if(prePro) {
 # RNAseQC report
 #----------------
 if(RNAseQC){
+    if(!prePro) markedBams = proBams.dirPath("*.bam")
+    if(!markedBams) error "No pre-processed BAM files were found, either used -prePro options or specify directory with appropriate BAM files using `-proBams path/to/you/bams/directory`"
+    string sampleIdsFile = "RNAseQC-sampleIds.txt"
+    string RNAseQCsampleIds = getSampleIds(markedBams)
+    sampleIdsFile.write(RNAseQCsampleIds)
      
     string{} currentRNAseQCoptions
     if(!checkPair) currentRNAseQCoptions = { "-singleEnd" => "" }
@@ -206,14 +211,7 @@ if(RNAseQC){
     string fastaFaiFile = localFastaRef+".fai"
     if(!fastaFaiFile.exists()) fastaFaiFile = makeFaiFile(localFastaRef, fastaFaiFile)
 
-    string sampleIdsFile = "RNAseQC-sampleIds.txt"
-    string RNAseQCsampleIds = getSampleIds(markedBams)
-    sampleIdsFile.write(RNAseQCsampleIds)
-
-    int checkFileSize = RNAseQCsampleIds.size()
-    if(!markedBams) error "No pre-processed BAM files were found, either used -prePro options or specify directory with appropriate BAM files using `-markedBams path/to/you/bams/directory`"
-
-    if(checkFileSize != 0) string qcReport = getRNAseQC(sampleIdsFile, markedBams, localFastaRef, additionalRNAseQCoptions)
+    string qcReport = getRNAseQC(sampleIdsFile, markedBams, localFastaRef, additionalRNAseQCoptions)
 }
 #----------------------------------------------------------------------------------------------------
 # End

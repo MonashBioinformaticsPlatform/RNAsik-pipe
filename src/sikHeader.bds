@@ -66,5 +66,7 @@ bool checkPair
 string localFastaRef 
 // initialise empty variable
 string localGTF
+// can use this string to pass in marked bams
+string proBams
 # Get general info about tools versions and files used 
 //string generalInfo = getInfo()
