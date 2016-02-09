@@ -33,7 +33,8 @@ include "sikExtraOptions.bds"
 #------------------------------
 # Print version
 #------------------------------
-if(args[0] == "-version") print("RNAsik-pipe version 1.3b\n")
+//if(args[0] == "-version") print("RNAsik-pipe version 1.3b\n")
+print("RNAsik-pipe version 1.3b\n")
 #------------------------------
 # Global Variables
 #------------------------------
