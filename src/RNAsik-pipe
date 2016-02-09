@@ -183,7 +183,7 @@ if(prePro) {
     string fastaDictFile = makeDictFile(localFastaRef)
     // loop over BAM files do pre-processing 
     for(string bamFile : bamsList) {
-        string mdupsBam = getPrePro(bamFile, localFastaRef)
+        string mdupsBam = getPrePro(bamFile, localFastaRef, fastaDictFile)
         markedBams.add(mdupsBam)
     }
 }
