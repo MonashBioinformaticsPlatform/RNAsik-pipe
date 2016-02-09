@@ -2,9 +2,6 @@
 # Info gathering
 #----------------------------------------
 
-include "sikHeader.bds"
-include "sikSTARaligner.bds"
-
 string getInfo() {
 
     string getDate = sys date --rfc-3339="seconds"

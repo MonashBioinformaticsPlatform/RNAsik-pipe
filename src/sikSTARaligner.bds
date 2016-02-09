@@ -2,10 +2,6 @@
 # Functions
 #------------------------------
 
-//include "sikHeader.bds"
-//include "sikMakeIndices.bds"
-//include "sikSortFastqs.bds"
-
 #------------------------------
 # Make directories as required
 #------------------------------
