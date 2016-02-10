@@ -1,6 +1,6 @@
-## Release Notes, version 1.3
+# Release Notes, version 1.3
 
-### Content
+## Content
 
 - [General](#general)
 - [STAR](#star)
@@ -36,5 +36,5 @@
 
 #### featureCounts
 
-- included python script that uses `gffutils` package to parse GTF file to get public gene names, Ensmebl Ids and gene's biotypes. It is easy to include more information about the gene with this python module.
+- included a couple of python script that uses `gffutils` package to make a datatbase of GTF entries and then parse that database file to get public gene names, Ensmebl Ids and gene's biotypes. It is easy to include more information about the gene with this python module.
 - Included more post processing on count files, now they are ready for degust upload
