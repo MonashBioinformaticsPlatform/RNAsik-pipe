@@ -35,3 +35,25 @@ string getInfo() {
 
     return info
 }
+
+string getToolVersion(string toolName, string toolsFlag) {
+
+    int attemps = 0
+    string sikLog = "sikLog_$attemps.txt"
+    string[] getCmdArgs = args 
+    string cmdStriing = getCmdArgs.join(" ")
+
+    string getDate = sys date --rfc-3339="seconds"
+    string toolInfo = sys $toolsName $toolsFlag
+    string cleanDate = getDate.trim()
+
+    if(!sikLog.exists()) {
+	sys echo "This is your first attempt" >> $sikLog
+        sys echo $geteDate >> $sikLog
+	sys echo $cmdString >> $sikLog
+    }
+}
+
+string getGeneralInfo() {
+
+}
