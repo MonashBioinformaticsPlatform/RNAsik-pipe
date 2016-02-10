@@ -63,8 +63,8 @@ int threads = 1     help specify number of threads to use. This number will be u
                          and STAR raed alignment as well as for featureCounts, default [1]
 string extn = "*fastq.gz"        help optional, specify your files extension default [fastq.gz]
 string sampleNames  help optional, specify a text file with alternative sample names
-string extraOptions help You can add extra option to any of the tools used in the pipeline. Use this syntax e.g \
-      -extraOptions "STAR > --outSAMtype BAM Unsorted, --outReadsUnmapped Fastx; starIndex > --sjdbGTFfile /path/to/GTF/file, --sjdbOverhang 99; featureCounts > -t gene" \
+string extraOptions help You can add extra option to any of the tools used in the pipeline. Use this syntax \
+                   e.g -extraOptions "STAR > --outSAMtype BAM Unsorted, --outReadsUnmapped Fastx; starIndex > --sjdbGTFfile /path/to/GTF/file, --sjdbOverhang 99; featureCounts > -t gene" \
                           Each command is separated by semi-colon (;) after the last options. \
                           The command options and command name are separated by grater than sign (>) \
 
