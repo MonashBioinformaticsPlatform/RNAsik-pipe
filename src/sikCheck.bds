@@ -1,0 +1,38 @@
+//include "sikHeader.bds"
+include "sikInfo.bds"
+#------------------------------
+# Print version
+#------------------------------
+string tmpAlias = "~/gitrepos/RNAsik-pipe/src/RNAsik-pipe"
+
+string sikLog = "sikLog.txt" 
+if( (align == "star") && (count) && (fastqc) ) {
+    string infoString = initiateLog(sikLog)
+    sys echo "$infoString" >> $sikLog
+    string sikInfo = getToolVersion(tmpAlias, "-version").trim()
+    sys echo "$sikInfo" >> $sikLog 
+    string starInfo = getToolVersion("STAR", "--version").trim()
+    sys echo "$starInfo" >> $sikLog 
+    string countInfo = getToolVersion("featureCounts", "-v").trim()
+    sys echo "$countInfo" >> $sikLog 
+    string fastqcInfo = getToolVersion("fastqc", "-v").trim()
+    sys echo "$fastqcInfo" >> $sikLog 
+}
+if( ( (align == "star") && (count) && (!fastqc) ) || ( (align == "star") && (count) ) ) {
+    string infoString = initiateLog(sikLog)
+    sys echo "$infoString" >> $sikLog
+    string sikInfo = getToolVersion(tmpAlias, "-version").trim()
+    sys echo "$sikInfo" >> $sikLog 
+    string starInfo = getToolVersion("STAR", "--version").trim()
+    sys echo "$starInfo" >> $sikLog 
+    string countInfo = getToolVersion("featureCounts", "-v").trim()
+    sys echo "$countInfo" >> $sikLog 
+}
+if( (align == "star") && (!count) && (!fastqc) ) {
+    string infoString = initiateLog(sikLog)
+    sys echo "$infoString" >> $sikLog
+    string sikInfo = getToolVersion(tmpAlias, "-version").trim()
+    sys echo "$sikInfo" >> $sikLog 
+    string starInfo = getToolVersion("STAR", "--version").trim()
+    sys echo "$starInfo" >> $sikLog 
+}

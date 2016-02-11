@@ -1,37 +1,46 @@
 #----------------------------------------
 # Info gathering
 #----------------------------------------
-
-string getInfo() {
-
+//
+string getToolVersion(string toolsName, string toolsFlag) {
+    string toolInfo = sys $toolsName $toolsFlag
+    return toolInfo
+}
+//
+int getAttemptsCount(string logFile) {
+   if(logFile.exists()) {
+       string contentString = logFile.read() 
+       int getFirstIdx = contentString.lastIndexOf("(")+1
+       int getLastIdx = contentString.lastIndexOf(")")
+       if(getLastIdx < getFirstIdx) error "This error should occur. If it does, troubleshoot sikInfo.bds file, getAttemptsCount() function"
+       int attemptN = contentString.substr(getFirstIdx, getLastIdx).trim().parseInt()
+       return attemptN
+   }
+   else return 0
+}
+//
+string initiateLog(string logFile) {
+    int attempts = getAttemptsCount(logFile)
+    if(attempts == 0) attempts = 1
+    else attempts += 1
+    //
+    string headerLine = "RNAsik-pipe version 1.3 attempts ($attempts)"
+    string[] getCmdArgs = args 
+    // very first item ends up with one extra dash character
+    // append empty character to the first place
+    getCmdArgs.add(0, "")
+    string tmpString = getCmdArgs.join("---")
+    string[] tmpList = tmpString.split("----")
+    int tmpListSize = tmpList.size()
+    string cmdString
+    for(int i=0; i < tmpListSize; i++){
+        string arg = tmpList[i]
+        if(arg.startsWith("extraOptions")) cmdString += "-"+arg.replace("---", " '").trim()+"'"+"\n"
+        else cmdString += "-"+arg.replace("---", " ").trim()+"\n"
+    }
+    //
     string getDate = sys date --rfc-3339="seconds"
     string cleanDate = getDate.trim()
-    string[] dateList = cleanDate.split(" ")
-    string theDate = dateList.join("_")
-
-    string info = theDate+"_info.txt"
-
-    if(align == "star") {
-        task([bamFiles, theDate] <- "check", taskName := "Gathering information") {
-            sys STAR --version >> $info; sys echo "----" >> $info
-        }
-    }
-
-    if(count) {
-        task([bamFiles, theDate] <- "check", taskName := "Gathering information") {
-            sys featureCounts -v 2>> $info; sys echo "----" >> $info
-        }
-    }
-
-    task([bamFiles, theDate] <- "check", taskName := "Gathering information") {
-        sys date >> $info
-        sys echo "----" >> $info
-        sys RNAsik-pipe -version >> $info
-        sys echo "----" >> $info
-        sys echo "Files used" >> $info
-        sys echo $gtfFile >> $info
-        sys echo $fastaRef >> $info
-    }
-
-    return info
+    string logString = headerLine+"\n"+cleanDate+"\n"+cmdString
+    return logString
 }

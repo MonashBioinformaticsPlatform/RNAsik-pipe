@@ -5,7 +5,7 @@
 include "sikHeader.bds"
 
 if(fastqc) {
-    if(fqDir.isEmpty()) error "Usage: You need to specify path to directory with FASTQ files"
+    if(fqDir.isEmpty()) error "Usage: -fqDir /path/to/your/FASTQ/files"
 }
 if(align == "star") {
     // if neither genomeIndex not makeIndex options are specified then
@@ -18,28 +18,29 @@ if(align == "star") {
         if(fqRegex == "C") fqRegex = "_R[0-9]_[0-9]{3}.fastq.gz$"
         if(fqRegex == "D") fqRegex = "_R[0-9].fastq.gz$"
     }
-    else error "Usage: You need to select A, B, C or D options for -fqRegex"
+    else error "Usage: You need to select A, B, C or D options using -fqRegex flag"
     // check if FASTQ directory is given 
-    if(fqDir.isEmpty()) error "Usage: You need to specify path to directory with FASTQ files"
+    if(fqDir.isEmpty()) error "Usage: -fqDir /path/to/your/FASTQ/files"
 }
-if( (!args.isEmpty()) && (align.isEmpty()) && (!checkPair) ) warning "There is no information about paired end status, -checkPair is set to $checkPair, if your data is paired end use -checkPair on the command line to indicate this"
+if( (!args) && (align.isEmpty()) && (!checkPair) ) warning "There is no information about paired end status, -checkPair is set to $checkPair, if your data is paired end use -checkPair on the command line to indicate this"
 //
 if(!sampleNames.isEmpty()){
     bool checkTextFile = sampleNames.exists()
-    if(!checkTextFile) error "-sampleNames doesn't appear to be pointing at the valid file, double check you path $sampleNames"
+    if(!checkTextFile) error "-sampleNames doesn't appear to be pointing at the valid file, double check your path $sampleNames"
 }
 if(!fqDir.isEmpty()){
     bool checkFqDir = fqDir.exists()
-    if(!checkFqDir) error "-fqDir doesn't appear to be pointing at the valid directory, double check you path $fqDir"
+    if(!checkFqDir) error "-fqDir doesn't appear to be pointing at the valid directory, double check your path $fqDir"
 }
 if(!fastaRef.isEmpty()){
     bool checkFastaRef = fastaRef.exists()
-    if(!checkFastaRef) error "-fastaRef doesn't appear to be pointing at the valid file, double check you path $fastaRef"
+    if(!checkFastaRef) error "-fastaRef doesn't appear to be pointing at the valid file, double check your path $fastaRef"
 }
 if(!gtfFile.isEmpty()){
     bool checkGTFfile = gtfFile.exists()
-    if(!checkGTFfile) error "-gtfFile doesn't appear to be pointing at the valid file, double check you path $gtfFile"
+    if(!checkGTFfile) error "-gtfFile doesn't appear to be pointing at the valid file, double check your path $gtfFile"
 }
+if(threads < 1) error "specify a positive integer, you have specified $threads"
 //
 if(makeIndex){
     if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
@@ -57,4 +58,40 @@ if(RNAseQC){
 if( args.isEmpty() ) {
     printHelp()
     exit(1)
+}
+//
+string checkCmdArgs() {
+    // list of allowed command line options
+    string[] sikArgs = ["-makeIndex", \
+                        "-align", \
+                        "-fqDir", \
+                        "-fqRegex", \
+                        "-genomeIndex", \
+                        "-count", \
+                        "-gtfFile", \
+                        "-prePro", \
+                        "-fastaRef", \
+                        "-fastqc", \
+                        "-RNAseQC", \
+                        "-threads", \
+                        "-extn", \
+                        "-sampleNames", \
+                        "-extraOptions", \
+                        "-checkPair", \
+                        "-bamFiles", \
+                        "-proBams", \
+                        "-version" \
+                       ]
+    // list of options specified by user
+    string[] getCmdArgs = args 
+    // check for duplicates
+    string[] suspects
+    for(string cmdItem : args) {
+        if(cmdItem.startsWith("-")) {
+            if(!sikArgs.has(cmdItem)) error "This flag $cmdItem isn't a valid options, check your spelling"
+            if(suspects.has(cmdItem)) error "This flag $cmdItem is duplicated in your command, remove duplicate"
+	    suspects.add(cmdItem)
+        }
+    }
+    return "thumbs up"
 }

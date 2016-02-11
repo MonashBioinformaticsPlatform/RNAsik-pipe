@@ -30,11 +30,11 @@ include "sikPrePro.bds"
 include "sikCounts.bds"
 include "sikQCreports.bds"
 include "sikExtraOptions.bds"
+include "sikCheck.bds"
 #------------------------------
-# Print version
+# Check cmd args
 #------------------------------
-//if(args[0] == "-version") print("RNAsik-pipe version 1.3b\n")
-print("RNAsik-pipe version 1.3\n")
+string checkCmdInput = checkCmdArgs()
 #------------------------------
 # Global Variables
 #------------------------------
@@ -80,48 +80,45 @@ if(fastqc) {
 # BAM generation step
 #------------------------------
 if(align == "star"){
-    if(!fqDir.isEmpty()) {
+    string{} uniqueNames = getUniqueNames(fqDir, fqRegex, extn)
+    if(!uniqueNames) error "It appears that you don't have any FASTQ files specified. Check -fqDir path and make sure it point to FASTQ files directory"
+    // This returns a list with first item being a stats string and second a bool for checkPair
+    string[] getStats = getFqReadsStats(fqDir, extn)
+    checkPair = getStats.pop().parseBool()
+    
+    for(string rootName : uniqueNames.keys()) {
+        string[] reads 
+        # get value for each key and break values into list
+        string singleEndValues
+        string pairedEndValues
 
-        string{} uniqueNames = getUniqueNames(fqDir, fqRegex, extn)
-        if(!uniqueNames) error "It appears that you don't have any FASTQ files specified. Check -fqDir path and make sure it point to FASTQ files directory"
-        // This returns a list with first item being a stats string and second a bool for checkPair
-        string[] getStats = getFqReadsStats(fqDir, extn)
-        checkPair = getStats.pop().parseBool()
-        
-        for(string rootName : uniqueNames.keys()) {
-            string[] reads 
-            # get value for each key and break values into list
-            string singleEndValues
-            string pairedEndValues
+        if(checkPair) {
+            singleEndValues = uniqueNames{rootName} 
+            pairedEndValues = singleEndValues.replace("_R1", "_R2")
 
-            if(checkPair) {
-                singleEndValues = uniqueNames{rootName} 
-                pairedEndValues = singleEndValues.replace("_R1", "_R2")
+            int getSingleLength = singleEndValues.length()-1
+            int getPairedLength = pairedEndValues.length()-1
 
-                int getSingleLength = singleEndValues.length()-1
-                int getPairedLength = pairedEndValues.length()-1
+            string cleanSingle = singleEndValues.substr(0,getSingleLength)
+            string cleanPaired = pairedEndValues.substr(0,getPairedLength)
 
-                string cleanSingle = singleEndValues.substr(0,getSingleLength)
-                string cleanPaired = pairedEndValues.substr(0,getPairedLength)
-
-                reads.add(cleanSingle)
-                reads.add(cleanPaired)
-            }
-            else {
-                singleEndValues = uniqueNames{rootName} 
-                int getSingleLength = singleEndValues.length()-1
-                string cleanSingle = singleEndValues.substr(0,getSingleLength)
-                reads.add(cleanSingle)
-            }
-
-            string{} currentSTARoptions = { "--outSAMtype" => "BAM Unsorted", "--outSAMunmapped" => "Within", "--readFilesCommand" => "zcat" }
-
-            string cmdOptions = getCmdOptions("STAR", extraOptions)
-            string additionalSTARoptions = getAllOptions(cmdOptions, currentSTARoptions)
-            // STAR aligning
-            string bamFile = mapSTAR(rootName, localGenomeIndex, localSAindexFile, reads, additionalSTARoptions) 
-            bamsList.add(bamFile)
+            reads.add(cleanSingle)
+            reads.add(cleanPaired)
         }
+        else {
+            singleEndValues = uniqueNames{rootName} 
+            int getSingleLength = singleEndValues.length()-1
+            string cleanSingle = singleEndValues.substr(0,getSingleLength)
+            reads.add(cleanSingle)
+        }
+
+        string{} currentSTARoptions = { "--outSAMtype" => "BAM Unsorted", "--outSAMunmapped" => "Within", "--readFilesCommand" => "zcat" }
+
+        string cmdOptions = getCmdOptions("STAR", extraOptions)
+        string additionalSTARoptions = getAllOptions(cmdOptions, currentSTARoptions)
+        // STAR aligning
+        string bamFile = mapSTAR(rootName, localGenomeIndex, localSAindexFile, reads, additionalSTARoptions) 
+        bamsList.add(bamFile)
     }
 }
 
