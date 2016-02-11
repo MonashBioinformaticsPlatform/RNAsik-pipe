@@ -30,7 +30,6 @@ include "sikPrePro.bds"
 include "sikCounts.bds"
 include "sikQCreports.bds"
 include "sikExtraOptions.bds"
-include "sikCheck.bds"
 #------------------------------
 # Check cmd args
 #------------------------------
