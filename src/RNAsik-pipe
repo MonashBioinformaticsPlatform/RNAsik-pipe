@@ -36,6 +36,10 @@ include "sikExtraOptions.bds"
 //if(args[0] == "-version") print("RNAsik-pipe version 1.3b\n")
 print("RNAsik-pipe version 1.3\n")
 #------------------------------
+# Check cmd args
+#------------------------------
+string checkCmdInput = checkCmdArgs()
+#------------------------------
 # Global Variables
 #------------------------------
 # set locaGenomeIndex 
