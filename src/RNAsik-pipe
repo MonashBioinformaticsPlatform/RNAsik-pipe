@@ -30,12 +30,7 @@ include "sikPrePro.bds"
 include "sikCounts.bds"
 include "sikQCreports.bds"
 include "sikExtraOptions.bds"
-include "sikInfo.bds"
-#------------------------------
-# Print version
-#------------------------------
-//if(args[0] == "-version") print("RNAsik-pipe version 1.3b\n")
-print("RNAsik-pipe version 1.3\n")
+include "sikCheck.bds"
 #------------------------------
 # Check cmd args
 #------------------------------
@@ -85,11 +80,6 @@ if(fastqc) {
 # BAM generation step
 #------------------------------
 if(align == "star"){
-    string sikLog = "sikLog.txt" 
-    string infoString = initiateLog(sikLog)
-    string toolInfo = getToolVersion()
-    sys echo "$infoString" >> $sikLog
-    //
     string{} uniqueNames = getUniqueNames(fqDir, fqRegex, extn)
     if(!uniqueNames) error "It appears that you don't have any FASTQ files specified. Check -fqDir path and make sure it point to FASTQ files directory"
     // This returns a list with first item being a stats string and second a bool for checkPair
