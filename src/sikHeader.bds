@@ -23,13 +23,15 @@ help #--------------------------------------------------------------------------
 
 help Make Indices options [default STAR]:
 
-bool makeIndex     help Flag if you need to make STAR index. You must indexed your reference genome in order to do alignemnt. \
-                         If `-genomeIndex` option isn't give and `-align` option is specified `RNAsik-pipe` will automatically make an index. \
+bool makeIndex     help Flag if you need to make STAR index. You must indexed your reference genome in order to do the alignemnt. \
+                              If `-genomeIndex` option isn't give and `-align` is specified `RNAsik-pipe` will automatically make an index.
+string fastaRef     help path to the reference FASTA file
+                
 
 help FASTQ mapping options [default STAR]:
 
 string align        help please specify your aligner of choice for the alignment step
-string fqDir        help path to the directory with fastq file                                   
+string fqDir        help path to the directory with FASTQ files
 string fqRegex      help select regex option that resembles your common fastq file ending\
                                            A: "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"\
                                            B: "_L[0-9]{3}_R[0-9].fastq.gz$"\
@@ -41,13 +43,14 @@ string genomeIndex  help path to the directory with genome index for the corespo
 
 help Reads count option [default featureCounts]:
 
-bool count          help flag if you like to count reads with featureCount
-string gtfFile      help path to the directory with gtf file
+bool count          help flag if you like to count reads
+string gtfFile      help path to the GTF file
 
 help BAM files pre  processing for RNA-SeQC report options [default picard tools]:
 
-bool prePro         help flag if you like to preprocess your bam files
-string fastaRef     help path to the reference fasta file
+bool prePro         help flag if you like to preprocess your bam files \
+                          if you are just processing your BAM files you will also need to specify your reference genome file \
+                          use `-fastaRef` option for that
 
 help fastQC report [default FastQC]: 
 
