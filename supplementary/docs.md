@@ -1,7 +1,6 @@
 # RNAsik-pipe in details
 
 - [RNAsik-pipe introduction](#rnasik-pipe-introduction)
-- [RNAsik-pipe options explained](#rnasik-pipe-options-explained)
 - [RNAsik-pipe directory hierarchy](#rnasik-pipe-directory-hierarchy)
 - [RNAsik-pipe options explained](#rnasik-pipe-options-explained)
 - [FASTQ files explained](#fastq-files-explained)
