@@ -15,7 +15,7 @@
 - [Quick start](#quick-start)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
-- [User manual](#user-manual)
+- [User manual](supplementary/docs.md)
 - [Release notes](#release-notes)
 
 ## Quick start
@@ -106,10 +106,6 @@ downloading `*tar.gz` file.
 **If you like to get developing version**
 
 `git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe.git`
-
-## User manual
-
-- [User manual](supplementary/docs.md)
 
 ## Release notes
 
