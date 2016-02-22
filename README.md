@@ -85,9 +85,9 @@ RNAsik-pipe -align star \
 
 ## Installation
 
-**The easy way** Use [ansible RNAsik-playbook](https://github.com/serine/sik_ansible)
+**The easy way:** Use [ansible RNAsik-playbook](https://github.com/serine/sik_ansible)
 
-**The other way**
+**The other way:**
 
 - Install [BDS installation instructions](http://pcingola.github.io/BigDataScript/download.html)
 - Install [latest stable release](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/releases) by 
@@ -99,9 +99,7 @@ downloading `*tar.gz` file.
 
 - Install all [dependencies](#prerequisites)
  
-**To get developing version**
-
-`git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe.git`
+**To get developing version:** `git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe.git`
 
 ## Release notes
 
