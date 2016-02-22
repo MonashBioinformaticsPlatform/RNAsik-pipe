@@ -85,13 +85,12 @@ RNAsik-pipe -align star \
 
 ## Installation
 
-**The easy way:** Use [ansible RNAsik-playbook](https://github.com/serine/sik_ansible)
+**The easy way:** use [ansible RNAsik-playbook](https://github.com/serine/sik_ansible)
 
 **The other way:**
 
-- Install [BDS installation instructions](http://pcingola.github.io/BigDataScript/download.html)
-- Install [latest stable release](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/releases) by 
-downloading `*tar.gz` file.
+- Install [BigDataScript](http://pcingola.github.io/BigDataScript/download.html)
+- Install [latest stable RNAsik-pipe release](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/releases)
 
     1. Locate your `*tar.gz` file
     2. `tar zxvf *tar.gz file` 
