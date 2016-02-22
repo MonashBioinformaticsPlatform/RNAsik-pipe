@@ -20,3 +20,9 @@ given in the fifth column of the SAM file). All reads with a lower quality than 
 Help pages: Calling either script without arguments displays a help page with an overview of all options
 and arguments.
 
+### Get RNAseq metrics
+[RNA-SeQC](https://www.broadinstitute.org/cancer/cga/rna-seqc) requires you BAM to be sorted,
+reordered and have duplicates marked. Here is detailed [instructions](supplementary/RNAseQC-manual.pdf)
+for how to prepare your BAMs files for RNAseQC, BUT the good news is you don't even need to worry about this!
+`RNAsik-pipe` takes care of long and laborious BAM file manipulation for RNA-SeQC tools, just flag 
+`-prePro` to get your BAMS in the right shape and `-RNAseQC` to get the actual report

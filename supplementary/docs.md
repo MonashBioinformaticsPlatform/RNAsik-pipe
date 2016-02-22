@@ -1,17 +1,35 @@
-- [RNAseq workflow explained](#rnaseq-workflow-explained)
-- [RNAsik-pipe introduction](#rnasik-pipe-introduction)
-  - [FASTQ files explained](#fastq-files-explained)
-    - [Directory with FASTQ files](#directory-with-fastq-files)
-    - [Directory with subdirectories with FASTQ files](#directory-with-subdirectories-with-fastq-files)
-  - [Get RNAseq metrics](#get-rnaseq-metrics)
-  - [get your counts](#get-your-counts)
-- [Documentation](#documentation)
-  - [RNAsik-pipe directory hierarchy](#rnasik-pipe-directory-hierarchy)
-  - [Additional and optional files](#additional-and-optional-files)
-  - [Best practice tip](#best-practice-tip)
-  - [Options](#options)
+# RNAsik-pipe in details
 
-## RNAseq workflow explained
+- [RNAsik-pipe introduction](#rnasik-pipe-introduction)
+- [RNAseq work-flow](#rnaseq-work-flow)
+- [FASTQ files explained](#fastq-files-explained)
+  - [Directory with FASTQ files](#directory-with-fastq-files)
+  - [Directory with subdirectories with FASTQ files](#directory-with-subdirectories-with-fastq-files)
+- [RNAsik-pipe options explained](#rnasik-pipe-options-explained)
+- [RNAsik-pipe directory hierarchy](#rnasik-pipe-directory-hierarchy)
+- [RNAsik-pipe options explained](#rnasik-pipe-options-explained)
+
+## RNAsik-pipe introduction
+
+`RNAsik-pipe` wraps around several tools making it easy to get from FASTQ to counts files. Simply provide `RNAsik-pipe` with [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files and your reference files such as [FASTA](https://en.wikipedia.org/wiki/FASTA_format) and [GTF](http://mblab.wustl.edu/GTF22.html) and press Go ! 
+
+It is recommended to use [GTF](http://mblab.wustl.edu/GTF22.html) as your annotation file. If you'd like to use [GFF](https://en.wikipedia.org/wiki/General_feature_format) instead you will need to use `-extraOptions` option to specify additional options to STAR and featureCounts for it to handle GFF. 
+
+`RNAsik-pipe` assumes that all of FASTQ files given in one directory using `fqDir` options is homogeneous data in terms of both library type and file naming. This means if your data is paired end, then no single end FASTQ files should be located within `fqDir` directory and vice versa. `RNAsik-pipe` also assumes that your FASTQ files will have an upper case **R** following by the number 1 or 2 e.g `_R1`, `_R2`. If your data is single-end your FASTQ files still must have an `_R1` in the file name.
+
+The best practice in running `RNAsik-pipe` is to make new directory for your RNAseq analysis e.g koVSwt-MouseLiver, `cd koVSwt-MouseLiver` and run your `RNAsik-pipe` from within this, "root", directory
+
+`RNAsik-pipe` has "sanity checks" inbuilt, checking command line options, checking if options are valid files/directories and it will talk to you if you didn't specify the right options so don't sweat.
+
+Three main parts to the pipeline:
+
+  1. Read aligning using [STAR aligner](https://github.com/alexdobin/STAR/releases) - get BAMs
+  2. Read counting using [featureCounts](http://subread.sourceforge.net/) - get counts
+  3. Getting RNAseq metrics report using [RNA-SeQC](https://www.broadinstitute.org/cancer/cga/rna-seqc).
+
+You can do each part separately, for example just get BAMs or just get counts or just pre-process your BAM files or just run [RNA-SeQC](https://www.broadinstitute.org/cancer/cga/rna-seqc) OR you can run all at once and `RNAsik-pipe` will figure out files dependencies.
+
+## RNAseq work-flow
 
 Your standard [RNA-seq](https://en.wikipedia.org/wiki/RNA-Seq) workflow as follows:
 
@@ -20,16 +38,7 @@ Your standard [RNA-seq](https://en.wikipedia.org/wiki/RNA-Seq) workflow as follo
 3. count how many reads have mapped to the gene feature. You need [SAM/BAM files](https://samtools.github.io/hts-specs/SAMv1.pdf) for this. [featureCounts](http://subread.sourceforge.net/) is used in `RNAsik-pipe` for that
 4. Then you can choose to use [limma](https://bioconductor.org/packages/release/bioc/html/limma.html) and [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html) in [R](https://en.wikipedia.org/wiki/R_programming_language) to do differential gene expression analysis Or you can simply upload your counts file to [Degust](http://victorian-bioinformatics-consortium.github.io/degust/), which is interactive and user friendly web tool
 
-
-## RNAsik-pipe introduction
-
-Right now `RNAsik-pipe` is a simple tools that wraps several other tools together to obstruct away the same repetitive work of retyping the same commands over the same number of tools just to get your differentially expressed genes. Simply provide `RNAsik-pipe` with [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files directory and your reference files such as [FASTA](https://en.wikipedia.org/wiki/FASTA_format) and [GTF](http://mblab.wustl.edu/GTF22.html) and press Go !
-
-Even though most tools used inside `RNAsik-pipe` can handle [GFF](https://en.wikipedia.org/wiki/General_feature_format) at this stage only [GTF](http://mblab.wustl.edu/GTF22.html) file is supported by the pipeline.
-
-One important note about [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files, `RNAsik-pipe` assumes that if the data is paired-end than it will have upper case **R** following by the number 1 or 2. `RNAsik-pipe` further assumes that both **R1** and **R2** have and underscore prefix - `_R1`, `_R2`. If your data is single-end and just has `_R1` in the file name, this is fine and `RNAsik-pipe` will handle those files correctly. `RNAsik-pipe` will also handle single-end data without any of **R's** in the file name correctly, but you might have to specify your own `-fqRegex` for more refer to [User manual](supplementary/docs.md).
-
-### FASTQ files explained
+## FASTQ files explained
 
 Your raw data will always come in [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) format. The number of [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files will depend on many things including:
 
@@ -38,7 +47,7 @@ Your raw data will always come in [FASTQ](https://en.wikipedia.org/wiki/FASTQ_fo
   - Your sample was split into different lanes
   - Your are sequencing paired-end data
 
-#### Directory with FASTQ files
+### Directory with FASTQ files
 
 Your [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files might reside in one directory e.g directory per experiment
 
@@ -60,7 +69,7 @@ The files for the same sample that were split across multiple lanes need to be m
 
   2. Let your aligner (if it is capable) to merge your files for you on the fly (during alignment step). [STAR aligner](https://github.com/alexdobin/STAR) can merger [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) on the fly.
 
-#### Directory with subdirectories with FASTQ files
+### Directory with subdirectories with FASTQ files
 
 Your [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files might also reside in their own subdirectory e.g  subdirectory per sample inside directory per experiment
 
@@ -69,80 +78,35 @@ Your [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files might also reside
 In this example each sample is placed into its own directory. Now we can see directory `Sample_14-09157`, 
 which will hold four files described above.
 
-**`RNAsik-pipe` can work with either of those two options. Specify your "root" directory either with `-fqDir` or `-fqDirs` options.**
+**`RNAsik-pipe` can work with either of those two options.**
 
-### Get RNAseq metrics
+## RNAsik-pipe directory hierarchy
 
-  [RNA-SeQC](https://www.broadinstitute.org/cancer/cga/rna-seqc) requires you BAM to be sorted,
-  reordered and have duplicates marked. Here is detailed [instructions](supplementary/RNAseQC-manual.pdf)
-  for how to prepare your BAMs files for RNAseQC, BUT the good news is you don't even need to worry about this!
-  `RNAsik-pipe` takes care of long and laborious BAM file manipulation for RNA-SeQC tools, just flag 
-  `-prePro` to get your BAMS in the right shape and `-RNAseQC` to get the actual report
+### Directories explained
 
-### Get your read counts
+  - `refFile/` this directory will hold your reference files including STAR index and other indices that might be required for downstream analysis. You FASTA and GFT files will be copied across to this directory. You can reuse STAR index if you are aligning to the same reference genome. STAR index will be located in the directory with postfix `-starIndex` inside `refFiles/` directory.
+  - `bamFiles/` this directory will be created if running `RNAsik-pipe` with `-aling` option. This directory will hold your BAM files from [STAR aligner](https://github.com/alexdobin/STAR/releases). If you already have BAM files, you can use them with other parts of the `RNAsik-pipe` except BAM files should have either `_Aligned.out.bam` or `_Aligned.sortedByCoord.out.bam` postfix as per STAR aligner output. This will make downstream file naming consistent and clean.
+  - `countFiles/` directory will hold eight text files, half for non stranded feature counting and the other four for reverse strand feature counting. `featureNo.txt` and `featureReverse.txt` and its associated `.summary` files are output straight from `featureCounts`. `featureNoCounts.txt` and `featureReverseCounts.txt` is a filtered version of respective file. Filtering header and columns 2 to 5 out of those files. Finally `-withNames.txt` postfix indicates that two additional columns were added to those files with public gene names and biotype.
+  - `preqcBamFiles/` directory with pre-processed BAM files. Files are pre-processed using [Picard tools](http://broadinstitute.github.io/picard/)
+  - `RNAseQC-report/` this direcotry is set as an output directory for `rna-seqc` run. All of your metrics information held in it. You can simply open that directory in the web browser to see your RNAseq metrics report.
+  - `fastqcReport/` will hold your `FastQC` report per each `FASTQ` file
 
-  Do you want to do differential gene expression analysis..? just flag `-count` and you will get your counts
+### Files explained
 
+  - `RNAseQC-SampleIds.txt` file will be created when you run `RNAsik-pipe` with option `-RNAseQC`. This is an essential file for `rna-seqc` tools. It specify all of your sample names and path those files.
+  - `*.html` [BDS](http://pcingola.github.io/BigDataScript/) automatically creates HTML report for your run. You can see all setps and more about your `RNAsik-pipe` run by looking at that report.
 
-## Documentation
+## RNAsik-pipe options explained
 
-`RNAsik-pipe` has several "sanity checks" inbuilt so that users essentially can't go wrong in using it.
-
-Three main parts to the pipeline:
-
-    1. Read aligning using [STAR aligner](https://github.com/alexdobin/STAR/releases) - get BAMs
-    2. Read counting using [featureCounts](http://subread.sourceforge.net/) - get counts
-    3. Getting RNAseq metrics report using [RNA-SeQC](https://www.broadinstitute.org/cancer/cga/rna-seqc). In order to run [RNA-SeQC](https://www.broadinstitute.org/cancer/cga/rna-seqc) your BAM files need to be preprocessed in particular way. `RNAsik-pipe` takes care of all that. In order to run [RNA-SeQC](https://www.broadinstitute.org/cancer/cga/rna-seqc) through `RNAsik-pipe` you need to also flag `-prePro` to get your BAMs in the right shape for [RNA-SeQC](https://www.broadinstitute.org/cancer/cga/rna-seqc).
-
-You can do each part separately, for example just get BAMs or just get counts or just pre-process your BAM files or just run [RNA-SeQC](https://www.broadinstitute.org/cancer/cga/rna-seqc). However `RNAsik-pipe` does assume particular working directory hierarchy. 
-
-### RNAsik-pipe directory  hierarchy
-
-   - `bamFiles/` this directory will be created if running `RNAsik-pipe` with `-star` flag. This directory holds _unsorted_ BAM files, and output from [STAR aligner](https://github.com/alexdobin/STAR/releases). 
-
-**If would like to mimic `bamFiles/` directory and BAM files please NOTE downstream workflow of `RNAsik-pipe` assumes `STAR` like BAM files, that is each BAM file ends with `\_Aligned.out.bam`**
-
-   - `refFile/` this directory will only be created if running `RNAsik-pipe` with `-makeIndices` flag. This directory holds all required indices files including reference genome file and one subdirectory `*-starIndex`, which is your specific genome index for [STAR aligner](https://github.com/alexdobin/STAR/releases). 
-
-**You can reuse that `\*-starIndex` directory for other runs provided that you are aligning against the same
-reference genome**
-
-   - `featureNo/` and `featureReverse/` these two directories will only be created if running `RNAsik-pipe` with `-count` flag. Those directories holds read counts files, one read count file per each BAM file. `RNAsik-pipe` automatically does both:
-       - No = read aligned to either forward or reverse strand of the reference
-       - Reverse = read alined to reverse strand of the reference only
-
-**Downstream workflow of `RNAsik-pipe` will swap `\_Aligned.out.bam` for `.txt`. It will keep the root name for all files in `featureNo/` and `featureReverse/` directories**
-
-   - `preqcBamFiles/` directory with pre-processed BAM files. Files are pre-processed using [Picard tools](http://broadinstitute.github.io/picard/)
-
-   - `RNAseQC-report/` this direcotry is set as an output directory for `rna-seqc` run. All of your metrics information held in it. You can simply open that directory in the web browser to see your RNAseq metrics report.
-
-### Additional and optional files 
-
-    - `RNAseQC-SampleIds.txt` when you run `RNAsik-pipe` with flag `-RNAseQC` this file is automatically created in your root - project directory. This is an essential file for `rna-seqc` tools. It specify all of your sample names and path those files, which must start with `preqcBamFiles/` prefix. 
-
-    - `*.html` [BDS](http://pcingola.github.io/BigDataScript/) automatically creates HTML report for your run. You can see all setps and more about your `RNAsik-pipe` run by looking at that report.
-
-### Best practice tip
-
-   - Make new directory for your RNAseq analysis e.g koVSwt-MouseLiver
-   - `cd koVSwt-MouseLiver` 
-   - Run your `RNAsik-pipe` from within this "root" directory
-
-### Options
-
-   - `-makeIndices` use this flag to make all required indices files for complete `RNAsisk-pipe` run. There are two index files that are required to be in the same directory as the reference genome file and one index directory for [STAR aligner](https://github.com/alexdobin/STAR/releases).
-
-   - `-star` use this flag to initiate [STAR](https://github.com/alexdobin/STAR/releases) run. This is a boolflag and therefore it doesn't require any arguments.
-
-   - `-fqDir` and `-fqDirs` have been explained above in [Get your FASTQ files](#get-your-fastq-files) section. **Only use one of two options !**
-
-   - `-fqRegex` specify one of the three possible options (A,B or C) that are inbuilt in `RNAsik-pipe`
+   - `-makeIndex` use this option to make [STAR aligner](https://github.com/alexdobin/STAR/releases) index. This is must do step before aligning you reads to the reference genome. The indexing step, indexes your reference genome to make access to it quicker during alignment process.
+   - `-align` use this option to initiate specify your aligner (at this stage only supporting [STAR aligner](https://github.com/alexdobin/STAR/releases) ). At this stage it will always be `-align star`.
+   - `-fqDir` use this option to specify path to directory with FASTQ files. `fqDir` can and will look two level deep to account for both use cases explained [here](#get-your-fastq-files).
+   - `-fqRegex` specify one of the four possible options (A,B,C or D) that are inbuilt in `RNAsik-pipe`
 
    ![fqRegex-sample](fqRegex-sample.png)
 
-      - `-fqRegex A` targets files alike `sample-FASTQ-file_L001_R1_001.fastq.gz` 
-      - `-fqRegex B` targets files alike `sample-FASTQ-file_L001_R1.fastq.gz` 
-      - `-fqRegex C` targets files alike `sample-FASTQ-file_R1_001.fastq.gz` 
+      - `-fqRegex A` targets files like `sample-FASTQ-file_L001_R1_001.fastq.gz` 
+      - `-fqRegex B` targets files like `sample-FASTQ-file_L001_R1.fastq.gz` 
+      - `-fqRegex C` targets files like `sample-FASTQ-file_R1_001.fastq.gz` 
+      - `-fqRegex D` targets fiels like `sample-FASTQ-file_R1.fastq.gz`
 
-Use can also provide anyother possible unique options using [regex](https://en.wikipedia.org/wiki/Regular_expression), make sure to use `$` at the end of your [regex](https://en.wikipedia.org/wiki/Regular_expression) to indicate the direction i.e from the right to the left of the string. 
