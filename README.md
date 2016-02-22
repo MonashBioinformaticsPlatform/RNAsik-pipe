@@ -85,25 +85,21 @@ RNAsik-pipe -align star \
 
 ## Installation
 
-### The easy way
+**The easy way** Use [ansible RNAsik-playbook](https://github.com/serine/sik_ansible)
 
-**It is recommended that you use ansible to install RNAsik-pipe with all dependencies**
+**The other way**
 
-The easiest way to get `RNAsik-pipe` installed together with all dependencies is to use [ansible RNAsik-playbook](https://github.com/serine/sik_ansible)
-
-### The other way
-
-Make sure to install [BigDataScript](http://pcingola.github.io/BigDataScript/) first. Follow [BDS installation instructions](http://pcingola.github.io/BigDataScript/download.html)
-
-Get [latest stable release](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/releases) by 
+- Install [BDS installation instructions](http://pcingola.github.io/BigDataScript/download.html)
+- Install [latest stable release](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/releases) by 
 downloading `*tar.gz` file.
 
-1. Locate your `*tar.gz` file
-2. `tar zxvf *tar.gz file` 
-3. You `RNAsik-pipe` executable file is located in `src` directory
-4. Be sure to install all [dependencies](#prerequisites)
+    1. Locate your `*tar.gz` file
+    2. `tar zxvf *tar.gz file` 
+    3. You `RNAsik-pipe` executable file is located in `src` directory
+
+- Install all [dependencies](#prerequisites)
  
-**If you like to get developing version**
+**To get developing version**
 
 `git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe.git`
 
