@@ -46,19 +46,16 @@ help Reads count option [default featureCounts]:
 bool count          help flag if you like to count reads
 string gtfFile      help path to the GTF file
 
-help BAM files pre  processing for RNA-SeQC report options [default picard tools]:
+help RNA-SeQC report option [default RNA-SeQC]:
 
-bool prePro         help flag if you like to preprocess your bam files \
+bool prePro         help flag if you like to preprocess your bam files (must for -RNAseQC) \
                           if you are just processing your BAM files you will also need to specify your reference genome file \
                           use `-fastaRef` option for that
+bool RNAseQC        help flag if you like to run RNA-SeQC report
 
 help fastQC report [default FastQC]: 
 
 bool fastqc         help flag if you like to run fastQC report on the files
-
-help RNA-SeQC report option [default RNA-SeQC]:
-
-bool RNAseQC        help flag if you like to run RNA-SeQC report
 
 help Other options
 
