@@ -55,7 +55,7 @@ RNAsik-pipe -prePro \
             -RNAseQC
 ```
 
-**You can simply specify all of the options at the start and let `RNAsik-pipe` to do everything for you. `RNAsik-pipe will guide you through, don't worry it can communicate.**
+**You can simply specify all of the options at the start and let `RNAsik-pipe` to do everything for you. `RNAsik-pipe` will guide you through, don't worry it can communicate.**
 
 ```BASH
 RNAsik-pipe -align star \
@@ -79,14 +79,13 @@ RNAsik-pipe -align star \
 - [featureCounts](http://subread.sourceforge.net/)
 - [samtools](http://www.htslib.org/download/)
 - [Picard tools](http://broadinstitute.github.io/picard/)
-- [python](https://www.python.org/downloads/) usually pre-installed on most Linux distributions
 - [gffutils](https://pypi.python.org/pypi/gffutils) python package, can use `(sudo) pip install gffutils`
 - [RNA-SeQC](https://www.broadinstitute.org/cancer/cga/rna-seqc)
 
 ### System requirements 
 
 - At least 100 Gb of disk space. [STAR aligner](https://github.com/alexdobin/STAR/releases) you will need 100 Gb of disk space during making an index step. The index itself isn't 100 Gb, but that much space is required. 
-- At least 32 Gb of RAM
+- At least 32 Gb of RAM for read alignments
 
 ## Installation
 
