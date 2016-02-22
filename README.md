@@ -1,6 +1,6 @@
 # RNAsik-pipe quick and easy way to get differentially expressed genes
 
-> Why `RNAsik-pipe` ? because its easy. Get list of differentially expressed genes in a single command line.
+> Why `RNAsik-pipe` cause its sik easy. Get list of differentially expressed genes in a single command line.
 > Simply give your FASTQ files to `RNAsik-pipe` with your reference files and press go ! [Enter] Go now !
 >
 > `RNAsik-pipe` is written in [BigDataScrip](http://pcingola.github.io/BigDataScript/) (BDS) language.
@@ -14,6 +14,7 @@
 
 - [Quick start](#quick-start)
 - [Prerequisites](#prerequisites)
+  - [System requirement](#system-requirement)
 - [Installation](#installation)
   - [The easy way](#the-easy-way)
   - [The other way](#the-other-way)
@@ -143,8 +144,7 @@ RNAsik-pipe -align star \
 
 **It is recommended that you use ansible to install RNAsik-pipe with all dependencies**
 
-The easiest way to get `RNAsik-pipe` installed together with all dependencies is to use [ansible RNAsik-playbook](https://github.com/serine/sik_ansible).
-All you will need to do is install ansible `sudo pip install ansible`, clone the [ansible RNAsik-playbook](https://github.com/serine/sik_ansible)
+The easiest way to get `RNAsik-pipe` installed together with all dependencies is to use [ansible RNAsik-playbook](https://github.com/serine/sik_ansible)
 
 ### The other way
 
@@ -156,6 +156,7 @@ downloading `*tar.gz` file.
 1. Locate your `*tar.gz` file
 2. `tar zxvf *tar.gz file` 
 3. You `RNAsik-pipe` executable file is located in `src` directory
+4. Be sure to install all [dependencies](#prerequisites)
  
 **If you like to get developing version**
 
@@ -165,25 +166,7 @@ downloading `*tar.gz` file.
 
 - [User manual](supplementary/docs.md)
 
-## Caveats 
-
-- At the moment `STAR aligner` has fixed options, here is the default:
-
-```BASH
-STAR --runThreadN 26 \
-     --genomeDir $genomeIndex \
-     --outSAMtype BAM Unsorted \
-     --outSAMattrRGline ID:001 CN:AGRF DS:RNA-seq PL:ILLUMINA PM:MiSeq SM:$uniqueName \
-     --outSAMunmapped Within \
-     --readFilesCommand zcat \
-     --readFilesIn $read1 $read2 \
-     --outFileNamePrefix $preFix
-```
-
-- Right now only `featureCounts` is supported for read counting
-- At the moment there isn't an option to choose the strand direction for read counts. `RNAsik-pipe` simply
-counts using both stranded NO and stranded REVERSE options
-
 ## Release notes
 
 - [Version 1.2](supplementary/releaseNotes1.2.md)
+- [Version 1.3](supplementary/releaseNotes1.3.md)
