@@ -3,8 +3,6 @@
 - [RNAsik-pipe introduction](#rnasik-pipe-introduction)
 - [RNAseq work-flow](#rnaseq-work-flow)
 - [FASTQ files explained](#fastq-files-explained)
-  - [Directory with FASTQ files](#directory-with-fastq-files)
-  - [Directory with subdirectories with FASTQ files](#directory-with-subdirectories-with-fastq-files)
 - [RNAsik-pipe options explained](#rnasik-pipe-options-explained)
 - [RNAsik-pipe directory hierarchy](#rnasik-pipe-directory-hierarchy)
 - [RNAsik-pipe options explained](#rnasik-pipe-options-explained)
