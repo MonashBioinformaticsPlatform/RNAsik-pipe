@@ -31,56 +31,6 @@ Use `RNAsik-pipe` executable file to run it e.g `./RNAsik-pipe`. Everything else
 
 ### RNAsik-pipe commands examples
 
-```
-#------------------------
-RNAsik-pipe version 1.3
-#------------------------
-#----------------------------
-Usage: RNAsik-pipe [options]
-#----------------------------
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Example_1: RNAsik-pipe -makeIndex -fastaRef /path/to/your/referenceFile.fa
-Example_2: RNAsik-pipe -makeIndex -fastaRef /path/to/your/referenceFile.fa -align star -fqDir /path/to/your/fastqFiles/directory -fqRegex A
-Example_3: RNAsik-pipe -align star -fqDir /path/to/your/fastqFiles/directory -fqRegex A -fastaRef /path/to/your/referenceFile.fa 
-Example_4: RNAsik-pipe -count -gtfFile path/to/your/GTF/file
-Example_5: RNAsik-pipe -align star -fqDir /path/to/your/fastqFiles/directory -fqRegex A -fastaRef /path/to/your/referenceFile.fa -count -gtfFile path/to/your/GTF/file
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Make Indices options [default STAR]:
-	-makeIndex <bool>       : Flag if you need to make STAR index. You must indexed your reference genome in order to do the alignemnt. \
-                              If `-genomeIndex` option isn't give and `-align` is specified `RNAsik-pipe` will automatically make an index.
-	-fastaRef <string>      : path to the reference FASTA file
-FASTQ mapping options [default STAR]:
-	-align <string>         : please specify your aligner of choice for the alignment step
-	-fqDir <string>         : path to the directory with FASTQ files
-	-fqRegex <string>       : select regex option that resembles your common fastq file ending\
-                                           A: "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"\
-                                           B: "_L[0-9]{3}_R[0-9].fastq.gz$"\
-                                           C: "_R[0-9]_[0-9]{3}.fastq.gz$"\
-                                           D: "_R[0-9].fastq.gz$" \
-                               e.g for this file Samp12_S10_L002_R1_001.fastq.gz you'd do -fqRegex A
-	-genomeIndex <string>   : path to the directory with genome index for the coresponding species. If not specified then `-makeIndex` option is assumed
-Reads count option [default featureCounts]:
-	-count <bool>           : flag if you like to count reads
-	-gtfFile <string>       : path to the GTF file
-BAM files pre  processing for RNA-SeQC report options [default picard tools]:
-	-prePro <bool>          : flag if you like to preprocess your bam files \
-                          if you are just processing your BAM files you will also need to specify your reference genome file \
-                          use `-fastaRef` option for that
-fastQC report [default FastQC]: 
-	-fastqc <bool>          : flag if you like to run fastQC report on the files
-RNA-SeQC report option [default RNA-SeQC]:
-	-RNAseQC <bool>         : flag if you like to run RNA-SeQC report
-Other options
-	-threads <int>          : specify number of threads to use. This number will be used for STAR genome indexing\
-                         and STAR raed alignment as well as for featureCounts, default [1]
-	-extn <string>          : optional, specify your files extension default [fastq.gz]
-	-sampleNames <string>   : optional, specify a text file with alternative sample names
-	-extraOptions <string>  : You can add extra option to any of the tools used in the pipeline. Use this syntax \
-                   e.g -extraOptions "STAR > --outSAMtype BAM Unsorted, --outReadsUnmapped Fastx; starIndex > --sjdbGTFfile /path/to/GTF/file, --sjdbOverhang 99; featureCounts > -t gene" \
-                          Each command is separated by semi-colon (;) after the last options. \
-                          The command options and command name are separated by grater than sign (>) \
-```
-
 - To align FASTQ files in `raw-data/data-a` directory use 
 
 ```BASH
