@@ -51,7 +51,7 @@ Your raw data will always come in [FASTQ](https://en.wikipedia.org/wiki/FASTQ_fo
 
 Your [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files might reside in one directory e.g directory per experiment
 
-![fqDir](supplementary/rawDataDir.png)
+![fqDir](rawDataDir.png)
 
 In this example sample _14-09157_, which might be _WT_ sample was split across two lanes `L001` and `L002` during sequencing, this is some what typical of Illumina data. Therefore one sample is represented by two files, one for each lane. We can also see that this is paired end data, which means for each file there has to be a pair file, that is _R1_ and _R2_. In summary single sample, e.g _WT_ is covered by four FASTQ files:
 
@@ -73,7 +73,7 @@ The files for the same sample that were split across multiple lanes need to be m
 
 Your [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files might also reside in their own subdirectory e.g  subdirectory per sample inside directory per experiment
 
-![test](supplementary/rawDataDirs.png)
+![test](rawDataDirs.png)
 
 In this example each sample is placed into its own directory. Now we can see directory `Sample_14-09157`, 
 which will hold four files described above.
