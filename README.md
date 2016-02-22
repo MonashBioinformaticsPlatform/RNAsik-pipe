@@ -55,7 +55,7 @@ RNAsik-pipe -prePro \
             -RNAseQC
 ```
 
-**You can simply specify all of the options at the start and let `RNAsik-pipe` to do everything for your and it will guide you through. `RNAsik-pipe` will let you know if you have forgotten any files needed for your run**
+**You can simply specify all of the options at the start and let `RNAsik-pipe` to do everything for you. `RNAsik-pipe will guide you through, don't worry it can communicate.**
 
 ```BASH
 RNAsik-pipe -align star \
