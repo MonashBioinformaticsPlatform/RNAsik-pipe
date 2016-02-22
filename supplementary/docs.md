@@ -1,11 +1,11 @@
 # RNAsik-pipe in details
 
 - [RNAsik-pipe introduction](#rnasik-pipe-introduction)
-- [RNAseq work-flow](#rnaseq-work-flow)
-- [FASTQ files explained](#fastq-files-explained)
 - [RNAsik-pipe options explained](#rnasik-pipe-options-explained)
 - [RNAsik-pipe directory hierarchy](#rnasik-pipe-directory-hierarchy)
 - [RNAsik-pipe options explained](#rnasik-pipe-options-explained)
+- [FASTQ files explained](#fastq-files-explained)
+- [RNAseq work-flow](#rnaseq-work-flow)
 
 ## RNAsik-pipe introduction
 
@@ -26,57 +26,6 @@ Three main parts to the pipeline:
   3. Getting RNAseq metrics report using [RNA-SeQC](https://www.broadinstitute.org/cancer/cga/rna-seqc).
 
 You can do each part separately, for example just get BAMs or just get counts or just pre-process your BAM files or just run [RNA-SeQC](https://www.broadinstitute.org/cancer/cga/rna-seqc) OR you can run all at once and `RNAsik-pipe` will figure out files dependencies.
-
-## RNAseq work-flow
-
-Your standard [RNA-seq](https://en.wikipedia.org/wiki/RNA-Seq) workflow as follows:
-
-1. get [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) reads
-2. align them to your reference genome (your reference genome is given in [FASTA](https://en.wikipedia.org/wiki/FASTA_format) file). [STAR aligner](https://github.com/alexdobin/STAR) is used in `RNAsik-pipe` for that
-3. count how many reads have mapped to the gene feature. You need [SAM/BAM files](https://samtools.github.io/hts-specs/SAMv1.pdf) for this. [featureCounts](http://subread.sourceforge.net/) is used in `RNAsik-pipe` for that
-4. Then you can choose to use [limma](https://bioconductor.org/packages/release/bioc/html/limma.html) and [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html) in [R](https://en.wikipedia.org/wiki/R_programming_language) to do differential gene expression analysis Or you can simply upload your counts file to [Degust](http://victorian-bioinformatics-consortium.github.io/degust/), which is interactive and user friendly web tool
-
-## FASTQ files explained
-
-Your raw data will always come in [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) format. The number of [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files will depend on many things including:
-
-  - Number of samples 
-  - Number of replicates 
-  - Your sample was split into different lanes
-  - Your are sequencing paired-end data
-
-#### Directory with FASTQ files
-
-Your [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files might reside in one directory e.g directory per experiment
-
-![fqDir](rawDataDir.png)
-
-In this example sample _14-09157_, which might be _WT_ sample was split across two lanes `L001` and `L002` during sequencing, this is some what typical of Illumina data. Therefore one sample is represented by two files, one for each lane. We can also see that this is paired end data, which means for each file there has to be a pair file, that is _R1_ and _R2_. In summary single sample, e.g _WT_ is covered by four FASTQ files:
-
-  - *14-09157_L001_R1.fastq.gz*
-  - *14-09157_L001_R2.fastq.gz*
-
-   And 
-
-  - *14-09157_L002_R1.fastq.gz*
-  - *14-09157_L002_R2.fastq.gz*
-
-The files for the same sample that were split across multiple lanes need to be merged together at some point during analysis. There are at least two most common ways to go about merging them together:
-
-  1. Using `cat` command to concatenate files across different lanes e.g `cat 14-09157_L001_R1.fastq.gz 14-09157_L002_R1.fastq.gz > 14-09157_merged.fastq.gz`
-
-  2. Let your aligner (if it is capable) to merge your files for you on the fly (during alignment step). [STAR aligner](https://github.com/alexdobin/STAR) can merger [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) on the fly.
-
-#### Directory with subdirectories with FASTQ files
-
-Your [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files might also reside in their own subdirectory e.g  subdirectory per sample inside directory per experiment
-
-![test](rawDataDirs.png)
-
-In this example each sample is placed into its own directory. Now we can see directory `Sample_14-09157`, 
-which will hold four files described above.
-
-**`RNAsik-pipe` can work with either of those two options.**
 
 ## RNAsik-pipe directory hierarchy
 
@@ -132,3 +81,53 @@ which will hold four files described above.
   - `-proBams` If you just want to run RNAseQC and you processed BAM files located in some other directory but the `preqcBamFiles/` directory then you can provide directory with processed BAM files using this option
   - `-bamFiles` If you want to start using pipeline post read alignment and you BAM files located in other directory but the `bamFiles/` directory then you can specify directory with BAM files using this option
 
+## FASTQ files explained
+
+Your raw data will always come in [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) format. The number of [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files will depend on many things including:
+
+  - Number of samples 
+  - Number of replicates 
+  - Your sample was split into different lanes
+  - Your are sequencing paired-end data
+
+#### Directory with FASTQ files
+
+Your [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files might reside in one directory e.g directory per experiment
+
+![fqDir](rawDataDir.png)
+
+In this example sample _14-09157_, which might be _WT_ sample was split across two lanes `L001` and `L002` during sequencing, this is some what typical of Illumina data. Therefore one sample is represented by two files, one for each lane. We can also see that this is paired end data, which means for each file there has to be a pair file, that is _R1_ and _R2_. In summary single sample, e.g _WT_ is covered by four FASTQ files:
+
+  - *14-09157_L001_R1.fastq.gz*
+  - *14-09157_L001_R2.fastq.gz*
+
+   And 
+
+  - *14-09157_L002_R1.fastq.gz*
+  - *14-09157_L002_R2.fastq.gz*
+
+The files for the same sample that were split across multiple lanes need to be merged together at some point during analysis. There are at least two most common ways to go about merging them together:
+
+  1. Using `cat` command to concatenate files across different lanes e.g `cat 14-09157_L001_R1.fastq.gz 14-09157_L002_R1.fastq.gz > 14-09157_merged.fastq.gz`
+
+  2. Let your aligner (if it is capable) to merge your files for you on the fly (during alignment step). [STAR aligner](https://github.com/alexdobin/STAR) can merger [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) on the fly.
+
+#### Directory with subdirectories with FASTQ files
+
+Your [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files might also reside in their own subdirectory e.g  subdirectory per sample inside directory per experiment
+
+![test](rawDataDirs.png)
+
+In this example each sample is placed into its own directory. Now we can see directory `Sample_14-09157`, 
+which will hold four files described above.
+
+**`RNAsik-pipe` can work with either of those two options.**
+
+## RNAseq work-flow
+
+Your standard [RNA-seq](https://en.wikipedia.org/wiki/RNA-Seq) workflow as follows:
+
+1. get [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) reads
+2. align them to your reference genome (your reference genome is given in [FASTA](https://en.wikipedia.org/wiki/FASTA_format) file). [STAR aligner](https://github.com/alexdobin/STAR) is used in `RNAsik-pipe` for that
+3. count how many reads have mapped to the gene feature. You need [SAM/BAM files](https://samtools.github.io/hts-specs/SAMv1.pdf) for this. [featureCounts](http://subread.sourceforge.net/) is used in `RNAsik-pipe` for that
+4. Then you can choose to use [limma](https://bioconductor.org/packages/release/bioc/html/limma.html) and [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html) in [R](https://en.wikipedia.org/wiki/R_programming_language) to do differential gene expression analysis Or you can simply upload your counts file to [Degust](http://victorian-bioinformatics-consortium.github.io/degust/), which is interactive and user friendly web tool
