@@ -14,13 +14,9 @@
 
 - [Quick start](#quick-start)
 - [Prerequisites](#prerequisites)
-  - [System requirement](#system-requirement)
 - [Installation](#installation)
-  - [The easy way](#the-easy-way)
-  - [The other way](#the-other-way)
 - [User manual](#user-manual)
 - [Release notes](#release-notes)
-  - [Version 1.2](#version-1.2)
 
 ## Quick start
 
