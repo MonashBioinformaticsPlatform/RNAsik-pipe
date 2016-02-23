@@ -1,4 +1,4 @@
-# RNAsik-pipe quick and easy way to get differentially expressed genes
+# RNAsik-pipe is undergoing changes. For most up to date changes and documentations please refer to [1.3-beta branch](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/tree/1.3-beta)
 
 > `RNAsik-pipe` is written in [BigDataScrip](http://pcingola.github.io/BigDataScript/) (BDS) language.
 > There are many advantages in using BDS, but main ones are:
