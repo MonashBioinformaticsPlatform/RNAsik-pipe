@@ -4,7 +4,6 @@
 - [RNAsik-pipe directory hierarchy](#rnasik-pipe-directory-hierarchy)
 - [RNAsik-pipe options explained](#rnasik-pipe-options-explained)
 - [FASTQ files explained](#fastq-files-explained)
-- [RNAseq work-flow](#rnaseq-work-flow)
 
 ## RNAsik-pipe introduction
 
@@ -121,12 +120,3 @@ In this example each sample is placed into its own directory. Now we can see dir
 which will hold four files described above.
 
 **`RNAsik-pipe` can work with either of those two options.**
-
-## RNAseq work-flow
-
-Your standard [RNA-seq](https://en.wikipedia.org/wiki/RNA-Seq) workflow as follows:
-
-1. get [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) reads
-2. align them to your reference genome (your reference genome is given in [FASTA](https://en.wikipedia.org/wiki/FASTA_format) file). [STAR aligner](https://github.com/alexdobin/STAR) is used in `RNAsik-pipe` for that
-3. count how many reads have mapped to the gene feature. You need [SAM/BAM files](https://samtools.github.io/hts-specs/SAMv1.pdf) for this. [featureCounts](http://subread.sourceforge.net/) is used in `RNAsik-pipe` for that
-4. Then you can choose to use [limma](https://bioconductor.org/packages/release/bioc/html/limma.html) and [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html) in [R](https://en.wikipedia.org/wiki/R_programming_language) to do differential gene expression analysis Or you can simply upload your counts file to [Degust](http://victorian-bioinformatics-consortium.github.io/degust/), which is interactive and user friendly web tool
