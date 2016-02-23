@@ -1,4 +1,4 @@
-# RNAsik-pipe is undergoing changes. For most up to date changes and documentations please refer to [1.3-beta branch](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/tree/1.3-beta)
+# RNAsik-pipe quick and easy way to get differentially expressed genes
 
 > Why `RNAsik-pipe` cause its sik easy. Get list of differentially expressed genes in a single command line.
 > Simply give your FASTQ files to `RNAsik-pipe` with your reference files and press go ! [Enter] Go now !
