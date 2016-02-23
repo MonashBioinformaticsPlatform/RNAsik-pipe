@@ -19,3 +19,4 @@ given in the fifth column of the SAM file). All reads with a lower quality than 
 -a 10) are skipped.
 Help pages: Calling either script without arguments displays a help page with an overview of all options
 and arguments.
+

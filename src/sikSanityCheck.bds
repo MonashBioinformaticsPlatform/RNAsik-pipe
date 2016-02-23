@@ -22,7 +22,7 @@ if(align == "star") {
     // check if FASTQ directory is given 
     if(fqDir.isEmpty()) error "Usage: -fqDir /path/to/your/FASTQ/files"
 }
-if( (!args) && (align.isEmpty()) && (!checkPair) ) warning "There is no information about paired end status, -checkPair is set to $checkPair, if your data is paired end use -checkPair on the command line to indicate this"
+if( (align.isEmpty()) && (!args.isEmpty()) && (!checkPair) ) warning "There is no information about paired end status, -checkPair is set to $checkPair, if your data is paired end use -checkPair on the command line to indicate this"
 //
 if(!sampleNames.isEmpty()){
     bool checkTextFile = sampleNames.exists()
