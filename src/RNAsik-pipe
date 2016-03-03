@@ -135,14 +135,14 @@ if(count) {
     string featureNo = featureCounts[0]
     string featureReverse = featureCounts[1]
 
-    string featureNoCounts = countFiles+"/"+"featureNoCounts.txt"
-    string featureReverseCounts = countFiles+"/"+"featureReverseCounts.txt"
+    string tmpNon = countFiles+"/"+"tmpNon.txt"
+    string tmpReverse = countFiles+"/"+"tmpReverse.txt"
 
-    string tempNo = countFiles+"/"+"tempNo.txt"
-    string tempReverse = countFiles+"/"+"tempReverse.txt"
+    string tmp2Non = countFiles+"/"+"tmp2Non.txt"
+    string tmp2Reverse = countFiles+"/"+"tmp2Reverse.txt"
 
-    string featureNoCountsWithNames = countFiles+"/"+"featureNoCounts-withNames.txt"
-    string featureReverseCountsWithNames = countFiles+"/"+"featureReverseCounts-withNames.txt"
+    string NonStrandedCountsWithNames = countFiles+"/"+"NonStrandedCounts-withNames.txt"
+    string ReverseStrandedCountsWithNames = countFiles+"/"+"ReverseStrandedCounts-withNames.txt"
 
     string geneIdsFile = getGeneIds(gtfFile)
 
@@ -150,20 +150,20 @@ if(count) {
     int[] theRange = range(7, numberOfBamFiles)
     string numberOfFields = theRange.join(",")
 
-    task([featureNoCountsWithNames, featureReverseCountsWithNames] <- [featureNo, featureReverse, geneIdsFile], taskName := "Making Degust-ready counts file") {
-        sys grep -v "#" $featureNo | cut -f1,$numberOfFields | perl -pe 's{\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $featureNoCounts
-        sys sed -i '0,/Geneid/s/Geneid/Gene.ID/' $featureNoCounts
-        sys /bin/bash -c "join -j 1 <(sort -k1,1 $geneIdsFile) <(sort -k1,1 $featureNoCounts) -t $'\t' > $tempNo"
-        sys grep "Biotype" $tempNo > $featureNoCountsWithNames
-        sys grep -v "Biotype" $tempNo >> $featureNoCountsWithNames
-        sys rm $tempNo
+    task([NonStrandedCountsWithNames, ReverseStrandedCountsWithNames] <- [featureNo, featureReverse, geneIdsFile], taskName := "Making Degust-ready counts file") {
+        sys grep -v "#" $featureNo | cut -f1,$numberOfFields | perl -pe 's{\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $tmpNon
+        sys sed -i '0,/Geneid/s/Geneid/Gene.ID/' $tmpNon
+        sys /bin/bash -c "join -j 1 <(sort -k1,1 $geneIdsFile) <(sort -k1,1 $tmpNon) -t $'\t' > $tmp2Non"
+        sys grep "Biotype" $tmp2Non > $NonStrandedCountsWithNames
+        sys grep -v "Biotype" $tmp2Non >> $NonStrandedCountsWithNames
+        sys rm $tmpNon $tmp2Non
         
-        sys grep -v "#" $featureReverse | cut -f1,$numberOfFields | perl -pe 's{\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $featureReverseCounts
-        sys sed -i '0,/Geneid/s/Geneid/Gene.ID/' $featureReverseCounts
-        sys /bin/bash -c "join -j 1 <(sort -k1,1 $geneIdsFile) <(sort -k1,1 $featureReverseCounts) -t $'\t' > $tempReverse"
-        sys grep "Biotype" $tempReverse > $featureReverseCountsWithNames
-        sys grep -v "Biotype" $tempReverse >> $featureReverseCountsWithNames
-        sys rm $tempReverse
+        sys grep -v "#" $featureReverse | cut -f1,$numberOfFields | perl -pe 's{\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $tmpReverse
+        sys sed -i '0,/Geneid/s/Geneid/Gene.ID/' $tmpReverse
+        sys /bin/bash -c "join -j 1 <(sort -k1,1 $geneIdsFile) <(sort -k1,1 $tmpReverse) -t $'\t' > $tmp2Reverse"
+        sys grep "Biotype" $tmp2Reverse > $ReverseStrandedCountsWithNames
+        sys grep -v "Biotype" $tmp2Reverse >> $ReverseStrandedCountsWithNames
+        sys rm $tmp2Reverse
     }
     wait
 }

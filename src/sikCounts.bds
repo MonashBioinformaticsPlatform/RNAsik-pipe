@@ -18,25 +18,25 @@ string[] getReadsCount(string[] bamsList, string gtfFile, string additionalArgs,
 
     string bamString = bamsList.join(" ")
 
-    string featureReverse = countFiles+"/"+"featureReverse.txt"
-    task(featureReverse <- bamFiles, taskName := "Counting features") {
+    string ReverseStrandedCounts = countFiles+"/"+"ReverseStrandedCounts.txt"
+    task(ReverseStrandedCounts <- bamFiles, taskName := "Counting features") {
         sys featureCounts -T $featureThreads \
                           -s 2 \
                           $additionalArgs \
                           -a $gtfFile \
-                          -o $featureReverse \
+                          -o $ReverseStrandedCounts \
                           $bamString
     }
-    string featureNo = countFiles+"/"+"featureNo.txt"
-    task(featureNo <- bamFiles, taskName := "Counting features") {
+    string NonStrandedCounts = countFiles+"/"+"NonStrandedCounts.txt"
+    task(NonStrandedCounts <- bamFiles, taskName := "Counting features") {
         sys featureCounts -T $featureThreads \
                           -s 0 \
                           $additionalArgs \
                           -a $gtfFile \
-                          -o $featureNo \
+                          -o $NonStrandedCounts \
                           $bamString
     }
-    return [featureNo, featureReverse] 
+    return [NonStrandedCounts, ReverseStrandedCounts] 
 }
 
 string getGeneIds(string gtfFile){
