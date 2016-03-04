@@ -13,6 +13,8 @@ It is recommended to use [GTF](http://mblab.wustl.edu/GTF22.html) as your annota
 
 `RNAsik-pipe` assumes that all of [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files given in one directory using `fqDir` options are homogeneous data in terms of both library type and file naming. This means if your data is paired end, then no single end [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files should be located within `fqDir` directory and vice versa. `RNAsik-pipe` also assumes that your [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files will have an upper case **R** following by the number 1 or 2 e.g `_R1`, `_R2`. If your data is single-end your [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files still must have an `_R1` in the file name.
 
+At this stage `RNAsik-pipe` does not deals well with symbolic links. If you don't change the name of the file, than it is okay to use symlinks with `RNAsik-pipe`, however if symlink name is different to canonical file name, then `RNAsik-pipe` will use canonical file name instead. This may cause some unexpected results, for example if canonical filename doesn't have an **_R1** suffix and you make symlink with such suffix, assuming that `RNAsik-pipe` will work, but it will not. 
+
 The best practice in running `RNAsik-pipe` is to make new directory for your RNAseq analysis e.g koVSwt-MouseLiver, `cd koVSwt-MouseLiver` and run your `RNAsik-pipe` from within this, "root", directory
 
 `RNAsik-pipe` has "sanity checks" inbuilt, checking command line options, checking if options are valid files/directories and it will talk to you if you didn't specify the right options so don't sweat.
