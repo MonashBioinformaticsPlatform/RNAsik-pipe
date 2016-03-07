@@ -25,19 +25,19 @@ if(align == "star") {
 if( (align.isEmpty()) && (!args.isEmpty()) && (!checkPair) ) warning "There is no information about paired end status, -checkPair is set to $checkPair, if your data is paired end use -checkPair on the command line to indicate this"
 //
 if(!sampleNames.isEmpty()){
-    bool checkTextFile = sampleNames.exists()
-    if(!checkTextFile) error "-sampleNames doesn't appear to be pointing at the valid file, double check your path $sampleNames"
+    bool checkType = sampleNames.isFile()
+    if(!checkType) error "-sampleNames doesn't appear to be pointing at the valid file, double check your path $sampleNames"
 }
 if(!fqDir.isEmpty()){
-    bool checkFqDir = fqDir.exists()
+    bool checkFqDir = fqDir.isDir()
     if(!checkFqDir) error "-fqDir doesn't appear to be pointing at the valid directory, double check your path $fqDir"
 }
 if(!fastaRef.isEmpty()){
-    bool checkFastaRef = fastaRef.exists()
+    bool checkFastaRef = fastaRef.isFile()
     if(!checkFastaRef) error "-fastaRef doesn't appear to be pointing at the valid file, double check your path $fastaRef"
 }
 if(!gtfFile.isEmpty()){
-    bool checkGTFfile = gtfFile.exists()
+    bool checkGTFfile = gtfFile.isFile()
     if(!checkGTFfile) error "-gtfFile doesn't appear to be pointing at the valid file, double check your path $gtfFile"
 }
 if(threads < 1) error "specify a positive integer, you have specified $threads"

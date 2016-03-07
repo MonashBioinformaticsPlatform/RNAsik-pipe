@@ -25,8 +25,7 @@ string makeLocalFastaRef(string fastaRef) {
 
     if(gZipped) {
         task(localFastaRef <- fastaRef, taskName := "Copying FASTA file") {
-            sys echo $(date) Copying FASTA file, be patient; cp -v $fastaRef $refFiles
-            sys echo $(date) Also unzipping your FASTA file; gunzip $localFastaRef
+            sys echo $(date) Copying FASTA file, be patient; cp -v $fastaRef $refFiles; echo $(date) Also unzipping your FASTA file; gunzip $localFastaRef
         }
     }
     else {
@@ -53,8 +52,7 @@ string makeLocalGTF(string gtfFile) {
 
     if(gZipped) {
         task(localGTF <- gtfFile, taskName := "Copying GTF file") {
-            sys echo $(date) Copying GTF file, be patient; cp -v $gtfFile $refFiles
-            sys echo $(date) Also unzipping your GTF file; gunzip $localGTF
+            sys echo $(date) Copying GTF file, be patient; cp -v $gtfFile $refFiles; echo $(date) Also unzipping your GTF file; gunzip $localGTF
         }
     }
 
