@@ -74,6 +74,7 @@ if(fastqc) {
     string[] allFastqFiles = getAllFastqFiles(fqDir, extn)
     if(!allFastqFiles) error "It appears that you don't have any FASTQ files specified. Check -fqDir path and make sure it point to FASTQ files directory"
     string fqcReport = getFastqcReport(allFastqFiles, threads)
+    wait
 }
 #------------------------------
 # BAM generation step
