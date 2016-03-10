@@ -202,7 +202,7 @@ if(RNAseQC){
     // make Fai file if dosen't exist
     string fastaFaiFile = makeFaiFile(localFastaRef)
     // get RNAseQC report 
-    string qcReport = getRNAseQC(sampleIdsFile, markedBams, localFastaRef, additionalRNAseQCoptions)
+    string qcReport = getRNAseQC(sampleIdsFile, markedBams, localFastaRef, localGTF, additionalRNAseQCoptions)
 }
 #----------------------------------------------------------------------------------------------------
 # End
