@@ -43,10 +43,10 @@ string getFastqcReport(string[] fqFiles, int threads){
     string newThreads
     if(threads != 1) newThreads = threads/2
     else newThreads = threads
-
+    
     string fqs = fqFiles.join(" ")
 
-    task(fastqcReport <- fqs, taskName := "Running FASTQC") { 
+    task(fastqcReport <- fqFiles, taskName := "Running FASTQC") { 
         sys fastqc --threads $newThreads \
                    --outdir $fastqcReport \
                    --format fastq \
