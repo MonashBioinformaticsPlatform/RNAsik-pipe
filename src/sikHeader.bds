@@ -66,7 +66,8 @@ string sampleNames  help optional, specify a text file with alternative sample n
 string extraOptions help You can add extra option to any of the tools used in the pipeline. Use this syntax \
                    e.g -extraOptions "STAR > --outSAMtype BAM Unsorted, --outReadsUnmapped Fastx; starIndex > --sjdbGTFfile /path/to/GTF/file, --sjdbOverhang 99; featureCounts > -t gene" \
                           Each command is separated by semi-colon (;) after the last options. \
-                          The command options and command name are separated by grater than sign (>) \
+                          The command options and command name are separated by grater than sign (>) 
+string configFile   help You can specify configuration file
 
 // check if data is paired end or not
 bool checkPair

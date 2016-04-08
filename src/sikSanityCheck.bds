@@ -54,7 +54,10 @@ if(prePro){
 if(RNAseQC){
    if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
 }
-
+if(!configFile.isEmpty()) {
+    bool checkConfigFile = configFile.isFile()
+    if(!checkConfigFile) error "-configFile doesn't appear to be pointing at the valid file, double check your path $configFile"
+}
 if( args.isEmpty() ) {
     printHelp()
     exit(1)
@@ -80,6 +83,7 @@ string checkCmdArgs() {
                         "-checkPair", \
                         "-bamFiles", \
                         "-proBams", \
+                        "-configFile", \
                         "-version" \
                        ]
     // list of options specified by user

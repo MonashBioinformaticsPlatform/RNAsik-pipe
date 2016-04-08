@@ -20,7 +20,6 @@
 #   * Gets both RNA-SeQC report and Fastqc report
 #
 #----------------------------------------------------------------------------------------------------
-
 include "sikHeader.bds"
 include "sikSanityCheck.bds"
 include "sikMakeIndices.bds"
@@ -34,6 +33,14 @@ include "sikExtraOptions.bds"
 # Check cmd args
 #------------------------------
 string checkCmdInput = checkCmdArgs()
+#------------------------------
+# Parse config file
+#------------------------------
+string getProgPath = programPath.pathName()
+string getConfigFile = getProgPath+"/../sik.config"
+string{} cmdExe
+if(!configFile.isEmpty()) cmdExe = config(configFile)
+else cmdExe = config(configFile)
 #------------------------------
 # Global Variables
 #------------------------------
@@ -59,7 +66,8 @@ if(makeIndex){
     string cmdOptions = getCmdOptions("starIndex", extraOptions)
     string additionalIndexOptions = getAllOptions(cmdOptions, currentIndexOptions)
 
-    string[] localIndexList = makeSTARindex(localFastaRef, additionalIndexOptions)
+    string getSTARexe = cmdExe{"starExe"}
+    string[] localIndexList = makeSTARindex(getSTARexe, localFastaRef, additionalIndexOptions)
     localSAindexFile = localIndexList[0]
     localGenomeIndex = localIndexList[1]
 }
@@ -73,7 +81,8 @@ if(!makeIndex) localGenomeIndex = genomeIndex
 if(fastqc) { 
     string[] allFastqFiles = getAllFastqFiles(fqDir, extn)
     if(!allFastqFiles) error "It appears that you don't have any FASTQ files specified. Check -fqDir path and make sure it point to FASTQ files directory"
-    string fqcReport = getFastqcReport(allFastqFiles, threads)
+    string getFastqcExe = cmdExe{"fastqcExe"}
+    string fqcReport = getFastqcReport(getFastqcExe, allFastqFiles, threads)
     wait
 }
 #------------------------------
@@ -117,7 +126,8 @@ if(align == "star"){
         string cmdOptions = getCmdOptions("STAR", extraOptions)
         string additionalSTARoptions = getAllOptions(cmdOptions, currentSTARoptions)
         // STAR aligning
-        string bamFile = mapSTAR(rootName, localGenomeIndex, localSAindexFile, reads, additionalSTARoptions) 
+        string getSTARexe = cmdExe{"starExe"}
+        string bamFile = mapSTAR(getSTARexe, rootName, localGenomeIndex, localSAindexFile, reads, additionalSTARoptions) 
         bamsList.add(bamFile)
     }
 }
@@ -132,7 +142,8 @@ if(count) {
     string additionalCountsOptions = getAllOptions(cmdOptions, currentCountsOptions)
 
     if(!bamsList) error "No BAM files were found, either used -align options or specify directory with BAM files using `-bamFiles path/to/you/bams/directory`"
-    string[] featureCounts = getReadsCount(bamsList, localGTF, additionalCountsOptions, threads)
+    string getCounterExe = cmdExe{"counterExe"}
+    string[] featureCounts = getReadsCount(getCounterExe, bamsList, localGTF, additionalCountsOptions, threads)
     string featureNo = featureCounts[0]
     string featureReverse = featureCounts[1]
 
@@ -145,7 +156,8 @@ if(count) {
     string NonStrandedCountsWithNames = countFiles+"/"+"NonStrandedCounts-withNames.txt"
     string ReverseStrandedCountsWithNames = countFiles+"/"+"ReverseStrandedCounts-withNames.txt"
 
-    string geneIdsFile = getGeneIds(localGTF)
+    string getPythonExe = cmdExe{"pythonExe"}
+    string geneIdsFile = getGeneIds(getPythonExe, localGTF)
 
     int numberOfBamFiles = bamsList.size()+7
     int[] theRange = range(7, numberOfBamFiles)
@@ -177,10 +189,11 @@ if(prePro) {
     // make sure we have BAM files to work with
     if(!bamsList) error "No BAM files were found, either used -align options or specify directory with BAM files using `-bamFiles path/to/you/bams/directory`"
     // make dict file if doesn't exist
-    string fastaDictFile = makeDictFile(localFastaRef)
+    string getPicardExe = cmdExe{"picardExe"}
+    string fastaDictFile = makeDictFile(getPicardExe, localFastaRef)
     // loop over BAM files do pre-processing 
     for(string bamFile : bamsList) {
-        string mdupsBam = getPrePro(bamFile, localFastaRef, fastaDictFile)
+        string mdupsBam = getPrePro(getPicardExe, bamFile, localFastaRef, fastaDictFile)
         markedBams.add(mdupsBam)
     }
 }
@@ -200,9 +213,11 @@ if(RNAseQC){
     string cmdOptions = getCmdOptions("RNAseQC", extraOptions)
     string additionalRNAseQCoptions = getAllOptions(cmdOptions, currentRNAseQCoptions)
     // make Fai file if dosen't exist
-    string fastaFaiFile = makeFaiFile(localFastaRef)
+    string getSamtoolsExe = cmdExe{"samtoolsExe"}
+    string fastaFaiFile = makeFaiFile(getSamtoolsExe, localFastaRef)
     // get RNAseQC report 
-    string qcReport = getRNAseQC(sampleIdsFile, markedBams, localFastaRef, localGTF, additionalRNAseQCoptions)
+    string getRNAseQCexe = cmdExe{"RNAseQCexe"}
+    string qcReport = getRNAseQC(getRNAseQCexe, sampleIdsFile, markedBams, localFastaRef, localGTF, additionalRNAseQCoptions)
 }
 #----------------------------------------------------------------------------------------------------
 # End

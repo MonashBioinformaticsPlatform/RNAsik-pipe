@@ -65,7 +65,7 @@ string makeLocalGTF(string gtfFile) {
     return localGTF
 }
 
-string[] makeSTARindex(string fastaRef, string additionalIndexOptions) {
+string[] makeSTARindex(string starExe, string fastaRef, string additionalIndexOptions) {
 
     string localGenomeIndex = fastaRef.removeExt()+"-starIndex"
     if(!localGenomeIndex.exists()) localGenomeIndex.mkdir()
@@ -74,30 +74,30 @@ string[] makeSTARindex(string fastaRef, string additionalIndexOptions) {
 
     //task([localGenomeIndex, starSAindexFile] <- fastaRef, mem := 40000000000, taskName := "Making STAR index") {
     task([localGenomeIndex, starSAindexFile] <- fastaRef, taskName := "Making STAR index") {
-        sys STAR --runThreadN $threads \
-                 --runMode genomeGenerate \
-                 --genomeDir $localGenomeIndex \
-                 --genomeFastaFiles $fastaRef \
-                 $additionalIndexOptions
+        sys $starExe --runThreadN $threads \
+                     --runMode genomeGenerate \
+                     --genomeDir $localGenomeIndex \
+                     --genomeFastaFiles $fastaRef \
+                     $additionalIndexOptions
     }
     return [starSAindexFile, localGenomeIndex]
 }
 // Index FASTA reference file when needed
-string makeFaiFile(string fastaRef) {
+string makeFaiFile(string samtoolsExe, string fastaRef) {
     // make a .fai string
     string fastaFaiFile = fastaRef+".fai"
     task(fastaFaiFile <- fastaRef, taskName := "Indexing FASTA file") {
-        sys samtools faidx $fastaRef
+        sys $samtoolsExe faidx $fastaRef
     }
     return fastaFaiFile
 }
 // make dictionary for picard pre-processing
-string makeDictFile(string fastaRef) {
+string makeDictFile(string picardExe, string fastaRef) {
     // make .dict string
     string fastaDictFile = fastaRef.removeExt()+".dict"
     task(fastaDictFile <- fastaRef, taskName := "Making dictionary File") {
-        sys picard CreateSequenceDictionary REFERENCE=$fastaRef \
-                                            OUTPUT=$fastaDictFile
+        sys $picardExe CreateSequenceDictionary REFERENCE=$fastaRef \
+                                                OUTPUT=$fastaDictFile
     }
     return fastaDictFile
 }

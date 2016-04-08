@@ -22,7 +22,7 @@ string fixFileNames(string rootName, string fileFix) {
     }
 }
 
-string mapSTAR(string rootName, string genomeIndex, string SAindexFile, string[] listOfReads, string starOptions) {
+string mapSTAR(string starExe, string rootName, string genomeIndex, string SAindexFile, string[] listOfReads, string starOptions) {
     #-----------------------------------------------
     # Fix file names if sample names file was given
     #-----------------------------------------------
@@ -49,12 +49,12 @@ string mapSTAR(string rootName, string genomeIndex, string SAindexFile, string[]
     string reads = listOfReads.join(" ")
     //task(bamOut <- [genomeIndex, SAindexFile], cpu := 32, taskName := "STAR aligning "+rootBase) {
     task(bamOut <- [genomeIndex, SAindexFile], taskName := "STAR aligning "+rootBase) {
-        sys STAR --runThreadN $threads \
-                 --genomeDir $genomeIndex \
-                 --outSAMattrRGline ID:001 CN:Unknown DS:RNA-seq PL:ILLUMINA PM:MiSeq SM:$rootBase \
-                 --readFilesIn $reads \
-                 --outFileNamePrefix $preFix \
-                 $starOptions
+        sys $starExe --runThreadN $threads \
+                     --genomeDir $genomeIndex \
+                     --outSAMattrRGline ID:001 CN:Unknown DS:RNA-seq PL:ILLUMINA PM:MiSeq SM:$rootBase \
+                     --readFilesIn $reads \
+                     --outFileNamePrefix $preFix \
+                     $starOptions
                  
     }
     wait

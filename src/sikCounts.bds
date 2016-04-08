@@ -10,7 +10,7 @@ if((!countFiles.exists()) && (count)) countFiles.mkdir()
 #------
 # Body
 #------
-string[] getReadsCount(string[] bamsList, string gtfFile, string additionalArgs, int threads) {
+string[] getReadsCount(string counterExe, string[] bamsList, string gtfFile, string additionalArgs, int threads) {
 
     int featureThreads
     if(threads == 1) featureThreads = threads
@@ -20,7 +20,7 @@ string[] getReadsCount(string[] bamsList, string gtfFile, string additionalArgs,
 
     string ReverseStrandedCounts = countFiles+"/"+"ReverseStrandedCounts.txt"
     task(ReverseStrandedCounts <- bamFiles, taskName := "Counting features") {
-        sys featureCounts -T $featureThreads \
+        sys $counterExe -T $featureThreads \
                           -s 2 \
                           $additionalArgs \
                           -a $gtfFile \
@@ -29,7 +29,7 @@ string[] getReadsCount(string[] bamsList, string gtfFile, string additionalArgs,
     }
     string NonStrandedCounts = countFiles+"/"+"NonStrandedCounts.txt"
     task(NonStrandedCounts <- bamFiles, taskName := "Counting features") {
-        sys featureCounts -T $featureThreads \
+        sys $counterExe -T $featureThreads \
                           -s 0 \
                           $additionalArgs \
                           -a $gtfFile \
@@ -39,19 +39,13 @@ string[] getReadsCount(string[] bamsList, string gtfFile, string additionalArgs,
     return [NonStrandedCounts, ReverseStrandedCounts] 
 }
 
-string getGeneIds(string gtfFile){
+string getGeneIds(string pythonExe, string gtfFile){
     string getProgPath = programPath.pathName()
-
-    string makeDB = getProgPath+"/../scripts/make-gtf-db.py" 
-    string dbName = gtfFile.baseName().removeExt()+'.db'
-    task(dbName <- gtfFile, taskName := "Making db file"){
-        sys python $makeDB $gtfFile $dbName
-    }
 
     string getGeneIds = getProgPath+"/../scripts/getGeneIds.py"
     string geneIds = "geneIds.txt"
-    task(geneIds <- dbName, taskName := "getting geneIds.txt file") {
-        sys python $getGeneIds --dbFile $dbName > $geneIds
+    task(geneIds <- gtfFile, taskName := "getting geneIds.txt file") {
+        sys $pythonExe $getGeneIds --gtfFile $gtfFile > $geneIds
     }
 
     return geneIds

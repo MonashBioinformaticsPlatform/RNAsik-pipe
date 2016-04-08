@@ -1,52 +1,60 @@
 #!/usr/bin/env python
 # -*- coding: iso-8859-15 -*-
 
-# (+_+)
+import argparse
+import sys
+import os
+import re
 
-import argparse, sys, os, re, gffutils
-
-# Create optional arguments using argparse module
-parser = argparse.ArgumentParser(usage='%(prog)s --dbFile <path/to/your/db_file>',
+parser = argparse.ArgumentParser(usage='%(prog)s --gtfFile <path/to/your/db_file>',
                                  description="This script creates three column file Gene ID, Gene Name and Gene Biotype",
                                  add_help=True
                                  )
-parser.add_argument('--dbFile',
+parser.add_argument('--gtfFile',
                     required = True,
-                    help="specify path/to/databaseFile. You can make such file using python `gffutils` library.\
-                          This is augment your merged read count file with other informatin, such as\
-                          Public gene names and Biotype"
+                    help=""
                     )
 
 args = parser.parse_args()
-dbFile = args.dbFile
-
-db = gffutils.FeatureDB(dbFile, keep_order=True)
-features = db.all_features()
+gtfFile = args.gtfFile
 
 genesAttributes = {}
 
-for i in features:
-    line = i.attributes
-    geneId = line['gene_id'].pop()
+biotypes = {
+    "gb": 'gene_biotype',
+    "gt": 'gene_type',
+    "tb": 'transcript_biotype',
+    "tt": 'transcript_type'
+    }
 
-    if line.get('gene_name'):
-        geneName = line['gene_name'].pop()
-    else:
-        geneName = 'NA'
+typesRegex = "\s.([A-z0-9_.-]+)"
 
-    if line.get('gene_biotype'):
-        geneType = line['gene_biotype'].pop()
-    else:
-        geneType = 'NA'
+for key, value in biotypes.items():
+    tweak = value + typesRegex
+    biotypes[key]=tweak
+    
+with open(gtfFile) as features:
+    for i in features:
 
-    if geneId not in genesAttributes:
-        genesAttributes[geneId] = [geneName, geneType]
+        ninthField = i.split('\t')[8]
+        geneId = re.search('gene_id\s.([A-z0-9]+)', ninthField)
+        geneName = re.search('gene_name\s.([A-z0-9_.-]+)', ninthField)
+        geneBiotype = ''
 
+        for value in biotypes.values():
+            checkBiotype = re.search(value, ninthField)
+            if checkBiotype:
+                geneBiotype = checkBiotype
+
+        if geneId:
+            if geneId.group(1) not in genesAttributes:
+                genesAttributes[geneId.group(1)] = []
+                genesAttributes[geneId.group(1)].append(geneName.group(1))
+                genesAttributes[geneId.group(1)].append(geneBiotype.group(1))
+        
 header = True
-
-for k,v in genesAttributes.items():
+for key, value in genesAttributes.items():
     if header:
         print '\t'.join(("Gene.ID", "Gene.Name", "Biotype"))
         header = False
-    items = '\t'.join(v)
-    print '\t'.join((k, items))
+    print '\t'.join((key, value[0], value[1]))
