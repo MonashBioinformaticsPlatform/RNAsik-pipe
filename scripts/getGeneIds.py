@@ -35,22 +35,22 @@ for key, value in biotypes.items():
     
 with open(gtfFile) as features:
     for i in features:
+        if not i.startswith("#"):
+            ninthField = i.split('\t')[8]
+            geneId = re.search('gene_id\s.([A-z0-9]+)', ninthField)
+            geneName = re.search('gene_name\s.([A-z0-9_.-]+)', ninthField)
+            geneBiotype = ''
 
-        ninthField = i.split('\t')[8]
-        geneId = re.search('gene_id\s.([A-z0-9]+)', ninthField)
-        geneName = re.search('gene_name\s.([A-z0-9_.-]+)', ninthField)
-        geneBiotype = ''
+            for value in biotypes.values():
+                checkBiotype = re.search(value, ninthField)
+                if checkBiotype:
+                    geneBiotype = checkBiotype
 
-        for value in biotypes.values():
-            checkBiotype = re.search(value, ninthField)
-            if checkBiotype:
-                geneBiotype = checkBiotype
-
-        if geneId:
-            if geneId.group(1) not in genesAttributes:
-                genesAttributes[geneId.group(1)] = []
-                genesAttributes[geneId.group(1)].append(geneName.group(1))
-                genesAttributes[geneId.group(1)].append(geneBiotype.group(1))
+            if geneId:
+                if geneId.group(1) not in genesAttributes:
+                    genesAttributes[geneId.group(1)] = []
+                    genesAttributes[geneId.group(1)].append(geneName.group(1))
+                    genesAttributes[geneId.group(1)].append(geneBiotype.group(1))
         
 header = True
 for key, value in genesAttributes.items():

@@ -40,7 +40,7 @@ string getProgPath = programPath.pathName()
 string getConfigFile = getProgPath+"/../sik.config"
 string{} cmdExe
 if(!configFile.isEmpty()) cmdExe = config(configFile)
-else cmdExe = config(configFile)
+else cmdExe = config(getConfigFile)
 #------------------------------
 # Global Variables
 #------------------------------
