@@ -41,41 +41,40 @@ string[] getAllFastqFiles(string fqDir, string extn) {
     return allFastqFiles
 }
 // This function fill fix FASTQ files prefix 
-string getSampleName(string fqFile, string samplesSheet) {
+string getSampleName(string fqRoot, string samplesSheet) {
     // if smaplesSheet found, change prefix from old to new
     if(!samplesSheet.isEmpty()) {
         for(string line : samplesSheet.readLines()){
             string[] namesList = line.split("\t")
             string oldNamePrefix = namesList[0]
             string newNamePrefix = namesList[1]
-            string preFixIndex = fqFile.indexOf(oldNamePrefix)
+            string preFixIndex = fqRoot.indexOf(oldNamePrefix)
             if(preFixIndex != -1){
-                string fixedFileName = fqFile.replace(oldNamePrefix, newNamePrefix)
+                string fixedFileName = fqRoot.replace(oldNamePrefix, newNamePrefix)
                 return fixedFileName
             }
         }
     }
     // if samplesSheet isn't found i.e isn't passed in through cmd line
     // then simply return original FASTQ file
-    else return fqFile
+    else return fqRoot
 }
-// takes a list of FASTQ files, looping over an individual file and
-// checking for new prefix, if found FASTQ file prefix is changed
-string[] changeSampleNames(string[] fqFiles, string samplesSheet) {
-    // initialise empty list
-    string[] changedFqs
-    for(string fq : fqFiles) {
-    	string changedFq = getSampleName(fq, samplesSheet)
-    	changedFqs.add(changedFq)
+// takes fqMap, loop through the keys and if samplesSheet is given
+// change the keys accordingly
+string{} getReNamedMap(string{} fqMap, string samplesSheet) {
+    string{} reNamedMap
+    for(string fqKey : fqMap.keys()) {
+    	string newKey = getSampleName(fqKey, samplesSheet)
+        reNamedMap{newKey} = fqMap{fqKey}
     }
-    return changedFqs
+    return reNamedMap
 }
 // This function return hash with key set to root name 
 // and value is the list of all associated FASTQ files
 // that are spread across multiple lane during sequencing
-string{} getUniqueNames(string[] fqFiles, string fqRegex, string extn) {
+string{} getFqMap(string[] fqFiles, string fqRegex, string extn) {
     # Map with unique root key
-    string{} uniqueNames
+    string{} fqMap
     # loop over FASTQ files
     for(string fq : fqFiles) {
         int getR1Index = fq.lastIndexOf("_R1")
@@ -86,8 +85,8 @@ string{} getUniqueNames(string[] fqFiles, string fqRegex, string extn) {
             string[] getFile = fq.split(fqRegex)
             string rootName = getFile[0].baseName()
             # append to the list if it isn't in the list already
-            if(!uniqueNames.hasKey(rootName)) uniqueNames{rootName}=""
-            uniqueNames{rootName}+=fq+","
+            if(!fqMap.hasKey(rootName)) fqMap{rootName}=""
+            fqMap{rootName}+=fq+","
         }
         # Sometime data doesn't have neither R1 nor R2 in the file name
         # this block will insure that RNAsik-pipe still works correctly
@@ -96,11 +95,11 @@ string{} getUniqueNames(string[] fqFiles, string fqRegex, string extn) {
                 string[] getFile = fq.split(fqRegex)
                 string rootName = getFile[0].baseName()
                 # append to the list if it isn't in the list already
-                if(!uniqueNames.hasKey(rootName)) uniqueNames{rootName}=""
-                uniqueNames{rootName}+=fq+","
+                if(!fqMap.hasKey(rootName)) fqMap{rootName}=""
+                fqMap{rootName}+=fq+","
         }
     }
-    return uniqueNames
+    return fqMap
 }
 
 string[] getFqReadsStats(string fqDir, string extn) {

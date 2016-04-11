@@ -94,26 +94,24 @@ if(!makeIndex) localGenomeIndex = genomeIndex
 #------------------------------
 if(align == "star"){
     // grab all FASTQ files
-    string[] fqs = getAllFastqFiles(fqDir, extn)
-    // change FASTQ files prefix as per samplesSheet
-    // if samplesSheet isn't give, FASTQ come back unchanged
-    string[] changedFqs = changeSampleNames(fqs, samplesSheet)
-    string{} uniqueNames = getUniqueNames(changedFqs, fqRegex, extn)
-    if(!uniqueNames) error "It appears that you don't have any FASTQ files specified. Check -fqDir path and make sure it point to FASTQ files directory"
+    string[] fqFiles = getAllFastqFiles(fqDir, extn)
+    string{} fqMap = getFqMap(fqFiles, fqRegex, extn)
+    string{} reNamedMap = getReNamedMap(fqMap, samplesSheet)
+    if(!reNamedMap) error "It appears that you don't have any FASTQ files specified. Check -fqDir path and make sure it point to FASTQ files directory"
     // This returns a list with first item being a stats string and second a bool for checkPair
     string[] getStats = getFqReadsStats(fqDir, extn)
     checkPair = getStats.pop().parseBool()
     // get STAR executable 
     string getSTARexe = cmdExe{"starExe"}
     
-    for(string rootName : uniqueNames.keys()) {
+    for(string rootName : reNamedMap.keys()) {
         string[] reads 
         // get value for each key and break values into list
         string singleEndValues
         string pairedEndValues
 
         if(checkPair) {
-            singleEndValues = uniqueNames{rootName} 
+            singleEndValues = reNamedMap{rootName} 
             pairedEndValues = singleEndValues.replace("_R1", "_R2")
 
             int getSingleLength = singleEndValues.length()-1
@@ -126,7 +124,7 @@ if(align == "star"){
             reads.add(cleanPaired)
         }
         else {
-            singleEndValues = uniqueNames{rootName} 
+            singleEndValues = reNamedMap{rootName} 
             int getSingleLength = singleEndValues.length()-1
             string cleanSingle = singleEndValues.substr(0,getSingleLength)
             reads.add(cleanSingle)
