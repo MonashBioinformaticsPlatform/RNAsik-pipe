@@ -76,19 +76,19 @@ if(makeIndex){
 }
 // set global genomeIndex variable
 if(!makeIndex) localGenomeIndex = genomeIndex
-#------------------------------
-# fastQC report
-#------------------------------
-if(fastqc) { 
-    string[] fqs = getAllFastqFiles(fqDir, extn)
-    // change FASTQ files prefix as per samplesSheet
-    // if samplesSheet isn't give, FASTQ come back unchanged
-    string[] changedFqs = changeSampleNames(fqs, samplesSheet)
-    if(!changedFqs) error "It appears that you don't have any FASTQ files specified. Check -fqDir path and make sure it point to FASTQ files directory"
-    string getFastqcExe = cmdExe{"fastqcExe"}
-    string fqcReport = getFastqcReport(getFastqcExe, chagnedFqs, threads)
-    wait
-}
+//#------------------------------
+//# fastQC report
+//#------------------------------
+//if(fastqc) { 
+//    string[] fqs = getAllFastqFiles(fqDir, extn)
+//    // change FASTQ files prefix as per samplesSheet
+//    // if samplesSheet isn't give, FASTQ come back unchanged
+//    string[] changedFqs = changeSampleNames(fqs, samplesSheet)
+//    if(!changedFqs) error "It appears that you don't have any FASTQ files specified. Check -fqDir path and make sure it point to FASTQ files directory"
+//    string getFastqcExe = cmdExe{"fastqcExe"}
+//    string fqcReport = getFastqcReport(getFastqcExe, changedFqs, threads)
+//    wait
+//}
 #------------------------------
 # BAM generation step
 #------------------------------
@@ -188,6 +188,15 @@ if(count) {
         sys grep -v "Biotype" $tmp2Reverse >> $ReverseStrandedCountsWithNames
         sys rm $tmp2Reverse
     }
+    wait
+}
+#------------------------------
+# fastQC report
+#------------------------------
+if(fastqc) { 
+    if(!bamsList) error "It appears that you don't have any bam files specified."
+    string getFastqcExe = cmdExe{"fastqcExe"}
+    string fqcReport = getFastqcReport(getFastqcExe, bamsList, threads)
     wait
 }
 #------------------------------
