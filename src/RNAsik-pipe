@@ -80,10 +80,13 @@ if(!makeIndex) localGenomeIndex = genomeIndex
 # fastQC report
 #------------------------------
 if(fastqc) { 
-    string[] allFastqFiles = getAllFastqFiles(fqDir, extn)
-    if(!allFastqFiles) error "It appears that you don't have any FASTQ files specified. Check -fqDir path and make sure it point to FASTQ files directory"
+    string[] fqs = getAllFastqFiles(fqDir, extn)
+    // change FASTQ files prefix as per samplesSheet
+    // if samplesSheet isn't give, FASTQ come back unchanged
+    string[] changedFqs = changeSampleNames(fqs, samplesSheet)
+    if(!changedFqs) error "It appears that you don't have any FASTQ files specified. Check -fqDir path and make sure it point to FASTQ files directory"
     string getFastqcExe = cmdExe{"fastqcExe"}
-    string fqcReport = getFastqcReport(getFastqcExe, allFastqFiles, threads)
+    string fqcReport = getFastqcReport(getFastqcExe, chagnedFqs, threads)
     wait
 }
 #------------------------------
