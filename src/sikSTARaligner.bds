@@ -1,41 +1,12 @@
 #------------------------------
-# Functions
-#------------------------------
-
-#------------------------------
 # Make directories as required
 #------------------------------
 string bamFiles = "bamFiles"
 if((!bamFiles.exists()) && (align == "star")) bamFiles.mkdir()
 #----------------------------------------------------------------------------------------------------
-// This function fill fix bam files prefix 
-string fixFileNames(string rootName, string fileFix) {
-    for(string line : fileFix.readLines()){
-        string[] namesList = line.split("\t")
-        string oldNamePrefix = namesList[0]
-        string newNamePrefix = namesList[1]
-        string preFixIndex = rootName.indexOf(oldNamePrefix)
-        if(preFixIndex != -1){
-            string fixedFileName = rootName.replace(oldNamePrefix, newNamePrefix)
-            return fixedFileName
-        }
-    }
-}
-
 string mapSTAR(string starExe, string rootName, string genomeIndex, string SAindexFile, string[] listOfReads, string starOptions) {
-    #-----------------------------------------------
-    # Fix file names if sample names file was given
-    #-----------------------------------------------
-    string fixedFileName
-    
-    if(!sampleNames.isEmpty()){
-        fixedFileName = fixFileNames(rootName, sampleNames)
-    }
-    else{
-        fixedFileName = rootName
-    }
-    #-----------------------------------------------
-    string rootBase = fixedFileName.baseName()
+
+    string rootBase = rootName.baseName()
     string preFix = bamFiles+"/"+rootBase+"_"
     
     string bamOut

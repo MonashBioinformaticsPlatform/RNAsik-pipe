@@ -24,9 +24,9 @@ if(align == "star") {
 }
 if( (align.isEmpty()) && (!args.isEmpty()) && (!checkPair) ) warning "There is no information about paired end status, -checkPair is set to $checkPair, if your data is paired end use -checkPair on the command line to indicate this"
 //
-if(!sampleNames.isEmpty()){
-    bool checkType = sampleNames.isFile()
-    if(!checkType) error "-sampleNames doesn't appear to be pointing at the valid file, double check your path $sampleNames"
+if(!samplesSheet.isEmpty()){
+    bool checkType = samplesSheet.isFile()
+    if(!checkType) error "-samplesSheet doesn't appear to be pointing at the valid file, double check your path $samplesSheet"
 }
 if(!fqDir.isEmpty()){
     bool checkFqDir = fqDir.isDir()
@@ -78,7 +78,7 @@ string checkCmdArgs() {
                         "-RNAseQC", \
                         "-threads", \
                         "-extn", \
-                        "-sampleNames", \
+                        "-samplesSheet", \
                         "-extraOptions", \
                         "-checkPair", \
                         "-bamFiles", \

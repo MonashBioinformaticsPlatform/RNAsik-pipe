@@ -1,7 +1,6 @@
 #------------------------
 # Organising FASTQ files 
 #------------------------
-
 // This function loops over directory
 // and returns list of FASTQ files
 string[] getFastqFiles(string dir, string extn) {
@@ -12,7 +11,6 @@ string[] getFastqFiles(string dir, string extn) {
     }
     return fqFiles
 }
-
 // This function return all FASTQ files found in the current directory
 // and all sub directories
 // only looks one level deep
@@ -33,7 +31,7 @@ string[] getAllFastqFiles(string fqDir, string extn) {
         # otherwise check if the file is FASTQ file 
         # and append FASTQ file to a list
         else {
-            bool fqFile = item.endsWith("fastq.gz")
+            bool fqFile = item.endsWith(extn)
             if(fqFile) {
                 allFastqFiles.add(item)
             }
@@ -42,18 +40,44 @@ string[] getAllFastqFiles(string fqDir, string extn) {
     # return all FASTQ file found
     return allFastqFiles
 }
-
-# This function return hash with key set to root name 
-# and value is the list of all associated FASTQ files
-# that are spread across multiple lane during sequencing
-string{} getUniqueNames(string fqDir, string fqRegex, string extn) {
-    # get list of all FASTQ files
-    string[] fqList = getAllFastqFiles(fqDir, extn) 
+// This function fill fix FASTQ files prefix 
+string getSampleName(string fqFile, string samplesSheet) {
+    // if smaplesSheet found, change prefix from old to new
+    if(!samplesSheet.isEmpty()) {
+        for(string line : samplesSheet.readLines()){
+            string[] namesList = line.split("\t")
+            string oldNamePrefix = namesList[0]
+            string newNamePrefix = namesList[1]
+            string preFixIndex = fqFile.indexOf(oldNamePrefix)
+            if(preFixIndex != -1){
+                string fixedFileName = fqFile.replace(oldNamePrefix, newNamePrefix)
+                return fixedFileName
+            }
+        }
+    }
+    // if samplesSheet isn't found i.e isn't passed in through cmd line
+    // then simply return original FASTQ file
+    else return fqFile
+}
+// takes a list of FASTQ files, looping over an individual file and
+// checking for new prefix, if found FASTQ file prefix is changed
+string[] changeSampleNames(string[] fqFiles, string samplesSheet) {
+    // initialise empty list
+    string[] changedFqs
+    for(string fq : fqFiles) {
+    	string changedFq = getSampleName(fq, samplesSheet)
+    	changedFqs.add(changedFq)
+    }
+    return changedFqs
+}
+// This function return hash with key set to root name 
+// and value is the list of all associated FASTQ files
+// that are spread across multiple lane during sequencing
+string{} getUniqueNames(string[] fqFiles, string fqRegex, string extn) {
     # Map with unique root key
     string{} uniqueNames
     # loop over FASTQ files
-    for(string fq : fqList) {
-
+    for(string fq : fqFiles) {
         int getR1Index = fq.lastIndexOf("_R1")
         int getR2Index = fq.lastIndexOf("_R2")
 

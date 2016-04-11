@@ -45,6 +45,9 @@ else cmdExe = config(getConfigFile)
 # Global Variables
 #------------------------------
 # set locaGenomeIndex 
+//TODO check how and when localSAindex is made, it looks like a bug,
+// looks like if -makeIndex isn't specified localSAindex will be an empty string
+// I think you can remove localSAindex all together 
 string localGenomeIndex
 string localSAindexFile 
 //string  list of bam files from STAR run
@@ -71,10 +74,8 @@ if(makeIndex){
     localSAindexFile = localIndexList[0]
     localGenomeIndex = localIndexList[1]
 }
-
 // set global genomeIndex variable
 if(!makeIndex) localGenomeIndex = genomeIndex
-
 #------------------------------
 # fastQC report
 #------------------------------
@@ -89,15 +90,22 @@ if(fastqc) {
 # BAM generation step
 #------------------------------
 if(align == "star"){
-    string{} uniqueNames = getUniqueNames(fqDir, fqRegex, extn)
+    // grab all FASTQ files
+    string[] fqs = getAllFastqFiles(fqDir, extn)
+    // change FASTQ files prefix as per samplesSheet
+    // if samplesSheet isn't give, FASTQ come back unchanged
+    string[] changedFqs = changeSampleNames(fqs, samplesSheet)
+    string{} uniqueNames = getUniqueNames(changedFqs, fqRegex, extn)
     if(!uniqueNames) error "It appears that you don't have any FASTQ files specified. Check -fqDir path and make sure it point to FASTQ files directory"
     // This returns a list with first item being a stats string and second a bool for checkPair
     string[] getStats = getFqReadsStats(fqDir, extn)
     checkPair = getStats.pop().parseBool()
+    // get STAR executable 
+    string getSTARexe = cmdExe{"starExe"}
     
     for(string rootName : uniqueNames.keys()) {
         string[] reads 
-        # get value for each key and break values into list
+        // get value for each key and break values into list
         string singleEndValues
         string pairedEndValues
 
@@ -126,7 +134,6 @@ if(align == "star"){
         string cmdOptions = getCmdOptions("STAR", extraOptions)
         string additionalSTARoptions = getAllOptions(cmdOptions, currentSTARoptions)
         // STAR aligning
-        string getSTARexe = cmdExe{"starExe"}
         string bamFile = mapSTAR(getSTARexe, rootName, localGenomeIndex, localSAindexFile, reads, additionalSTARoptions) 
         bamsList.add(bamFile)
     }
