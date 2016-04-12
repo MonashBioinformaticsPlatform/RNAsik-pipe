@@ -49,7 +49,7 @@ string getFastqcReport(string fastqcExe, string[] fqFiles, int threads){
     task(fastqcReport <- fqFiles, taskName := "Running FASTQC") { 
         sys $fastqcExe --threads $newThreads \
                        --outdir $fastqcReport \
-                       --format bam_mapped \
+                       --format fastq \
                        $fqs
     }
     return "all done"

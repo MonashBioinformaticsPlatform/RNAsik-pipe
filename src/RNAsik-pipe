@@ -192,9 +192,10 @@ if(count) {
 # fastQC report
 #------------------------------
 if(fastqc) { 
-    if(!bamsList) error "It appears that you don't have any bam files specified."
+    string[] fqFiles = getAllFastqFiles(fqDir, extn)
+    if(!fqFiles) error "It appears that you don't have any FASTQ files specified."
     string getFastqcExe = cmdExe{"fastqcExe"}
-    string fqcReport = getFastqcReport(getFastqcExe, bamsList, threads)
+    string fqcReport = getFastqcReport(getFastqcExe, fqFiles, threads)
     wait
 }
 #------------------------------
