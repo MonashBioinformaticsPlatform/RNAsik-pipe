@@ -31,7 +31,9 @@ string[] getAllFastqFiles(string fqDir, string extn) {
         # otherwise check if the file is FASTQ file 
         # and append FASTQ file to a list
         else {
-            bool fqFile = item.endsWith(extn)
+            int getIdx = extn.indexOf("*")
+            string getEnding = extn.substr(getIdx+1)
+            bool fqFile = item.endsWith(getEnding)
             if(fqFile) {
                 allFastqFiles.add(item)
             }
