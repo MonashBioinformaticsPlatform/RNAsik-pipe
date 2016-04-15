@@ -41,7 +41,6 @@ string[] getReadsCount(string counterExe, string[] bamsList, string gtfFile, str
 
 string getGeneIds(string pythonExe, string gtfFile){
     string getProgPath = programPath.pathName()
-
     string getGeneIds = getProgPath+"/../scripts/getGeneIds.py"
     string geneIds = "geneIds.txt"
     task(geneIds <- gtfFile, taskName := "getting geneIds.txt file") {

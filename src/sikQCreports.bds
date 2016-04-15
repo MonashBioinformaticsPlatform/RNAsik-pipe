@@ -20,14 +20,21 @@ string getSampleIds(string[] markedBams){
 }
 
 string getRNAseQC(string RNAseQCexe, string sampleIdsFile, string[] markedBams, string fastaRef, string localGTF, string additionalRNAseQCoptions){
+
+    string getProgPath = programPath.pathName()
+    string getCmd = getProgPath+"/../scripts/checkBiotype.bash"
+    // assuming that refFiles have been created, which is should have been
+    string gtfQC = "refFile/"+localGTF.baseName().removeExt()+"/"+"-RNAseQC.gtf"
+    
     string RNAseQCreport = "RNAseQC-report"
-    //task(RNAseQCreport <- [markedBams, sampleIdsFile, fastaFaiFile], mem = 10000000000, taskName := "Running RNAseQC report"){
-    //task(RNAseQCreport <- [markedBams, fastaRef, fastaFai, sampleIdsFile], taskName := "Running RNAseQC report"){
+
     task(RNAseQCreport <- markedBams, taskName := "Running RNAseQC report"){
+	sys grep -v -P "\tgene\t" $localGTF > $gtfQC
+        sys /bin/bash $getCmd $gtfQC
         sys $RNAseQCexe -o $RNAseQCreport \
                         -r $fastaRef \
                         -s $sampleIdsFile\
-                        -t $localGTF\
+                        -t $gtfQC\
                         $additionalRNAseQCoptions
     }
     return "all good"
