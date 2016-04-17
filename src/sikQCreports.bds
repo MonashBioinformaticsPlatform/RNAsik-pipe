@@ -24,7 +24,7 @@ string getRNAseQC(string RNAseQCexe, string sampleIdsFile, string[] markedBams, 
     string getProgPath = programPath.pathName()
     string getCmd = getProgPath+"/../scripts/checkBiotype.bash"
     // assuming that refFiles have been created, which is should have been
-    string gtfQC = "refFile/"+localGTF.baseName().removeExt()+"-RNAseQC.gtf"
+    string gtfQC = "refFiles/"+localGTF.baseName().removeExt()+"-RNAseQC.gtf"
     
     string RNAseQCreport = "RNAseQC-report"
 
