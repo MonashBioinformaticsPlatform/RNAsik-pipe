@@ -184,7 +184,7 @@ if(count) {
         sys /bin/bash -c "join -j 1 <(sort -k1,1 $geneIdsFile) <(sort -k1,1 $tmpReverse) -t $'\t' > $tmp2Reverse"
         sys grep "Biotype" $tmp2Reverse > $ReverseStrandedCountsWithNames
         sys grep -v "Biotype" $tmp2Reverse >> $ReverseStrandedCountsWithNames
-        sys rm $tmp2Reverse
+        sys rm $tmpReverse $tmp2Reverse
     }
     wait
 }
