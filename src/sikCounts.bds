@@ -10,7 +10,8 @@ if((!countFiles.exists()) && (count)) countFiles.mkdir()
 #------
 # Body
 #------
-string[] getReadsCount(string counterExe, string[] bamsList, string gtfFile, string additionalArgs, int threads) {
+//string[] getReadsCount(string counterExe, string[] bamsList, string gtfFile, string additionalArgs, int threads) {
+string[] getReadsCount(string counterExe, string[] bamsList, string additionalArgs, int threads) {
 
     int featureThreads
     if(threads == 1) featureThreads = threads
@@ -23,28 +24,32 @@ string[] getReadsCount(string counterExe, string[] bamsList, string gtfFile, str
         sys $counterExe -T $featureThreads \
                           -s 2 \
                           $additionalArgs \
-                          -a $gtfFile \
                           -o $ReverseStrandedCounts \
                           $bamString
     }
+                          //-a $gtfFile \
     string NonStrandedCounts = countFiles+"/"+"NonStrandedCounts.txt"
     task(NonStrandedCounts <- bamFiles, taskName := "Counting features") {
         sys $counterExe -T $featureThreads \
                           -s 0 \
                           $additionalArgs \
-                          -a $gtfFile \
                           -o $NonStrandedCounts \
                           $bamString
     }
     return [NonStrandedCounts, ReverseStrandedCounts] 
 }
 
-string getGeneIds(string pythonExe, string gtfFile){
+string getGeneIds(string pythonExe, string gtfFile, bool setGFF){
     string getProgPath = programPath.pathName()
+    string pyFlag
+    if(setGFF){
+	    pyFlag = '--gffFile'
+    }
+    else pyFlag = '--gtfFile'
     string getGeneIds = getProgPath+"/../scripts/getGeneIds.py"
     string geneIds = "geneIds.txt"
     task(geneIds <- gtfFile, taskName := "getting geneIds.txt file") {
-        sys $pythonExe $getGeneIds --gtfFile $gtfFile > $geneIds
+        sys $pythonExe $getGeneIds $pyFlag $gtfFile > $geneIds
     }
 
     return geneIds

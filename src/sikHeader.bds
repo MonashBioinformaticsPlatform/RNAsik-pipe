@@ -79,3 +79,5 @@ string localGTF
 string proBams
 # Get general info about tools versions and files used 
 //string generalInfo = getInfo()
+// setting GFF to false, default is GTF format
+bool setGFF = false
