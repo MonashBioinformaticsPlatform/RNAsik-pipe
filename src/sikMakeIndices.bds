@@ -12,75 +12,76 @@ if( (!refFiles.exists()) && ( (makeIndex) || (count) || (align == "star") || (RN
 # Body
 #------
 string makeLocalFastaRef(string fastaRef) {
+    // initialise localFastaRef 
     string localFastaRef
-
-    bool gZipped
+    // at this stage its unknown if Fasta is zipped or not
+    string tmpFasta = refFiles+"/"+fastaRef.baseName()
+    // copy Fasta to a local refFiles directory
+    task(tmpFasta <- fastaRef, taskName := "Copying FASTA file") {
+        sys echo $(date) Copying FASTA file, be patient
+        sys cp -v $fastaRef $refFiles
+    }
+    // check if Fasta is gunzip ed or not
     string getExtn = fastaRef.extName()
-
+    // gunzip it if it is
     if(getExtn == "gz") {
+	// set localGTF 
 	localFastaRef = refFiles+"/"+fastaRef.baseName().removeExt()
-        gZipped = true
+        task(localFastaRef <- tmpFasta, taskName := "gunzip ing FASTA file") {
+            sys echo $(date) Also gunzip ing your FASTA file
+            sys gunzip $tmpFasta
+        }
     } 
-    else localFastaRef = refFiles+"/"+fastaRef.baseName()
-
-    if(gZipped) {
-        task(localFastaRef <- fastaRef, taskName := "Copying FASTA file") {
-            sys echo $(date) Copying FASTA file, be patient; cp -v $fastaRef $refFiles; echo $(date) Also unzipping your FASTA file; gunzip $localFastaRef
-        }
-    }
-    else {
-        task(localFastaRef <- fastaRef, taskName := "Copying FASTA file") {
-            sys echo $(date) Copying FASTA file, be patient; cp -v $fastaRef $refFiles
-        }
-
-    }
+    // if Fasta isn't gunzip ed simply assign it to localFastaRef
+    else localFastaRef = tmpFasta
+    
     return localFastaRef
 }
 
 string makeLocalGTF(string gtfFile) {
-
+    // initialise localGTF 
     string localGTF
-
-    bool gZipped
-    string getExtn = gtfFile.extName()
-
+    // at this stage its unknown if GTF is zipped or not
+    string tmpGTF = refFiles+"/"+gtfFile.baseName()
+    // copy GTF to a local refFiles directory
+    task(tmpGTF <- gtfFile, taskName := "Copying GTF file") {
+        sys echo $(date) Copying GTF file, be patient
+        sys cp -v $gtfFile $refFiles
+    }
+    // check if GTF is gunzip ed or not
+    string getExtn = tmpGTF.extName()
+    // gunzip it if it is
     if(getExtn == "gz") {
+	// set localGTF 
         localGTF = refFiles+"/"+gtfFile.baseName().removeExt()
-        gZipped = true
+        task(localGTF <- tmpGTF, taskName := "gunzip ing GTF file") {
+            sys echo $(date) Also gunzip ing your GTF file
+            sys gunzip $tmpGTF
+        }
     } 
-    else localGTF = refFiles+"/"+gtfFile.baseName()
-
-    if(gZipped) {
-        task(localGTF <- gtfFile, taskName := "Copying GTF file") {
-            sys echo $(date) Copying GTF file, be patient; cp -v $gtfFile $refFiles; echo $(date) Also unzipping your GTF file; gunzip $localGTF
-        }
-    }
-
-    if(!gZipped) {
-        task(localGTF <- gtfFile, taskName := "Copying GTF file") {
-            sys echo $(date) Copying GTF file, be patient; cp -v $gtfFile $refFiles
-        }
-    }
-
+    // if GTF isn't gunzip ed simply assign it to localGTF
+    else localGTF = tmpGTF
+    
     return localGTF
 }
 
-string[] makeSTARindex(string starExe, string fastaRef, string additionalIndexOptions) {
+//string[] makeSTARindex(string starExe, string fastaRef, string additionalIndexOptions) {
+string makeSTARindex(string starExe, string fastaRef, string additionalIndexOptions) {
 
     string localGenomeIndex = fastaRef.removeExt()+"-starIndex"
     if(!localGenomeIndex.exists()) localGenomeIndex.mkdir()
 
-    string starSAindexFile = localGenomeIndex+"/"+"SAindex"
+    //string starSAindexFile = localGenomeIndex+"/"+"SAindex"
 
-    //task([localGenomeIndex, starSAindexFile] <- fastaRef, mem := 40000000000, taskName := "Making STAR index") {
-    task([localGenomeIndex, starSAindexFile] <- fastaRef, taskName := "Making STAR index") {
+    task(localGenomeIndex <- fastaRef, taskName := "Making STAR index") {
         sys $starExe --runThreadN $threads \
                      --runMode genomeGenerate \
                      --genomeDir $localGenomeIndex \
                      --genomeFastaFiles $fastaRef \
                      $additionalIndexOptions
     }
-    return [starSAindexFile, localGenomeIndex]
+    //return [starSAindexFile, localGenomeIndex]
+    return localGenomeIndex
 }
 // Index FASTA reference file when needed
 string makeFaiFile(string samtoolsExe, string fastaRef) {
