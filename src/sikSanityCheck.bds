@@ -62,7 +62,7 @@ if( args.isEmpty() ) {
     printHelp()
     exit(1)
 }
-//
+// this functions checks if all arguments on the cmd are right
 string checkCmdArgs() {
     // list of allowed command line options
     string[] sikArgs = ["-makeIndex", \

@@ -10,7 +10,6 @@ if((!countFiles.exists()) && (count)) countFiles.mkdir()
 #------
 # Body
 #------
-//string[] getReadsCount(string counterExe, string[] bamsList, string gtfFile, string additionalArgs, int threads) {
 string[] getReadsCount(string counterExe, string[] bamsList, string additionalArgs, int threads) {
 
     int featureThreads

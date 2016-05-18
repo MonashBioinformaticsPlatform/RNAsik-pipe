@@ -4,7 +4,7 @@
 string bamFiles = "bamFiles"
 if((!bamFiles.exists()) && (align == "star")) bamFiles.mkdir()
 #----------------------------------------------------------------------------------------------------
-string mapSTAR(string starExe, string rootName, string genomeIndex, string SAindexFile, string[] listOfReads, string starOptions) {
+string mapSTAR(string starExe, string rootName, string[] listOfReads, string starOptions) {
 
     string rootBase = rootName.baseName()
     string preFix = bamFiles+"/"+rootBase+"_"
@@ -18,10 +18,8 @@ string mapSTAR(string starExe, string rootName, string genomeIndex, string SAind
     if(checkSorted != -1) bamOut = preFix+"Aligned.sortedByCoord.out.bam"
 
     string reads = listOfReads.join(" ")
-    //task(bamOut <- [genomeIndex, SAindexFile], cpu := 32, taskName := "STAR aligning "+rootBase) {
-    task(bamOut <- [genomeIndex, SAindexFile], taskName := "STAR aligning "+rootBase) {
+    task(bamOut <- genomeIndex, taskName := "STAR aligning "+rootBase) {
         sys $starExe --runThreadN $threads \
-                     --genomeDir $genomeIndex \
                      --outSAMattrRGline ID:001 CN:Unknown DS:RNA-seq PL:ILLUMINA PM:MiSeq SM:$rootBase \
                      --readFilesIn $reads \
                      --outFileNamePrefix $preFix \

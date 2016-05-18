@@ -65,23 +65,19 @@ string makeLocalGTF(string gtfFile) {
     return localGTF
 }
 
-//string[] makeSTARindex(string starExe, string fastaRef, string additionalIndexOptions) {
 string makeSTARindex(string starExe, string fastaRef, string additionalIndexOptions) {
 
-    string localGenomeIndex = fastaRef.removeExt()+"-starIndex"
-    if(!localGenomeIndex.exists()) localGenomeIndex.mkdir()
+    string genomeIdx = fastaRef.removeExt()+"-starIndex"
+    if(!genomeIdx.exists()) genomeIdx.mkdir()
 
-    //string starSAindexFile = localGenomeIndex+"/"+"SAindex"
-
-    task(localGenomeIndex <- fastaRef, taskName := "Making STAR index") {
+    task(genomeIdx <- fastaRef, taskName := "Making STAR index") {
         sys $starExe --runThreadN $threads \
                      --runMode genomeGenerate \
-                     --genomeDir $localGenomeIndex \
+                     --genomeDir $genomeIdx \
                      --genomeFastaFiles $fastaRef \
                      $additionalIndexOptions
     }
-    //return [starSAindexFile, localGenomeIndex]
-    return localGenomeIndex
+    return genomeIdx
 }
 // Index FASTA reference file when needed
 string makeFaiFile(string samtoolsExe, string fastaRef) {

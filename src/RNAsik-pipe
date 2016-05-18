@@ -44,12 +44,6 @@ else cmdExe = config(getConfigFile)
 #------------------------------
 # Global Variables
 #------------------------------
-# set locaGenomeIndex 
-//TODO check how and when localSAindex is made, it looks like a bug,
-// looks like if -makeIndex isn't specified localSAindex will be an empty string
-// I think you can remove localSAindex all together 
-string localGenomeIndex
-string localSAindexFile 
 //string  list of bam files from STAR run
 string[] bamsList
 // list of all BAMS files,
@@ -60,7 +54,7 @@ string[] markedBams
 #-------------------
 if(fastaRef) localFastaRef = makeLocalFastaRef(fastaRef)
 if(gtfFile) localGTF = makeLocalGTF(gtfFile)
-// checks if gtfFiles is really gtf or gff
+// checks if gtfFiles is really gtf not gff
 // if gff set setGFF to true
 string checkGTF = localGTF.extName()
 if(checkGTF == "gff") setGFF = true
@@ -68,18 +62,18 @@ if(checkGTF == "gff") setGFF = true
 # Make indices if required 
 #------------------------------
 if(makeIndex){
+    // check that -genomeIndex haven't been specified
+    if(!genomeIndex.isEmpty()) error "You have specified both -makeIndex and -genomeIndex, you only need to specify one"
+    // default STAR options for indexing step
     string{} currentIndexOptions
-
+    // get additonal option for STAR indexing run
     string cmdOptions = getCmdOptions("starIndex", extraOptions)
     string additionalIndexOptions = getAllOptions(cmdOptions, currentIndexOptions)
-
+    // get STAR executable
     string getSTARexe = cmdExe{"starExe"}
-    string[] localIndexList = makeSTARindex(getSTARexe, localFastaRef, additionalIndexOptions)
-    localSAindexFile = localIndexList[0]
-    localGenomeIndex = localIndexList[1]
+    // get genomeIndex directory
+    genomeIndex = makeSTARindex(getSTARexe, localFastaRef, additionalIndexOptions)
 }
-// set global genomeIndex variable
-if(!makeIndex) localGenomeIndex = genomeIndex
 #------------------------------
 # BAM generation step
 #------------------------------
@@ -120,13 +114,16 @@ if(align == "star"){
             string cleanSingle = singleEndValues.substr(0,getSingleLength)
             reads.add(cleanSingle)
         }
-
-        string{} currentSTARoptions = { "--outSAMtype" => "BAM Unsorted", "--outSAMunmapped" => "Within", "--readFilesCommand" => "zcat" }
-
+        // default STAR options for mapping step
+        string{} currentSTARoptions = { "--outSAMtype" => "BAM Unsorted", \
+                                        "--outSAMunmapped" => "Within", \
+                                        "--genomeDir" => genomeIndex, \
+                                        "--readFilesCommand" => "zcat"}
+        // get additional options 
         string cmdOptions = getCmdOptions("STAR", extraOptions)
         string additionalSTARoptions = getAllOptions(cmdOptions, currentSTARoptions)
         // STAR aligning
-        string bamFile = mapSTAR(getSTARexe, rootName, localGenomeIndex, localSAindexFile, reads, additionalSTARoptions) 
+        string bamFile = mapSTAR(getSTARexe, rootName, reads, additionalSTARoptions) 
         bamsList.add(bamFile)
     }
 }
@@ -134,15 +131,16 @@ if(align == "star"){
 if(count) { 
     if(align != "star") bamsList = bamFiles.dirPath("*.bam")
 
-    string{} currentCountsOptions
-    if(checkPair) currentCountsOptions = { "-p" => "", "-a" => "$localGTF" }
+    string{} currentCountsOptions = { "-a" => localGTF }
+    if(checkPair) currentCountsOptions{"-p"} = ""
 
     string cmdOptions = getCmdOptions("featureCounts", extraOptions)
     string additionalCountsOptions = getAllOptions(cmdOptions, currentCountsOptions)
 
     if(!bamsList) error "No BAM files were found, either used -align options or specify directory with BAM files using `-bamFiles path/to/you/bams/directory`"
+    // get featureCounts executable
     string getCounterExe = cmdExe{"counterExe"}
-    //string[] featureCounts = getReadsCount(getCounterExe, bamsList, localGTF, additionalCountsOptions, threads)
+    // do read counting
     string[] featureCounts = getReadsCount(getCounterExe, bamsList, additionalCountsOptions, threads)
     string featureNo = featureCounts[0]
     string featureReverse = featureCounts[1]
