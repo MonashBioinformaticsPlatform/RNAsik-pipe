@@ -3,6 +3,7 @@
 #------------------------------
 
 include "sikHeader.bds"
+include "sikMakeIndices.bds"
 
 if(fastqc) {
     if(fqDir.isEmpty()) error "Usage: -fqDir /path/to/your/FASTQ/files"
@@ -35,14 +36,23 @@ if(!fqDir.isEmpty()){
 if(!fastaRef.isEmpty()){
     bool checkFastaRef = fastaRef.isFile()
     if(!checkFastaRef) error "-fastaRef doesn't appear to be pointing at the valid file, double check your path $fastaRef"
+    else localFastaRef = makeLocalFastaRef(fastaRef)
 }
 if(!gtfFile.isEmpty()){
     bool checkGTFfile = gtfFile.isFile()
     if(!checkGTFfile) error "-gtfFile doesn't appear to be pointing at the valid file, double check your path $gtfFile"
+    else {
+        localGTF = makeLocalGTF(gtfFile)
+        // checks if gtfFiles is really gtf not gff
+        string checkGTF = localGTF.extName()
+        if(checkGTF == "gff") setGFF = true
+    } 
 }
 if(threads < 1) error "specify a positive integer, you have specified $threads"
 //
 if(makeIndex){
+    // check that -genomeIndex haven't been specified
+    if(!genomeIndex.isEmpty()) error "You have specified both -makeIndex and -genomeIndex, you only need to specify one"
     if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
 }
 if(count) {

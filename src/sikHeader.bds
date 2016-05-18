@@ -69,12 +69,12 @@ string extraOptions help You can add extra option to any of the tools used in th
                           The command options and command name are separated by grater than sign (>) 
 string configFile   help You can specify configuration file
 
-// check if data is paired end or not
-bool checkPair
 // initialise empty variable
 string localFastaRef 
 // initialise empty variable
 string localGTF
+// check if data is paired end or not
+bool checkPair
 // can use this string to pass in marked bams
 string proBams
 # Get general info about tools versions and files used 

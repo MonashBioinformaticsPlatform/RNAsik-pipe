@@ -49,21 +49,10 @@ string[] bamsList
 // list of all BAMS files,
 //# where BAM had been sorted, reorted and duplicates marked
 string[] markedBams
-#-------------------
-# Copy files across
-#-------------------
-if(fastaRef) localFastaRef = makeLocalFastaRef(fastaRef)
-if(gtfFile) localGTF = makeLocalGTF(gtfFile)
-// checks if gtfFiles is really gtf not gff
-// if gff set setGFF to true
-string checkGTF = localGTF.extName()
-if(checkGTF == "gff") setGFF = true
 #------------------------------
 # Make indices if required 
 #------------------------------
 if(makeIndex){
-    // check that -genomeIndex haven't been specified
-    if(!genomeIndex.isEmpty()) error "You have specified both -makeIndex and -genomeIndex, you only need to specify one"
     // default STAR options for indexing step
     string{} currentIndexOptions
     // get additonal option for STAR indexing run

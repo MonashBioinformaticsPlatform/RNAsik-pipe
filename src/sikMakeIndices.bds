@@ -6,8 +6,7 @@
 # Make directories as required
 #------------------------------
 string refFiles = "refFiles"
-//if((!refFiles.exists()) && (makeIndex)) refFiles.mkdir()
-if( (!refFiles.exists()) && ( (makeIndex) || (count) || (align == "star") || (RNAseQC) ) ) refFiles.mkdir()
+if( (!refFiles.exists()) && ( (!gtfFile.isEmpty()) || (!fastaRef.isEmpty()) ) ) refFiles.mkdir()
 #------
 # Body
 #------
