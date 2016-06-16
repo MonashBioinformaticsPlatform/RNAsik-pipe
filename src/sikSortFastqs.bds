@@ -1,46 +1,24 @@
 #------------------------
 # Organising FASTQ files 
 #------------------------
-// This function loops over directory
-// and returns list of FASTQ files
-string[] getFastqFiles(string dir, string extn) {
-    string[] fqFiles 
-
-    for(string fq : dir.dirPath(extn)) {
-    	fqFiles.add(fq)
-    }
-    return fqFiles
-}
-// This function return all FASTQ files found in the current directory
-// and all sub directories
-// only looks one level deep
-string[] getAllFastqFiles(string fqDir, string extn) {
-    string[] allFastqFiles
-    # loop over all items in the current directory
-    # and check if the item is the directory or a file
-    for(string item : fqDir.dirPath()){
-        bool dir = item.isDir()
-        # if its a directory then apply `getFastqFiles` function
-        if(dir) {
-           string[] tmpFastqList = getFastqFiles(item, extn)
-    
-           for(string fq : tmpFastqList) {
-               allFastqFiles.add(fq)
-           } 
-        }
-        # otherwise check if the file is FASTQ file 
-        # and append FASTQ file to a list
+// This function find all fqFiles recursivelly 
+string[] getFqFiles(string fqDir, string extn) {
+    string[] fqFiles
+    // go through each file and check if its file or directory
+    for(string dir : fqDir.dirPath()){
+        bool chkDir = dir.isDir()
+        // check if dir is directory call getFqFiles on it
+        if(chkDir) fqFiles += getFqFiles(dir, extn)
+        // otherwise check if dir is FASTQ file and append it to the fqFiles
         else {
             int getIdx = extn.indexOf("*")
             string getEnding = extn.substr(getIdx+1)
-            bool fqFile = item.endsWith(getEnding)
-            if(fqFile) {
-                allFastqFiles.add(item)
-            }
+            bool fqFile = dir.endsWith(getEnding)
+            if(fqFile) fqFiles.add(dir)
         }
     }
-    # return all FASTQ file found
-    return allFastqFiles
+    // return fqFiles array
+    return fqFiles
 }
 // This function fill fix FASTQ files prefix 
 string getSampleName(string fqRoot, string samplesSheet) {
@@ -105,7 +83,7 @@ string{} getFqMap(string[] fqFiles, string fqRegex, string extn) {
 }
 
 string[] getFqReadsStats(string fqDir, string extn) {
-    string[] allFastqFiles = getAllFastqFiles(fqDir, extn)
+    string[] allFastqFiles = getFqFiles(fqDir, extn)
                                                    
     int numberOfMates = 0
     int numberOfSingles = 0

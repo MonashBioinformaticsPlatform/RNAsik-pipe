@@ -68,7 +68,7 @@ if(makeIndex){
 #------------------------------
 if(align == "star"){
     // grab all FASTQ files
-    string[] fqFiles = getAllFastqFiles(fqDir, extn)
+    string[] fqFiles = getFqFiles(fqDir, extn)
     string{} fqMap = getFqMap(fqFiles, fqRegex, extn)
     string{} reNamedMap = getReNamedMap(fqMap, samplesSheet)
     if(!reNamedMap) error "It appears that you don't have any FASTQ files specified. Check -fqDir path and make sure it point to FASTQ files directory"
@@ -171,7 +171,7 @@ if(count) {
 # fastQC report
 #------------------------------
 if(fastqc) { 
-    string[] fqFiles = getAllFastqFiles(fqDir, extn)
+    string[] fqFiles = getFqFiles(fqDir, extn)
     if(!fqFiles) error "It appears that you don't have any FASTQ files specified."
     string getFastqcExe = cmdExe{"fastqcExe"}
     string fqcReport = getFastqcReport(getFastqcExe, fqFiles, threads)
