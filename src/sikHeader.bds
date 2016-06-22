@@ -61,7 +61,7 @@ help Other options
 
 int threads = 1     help specify number of threads to use. This number will be used for STAR genome indexing\
                          and STAR raed alignment as well as for featureCounts, default [1]
-string extn = "fastq.gz"        help optional, specify your files extension default [fastq.gz]
+string extn = ".fastq.gz"        help optional, specify your files extension default [.fastq.gz]
 string samplesSheet help optional, specify a text file with alternative sample names
 string extraOptions help You can add extra option to any of the tools used in the pipeline. Use this syntax \
                    e.g -extraOptions "STAR > --outSAMtype BAM Unsorted, --outReadsUnmapped Fastx; starIndex > --sjdbGTFfile /path/to/GTF/file, --sjdbOverhang 99; featureCounts > -t gene" \

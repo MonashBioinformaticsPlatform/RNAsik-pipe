@@ -69,9 +69,7 @@ string{} getFqMap(string[] fqFiles, string fqRegex, string extn) {
         # Sometime data doesn't have neither R1 nor R2 in the file name
         # this block will insure that RNAsik-pipe still works correctly
         if((getR1Index == -1) && (getR2Index == -1)) {
-		fqRegex = extn
-                string[] getFile = fq.split(fqRegex)
-                string rootName = getFile[0].baseName()
+                string rootName = fq.baseName(extn)
                 # append to the list if it isn't in the list already
                 if(!fqMap.hasKey(rootName)) fqMap{rootName}=""
                 fqMap{rootName}+=fq+","
