@@ -11,9 +11,7 @@ string[] getFqFiles(string fqDir, string extn) {
         if(chkDir) fqFiles += getFqFiles(dir, extn)
         // otherwise check if dir is FASTQ file and append it to the fqFiles
         else {
-            int getIdx = extn.indexOf("*")
-            string getEnding = extn.substr(getIdx+1)
-            bool fqFile = dir.endsWith(getEnding)
+            bool fqFile = dir.endsWith(extn)
             if(fqFile) fqFiles.add(dir)
         }
     }
