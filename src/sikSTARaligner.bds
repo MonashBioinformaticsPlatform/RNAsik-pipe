@@ -27,9 +27,9 @@ string mapSTAR(string starExe, string rootName, string[] listOfReads, string sta
                  
     }
     wait
-    # you can remove wait statement and reduce number of threads
-    # however this will run all your fastq files in parallel
-    # doing this I find a bit impractical on our server because of
-    # limited RAM - only 128 Gb
+    // you can remove wait statement and reduce number of threads
+    // however this will run all your fastq files in parallel
+    // doing this I find a bit impractical on our server because of
+    // limited RAM - only 128 Gb
     return bamOut
 }
