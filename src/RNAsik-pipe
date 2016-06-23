@@ -23,7 +23,8 @@
 include "sikHeader.bds"
 include "sikSanityCheck.bds"
 include "sikMakeIndices.bds"
-include "sikSortFastqs.bds" 
+//include "sikSortFastqs.bds" 
+include "sikFqFiles.bds"
 include "sikSTARaligner.bds"
 include "sikPrePro.bds"
 include "sikCounts.bds"
@@ -69,41 +70,46 @@ if(makeIndex){
 if(align == "star"){
     // grab all FASTQ files
     string[] fqFiles = getFqFiles(fqDir, extn)
-    string{} fqMap = getFqMap(fqFiles, fqRegex, extn)
-    string{} reNamedMap = getReNamedMap(fqMap, samplesSheet)
-    if(!reNamedMap) error "It appears that you don't have any FASTQ files specified. Check -fqDir path and make sure it point to FASTQ files directory"
-    // This returns a list with first item being a stats string and second a bool for checkPair
-    string[] getStats = getFqReadsStats(fqDir, extn)
-    checkPair = getStats.pop().parseBool()
-    // get STAR executable 
-    string getSTARexe = cmdExe{"starExe"}
-    
-    for(string rootName : reNamedMap.keys()) {
-        string[] reads 
-        // get value for each key and break values into list
-        string singleEndValues
-        string pairedEndValues
-
-        if(checkPair) {
-            singleEndValues = reNamedMap{rootName} 
-            pairedEndValues = singleEndValues.replace("_R1", "_R2")
-
-            int getSingleLength = singleEndValues.length()-1
-            int getPairedLength = pairedEndValues.length()-1
-
-            string cleanSingle = singleEndValues.substr(0,getSingleLength)
-            string cleanPaired = pairedEndValues.substr(0,getPairedLength)
-
-            reads.add(cleanSingle)
-            reads.add(cleanPaired)
+    string{} readsMap
+    if(!fqRegex.isEmpty()) {
+        if(!samplesSheet.isEmpty()) {
+            readsMap = getSampleMap(fqFiles, samplesSheet)
         }
         else {
-            singleEndValues = reNamedMap{rootName} 
-            int getSingleLength = singleEndValues.length()-1
-            string cleanSingle = singleEndValues.substr(0,getSingleLength)
-            reads.add(cleanSingle)
+            readsMap = getFqMap(fqFiles, fqRegex, extn)
         }
-        // default STAR options for mapping step
+    }
+    else {
+        if(!samplesSheet.isEmpty()) {
+            readsMap = getSampleMap(fqFiles, samplesSheet)
+        }
+        else error "You need to specify at least one option -fqRegex or -samplesSheet"
+    }
+    if(!readsMap) error "It appears that you don't have any FASTQ files specified. Check -fqDir path and make sure it point to FASTQ files directory"
+    // get STAR executable 
+    string getSTARexe = cmdExe{"starExe"}
+    // make logFiles directory if doesn't exists    
+    string logFiles = "logFiles"
+    if(!logFiles.exists()) logFiles.mkdir()
+
+    string readsLog
+    string readsStrLog
+    string readsStrHeaderLog
+    
+    readsLog += "Reads string for aligner \n"
+    readsLog += "----------------\n"
+    
+    readsStrHeaderLog += "Read pairs: R1 --> R2 \n"
+    
+    for(string rootName : readsMap.keys()) {
+        string[] reads = getReads(readsMap{rootName})
+       
+        string[] tmp = fqLog(reads) 
+
+        paired = tmp[2].parseBool()
+        readsLog += tmp[0]
+        readsStrLog += tmp[1]
+
         string{} currentSTARoptions = { "--outSAMtype" => "BAM Unsorted", \
                                         "--outSAMunmapped" => "Within", \
                                         "--genomeDir" => genomeIndex, \
@@ -115,13 +121,22 @@ if(align == "star"){
         string bamFile = mapSTAR(getSTARexe, rootName, reads, additionalSTARoptions) 
         bamsList.add(bamFile)
     }
+    // logging stuff 
+    readsStrHeaderLog += "Paired end data ** " + paired + " **\n"
+    readsStrHeaderLog += "----------------\n"
+    // making loggin files
+    string logStringOne = logFiles+"/"+"alingerReadsString.log.txt"
+    string logStringTwo = logFiles+"/"+"individualReadPairs.log.txt"
+    // writting to log files
+    logStringOne.write(readsLog)
+    logStringTwo.write(readsStrHeaderLog+readsStrLog)
 }
 
 if(count) { 
     if(align != "star") bamsList = bamFiles.dirPath("*.bam")
 
     string{} currentCountsOptions = { "-a" => localGTF }
-    if(checkPair) currentCountsOptions{"-p"} = ""
+    if(paired) currentCountsOptions{"-p"} = ""
 
     string cmdOptions = getCmdOptions("featureCounts", extraOptions)
     string additionalCountsOptions = getAllOptions(cmdOptions, currentCountsOptions)
@@ -205,7 +220,7 @@ if(RNAseQC){
     sampleIdsFile.write(RNAseQCsampleIds)
     // current options 
     string{} currentRNAseQCoptions
-    if(!checkPair) currentRNAseQCoptions = { "-singleEnd" => "" }
+    if(!paired) currentRNAseQCoptions = { "-singleEnd" => "" }
     //
     string cmdOptions = getCmdOptions("RNAseQC", extraOptions)
     string additionalRNAseQCoptions = getAllOptions(cmdOptions, currentRNAseQCoptions)

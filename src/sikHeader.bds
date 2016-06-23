@@ -74,7 +74,7 @@ string localFastaRef
 // initialise empty variable
 string localGTF
 // check if data is paired end or not
-bool checkPair
+bool paired
 // can use this string to pass in marked bams
 string proBams
 # Get general info about tools versions and files used 

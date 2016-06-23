@@ -19,11 +19,11 @@ if(align == "star") {
         if(fqRegex == "C") fqRegex = "_R[0-9]_[0-9]{3}.fastq.gz$"
         if(fqRegex == "D") fqRegex = "_R[0-9].fastq.gz$"
     }
-    else error "Usage: You need to select A, B, C or D options using -fqRegex flag"
+    //else error "Usage: You need to select A, B, C or D options using -fqRegex flag"
     // check if FASTQ directory is given 
     if(fqDir.isEmpty()) error "Usage: -fqDir /path/to/your/FASTQ/files"
 }
-if( (align.isEmpty()) && (!args.isEmpty()) && (!checkPair) ) warning "There is no information about paired end status, -checkPair is set to $checkPair, if your data is paired end use -checkPair on the command line to indicate this"
+if( (align.isEmpty()) && (!args.isEmpty()) && (!paired) ) warning "There is no information about your data being paired end. If your data is paired end use -paired option"
 //
 if(!samplesSheet.isEmpty()){
     bool checkType = samplesSheet.isFile()
@@ -90,7 +90,7 @@ string checkCmdArgs() {
                         "-extn", \
                         "-samplesSheet", \
                         "-extraOptions", \
-                        "-checkPair", \
+                        "-paired", \
                         "-bamFiles", \
                         "-proBams", \
                         "-configFile", \
