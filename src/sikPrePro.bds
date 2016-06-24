@@ -16,7 +16,7 @@ string getPrePro(string picardExe, string bamFile, string fastaRef, string fasta
     string sortedName = preqcBamFiles+"/"+bamFile.baseName().swapExt("Aligned.out.bam", "sorted.bam")
     // try using 8 cpus to limit how picard processes can be run at a time
     // this should imporve I/O (input / output) performance
-    task(sortedName <- bamFile, taskName := "picard sorting "+bamFile) {
+    dep(sortedName <- bamFile, taskName := "picard sorting "+bamFile) {
         sys $picardExe SortSam TMP_DIR=tmp/ \
                                VALIDATION_STRINGENCY=LENIENT \
                                CREATE_INDEX=true \
@@ -26,7 +26,7 @@ string getPrePro(string picardExe, string bamFile, string fastaRef, string fasta
     }
 
     string reorderedName = sortedName.swapExt(".bam", "_reordered.bam")
-    task(reorderedName <- [sortedName, fastaDictFile], taskName := "picard reordering "+reorderedName) {
+    dep(reorderedName <- [sortedName, fastaDictFile], taskName := "picard reordering "+reorderedName) {
         sys $picardExe ReorderSam TMP_DIR=tmp/ \
                                   VALIDATION_STRINGENCY=LENIENT \
                                   INPUT=$sortedName \
@@ -35,7 +35,7 @@ string getPrePro(string picardExe, string bamFile, string fastaRef, string fasta
     }
     string mdupsName = reorderedName.swapExt(".bam", "_marked_dups.bam")
     string metricsName = reorderedName.swapExt(".bam", "_marked_dups.metrics")
-    task(mdupsName <- reorderedName, taskName := "picard marking dups "+mdupsName) {
+    dep(mdupsName <- reorderedName, taskName := "picard marking dups "+mdupsName) {
         sys $picardExe MarkDuplicates TMP_DIR=tmp/ \
                                       VALIDATION_STRINGENCY=LENIENT \
                                       CREATE_INDEX=true \
@@ -43,5 +43,8 @@ string getPrePro(string picardExe, string bamFile, string fastaRef, string fasta
                                       OUTPUT=$mdupsName \
                                       METRICS_FILE=$metricsName
     }
+
+    goal mdupsName
+
     return mdupsName
 }
