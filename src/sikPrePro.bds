@@ -19,7 +19,6 @@ string getPrePro(string picardExe, string bamFile, string fastaRef, string fasta
     dep(sortedName <- bamFile, taskName := "picard sorting "+bamFile) {
         sys $picardExe SortSam TMP_DIR=tmp/ \
                                VALIDATION_STRINGENCY=LENIENT \
-                               CREATE_INDEX=true \
                                INPUT=$bamFile \
                                OUTPUT=$sortedName \
                                SORT_ORDER=coordinate
@@ -33,6 +32,7 @@ string getPrePro(string picardExe, string bamFile, string fastaRef, string fasta
                                   OUTPUT=$reorderedName \
                                   REFERENCE=$fastaRef
     }
+    
     string mdupsName = reorderedName.swapExt(".bam", "_marked_dups.bam")
     string metricsName = reorderedName.swapExt(".bam", "_marked_dups.metrics")
     dep(mdupsName <- reorderedName, taskName := "picard marking dups "+mdupsName) {
@@ -42,6 +42,7 @@ string getPrePro(string picardExe, string bamFile, string fastaRef, string fasta
                                       INPUT=$reorderedName \
                                       OUTPUT=$mdupsName \
                                       METRICS_FILE=$metricsName
+        sys rm $sortedName $reorderedName
     }
 
     goal mdupsName
