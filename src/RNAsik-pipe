@@ -70,22 +70,8 @@ if(makeIndex){
 if(align == "star"){
     // grab all FASTQ files
     string[] fqFiles = getFqFiles(fqDir, extn)
-    string{} readsMap
-    if(!fqRegex.isEmpty()) {
-        if(!samplesSheet.isEmpty()) {
-            readsMap = getSampleMap(fqFiles, samplesSheet)
-        }
-        else {
-            readsMap = getFqMap(fqFiles, fqRegex, extn)
-        }
-    }
-    else {
-        if(!samplesSheet.isEmpty()) {
-            readsMap = getSampleMap(fqFiles, samplesSheet)
-        }
-        else error "You need to specify at least one option -fqRegex or -samplesSheet"
-    }
-    if(!readsMap) error "It appears that you don't have any FASTQ files specified. Check -fqDir path and make sure it point to FASTQ files directory"
+    string{} fqMap = getFqMap(fqFiles, fqRegex, samplesSheet, extn)
+    if(!fqMap) error "It appears that you don't have any FASTQ files specified. Check -fqDir path and make sure it point to FASTQ files directory"
     // get STAR executable 
     string getSTARexe = cmdExe{"starExe"}
     // make logFiles directory if doesn't exists    
@@ -101,8 +87,8 @@ if(align == "star"){
     
     readsStrHeaderLog += "Read pairs: R1 --> R2 \n"
     
-    for(string rootName : readsMap.keys()) {
-        string[] reads = getReads(readsMap{rootName})
+    for(string rootName : fqMap.keys()) {
+        string[] reads = getReads(fqMap{rootName})
        
         string[] tmp = fqLog(reads) 
 

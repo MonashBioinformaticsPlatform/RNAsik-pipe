@@ -18,78 +18,95 @@ string[] getFqFiles(string fqDir, string extn) {
     return fqFiles
 }
 // given a file name return rootName
-string getRootName(string fq, string fqRegex, string extn) {
-    // check if R1 is in the file name
-    int rOneIdx = fq.lastIndexOf("_R1")
-    int rTwoIdx = fq.lastIndexOf("_R2")
-
-    int oneIdx = fq.lastIndexOf("_1")
-    int twoIdx = fq.lastIndexOf("_2")
+string getRootName(string fq, string fqRegex, string samplesSheet, string extn) {
     // if fqRegex is given use that
-    if(!fqRegex.isEmpty()) {
-        string[] tmp = fq.split(fqRegex)
-        string rootName = tmp[0].baseName()
-        if(tmp[0] == fq) error "It appears that your fqRegex didn't work. Double check your fqRegex"
-        return rootName
+    if( (!samplesSheet.isEmpty()) || ( (!samplesSheet.isEmpty()) && (!fqRegex.isEmpty()) ) ) {
+        // initialise empty list
+        string[] tmpNames
+        for(string line : samplesSheet.readLines()){
+            string[] arr = line.split("\t")
+            string fileName = arr[0]
+            string sampleName = arr[1]
+        
+            string nameIdx = fq.indexOf(fileName)
+            if(nameIdx != -1) tmpNames.push(sampleName)
+        }
+        // in theory there should only be one item in the list
+        if(tmpNames.size() == 1) return tmpNames.pop()
+        if(tmpNames.size() == 0) error "None of the prefixes matched the $fq file. Check you $samplesSheet file"
+        else error "Multiple name prefixes match $fq file. Check your $samplesSheet file"
     }
-    // if no fqRegex is given and r1Idx was found
-    // fall back to splicing rootName from start to the r1Idx
-    if(fqRegex.isEmpty()) {
-        if( (rOneIdx != -1) && (oneIdx == -1) ) {
-            return fq.substr(0, rOneIdx).baseName()
+    else {
+        if(!fqRegex.isEmpty()) {
+            string[] tmp = fq.split(fqRegex)
+            string rootName = tmp[0].baseName()
+            if(tmp[0] == fq) error "It appears that your fqRegex didn't work. Double check your fqRegex"
+            return rootName
         }
-        if( (rOneIdx == -1) && (oneIdx != -1) ) {
-            return fq.substr(0, oneIdx).baseName()
-        }
-        if( (rTwoIdx != -1) && (twoIdx == -1) ) {
-            return fq.substr(0, rTwoIdx).baseName()
-        }
-        if( (rTwoIdx == -1) && (twoIdx != -1) ) {
-            return fq.substr(0, twoIdx).baseName()
-        }
-        // if all of the above failed
-        // use simply remove extn from the file and use that as a rootName
-        if( (rOneIdx == -1) && (oneIdx == -1) ) {
-            return fq.baseName(extn)
+        // if no fqRegex is given and r1Idx was found
+        // fall back to splicing rootName from start to the r1Idx
+        else {
+            // check if R1 is in the file name
+            int rOneIdx = fq.lastIndexOf("_R1")
+            int rTwoIdx = fq.lastIndexOf("_R2")
+
+            int oneIdx = fq.lastIndexOf("_1")
+            int twoIdx = fq.lastIndexOf("_2")
+
+            if( (rOneIdx != -1) && (oneIdx == -1) ) {
+                return fq.substr(0, rOneIdx).baseName()
+            }
+            if( (rOneIdx == -1) && (oneIdx != -1) ) {
+                return fq.substr(0, oneIdx).baseName()
+            }
+            if( (rTwoIdx != -1) && (twoIdx == -1) ) {
+                return fq.substr(0, rTwoIdx).baseName()
+            }
+            if( (rTwoIdx == -1) && (twoIdx != -1) ) {
+                return fq.substr(0, twoIdx).baseName()
+            }
+            // if all of the above failed
+            // use simply remove extn from the file and use that as a rootName
+            if( (rOneIdx == -1) && (oneIdx == -1) ) {
+                return fq.baseName(extn)
+            }
         }
     }
-    // this error should never happend since step above should always return some rootName
-    else error "This error should have occur, please report the incident"
 }
 // This function return hash with key set to root name 
 // and value is the list of all associated FASTQ files
 // that are spread across multiple lane during sequencing
-string{} getFqMap(string[] rOneFqs, string fqRegex, string extn) {
+string{} getFqMap(string[] rOneFqs, string fqRegex, string samplesSheet, string extn) {
     # Map with unique root key
     string{} fqMap
     // loop over FASTQ files
     for(string fq : rOneFqs) {
-        string rootName = getRootName(fq, fqRegex, extn)
+        string rootName = getRootName(fq, fqRegex, samplesSheet, extn)
         if(!fqMap.hasKey(rootName)) fqMap{rootName}=""
         fqMap{rootName}+=fq+","
     }
     return fqMap
 }
 //
-string{} getSampleMap(string[] fqFiles, string samplesSheet) {
-    string{} sampleMap
-    if(!samplesSheet.isEmpty()) {
-	for(string fq : fqFiles) {
-            for(string line : samplesSheet.readLines()){
-                string[] arr = line.split("\t")
-                string fileName = arr[0]
-                string sampleName = arr[1]
-
-                string nameIdx = fq.indexOf(fileName)
-                if(nameIdx != -1){
-                    if(!sampleMap.hasKey(sampleName)) sampleMap{sampleName}=""
-                    sampleMap{sampleName}+=fq+","
-                }
-            }
-        }
-    }
-    return sampleMap
-}
+//string{} getSampleMap(string[] fqFiles, string samplesSheet) {
+//    string{} sampleMap
+//    if(!samplesSheet.isEmpty()) {
+//	for(string fq : fqFiles) {
+//            for(string line : samplesSheet.readLines()){
+//                string[] arr = line.split("\t")
+//                string fileName = arr[0]
+//                string sampleName = arr[1]
+//
+//                string nameIdx = fq.indexOf(fileName)
+//                if(nameIdx != -1){
+//                    if(!sampleMap.hasKey(sampleName)) sampleMap{sampleName}=""
+//                    sampleMap{sampleName}+=fq+","
+//                }
+//            }
+//        }
+//    }
+//    return sampleMap
+//}
 string[] getReads(string fqVal) {
     string[] fqList = fqVal.split(",")
     int odd = fqList.size() % 2
