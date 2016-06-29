@@ -17,24 +17,22 @@ string[] getFqFiles(string fqDir, string extn) {
     // return fqFiles array
     return fqFiles
 }
+string getKey(string fq, string samplesSheet) {
+    if(samplesSheet.isEmpty()) error "-samplesSheet is empty"
+    string{} samples = config(samplesSheet)
+    string[] prefixes = samples.keys()
+    prefixes = prefixes.sort().reverse()
+    for(string prefix : prefixes) {
+        string idx = fq.indexOf(prefix)
+        if(idx != -1) return samples{prefix}
+    }
+    error "No prefix was found for this $fq file"
+}
 // given a file name return rootName
 string getRootName(string fq, string fqRegex, string samplesSheet, string extn) {
     // if fqRegex is given use that
     if( (!samplesSheet.isEmpty()) || ( (!samplesSheet.isEmpty()) && (!fqRegex.isEmpty()) ) ) {
-        // initialise empty list
-        string[] tmpNames
-        for(string line : samplesSheet.readLines()){
-            string[] arr = line.split("\t")
-            string fileName = arr[0]
-            string sampleName = arr[1]
-        
-            string nameIdx = fq.indexOf(fileName)
-            if(nameIdx != -1) tmpNames.push(sampleName)
-        }
-        // in theory there should only be one item in the list
-        if(tmpNames.size() == 1) return tmpNames.pop()
-        if(tmpNames.size() == 0) error "None of the prefixes matched the $fq file. Check you $samplesSheet file"
-        else error "Multiple name prefixes match $fq file. Check your $samplesSheet file"
+        return getKey(fq, samplesSheet)
     }
     else {
         if(!fqRegex.isEmpty()) {
@@ -47,29 +45,14 @@ string getRootName(string fq, string fqRegex, string samplesSheet, string extn) 
         // fall back to splicing rootName from start to the r1Idx
         else {
             // check if R1 is in the file name
-            int rOneIdx = fq.lastIndexOf("_R1")
-            int rTwoIdx = fq.lastIndexOf("_R2")
+            int oneIdx = fq.lastIndexOf("_R1")
+            int twoIdx = fq.lastIndexOf("_R2")
 
-            int oneIdx = fq.lastIndexOf("_1")
-            int twoIdx = fq.lastIndexOf("_2")
-
-            if( (rOneIdx != -1) && (oneIdx == -1) ) {
-                return fq.substr(0, rOneIdx).baseName()
-            }
-            if( (rOneIdx == -1) && (oneIdx != -1) ) {
-                return fq.substr(0, oneIdx).baseName()
-            }
-            if( (rTwoIdx != -1) && (twoIdx == -1) ) {
-                return fq.substr(0, rTwoIdx).baseName()
-            }
-            if( (rTwoIdx == -1) && (twoIdx != -1) ) {
-                return fq.substr(0, twoIdx).baseName()
-            }
+            if(oneIdx != -1) return fq.substr(0, oneIdx).baseName()
+            if(twoIdx != -1) return fq.substr(0, twoIdx).baseName()
             // if all of the above failed
             // use simply remove extn from the file and use that as a rootName
-            if( (rOneIdx == -1) && (oneIdx == -1) ) {
-                return fq.baseName(extn)
-            }
+            if( (oneIdx == -1) && (twoIdx == -1) ) return fq.baseName(extn)
         }
     }
 }
@@ -88,25 +71,6 @@ string{} getFqMap(string[] rOneFqs, string fqRegex, string samplesSheet, string 
     return fqMap
 }
 //
-//string{} getSampleMap(string[] fqFiles, string samplesSheet) {
-//    string{} sampleMap
-//    if(!samplesSheet.isEmpty()) {
-//	for(string fq : fqFiles) {
-//            for(string line : samplesSheet.readLines()){
-//                string[] arr = line.split("\t")
-//                string fileName = arr[0]
-//                string sampleName = arr[1]
-//
-//                string nameIdx = fq.indexOf(fileName)
-//                if(nameIdx != -1){
-//                    if(!sampleMap.hasKey(sampleName)) sampleMap{sampleName}=""
-//                    sampleMap{sampleName}+=fq+","
-//                }
-//            }
-//        }
-//    }
-//    return sampleMap
-//}
 string[] getReads(string fqVal) {
     string[] fqList = fqVal.split(",")
     int odd = fqList.size() % 2
@@ -116,54 +80,18 @@ string[] getReads(string fqVal) {
     // this stips trailing comma from the file name
     // for more info see getFqMap function
     if(odd == 1) return [fqList.join(",")]
-    if( (fqVal.lastIndexOf("_R2") == -1) && (fqVal.lastIndexOf("_2") == -1) ) return [fqList.join(",")]
-    else {
+    if(fqVal.lastIndexOf("_R2") != -1) {
         for(int i=0; i < fqList.size(); i++) {
 	   rTwo.push(fqList.removeIdx(i+1)) 
         }
         return [fqList.join(","), rTwo.join(",")]
-    }
-}
-string[] fqLog(string[] reads) {
-    bool paired
-    if( (reads.size() < 1) || (reads.size() > 2) ) error "This error shouldn't happened. Something went wrong with your reads, check sikFqFiles.bds file"
-    if(reads.size() == 2) paired = true
-    else paired = false
 
-    string pairs
-    string singles
-
-    if(paired) {
-        string[] rOne = reads[0].split(",")
-        string[] rTwo = reads[1].split(",")
-        for(int i=0; i < rOne.size(); i++) {
-            pairs += rOne[i] + " --> "
-            pairs += rTwo[i] + "\n"
-        }
-    }
-    else {
-        string[] rOne = reads[0].split(",")
-        for(int i=0; i < rOne.size(); i++) {
-            singles += rOne[i] + " -->\n"
-        }
-    }
-    if(singles.length() > 0) {
-	string alignerString
-	alignerString += "R1: "
-        alignerString += reads[0]
-        alignerString += "\n"
-        alignerString += "----------------\n"
-        return [alignerString, singles, paired]
     } 
-    else {
-	string alignerString
-	alignerString += "R1: "
-        alignerString += reads[0]
-        alignerString += "\n"
-	alignerString += "R2: "
-        alignerString += reads[1]
-        alignerString += "\n"
-        alignerString += "----------------\n"
-        return [alignerString, pairs, paired]
-    }
+    else return [fqList.join(",")]
+}
+//
+bool getPaired(string[] reads) {
+    if( (reads.size() < 1) || (reads.size() > 2) ) error "This error shouldn't happened. Something went wrong with your reads, check sikFqFiles.bds file"
+    if(reads.size() == 2) return true
+    else return false
 }

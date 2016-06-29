@@ -23,7 +23,7 @@
 include "sikHeader.bds"
 include "sikSanityCheck.bds"
 include "sikMakeIndices.bds"
-//include "sikSortFastqs.bds" 
+include "sikLog.bds"
 include "sikFqFiles.bds"
 include "sikSTARaligner.bds"
 include "sikPrePro.bds"
@@ -33,15 +33,19 @@ include "sikExtraOptions.bds"
 #------------------------------
 # Check cmd args
 #------------------------------
+string date = sys date
+logit("Starting new RNAsik-pipe run", date.trim())
 string checkCmdInput = checkCmdArgs()
 #------------------------------
 # Parse config file
 #------------------------------
-string getProgPath = programPath.pathName()
-string getConfigFile = getProgPath+"/../sik.config"
-string{} cmdExe
-if(!configFile.isEmpty()) cmdExe = config(configFile)
-else cmdExe = config(getConfigFile)
+if(!configFile.isEmpty()) logit("Config file parameters passed by user", configFile.read())
+else {
+    string getProgPath = programPath.pathName()
+    configFile = getProgPath+"/../sik.config"
+    logit("Default config file parameters", configFile.read())
+}
+string{} cmdExe = config(configFile)
 #------------------------------
 # Global Variables
 #------------------------------
@@ -55,14 +59,19 @@ string[] markedBams
 #------------------------------
 if(makeIndex){
     // default STAR options for indexing step
-    string{} currentIndexOptions
+    string{} idxOpts
     // get additonal option for STAR indexing run
-    string cmdOptions = getCmdOptions("starIndex", extraOptions)
-    string additionalIndexOptions = getAllOptions(cmdOptions, currentIndexOptions)
+    //string cmdOptions = getCmdOptions("starIndex", extraOpts)
+    //string additionalIndexOptions = getAllOptions(cmdOptions, currentIndexOptions)
+    string opts = getOpts(getOptsMap("starIndex", idxOpts, extraOpts))
+    logit("STAR indexing cmd options", opts)
+    
+    if(!cmdExe.hasKey("starExe")) error "Can't get STAR executable, check your config file $configFile"
     // get STAR executable
     string getSTARexe = cmdExe{"starExe"}
     // get genomeIndex directory
-    genomeIndex = makeSTARindex(getSTARexe, localFastaRef, additionalIndexOptions)
+    genomeIndex = makeSTARindex(getSTARexe, localFastaRef, opts)
+    logit("STAR genomic index", genomeIndex)
 }
 #------------------------------
 # BAM generation step
@@ -71,67 +80,53 @@ if(align == "star"){
     // grab all FASTQ files
     string[] fqFiles = getFqFiles(fqDir, extn)
     string{} fqMap = getFqMap(fqFiles, fqRegex, samplesSheet, extn)
+    // for loggin purpose convert map to string and write it to a file
+    string toString = fqMap
+    logit("Fastq files map, where key = rootName = bam file name and value actual fastq file with that rootName", toString)
     if(!fqMap) error "It appears that you don't have any FASTQ files specified. Check -fqDir path and make sure it point to FASTQ files directory"
     // get STAR executable 
+    if(!cmdExe.hasKey("starExe")) error "Can't get STAR executable, check your config file $configFile"
     string getSTARexe = cmdExe{"starExe"}
-    // make logFiles directory if doesn't exists    
-    string logFiles = "logFiles"
-    if(!logFiles.exists()) logFiles.mkdir()
 
-    string readsLog
-    string readsStrLog
-    string readsStrHeaderLog
-    
-    readsLog += "Reads string for aligner \n"
-    readsLog += "----------------\n"
-    
-    readsStrHeaderLog += "Read pairs: R1 --> R2 \n"
-    
     for(string rootName : fqMap.keys()) {
         string[] reads = getReads(fqMap{rootName})
+        logit("This is rootName for read below", rootName)
+        logit("R1 reads string that passed to aligner", reads[0])
+        logit("R1 reads string that passed to aligner", reads[1])
        
-        string[] tmp = fqLog(reads) 
+        paired = getPaired(reads) 
 
-        paired = tmp[2].parseBool()
-        readsLog += tmp[0]
-        readsStrLog += tmp[1]
-
-        string{} currentSTARoptions = { "--outSAMtype" => "BAM Unsorted", \
-                                        "--outSAMunmapped" => "Within", \
-                                        "--genomeDir" => genomeIndex, \
-                                        "--readFilesCommand" => "zcat"}
+        string{} starOpts = { "--outSAMtype" => "BAM Unsorted", \
+                              "--outSAMunmapped" => "Within", \
+                              "--genomeDir" => genomeIndex, \
+                              "--readFilesCommand" => "zcat"}
         // get additional options 
-        string cmdOptions = getCmdOptions("STAR", extraOptions)
-        string additionalSTARoptions = getAllOptions(cmdOptions, currentSTARoptions)
+        //string cmdOptions = getCmdOptions("STAR", extraOpts)
+        //string additionalSTARoptions = getAllOptions(cmdOptions, currentSTARoptions)
+        string opts = getOpts(getOptsMap("STAR", starOpts, extraOpts))
+        logit("STAR alignment cmd options", opts)
         // STAR aligning
-        string bamFile = mapSTAR(getSTARexe, rootName, reads, additionalSTARoptions) 
+        string bamFile = mapSTAR(getSTARexe, rootName, reads, opts) 
+        logit("Corresponding bam file", bamFile)
         bamsList.add(bamFile)
     }
-    // logging stuff 
-    readsStrHeaderLog += "Paired end data ** " + paired + " **\n"
-    readsStrHeaderLog += "----------------\n"
-    // making loggin files
-    string logStringOne = logFiles+"/"+"alingerReadsString.log.txt"
-    string logStringTwo = logFiles+"/"+"individualReadPairs.log.txt"
-    // writting to log files
-    logStringOne.write(readsLog)
-    logStringTwo.write(readsStrHeaderLog+readsStrLog)
 }
 
 if(count) { 
     if(align != "star") bamsList = bamFiles.dirPath("*.bam")
 
-    string{} currentCountsOptions = { "-a" => localGTF }
-    if(paired) currentCountsOptions{"-p"} = ""
+    string{} countsOpts = { "-a" => localGTF }
+    if(paired) countsOpts{"-p"} = ""
 
-    string cmdOptions = getCmdOptions("featureCounts", extraOptions)
-    string additionalCountsOptions = getAllOptions(cmdOptions, currentCountsOptions)
+    //string cmdOptions = getCmdOptions("featureCounts", extraOpts)
+    //string additionalCountsOptions = getAllOptions(cmdOptions, currentCountsOptions)
+    string opts = getOpts(getOptsMap("featureCounts", countsOpts, extraOpts))
 
     if(!bamsList) error "No BAM files were found, either used -align options or specify directory with BAM files using `-bamFiles path/to/you/bams/directory`"
     // get featureCounts executable
     string getCounterExe = cmdExe{"counterExe"}
     // do read counting
-    string[] featureCounts = getReadsCount(getCounterExe, bamsList, additionalCountsOptions, threads)
+    string[] featureCounts = getReadsCount(getCounterExe, bamsList, opts, threads)
     string featureNo = featureCounts[0]
     string featureReverse = featureCounts[1]
 
@@ -205,17 +200,18 @@ if(RNAseQC){
     string RNAseQCsampleIds = getSampleIds(markedBams)
     sampleIdsFile.write(RNAseQCsampleIds)
     // current options 
-    string{} currentRNAseQCoptions
-    if(!paired) currentRNAseQCoptions = { "-singleEnd" => "" }
+    string{} rnaseqcOpts
+    if(!paired) rnaseqcOpts = { "-singleEnd" => "" }
     //
-    string cmdOptions = getCmdOptions("RNAseQC", extraOptions)
-    string additionalRNAseQCoptions = getAllOptions(cmdOptions, currentRNAseQCoptions)
+    //string cmdOptions = getCmdOptions("RNAseQC", extraOpts)
+    //string additionalRNAseQCoptions = getAllOptions(cmdOptions, currentRNAseQCoptions)
+    string opts = getOpts(getOptsMap("RNAseQC", rnaseqcOpts, extraOpts))
     // make Fai file if dosen't exist
     string getSamtoolsExe = cmdExe{"samtoolsExe"}
     string fastaFaiFile = makeFaiFile(getSamtoolsExe, localFastaRef)
     // get RNAseQC report 
     string getRNAseQCexe = cmdExe{"RNAseQCexe"}
-    string qcReport = getRNAseQC(getRNAseQCexe, sampleIdsFile, markedBams, localFastaRef, localGTF, additionalRNAseQCoptions)
+    string qcReport = getRNAseQC(getRNAseQCexe, sampleIdsFile, markedBams, localFastaRef, localGTF, opts)
 }
 if(multiqc) {
     string multiqcExe = "multiqc"
