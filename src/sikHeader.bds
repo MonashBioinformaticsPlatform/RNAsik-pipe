@@ -68,6 +68,7 @@ string extraOptions help You can add extra option to any of the tools used in th
                           Each command is separated by semi-colon (;) after the last options. \
                           The command options and command name are separated by grater than sign (>) 
 string configFile   help You can specify configuration file
+bool multiqc
 
 // initialise empty variable
 string localFastaRef 

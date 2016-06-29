@@ -94,6 +94,7 @@ string checkCmdArgs() {
                         "-bamFiles", \
                         "-proBams", \
                         "-configFile", \
+                        "-multiqc", \
                         "-version" \
                        ]
     // list of options specified by user

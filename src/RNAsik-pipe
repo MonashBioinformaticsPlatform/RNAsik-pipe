@@ -217,6 +217,14 @@ if(RNAseQC){
     string getRNAseQCexe = cmdExe{"RNAseQCexe"}
     string qcReport = getRNAseQC(getRNAseQCexe, sampleIdsFile, markedBams, localFastaRef, localGTF, additionalRNAseQCoptions)
 }
+if(multiqc) {
+    string multiqcExe = "multiqc"
+    string homeDir = PWD //.pathName()
+    print("$homeDir \n")
+    task("multiqc_report.html" <- markedBams, taskName := "Generating MultiQC report") {
+        sys $multiqcExe $homeDir
+    }
+}
 #----------------------------------------------------------------------------------------------------
 # End
 #----------------------------------------------------------------------------------------------------
