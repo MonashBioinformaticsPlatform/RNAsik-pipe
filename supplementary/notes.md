@@ -20,3 +20,22 @@ given in the fifth column of the SAM file). All reads with a lower quality than 
 Help pages: Calling either script without arguments displays a help page with an overview of all options
 and arguments.
 
+
+Because of file names like these ones you can't really check for _1 and/or _2
+It really has to be _R1 and/or _R2
+RNA_10_C6HCPANXX_GGCTACAT_L003_R2.fastq.gz
+RNA_10_C6HCPANXX_GGCTACAT_L004_R1.fastq.gz
+RNA_10_C6HCPANXX_GGCTACAT_L004_R2.fastq.gz
+RNA_11_C6HCPANXX_CTTGTAAT_L003_R1.fastq.gz
+RNA_11_C6HCPANXX_CTTGTAAT_L003_R2.fastq.gz
+RNA_11_C6HCPANXX_CTTGTAAT_L004_R1.fastq.gz
+RNA_11_C6HCPANXX_CTTGTAAT_L004_R2.fastq.gz
+RNA_12_C6HCPANXX_AGTCAACA_L003_R1.fastq.gz
+RNA_12_C6HCPANXX_AGTCAACA_L003_R2.fastq.gz
+RNA_12_C6HCPANXX_AGTCAACA_L004_R1.fastq.gz
+RNA_12_C6HCPANXX_AGTCAACA_L004_R2.fastq.gz
+RNA_1_C6HCPANXX_TGACCAAT_L003_R1.fastq.gz
+RNA_1_C6HCPANXX_TGACCAAT_L003_R2.fastq.gz
+RNA_1_C6HCPANXX_TGACCAAT_L004_R1.fastq.gz
+RNA_1_C6HCPANXX_TGACCAAT_L004_R2.fastq.gz
+
