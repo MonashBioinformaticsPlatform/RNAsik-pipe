@@ -1,96 +1,49 @@
 #-------------------------
 # Extra option processing
 #-------------------------
+// {STAR => "--chimOutType WithinBAM,--chimSegmentMin 20", \
+//  starIndex => "--sjdbGTFfile /home/kirillt/ilustre/ref-files/Homo_sapiens/82/Homo_sapiens.GRCh38.82.gtf, --sjdbOverhang 99"
+// }
 
-string getCmdOptions(string toolName, string extraOptions) {
-    // if no toolName specified return empty string striaght away
-    if(toolName.isEmpty()) return ""
+string getOpts(string{} optsMap) {
+    string[] allOpts
+    for(string key : optsMap.keys()) {
+        allOpts.add(key)
+        allOpts.add(optsMap{key})
+    }
+    return allOpts.join(" ")
+}
 
-    if(!extraOptions.isEmpty()) { 
-       // if no toolName found in the extraOptions string return empty string
-        int checkForName = extraOptions.indexOf(toolName)
-        if(checkForName == -1) return ""
-
-        string[] getOptions = extraOptions.split(";")
-        int getOptionsListLength = getOptions.size()
-
-        string[] toolsPool = ["STAR", "starIndex", "featureCounts", "RNAseQC"]
-        int counter = 0
-        for(string checkToolName : toolsPool){
-            int checkToolIdx = extraOptions.indexOf(checkToolName)
-            if(checkToolIdx != -1) counter += 1
-        }
-        
-        if(counter > getOptionsListLength) error "It appears that you have incorect information in your -extraOptions string \n ** $extraOptions ** \n Make sure each tool is spelled right and seperated by semicolon and make sure tool name and it's options are separated by greater than sign (>)"
-
-        for(string item : getOptions) {
-
-            string cleanItem = item.trim()
-            bool checkItem = cleanItem.startsWith(toolName)
-
-            if(checkItem) {
-                string[] tmpList = cleanItem.split(">")
-
-                int checkForSeparator = cleanItem.indexOf(">")
-                if(checkForSeparator == -1) error "It appears that you have incorect information in your -extraOption string \n ** $cleanItem ** \n Make sure tool name and it's options are separated by greater than sign (>)"
-
-                string theName = tmpList.removeIdx(0)
-                string tmpOptions = tmpList.join(" <-- error --> ")
-                string theOptions = tmpOptions.trim()
-
-                int checkString = theOptions.indexOf(" <-- error --> ")
-                if(checkString != -1) error "It appears that you have incorect information in your -extraOptions string \n  ** $theOptions ** \n Make sure each tool is spelled right and seperated by semicolon"
-
-                return theOptions
+string{} getOptsMap(string toolName, string{} currentOpts, string args) {
+    string[] items
+    if(!args.isEmpty()) {
+        string{} extraOpts = config(args)
+        // get a particular tool options string from the map
+        string toolsOpts = extraOpts{toolName}
+        // split all options into list
+        // each option has key=value pair separated by space
+        items = toolsOpts.split(",")
+    } 
+    // set new map to currnet options map
+    string{} optsMap = currentOpts
+    // go through all possible options
+    for(string item : items){ 
+	// get key=value pairs
+        string[] opts = item.split(" ")
+        string optKey = opts.removeIdx(0)
+        string optValue = opts.join(" ")
+        // if there are current options
+        // check and update them with newly passed in
+        if(currentOpts) {
+            for(string key : currentOpts.keys()){
+		// if the key already exist update its value from the user input
+                if(optKey.startsWith(key)) optsMap{key} = optValue
+                else optsMap{optKey} = optValue
             }
         }
+        // if no current options found simply append all key=pair values into new map
+        else optsMap{optKey} = optValue
     }
-    else return ""
-}
-// this function can check if options passed on the command line under extraOptions flag 
-// are actually already given options or not
-// if already given than just the value will change according to extraOptions value
-// else new key:value pair is appended to hash
-string{} getAllOptionsHash(string cmdOptions, string{} currentOptions) {
 
-    string[] cmdOptionsList = cmdOptions.split(",")
-    string{} newHash = currentOptions
-
-    for(string option : cmdOptionsList){ 
-        string cleanString = option.trim()
-        string[] listOfOptions = cleanString.split(" ")
-        string newOption = listOfOptions.removeIdx(0)
-        string optionsValue = listOfOptions.join(" ")
-    
-        if(currentOptions) {
-            for(string key : currentOptions.keys()){
-                if(newOption.startsWith(key)) newHash{key} = optionsValue
-                else newHash{newOption} = optionsValue
-            }
-        }
-        else newHash{newOption} = optionsValue
-    }
-    return newHash
-}
-// this function takes your tool name and current options for this tools
-// and returns new options string according to extra options value
-string getAllOptions(string cmdOptions, string{} currentOptions) {
-    
-    string{} allOptionsHash
-    if( (cmdOptions.isEmpty()) && (!currentOptions) ) return ""
-
-    if(!cmdOptions.isEmpty()) {
-        allOptionsHash = getAllOptionsHash(cmdOptions, currentOptions)
-    }
-    else allOptionsHash = currentOptions
- 
-    string[] argsList 
-    
-    for(string key : allOptionsHash.keys()) {
-        argsList.add(key)    
-        argsList.add(allOptionsHash{key})    
-    }
-    string newOptions = argsList.join(" ")
-
-    return newOptions
+    return optsMap
 }

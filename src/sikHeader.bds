@@ -8,7 +8,7 @@
 helpUnsorted := true
 
 help #------------------------
-help RNAsik-pipe version 1.3.4
+help RNAsik-pipe version 1.3.7
 help #------------------------
 help #----------------------------
 help Usage: RNAsik-pipe [options]
@@ -63,10 +63,10 @@ int threads = 1     help specify number of threads to use. This number will be u
                          and STAR raed alignment as well as for featureCounts, default [1]
 string extn = ".fastq.gz"        help optional, specify your files extension default [.fastq.gz]
 string samplesSheet help optional, specify a text file with alternative sample names
-string extraOptions help You can add extra option to any of the tools used in the pipeline. Use this syntax \
-                   e.g -extraOptions "STAR > --outSAMtype BAM Unsorted, --outReadsUnmapped Fastx; starIndex > --sjdbGTFfile /path/to/GTF/file, --sjdbOverhang 99; featureCounts > -t gene" \
-                          Each command is separated by semi-colon (;) after the last options. \
-                          The command options and command name are separated by grater than sign (>) 
+string extraOpts help You can add extra option to any of the tools using args.txt file, where name of your tool and options you are passing in separated by "=" sign. Make new line for each tool  sign. \
+                   e.g STAR = --outSAMtype BAM Unsorted, --outReadsUnmapped Fastx \
+                       starIndex = --sjdbGTFfile /path/to/GTF/file, --sjdbOverhang 99 \
+                       featureCounts = -t gene 
 string configFile   help You can specify configuration file
 bool multiqc
 

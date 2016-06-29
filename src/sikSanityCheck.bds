@@ -89,7 +89,7 @@ string checkCmdArgs() {
                         "-threads", \
                         "-extn", \
                         "-samplesSheet", \
-                        "-extraOptions", \
+                        "-extraOpts", \
                         "-paired", \
                         "-bamFiles", \
                         "-proBams", \
