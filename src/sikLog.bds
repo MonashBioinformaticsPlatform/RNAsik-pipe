@@ -1,0 +1,10 @@
+string logit(string message, string data) {
+    string logFile = "logFile.txt"
+    string content
+    if(logFile.exists()) content = logFile.read()
+    content += message + "\n"
+    content += data + "\n"
+    content += "--------------------------------------\n"
+    logFile.write(content)
+    return "logged"
+}
