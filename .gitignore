@@ -1,3 +1,5 @@
 .dir_bash_history
 *.chp
 *.swp
+*.js
+*.html
