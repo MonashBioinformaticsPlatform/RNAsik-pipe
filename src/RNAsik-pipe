@@ -58,6 +58,8 @@ string[] markedBams
 # Make indices if required 
 #------------------------------
 if(makeIndex){
+    logit("FASTA file in use", localFastaRef)
+    logit("Annotation file in use", localGTF)
     // default STAR options for indexing step
     string{} idxOpts
     // get additonal option for STAR indexing run
