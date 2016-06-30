@@ -17,12 +17,15 @@ string getOpts(string{} optsMap) {
 string{} getOptsMap(string toolName, string{} currentOpts, string args) {
     string[] items
     if(!args.isEmpty()) {
+	// read config into map
         string{} extraOpts = config(args)
-        // get a particular tool options string from the map
-        string toolsOpts = extraOpts{toolName}
-        // split all options into list
-        // each option has key=value pair separated by space
-        items = toolsOpts.split(",")
+        if(extraOpts.hasKey(toolName)) {
+            // get a particular tool options string from the map
+            string toolsOpts = extraOpts{toolName}
+            // split all options into list
+            // each option has key=value pair separated by space
+            items = toolsOpts.split(",")
+        }
     } 
     // set new map to currnet options map
     string{} optsMap = currentOpts
