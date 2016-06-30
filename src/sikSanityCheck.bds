@@ -34,19 +34,17 @@ if(!fqDir.isEmpty()){
     if(!checkFqDir) error "-fqDir doesn't appear to be pointing at the valid directory, double check your path $fqDir"
 }
 if(!fastaRef.isEmpty()){
-    bool checkFastaRef = fastaRef.isFile()
-    if(!checkFastaRef) error "-fastaRef doesn't appear to be pointing at the valid file, double check your path $fastaRef"
-    else localFastaRef = makeLocalFastaRef(fastaRef)
+    if(fastaRef.isFile()) localFastaRef = makeLocalFastaRef(fastaRef)
+    else error "-fastaRef doesn't appear to be pointing at the valid file, double check your path $fastaRef"
 }
 if(!gtfFile.isEmpty()){
-    bool checkGTFfile = gtfFile.isFile()
-    if(!checkGTFfile) error "-gtfFile doesn't appear to be pointing at the valid file, double check your path $gtfFile"
-    else {
+    if(gtfFile.isFile()) {
         localGTF = makeLocalGTF(gtfFile)
         // checks if gtfFiles is really gtf not gff
         string checkGTF = localGTF.extName()
         if(checkGTF == "gff") setGFF = true
-    } 
+    }
+    else error "-gtfFile doesn't appear to be pointing at the valid file, double check your path $gtfFile"
 }
 if(threads < 1) error "specify a positive integer, you have specified $threads"
 //
