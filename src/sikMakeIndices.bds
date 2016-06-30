@@ -10,57 +10,23 @@ if( (!refFiles.exists()) && ( (!gtfFile.isEmpty()) || (!fastaRef.isEmpty()) ) ) 
 #------
 # Body
 #------
-string makeLocalFastaRef(string fastaRef) {
-    // initialise localFastaRef 
-    string localFastaRef
+string makeLocalFastaRef(string fastaRef) { 
     // at this stage its unknown if Fasta is zipped or not
-    string tmpFasta = refFiles+"/"+fastaRef.baseName()
-    // copy Fasta to a local refFiles directory
-    task(tmpFasta <- fastaRef, taskName := "Copying FASTA file") {
-        sys echo $(date) Copying FASTA file, be patient
-        sys cp -v $fastaRef $refFiles
-    }
-    // check if Fasta is gunzip ed or not
-    string getExtn = fastaRef.extName()
-    // gunzip it if it is
-    if(getExtn == "gz") {
-	// set localGTF 
-	localFastaRef = refFiles+"/"+fastaRef.baseName().removeExt()
-        task(localFastaRef <- tmpFasta, taskName := "gunzip ing FASTA file") {
-            sys echo $(date) Also gunzip ing your FASTA file
-            sys gunzip $tmpFasta
-        }
-    } 
-    // if Fasta isn't gunzip ed simply assign it to localFastaRef
-    else localFastaRef = tmpFasta
-    
+    string localRef = refFiles+"/"+fastaRef.baseName()
+    string localFastaRef = localRef.removeExt(".gz")
+    dep(localRef <- fastaRef, taskName := "Copying FASTA file") sys cp -v $fastaRef $refFiles
+    dep(localRef.extName() == "gz", localFastaRef <- localRef, taskName := "gzip FASTA file") sys gunzip $localRef
+    goal localFastaRef
     return localFastaRef
 }
 
 string makeLocalGTF(string gtfFile) {
-    // initialise localGTF 
-    string localGTF
     // at this stage its unknown if GTF is zipped or not
-    string tmpGTF = refFiles+"/"+gtfFile.baseName()
-    // copy GTF to a local refFiles directory
-    task(tmpGTF <- gtfFile, taskName := "Copying GTF file") {
-        sys echo $(date) Copying GTF file, be patient
-        sys cp -v $gtfFile $refFiles
-    }
-    // check if GTF is gunzip ed or not
-    string getExtn = tmpGTF.extName()
-    // gunzip it if it is
-    if(getExtn == "gz") {
-	// set localGTF 
-        localGTF = refFiles+"/"+gtfFile.baseName().removeExt()
-        task(localGTF <- tmpGTF, taskName := "gunzip ing GTF file") {
-            sys echo $(date) Also gunzip ing your GTF file
-            sys gunzip $tmpGTF
-        }
-    } 
-    // if GTF isn't gunzip ed simply assign it to localGTF
-    else localGTF = tmpGTF
-    
+    string localRef = refFiles+"/"+gtfFile.baseName()
+    string localGTF = localRef.removeExt(".gz")
+    dep(localRef <- gtfFile, taskName := "Copying GTF file") sys cp -v $gtfFile $refFiles
+    dep(localRef.extName() == "gz", localGTF <- localRef, taskName := "gunzip ing GTF file") sys gunzip $localRef
+    goal localGTF
     return localGTF
 }
 
