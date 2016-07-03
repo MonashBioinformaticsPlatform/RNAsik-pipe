@@ -3,27 +3,43 @@
 #------------------------------
 string bamFiles = "bamFiles"
 if((!bamFiles.exists()) && (align == "star")) bamFiles.mkdir()
-#----------------------------------------------------------------------------------------------------
-string mapSTAR(string starExe, string rootName, string[] listOfReads, string starOptions) {
+
+string mapSTAR(string{} cmdExe, string rootName, string[] listOfReads, string starOpts, string genomeIdx, int threads) {
+    // get STAR executable 
+    if(!cmdExe.hasKey("starExe")) error "Can't get STAR executable, check your config file $configFile"
+    string starExe = cmdExe{"starExe"}
+
+    string[] idxDeps
+    string[] idxFiles = ["SAindex", "SA", "Genome"]
+    // make proper file path
+    for(string idx : idxFiles) idxDeps.add(genomeIdx+"/"+idx)
+
+    int chkGTF = starOpts.indexOf("--sjdbGTFfile")
+    if(chkGTF != -1) {
+        string[] gtfFiles = ["sjdbInfo.txt", "sjdbList.fromGTF.out.tab", "sjdbList.out.tab", "transcriptInfo.tab"]
+        // make proper file path
+        for(string gtf : gtfFiles) idxDeps.add(genomeIdx+"/"+gtf)
+    }
 
     string rootBase = rootName.baseName()
     string preFix = bamFiles+"/"+rootBase+"_"
     
     string bamOut
 
-    int checkUnsorted = starOptions.indexOf("Unsorted")
-    int checkSorted = starOptions.indexOf("SortedByCoordinate")
+    int checkUnsorted = starOpts.indexOf("Unsorted")
+    int checkSorted = starOpts.indexOf("SortedByCoordinate")
 
     if(checkUnsorted != -1) bamOut = preFix+"Aligned.out.bam"
     if(checkSorted != -1) bamOut = preFix+"Aligned.sortedByCoord.out.bam"
-
+    // deecrease number of threads by two
+    threads -= 2
     string reads = listOfReads.join(" ")
-    task(bamOut <- genomeIndex, taskName := "STAR aligning "+rootBase) {
+    task(align == "star", bamOut <- idxDeps, taskName := "STAR aligning "+rootBase) {
         sys $starExe --runThreadN $threads \
                      --outSAMattrRGline ID:001 CN:Unknown DS:RNA-seq PL:ILLUMINA PM:MiSeq SM:$rootBase \
                      --readFilesIn $reads \
                      --outFileNamePrefix $preFix \
-                     $starOptions
+                     $starOpts
                  
     }
     wait

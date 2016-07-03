@@ -30,17 +30,32 @@ string makeLocalGTF(string gtfFile) {
     return localGTF
 }
 
-string makeSTARindex(string starExe, string fastaRef, string additionalIndexOptions) {
+string makeSTARindex(string{} cmdExe, string fastaRef, string starOpts, int threads) {
+    // get STAR executable 
+    if(!cmdExe.hasKey("starExe")) error "Can't get STAR executable, check your config file $configFile"
+    string starExe = cmdExe{"starExe"}
 
     string genomeIdx = fastaRef.removeExt()+"-starIndex"
     if(!genomeIdx.exists()) genomeIdx.mkdir()
 
-    task(genomeIdx <- fastaRef, taskName := "Making STAR index") {
+    string[] idxDeps
+    string[] idxFiles = ["SAindex", "SA", "Genome"]
+    // make proper file path
+    for(string idx : idxFiles) idxDeps.add(genomeIdx+"/"+idx)
+
+    int chkGTF = starOpts.indexOf("--sjdbGTFfile")
+    if(chkGTF != -1) {
+        string[] gtfFiles = ["sjdbInfo.txt", "sjdbList.fromGTF.out.tab", "sjdbList.out.tab", "transcriptInfo.tab"]
+        // make proper file path
+        for(string gtf : gtfFiles) idxDeps.add(genomeIdx+"/"+gtf)
+    }
+    threads -= 2
+    task(idxDeps <- fastaRef, taskName := "Making STAR index") {
         sys $starExe --runThreadN $threads \
                      --runMode genomeGenerate \
                      --genomeDir $genomeIdx \
                      --genomeFastaFiles $fastaRef \
-                     $additionalIndexOptions
+                     $starOpts
     }
     return genomeIdx
 }
@@ -52,14 +67,4 @@ string makeFaiFile(string samtoolsExe, string fastaRef) {
         sys $samtoolsExe faidx $fastaRef
     }
     return fastaFaiFile
-}
-// make dictionary for picard pre-processing
-string makeDictFile(string picardExe, string fastaRef) {
-    // make .dict string
-    string fastaDictFile = fastaRef.removeExt()+".dict"
-    task(fastaDictFile <- fastaRef, taskName := "Making dictionary File") {
-        sys $picardExe CreateSequenceDictionary REFERENCE=$fastaRef \
-                                                OUTPUT=$fastaDictFile
-    }
-    return fastaDictFile
 }
