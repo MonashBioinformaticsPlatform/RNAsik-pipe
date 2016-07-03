@@ -49,152 +49,83 @@ string{} cmdExe = config(configFile)
 #------------------------------
 # Global Variables
 #------------------------------
+// list of fastq files
+string[] fqFiles
 //string  list of bam files from STAR run
 string[] bamsList
-// list of all BAMS files,
-//# where BAM had been sorted, reorted and duplicates marked
+// where BAM had been sorted, reorted and duplicates marked
 string[] markedBams
-#------------------------------
-# Make indices if required 
-#------------------------------
-if(makeIndex){
-    logit("FASTA file in use", localFastaRef)
-    logit("Annotation file in use", localGTF)
-    // default STAR options for indexing step
-    string{} idxOpts
-    // get additonal option for STAR indexing run
-    //string cmdOptions = getCmdOptions("starIndex", extraOpts)
-    //string additionalIndexOptions = getAllOptions(cmdOptions, currentIndexOptions)
-    string opts = getOpts(getOptsMap("starIndex", idxOpts, extraOpts))
-    logit("STAR indexing cmd options", opts)
-    
-    if(!cmdExe.hasKey("starExe")) error "Can't get STAR executable, check your config file $configFile"
-    // get STAR executable
-    string getSTARexe = cmdExe{"starExe"}
-    // get genomeIndex directory
-    genomeIndex = makeSTARindex(getSTARexe, localFastaRef, opts)
-    logit("STAR genomic index", genomeIndex)
+// counts
+string[] featureCounts
+// Make indices if required 
+logit("FASTA file in use", localFastaRef)
+logit("Annotation file in use", localGTF)
+// STAR index cmd options
+string{} idxOpts
+string allIdxOpts = getOpts(getOptsMap("starIndex", idxOpts, extraOpts))
+logit("STAR indexing cmd options", allIdxOpts)
+// get genomeIdx directory
+if( (makeIndex) || ( (!fastaRef.isEmpty()) && (!align.isEmpty()) ) ) genomeIdx = makeSTARindex(cmdExe, localFastaRef, allIdxOpts, threads)
+logit("STAR genomic index", genomeIdx)
+// grab all FASTQ files
+fqFiles = getFqFiles(fqDir, extn)
+string{} fqMap = getFqMap(fqFiles, fqRegex, samplesSheet, extn)
+// for loggin purpose convert map to string and write it to a file
+string toString = fqMap
+logit("Fastq files map, where key = rootName = bam file name and value actual fastq file with that rootName", toString)
+// STAR default options
+string{} starOpts = { "--outSAMtype" => "BAM Unsorted", \
+                      "--outSAMunmapped" => "Within", \
+                      "--genomeDir" => genomeIdx, \
+                      "--readFilesCommand" => "zcat"}
+string allSTARopts = getOpts(getOptsMap("STAR", starOpts, extraOpts))
+logit("STAR alignment cmd options", allSTARopts)
+// Get BAM files
+for(string rootName : fqMap.keys()) {
+    string[] reads = getReads(fqMap{rootName})
+    logit("This is rootName for read below", rootName)
+    logit("R1 reads string that passed to aligner", reads[0])
+    logit("R2 reads string that passed to aligner", reads[1])
+   
+    paired = getPaired(reads) 
+    // STAR aligning
+    string bamFile = mapSTAR(cmdExe, rootName, reads, allSTARopts, genomeIdx, threads) 
+    logit("Corresponding bam file", bamFile)
+    string mdupsBam = getPrePro(cmdExe, bamFile, localFastaRef)
+    if(prePro) logit("Corresponding bam file with marked dups", mdupsBam)
+    bamsList.add(bamFile)
+    markedBams.add(mdupsBam)
 }
-#------------------------------
-# BAM generation step
-#------------------------------
-if(align == "star"){
-    // grab all FASTQ files
-    string[] fqFiles = getFqFiles(fqDir, extn)
-    string{} fqMap = getFqMap(fqFiles, fqRegex, samplesSheet, extn)
-    // for loggin purpose convert map to string and write it to a file
-    string toString = fqMap
-    logit("Fastq files map, where key = rootName = bam file name and value actual fastq file with that rootName", toString)
-    if(!fqMap) error "It appears that you don't have any FASTQ files specified. Check -fqDir path and make sure it point to FASTQ files directory"
-    // get STAR executable 
-    if(!cmdExe.hasKey("starExe")) error "Can't get STAR executable, check your config file $configFile"
-    string getSTARexe = cmdExe{"starExe"}
-
-    for(string rootName : fqMap.keys()) {
-        string[] reads = getReads(fqMap{rootName})
-        logit("This is rootName for read below", rootName)
-        logit("R1 reads string that passed to aligner", reads[0])
-        logit("R1 reads string that passed to aligner", reads[1])
-       
-        paired = getPaired(reads) 
-
-        string{} starOpts = { "--outSAMtype" => "BAM Unsorted", \
-                              "--outSAMunmapped" => "Within", \
-                              "--genomeDir" => genomeIndex, \
-                              "--readFilesCommand" => "zcat"}
-        // get additional options 
-        //string cmdOptions = getCmdOptions("STAR", extraOpts)
-        //string additionalSTARoptions = getAllOptions(cmdOptions, currentSTARoptions)
-        string opts = getOpts(getOptsMap("STAR", starOpts, extraOpts))
-        logit("STAR alignment cmd options", opts)
-        // STAR aligning
-        string bamFile = mapSTAR(getSTARexe, rootName, reads, opts) 
-        logit("Corresponding bam file", bamFile)
-        bamsList.add(bamFile)
+// featureCounts cmd options
+string{} countsOpts = { "-a" => localGTF }
+if(paired) countsOpts{"-p"} = ""
+string allCountOpts = getOpts(getOptsMap("featureCounts", countsOpts, extraOpts))
+//
+if(!fqMap) {
+    warning "No information about paired end. Use -paired to indicated paired end data"
+    // get bam file from the bamFiles directory
+    if(bamFiles.exists()) {
+        bamsList = bamFiles.dirPath("*.bam")
+        featureCounts = getReadsCount(cmdExe, bamsList, allCountOpts, threads)
+        for(string bamFile : bamsList) {
+            string mdupsBam = getPrePro(cmdExe, bamFile, localFastaRef)
+            logit("*Corresponding bam file with marked dups", mdupsBam)
+            markedBams.add(mdupsBam)
+        }
     }
+    else error "No bam files or bamFiles directory was found. You can pass bam files using -bamFiles /path/to/bamFiles/dir"
 }
 
-if(count) { 
-    if(align != "star") bamsList = bamFiles.dirPath("*.bam")
-
-    string{} countsOpts = { "-a" => localGTF }
-    if(paired) countsOpts{"-p"} = ""
-
-    //string cmdOptions = getCmdOptions("featureCounts", extraOpts)
-    //string additionalCountsOptions = getAllOptions(cmdOptions, currentCountsOptions)
-    string opts = getOpts(getOptsMap("featureCounts", countsOpts, extraOpts))
-
-    if(!bamsList) error "No BAM files were found, either used -align options or specify directory with BAM files using `-bamFiles path/to/you/bams/directory`"
-    // get featureCounts executable
-    string getCounterExe = cmdExe{"counterExe"}
-    // do read counting
-    string[] featureCounts = getReadsCount(getCounterExe, bamsList, opts, threads)
-    string featureNo = featureCounts[0]
-    string featureReverse = featureCounts[1]
-
-    string tmpNon = countFiles+"/"+"tmpNon.txt"
-    string tmpReverse = countFiles+"/"+"tmpReverse.txt"
-
-    string tmp2Non = countFiles+"/"+"tmp2Non.txt"
-    string tmp2Reverse = countFiles+"/"+"tmp2Reverse.txt"
-
-    string NonStrandedCountsWithNames = countFiles+"/"+"NonStrandedCounts-withNames.txt"
-    string ReverseStrandedCountsWithNames = countFiles+"/"+"ReverseStrandedCounts-withNames.txt"
-
-    string getPythonExe = cmdExe{"pythonExe"}
-    string geneIdsFile = getGeneIds(getPythonExe, localGTF, setGFF)
-
-    int numberOfBamFiles = bamsList.size()+7
-    int[] theRange = range(7, numberOfBamFiles)
-    string numberOfFields = theRange.join(",")
-
-    task([NonStrandedCountsWithNames, ReverseStrandedCountsWithNames] <- [featureNo, featureReverse, geneIdsFile], taskName := "Making Degust-ready counts file") {
-        sys grep -v "#" $featureNo | cut -f1,$numberOfFields | perl -pe 's{\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $tmpNon
-        sys sed -i '0,/Geneid/s/Geneid/Gene.ID/' $tmpNon
-        sys /bin/bash -c "join -j 1 <(sort -k1,1 $geneIdsFile) <(sort -k1,1 $tmpNon) -t $'\t' > $tmp2Non"
-        sys grep "Biotype" $tmp2Non > $NonStrandedCountsWithNames
-        sys grep -v "Biotype" $tmp2Non >> $NonStrandedCountsWithNames
-        sys rm $tmpNon $tmp2Non
-        
-        sys grep -v "#" $featureReverse | cut -f1,$numberOfFields | perl -pe 's{\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $tmpReverse
-        sys sed -i '0,/Geneid/s/Geneid/Gene.ID/' $tmpReverse
-        sys /bin/bash -c "join -j 1 <(sort -k1,1 $geneIdsFile) <(sort -k1,1 $tmpReverse) -t $'\t' > $tmp2Reverse"
-        sys grep "Biotype" $tmp2Reverse > $ReverseStrandedCountsWithNames
-        sys grep -v "Biotype" $tmp2Reverse >> $ReverseStrandedCountsWithNames
-        sys rm $tmpReverse $tmp2Reverse
-    }
-    wait
-}
-#------------------------------
-# fastQC report
-#------------------------------
-if(fastqc) { 
-    string[] fqFiles = getFqFiles(fqDir, extn)
-    if(!fqFiles) error "It appears that you don't have any FASTQ files specified."
-    string getFastqcExe = cmdExe{"fastqcExe"}
-    string fqcReport = getFastqcReport(getFastqcExe, fqFiles, threads)
-    wait
-}
-#------------------------------
-# BAM processing
-#------------------------------
-if(prePro) {
-    // check that not aligners had been specified
-    if(align != "star") bamsList = bamFiles.dirPath("*.bam")
-    // make sure we have BAM files to work with
-    if(!bamsList) error "No BAM files were found, either used -align options or specify directory with BAM files using `-bamFiles path/to/you/bams/directory`"
-    // make dict file if doesn't exist
-    string getPicardExe = cmdExe{"picardExe"}
-    string fastaDictFile = makeDictFile(getPicardExe, localFastaRef)
-    // loop over BAM files do pre-processing 
-    for(string bamFile : bamsList) {
-        string mdupsBam = getPrePro(getPicardExe, bamFile, localFastaRef, fastaDictFile)
-        markedBams.add(mdupsBam)
-    }
-}
-#----------------
-# RNAseQC report
-#----------------
+if(!align.isEmpty()) featureCounts = getReadsCount(cmdExe, bamsList, allCountOpts, threads)
+string degust = getDegust(cmdExe, featureCounts, bamsList.size(), localGTF, setGFF, threads)
+// FastQC report
+string[] fqcReport = getFastqcReport(cmdExe, fqFiles, extn, threads)
+// gather all files up for multiqc 
+string[] multiqcDeps = bamFiles + markedBams + degust + fqcReport
+//
+string qcReport = getMultiqc(cmdExe, multiqcDeps)
+logit("Multiqc will run on this directory", qcReport)
+// RNAseQC report
 if(RNAseQC){
     if(!prePro) markedBams = proBams.dirPath("*.bam")
     if(!markedBams) error "No pre-processed BAM files were found, either used -prePro options or specify directory with appropriate BAM files using `-proBams path/to/you/bams/directory`"
@@ -214,14 +145,6 @@ if(RNAseQC){
     // get RNAseQC report 
     string getRNAseQCexe = cmdExe{"RNAseQCexe"}
     string qcReport = getRNAseQC(getRNAseQCexe, sampleIdsFile, markedBams, localFastaRef, localGTF, opts)
-}
-if(multiqc) {
-    string multiqcExe = "multiqc"
-    string homeDir = PWD //.pathName()
-    print("$homeDir \n")
-    task("multiqc_report.html" <- markedBams, taskName := "Generating MultiQC report") {
-        sys $multiqcExe $homeDir
-    }
 }
 #----------------------------------------------------------------------------------------------------
 # End
