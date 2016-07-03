@@ -49,7 +49,7 @@ string getPrePro(string{} cmdExe, string bamFile, string fastaRef){
     
     string mdupsName = reorderedName.swapExt(".bam", "_marked_dups.bam")
     string metricsName = reorderedName.swapExt(".bam", "_marked_dups.metrics")
-    dep(prePro, mdupsName <- reorderedName, taskName := "picard marking dups "+mdupsName) {
+    dep(prePro, [mdupsName, metricsName] <- reorderedName, taskName := "picard marking dups "+mdupsName) {
         sys $picardExe MarkDuplicates TMP_DIR=tmp/ \
                                       VALIDATION_STRINGENCY=LENIENT \
                                       CREATE_INDEX=true \
