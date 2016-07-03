@@ -2,6 +2,7 @@
 # Organising FASTQ files 
 #------------------------
 string[] getFqFiles(string fqDir, string extn) {
+    if( ( (!align.isEmpty()) || (fastqc) ) && (fqDir.isEmpty()) ) error "Usage: -fqDir /path/to/your/FASTQ/files"
     string[] fqFiles
     // go through each file and check if its file or directory
     for(string dir : fqDir.dirPath()){
@@ -59,11 +60,12 @@ string getRootName(string fq, string fqRegex, string samplesSheet, string extn) 
 // This function return hash with key set to root name 
 // and value is the list of all associated FASTQ files
 // that are spread across multiple lane during sequencing
-string{} getFqMap(string[] rOneFqs, string fqRegex, string samplesSheet, string extn) {
+string{} getFqMap(string[] fqFiles, string fqRegex, string samplesSheet, string extn) {
+    if(fqFiles.isEmpty()) error "No fastq files were found, check -fqDir path"
     # Map with unique root key
     string{} fqMap
     // loop over FASTQ files
-    for(string fq : rOneFqs) {
+    for(string fq : fqFiles) {
         string rootName = getRootName(fq, fqRegex, samplesSheet, extn)
         if(!fqMap.hasKey(rootName)) fqMap{rootName}=""
         fqMap{rootName}+=fq+","
