@@ -9,9 +9,9 @@ if(fastqc) {
     if(fqDir.isEmpty()) error "Usage: -fqDir /path/to/your/FASTQ/files"
 }
 if(align == "star") {
-    // if neither genomeIndex not makeIndex options are specified then
+    // if neither genomeIdx not makeIndex options are specified then
     // makeIndex is set to true and index is being made during runtime
-    if( (genomeIndex.isEmpty()) && (!makeIndex) ) makeIndex = true
+    if( (genomeIdx.isEmpty()) && (!makeIndex) ) makeIndex = true
     // if regex string was given, be sure to set the right regex
     if(!fqRegex.isEmpty()){
         if(fqRegex == "A") fqRegex = "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"
@@ -49,8 +49,8 @@ if(!gtfFile.isEmpty()){
 if(threads < 1) error "specify a positive integer, you have specified $threads"
 //
 if(makeIndex){
-    // check that -genomeIndex haven't been specified
-    if(!genomeIndex.isEmpty()) error "You have specified both -makeIndex and -genomeIndex, you only need to specify one"
+    // check that -genomeIdx haven't been specified
+    if(!genomeIdx.isEmpty()) error "You have specified both -makeIndex and -genomeIdx, you only need to specify one"
     if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
 }
 if(count) {
@@ -77,7 +77,7 @@ string checkCmdArgs() {
                         "-align", \
                         "-fqDir", \
                         "-fqRegex", \
-                        "-genomeIndex", \
+                        "-genomeIdx", \
                         "-count", \
                         "-gtfFile", \
                         "-prePro", \

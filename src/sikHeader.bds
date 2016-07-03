@@ -8,7 +8,7 @@
 helpUnsorted := true
 
 help #------------------------
-help RNAsik-pipe version 1.3.7
+help RNAsik-pipe version 1.4.0
 help #------------------------
 help #----------------------------
 help Usage: RNAsik-pipe [options]
@@ -24,7 +24,7 @@ help #--------------------------------------------------------------------------
 help Make Indices options [default STAR]:
 
 bool makeIndex     help Flag if you need to make STAR index. You must indexed your reference genome in order to do the alignemnt. \
-                              If `-genomeIndex` option isn't give and `-align` is specified `RNAsik-pipe` will automatically make an index.
+                              If `-genomeIdx` option isn't give and `-align` is specified `RNAsik-pipe` will automatically make an index.
 string fastaRef     help path to the reference FASTA file
                 
 
@@ -39,7 +39,7 @@ string fqRegex      help select regex option that resembles your common fastq fi
                                            D: "_R[0-9].fastq.gz$" \
                                e.g for this file Samp12_S10_L002_R1_001.fastq.gz you'd do -fqRegex A 
 
-string genomeIndex  help path to the directory with genome index for the coresponding species. If not specified then `-makeIndex` option is assumed
+string genomeIdx  help path to the directory with genome index for the coresponding species. If not specified then `-makeIndex` option is assumed
 
 help Reads count option [default featureCounts]:
 
@@ -56,10 +56,11 @@ bool RNAseQC        help flag if you like to run RNA-SeQC report
 help fastQC report [default FastQC]: 
 
 bool fastqc         help flag if you like to run fastQC report on the files
+bool multiqc        help flag if you like to run multiqc report on analysis directory
 
 help Other options
 
-int threads = 1     help specify number of threads to use. This number will be used for STAR genome indexing\
+int threads = 4     help specify number of threads to use. This number will be used for STAR genome indexing\
                          and STAR raed alignment as well as for featureCounts, default [1]
 string extn = ".fastq.gz"        help optional, specify your files extension default [.fastq.gz]
 string samplesSheet help optional, specify a text file with alternative sample names
@@ -68,8 +69,6 @@ string extraOpts help You can add extra option to any of the tools using args.tx
                        starIndex = --sjdbGTFfile /path/to/GTF/file, --sjdbOverhang 99 \
                        featureCounts = -t gene 
 string configFile   help You can specify configuration file
-bool multiqc
-
 // initialise empty variable
 string localFastaRef 
 // initialise empty variable
