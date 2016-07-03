@@ -10,7 +10,7 @@ if((!countFiles.exists()) && (count)) countFiles.mkdir()
 #------
 # Body
 #------
-string[] getReadsCount(string{} cmdExe, string[] bamsList, string extraOpts, int threads) {
+string[] getReadsCount(string{} cmdExe, string[] bamsList, string extraOpts, string localGTF, int threads) {
 
     if(!cmdExe.hasKey("countsExe")) error "Can't get featureCounts executable, check your config file $configFile"
     string countsExe = cmdExe{"countsExe"}
@@ -24,26 +24,47 @@ string[] getReadsCount(string{} cmdExe, string[] bamsList, string extraOpts, int
     string bamString = bamsList.join(" ")
     string[] allDeps = bamsList
     allDeps.add(localGTF)
-    
-    string ReverseStrandedCounts = countFiles+"/"+"ReverseStrandedCounts.txt"
-    // don't run the task unless you have both bamFiles and gtf file
-    task(count, ReverseStrandedCounts <- allDeps, taskName := "Counting features") {
-        sys $countsExe -T $featureThreads \
-                       -s 2 \
-                       $extraOpts \
-                       -o $ReverseStrandedCounts \
-                       $bamString
+
+    //string NonStrandedCounts = countFiles+"/"+"NonStrandedCounts.txt"
+    //string ReverseStrandedCounts = countFiles+"/"+"ReverseStrandedCounts.txt"
+    string[] featureOut
+    int[] strands = [2, 0]
+    string[] featureFiles = ["NonStrandedCounts.txt", "ReverseStrandedCounts.txt"]
+    for(string featureFile : featureFiles) {
+        string countsName = countFiles+"/"+featureFile
+        featureOut.add(countsName)
+        int strand = strands.pop()
+        dep(count, countsName <- allDeps, taskName := "Counting features") {
+            sys $countsExe -T $featureThreads \
+                           -s $strand \
+                           $extraOpts \
+                           -o $countsName \
+                           $bamString
+        }
+
     }
-    string NonStrandedCounts = countFiles+"/"+"NonStrandedCounts.txt"
-    // don't run the task unless you have both bamFiles and gtf file
-    task(count, NonStrandedCounts <- allDeps, taskName := "Counting features") {
-        sys $countsExe -T $featureThreads \
-                         -s 0 \
-                         $extraOpts \
-                         -o $NonStrandedCounts \
-                         $bamString
-    }
-    return [NonStrandedCounts, ReverseStrandedCounts] 
+    goal featureOut
+    return featureOut
+
+    //string ReverseStrandedCounts = countFiles+"/"+"ReverseStrandedCounts.txt"
+    //// don't run the task unless you have both bamFiles and gtf file
+    //task(count, ReverseStrandedCounts <- allDeps, taskName := "Counting features") {
+    //    sys $countsExe -T $featureThreads \
+    //                   -s 2 \
+    //                   $extraOpts \
+    //                   -o $ReverseStrandedCounts \
+    //                   $bamString
+    //}
+    //string NonStrandedCounts = countFiles+"/"+"NonStrandedCounts.txt"
+    //// don't run the task unless you have both bamFiles and gtf file
+    //task(count, NonStrandedCounts <- allDeps, taskName := "Counting features") {
+    //    sys $countsExe -T $featureThreads \
+    //                     -s 0 \
+    //                     $extraOpts \
+    //                     -o $NonStrandedCounts \
+    //                     $bamString
+    //}
+    //return [NonStrandedCounts, ReverseStrandedCounts] 
 }
 //
 string getGeneIds(string pythonExe, string gtfFile, bool setGFF){
