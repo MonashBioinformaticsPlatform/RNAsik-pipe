@@ -10,36 +10,42 @@ if((!countFiles.exists()) && (count)) countFiles.mkdir()
 #------
 # Body
 #------
-string[] getReadsCount(string counterExe, string[] bamsList, string additionalArgs, int threads) {
+string[] getReadsCount(string{} cmdExe, string[] bamsList, string extraOpts, int threads) {
+
+    if(!cmdExe.hasKey("countsExe")) error "Can't get featureCounts executable, check your config file $configFile"
+    string countsExe = cmdExe{"countsExe"}
+
+    if(!bamsList) error "No BAM files were found, either used -align options or specify directory with BAM files using `-bamFiles path/to/you/bams/directory`"
 
     int featureThreads
     if(threads == 1) featureThreads = threads
     else featureThreads = threads/2
 
     string bamString = bamsList.join(" ")
-
+    string[] allDeps = bamsList
+    allDeps.add(localGTF)
+    
     string ReverseStrandedCounts = countFiles+"/"+"ReverseStrandedCounts.txt"
     // don't run the task unless you have both bamFiles and gtf file
-    task(ReverseStrandedCounts <- [bamFiles, localGTF], taskName := "Counting features") {
-        sys $counterExe -T $featureThreads \
-                          -s 2 \
-                          $additionalArgs \
-                          -o $ReverseStrandedCounts \
-                          $bamString
+    task(count, ReverseStrandedCounts <- allDeps, taskName := "Counting features") {
+        sys $countsExe -T $featureThreads \
+                       -s 2 \
+                       $extraOpts \
+                       -o $ReverseStrandedCounts \
+                       $bamString
     }
-                          //-a $gtfFile \
     string NonStrandedCounts = countFiles+"/"+"NonStrandedCounts.txt"
     // don't run the task unless you have both bamFiles and gtf file
-    task(NonStrandedCounts <- [bamFiles, localGTF], taskName := "Counting features") {
-        sys $counterExe -T $featureThreads \
-                          -s 0 \
-                          $additionalArgs \
-                          -o $NonStrandedCounts \
-                          $bamString
+    task(count, NonStrandedCounts <- allDeps, taskName := "Counting features") {
+        sys $countsExe -T $featureThreads \
+                         -s 0 \
+                         $extraOpts \
+                         -o $NonStrandedCounts \
+                         $bamString
     }
     return [NonStrandedCounts, ReverseStrandedCounts] 
 }
-
+//
 string getGeneIds(string pythonExe, string gtfFile, bool setGFF){
     string getProgPath = programPath.pathName()
     string pyFlag = '--gtfFile'
@@ -48,9 +54,35 @@ string getGeneIds(string pythonExe, string gtfFile, bool setGFF){
     }
     string getGeneIds = getProgPath+"/../scripts/getGeneIds.py"
     string geneIds = "geneIds.txt"
-    task(geneIds <- gtfFile, taskName := "getting geneIds.txt file") {
+    task(count, geneIds <- gtfFile, taskName := "getting geneIds.txt file") {
         sys $pythonExe $getGeneIds $pyFlag $gtfFile > $geneIds
     }
-
     return geneIds
+}
+
+string getDegust(string{} cmdExe, string[] featureCounts, int bamsN, string gtfFile, bool gff, int threads) {
+    if(!cmdExe.hasKey("pythonExe")) error "Can't get python executable, check your config file $configFile"
+    string geneIdsFile = getGeneIds(cmdExe{"pythonExe"}, gtfFile, gff)
+
+    string[] withNames
+
+    int bamConst = 7
+    int lastBamN = bamsN+bamConst
+    string cutRange = bamConst+"-"+lastBamN
+
+    for(string countFile : featureCounts) {
+        string withName = countFile.removeExt()+"-withNames.txt"
+        withNames.add(withName)
+        dep(count, withName <- [countFile, geneIdsFile], taskName := "Degust-ready counts file", tmp := "$countFile.tmp", tmp2 := "$countFile.tmp2") {
+            sys grep -v "#" $countFile | cut -f1,$cutRange | perl -pe 's{\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $tmp
+            sys sed -i '0,/Geneid/s/Geneid/Gene.ID/' $tmp
+            sys /bin/bash -c "join -j 1 <(sort -k1,1 $geneIdsFile) <(sort -k1,1 $tmp) -t $'\t' > $tmp2"
+            sys grep "Biotype" $tmp2 > $withName
+            sys grep -v "Biotype" $tmp2 >> $withName
+            sys rm $tmp $tmp2
+        }
+    }
+    goal withNames
+        
+    return withNames
 }
