@@ -1,3 +1,4 @@
+include "sikHeader.bds"
 #--------------------------------------------------
 # Functions to get QC reports, RNAseQC and FASTQC
 #--------------------------------------------------
@@ -18,7 +19,7 @@ string getSampleIds(string[] markedBams){
     }
     return sampleIds
 }
-
+//
 string getRNAseQC(string RNAseQCexe, string sampleIdsFile, string[] markedBams, string fastaRef, string localGTF, string additionalRNAseQCoptions){
 
     string getProgPath = programPath.pathName()
@@ -39,25 +40,37 @@ string getRNAseQC(string RNAseQCexe, string sampleIdsFile, string[] markedBams, 
     }
     return "all good"
 }
+//
+string[] getFastqcReport(string{} cmdExe, string[] fqFiles, string extn, int threads){
+    if(!cmdExe.hasKey("fastqcExe")) error "Can't get fastqc executable, check your config file $configFile"
+    if(fqFiles.isEmpty()) error "No FASTQ files found, use -fqDir /path/to/fastq/dir."
 
-string fastqcReport = "fastqcReport"
-if((!fastqcReport.exists()) && (fastqc)) fastqcReport.mkdir()
-
-string getFastqcReport(string fastqcExe, string[] fqFiles, int threads){
-    // fastqc doesn't need alot of cpu (I think)
-    // for now I'm just gonig to half the cpu that are given
-    // in future might need to improve that
-    string newThreads
-    if(threads != 1) newThreads = threads/2
-    else newThreads = threads
-    
+    string fastqcReport = "fastqcReport"
+    if((!fastqcReport.exists()) && (fastqc)) fastqcReport.mkdir()
+   
+    string preFix = "_fastqc.html"
+    string[] fqcDeps
+    for(string fq : fqFiles) {
+        string rootName = fq.removeExt(extn)
+        fqcDeps.add(rootName+preFix)
+    }
     string fqs = fqFiles.join(" ")
 
-    task(fastqcReport <- fqFiles, taskName := "Running FASTQC") { 
-        sys $fastqcExe --threads $newThreads \
-                       --outdir $fastqcReport \
-                       --format fastq \
-                       $fqs
+    task(fastqc, fqcDeps <- fqFiles, taskName := "Running FASTQC") { 
+        sys $cmdExe{"fastqcExe"} --threads $threads \
+                                 --outdir $fastqcReport \
+                                 --format fastq \
+                                 $fqs
     }
-    return "all done"
+    return fqcDeps
+}
+//
+string getMultiqc(string{} cmdExe, string[] allDeps) {
+    if(!cmdExe.hasKey("multiqcExe")) error "Can't get multiqc executable, check your config file $configFile"
+
+    string homeDir = PWD //.pathName()
+    task(multiqc, "multiqc_report.html" <- allDeps, taskName := "Generating MultiQC report") {
+        sys $cmdExe{"multiqcExe"} $homeDir
+    }
+    return homeDir
 }
