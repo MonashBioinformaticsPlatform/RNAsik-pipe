@@ -12,9 +12,11 @@ if( (!refFiles.exists()) && ( (!gtfFile.isEmpty()) || (!fastaRef.isEmpty()) ) ) 
 #------
 string makeLocalFastaRef(string fastaRef) { 
     // at this stage its unknown if Fasta is zipped or not
-    string localRef = refFiles+"/"+fastaRef.baseName()
+    string localRef
+    // temp fix, look like a bug, if fastaRef is empty, fastaRef.baseName() returns working directory
+    if(!fastaRef.isEmpty()) localRef = refFiles+"/"+fastaRef.baseName()
     string localFastaRef = localRef.removeExt(".gz")
-    dep(localRef <- fastaRef, taskName := "Copying FASTA file") sys cp -v $fastaRef $refFiles
+    dep(!fastaRef.isEmpty(), localRef <- fastaRef, taskName := "Copying FASTA file") sys cp -v $fastaRef $refFiles
     dep(localRef.extName() == "gz", localFastaRef <- localRef, taskName := "gzip FASTA file") sys gunzip $localRef
     goal localFastaRef
     return localFastaRef
@@ -24,7 +26,7 @@ string makeLocalGTF(string gtfFile) {
     // at this stage its unknown if GTF is zipped or not
     string localRef = refFiles+"/"+gtfFile.baseName()
     string localGTF = localRef.removeExt(".gz")
-    dep(localRef <- gtfFile, taskName := "Copying GTF file") sys cp -v $gtfFile $refFiles
+    dep(!gtfFile.isEmpty(), localRef <- gtfFile, taskName := "Copying GTF file") sys cp -v $gtfFile $refFiles
     dep(localRef.extName() == "gz", localGTF <- localRef, taskName := "gunzip ing GTF file") sys gunzip $localRef
     goal localGTF
     return localGTF
