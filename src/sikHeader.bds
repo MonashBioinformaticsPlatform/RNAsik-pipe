@@ -69,10 +69,6 @@ string extraOpts help You can add extra option to any of the tools using args.tx
                        starIndex = --sjdbGTFfile /path/to/GTF/file, --sjdbOverhang 99 \
                        featureCounts = -t gene 
 string configFile   help You can specify configuration file
-// initialise empty variable
-string localFastaRef 
-// initialise empty variable
-string localGTF
 // check if data is paired end or not
 bool paired
 // can use this string to pass in marked bams

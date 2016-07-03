@@ -57,6 +57,11 @@ string[] bamsList
 string[] markedBams
 // counts
 string[] featureCounts
+// local Fasta file
+string localFastaRef = makeLocalFastaRef(fastaRef)
+// local GTF file
+string localGTF = makeLocalGTF(gtfFile)
+if(localGTF.extName() == "gff") setGFF = true
 // Make indices if required 
 logit("FASTA file in use", localFastaRef)
 logit("Annotation file in use", localGTF)
@@ -106,7 +111,7 @@ if(!fqMap) {
     // get bam file from the bamFiles directory
     if(bamFiles.exists()) {
         bamsList = bamFiles.dirPath("*.bam")
-        featureCounts = getReadsCount(cmdExe, bamsList, allCountOpts, threads)
+        featureCounts = getReadsCount(cmdExe, bamsList, allCountOpts, localGTF, threads)
         for(string bamFile : bamsList) {
             string mdupsBam = getPrePro(cmdExe, bamFile, localFastaRef)
             logit("*Corresponding bam file with marked dups", mdupsBam)
@@ -116,7 +121,7 @@ if(!fqMap) {
     else error "No bam files or bamFiles directory was found. You can pass bam files using -bamFiles /path/to/bamFiles/dir"
 }
 
-if(!align.isEmpty()) featureCounts = getReadsCount(cmdExe, bamsList, allCountOpts, threads)
+if(!align.isEmpty()) featureCounts = getReadsCount(cmdExe, bamsList, allCountOpts, localGTF, threads)
 string degust = getDegust(cmdExe, featureCounts, bamsList.size(), localGTF, setGFF, threads)
 // FastQC report
 string[] fqcReport = getFastqcReport(cmdExe, fqFiles, extn, threads)

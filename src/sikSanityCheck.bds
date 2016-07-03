@@ -33,19 +33,6 @@ if(!fqDir.isEmpty()){
     bool checkFqDir = fqDir.isDir()
     if(!checkFqDir) error "-fqDir doesn't appear to be pointing at the valid directory, double check your path $fqDir"
 }
-if(!fastaRef.isEmpty()){
-    if(fastaRef.isFile()) localFastaRef = makeLocalFastaRef(fastaRef)
-    else error "-fastaRef doesn't appear to be pointing at the valid file, double check your path $fastaRef"
-}
-if(!gtfFile.isEmpty()){
-    if(gtfFile.isFile()) {
-        localGTF = makeLocalGTF(gtfFile)
-        // checks if gtfFiles is really gtf not gff
-        string checkGTF = localGTF.extName()
-        if(checkGTF == "gff") setGFF = true
-    }
-    else error "-gtfFile doesn't appear to be pointing at the valid file, double check your path $gtfFile"
-}
 if(threads < 1) error "specify a positive integer, you have specified $threads"
 //
 if(makeIndex){
