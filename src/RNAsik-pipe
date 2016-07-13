@@ -34,7 +34,7 @@ include "sikExtraOptions.bds"
 # Check cmd args
 #------------------------------
 string date = sys date
-logit("Starting new RNAsik-pipe run", date.trim())
+logit(">Starting new RNAsik-pipe run", date.trim())
 string checkCmdInput = checkCmdArgs()
 #------------------------------
 # Parse config file
@@ -55,9 +55,8 @@ string[] fqFiles
 string[] bamsList
 // where BAM had been sorted, reorted and duplicates marked
 string[] markedBams
-// counts
-string[] featureCounts
 // local Fasta file
+if( (!fastaRef.isEmpty()) && (!fastaRef.isFile()) ) error "Check your path to fasta file. It dosen't point to a file. $fastaRef"
 string localFastaRef = makeLocalFastaRef(fastaRef)
 // local GTF file
 string localGTF = makeLocalGTF(gtfFile)
@@ -70,7 +69,9 @@ string{} idxOpts
 string allIdxOpts = getOpts(getOptsMap("starIndex", idxOpts, extraOpts))
 logit("STAR indexing cmd options", allIdxOpts)
 // get genomeIdx directory
-if( (makeIndex) || ( (!fastaRef.isEmpty()) && (!align.isEmpty()) ) ) genomeIdx = makeSTARindex(cmdExe, localFastaRef, allIdxOpts, threads)
+if( (!fastaRef.isEmpty()) && (genomeIdx.isEmpty()) ) {
+    genomeIdx = makeSTARindex(cmdExe, localFastaRef, localGTF, allIdxOpts, threads)
+} 
 logit("STAR genomic index", genomeIdx)
 // grab all FASTQ files
 fqFiles = getFqFiles(fqDir, extn)
@@ -81,7 +82,6 @@ logit("Fastq files map, where key = rootName = bam file name and value actual fa
 // STAR default options
 string{} starOpts = { "--outSAMtype" => "BAM Unsorted", \
                       "--outSAMunmapped" => "Within", \
-                      "--genomeDir" => genomeIdx, \
                       "--readFilesCommand" => "zcat"}
 string allSTARopts = getOpts(getOptsMap("STAR", starOpts, extraOpts))
 logit("STAR alignment cmd options", allSTARopts)
@@ -96,33 +96,28 @@ for(string rootName : fqMap.keys()) {
     // STAR aligning
     string bamFile = mapSTAR(cmdExe, rootName, reads, allSTARopts, genomeIdx, threads) 
     logit("Corresponding bam file", bamFile)
-    string mdupsBam = getPrePro(cmdExe, bamFile, localFastaRef)
-    if(prePro) logit("Corresponding bam file with marked dups", mdupsBam)
     bamsList.add(bamFile)
-    markedBams.add(mdupsBam)
 }
 // featureCounts cmd options
 string{} countsOpts = { "-a" => localGTF }
 if(paired) countsOpts{"-p"} = ""
 string allCountOpts = getOpts(getOptsMap("featureCounts", countsOpts, extraOpts))
 //
-if(!fqMap) {
+if(!fqMap && ( (count) || (prePro) ) ) {
     warning "No information about paired end. Use -paired to indicated paired end data"
     // get bam file from the bamFiles directory
-    if(bamFiles.exists()) {
-        bamsList = bamFiles.dirPath("*.bam")
-        featureCounts = getReadsCount(cmdExe, bamsList, allCountOpts, localGTF, threads)
-        for(string bamFile : bamsList) {
-            string mdupsBam = getPrePro(cmdExe, bamFile, localFastaRef)
-            logit("*Corresponding bam file with marked dups", mdupsBam)
-            markedBams.add(mdupsBam)
-        }
-    }
+    if(bamFiles.exists()) bamsList = bamFiles.dirPath("*.bam")
     else error "No bam files or bamFiles directory was found. You can pass bam files using -bamFiles /path/to/bamFiles/dir"
 }
+//
+for(string bamFile : bamsList) {
+    string mdupsBam = getPrePro(cmdExe, bamFile, localFastaRef)
+    if(prePro) logit("Corresponding bam file with marked dups", mdupsBam)
+    markedBams.add(mdupsBam)
+}
 
-if(!align.isEmpty()) featureCounts = getReadsCount(cmdExe, bamsList, allCountOpts, localGTF, threads)
-string degust = getDegust(cmdExe, featureCounts, bamsList.size(), localGTF, setGFF, threads)
+string[] featureCounts = getReadsCount(cmdExe, bamsList, allCountOpts, localGTF, threads)
+string[] degust = getDegust(cmdExe, featureCounts, bamsList.size(), localGTF, setGFF, threads)
 // FastQC report
 string[] fqcReport = getFastqcReport(cmdExe, fqFiles, extn, threads)
 // gather all files up for multiqc 
