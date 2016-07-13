@@ -2,20 +2,15 @@
 # Counts
 #----------------------------------------
 
-#------------------------------
-# Make directories as required
-#------------------------------
-string countFiles = "countFiles"
-if((!countFiles.exists()) && (count)) countFiles.mkdir()
-#------
-# Body
-#------
 string[] getReadsCount(string{} cmdExe, string[] bamsList, string extraOpts, string localGTF, int threads) {
+    // make directory for counts
+    string countFiles = "countFiles"
+    if((!countFiles.exists()) && (count)) countFiles.mkdir()
 
     if(!cmdExe.hasKey("countsExe")) error "Can't get featureCounts executable, check your config file $configFile"
     string countsExe = cmdExe{"countsExe"}
 
-    if(!bamsList) error "No BAM files were found, either used -align options or specify directory with BAM files using `-bamFiles path/to/you/bams/directory`"
+    if( (bamsList.isEmpty()) && (count) ) error "No BAM files were found, either used -align options or specify directory with BAM files using `-bamFiles path/to/you/bams/directory`"
 
     int featureThreads
     if(threads == 1) featureThreads = threads
@@ -81,7 +76,7 @@ string getGeneIds(string pythonExe, string gtfFile, bool setGFF){
     return geneIds
 }
 
-string getDegust(string{} cmdExe, string[] featureCounts, int bamsN, string gtfFile, bool gff, int threads) {
+string[] getDegust(string{} cmdExe, string[] featureCounts, int bamsN, string gtfFile, bool gff, int threads) {
     if(!cmdExe.hasKey("pythonExe")) error "Can't get python executable, check your config file $configFile"
     string geneIdsFile = getGeneIds(cmdExe{"pythonExe"}, gtfFile, gff)
 
