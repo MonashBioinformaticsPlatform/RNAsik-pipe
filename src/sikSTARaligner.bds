@@ -5,21 +5,10 @@ string bamFiles = "bamFiles"
 if((!bamFiles.exists()) && (align == "star")) bamFiles.mkdir()
 
 string mapSTAR(string{} cmdExe, string rootName, string[] listOfReads, string starOpts, string genomeIdx, int threads) {
+    if((!align.isEmpty()) && (fastaRef.isEmpty()) && (genomeIdx.isEmpty())) error "Need to specify either -fastaRef /path/to/your/FASTA/file or -genomeIdx /path/to/your/index/directory"
     // get STAR executable 
     if(!cmdExe.hasKey("starExe")) error "Can't get STAR executable, check your config file $configFile"
     string starExe = cmdExe{"starExe"}
-
-    string[] idxDeps
-    string[] idxFiles = ["SAindex", "SA", "Genome"]
-    // make proper file path
-    for(string idx : idxFiles) idxDeps.add(genomeIdx+"/"+idx)
-
-    int chkGTF = starOpts.indexOf("--sjdbGTFfile")
-    if(chkGTF != -1) {
-        string[] gtfFiles = ["sjdbInfo.txt", "sjdbList.fromGTF.out.tab", "sjdbList.out.tab", "transcriptInfo.tab"]
-        // make proper file path
-        for(string gtf : gtfFiles) idxDeps.add(genomeIdx+"/"+gtf)
-    }
 
     string rootBase = rootName.baseName()
     string preFix = bamFiles+"/"+rootBase+"_"
@@ -31,18 +20,18 @@ string mapSTAR(string{} cmdExe, string rootName, string[] listOfReads, string st
 
     if(checkUnsorted != -1) bamOut = preFix+"Aligned.out.bam"
     if(checkSorted != -1) bamOut = preFix+"Aligned.sortedByCoord.out.bam"
-    // deecrease number of threads by two
-    threads -= 2
+
     string reads = listOfReads.join(" ")
-    task(align == "star", bamOut <- idxDeps, taskName := "STAR aligning "+rootBase) {
+    task(align == "star", bamOut <- genomeIdx, cpus := threads, taskName := "STAR aligning "+rootBase) {
         sys $starExe --runThreadN $threads \
+                     --genomeDir $genomeIdx \
                      --outSAMattrRGline ID:001 CN:Unknown DS:RNA-seq PL:ILLUMINA PM:MiSeq SM:$rootBase \
                      --readFilesIn $reads \
                      --outFileNamePrefix $preFix \
                      $starOpts
                  
     }
-    wait
+    //wait
     // you can remove wait statement and reduce number of threads
     // however this will run all your fastq files in parallel
     // doing this I find a bit impractical on our server because of
