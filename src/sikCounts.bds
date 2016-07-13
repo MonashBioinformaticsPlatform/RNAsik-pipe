@@ -20,8 +20,6 @@ string[] getReadsCount(string{} cmdExe, string[] bamsList, string extraOpts, str
     string[] allDeps = bamsList
     allDeps.add(localGTF)
 
-    //string NonStrandedCounts = countFiles+"/"+"NonStrandedCounts.txt"
-    //string ReverseStrandedCounts = countFiles+"/"+"ReverseStrandedCounts.txt"
     string[] featureOut
     int[] strands = [2, 0]
     string[] featureFiles = ["NonStrandedCounts.txt", "ReverseStrandedCounts.txt"]
@@ -40,26 +38,6 @@ string[] getReadsCount(string{} cmdExe, string[] bamsList, string extraOpts, str
     }
     goal featureOut
     return featureOut
-
-    //string ReverseStrandedCounts = countFiles+"/"+"ReverseStrandedCounts.txt"
-    //// don't run the task unless you have both bamFiles and gtf file
-    //task(count, ReverseStrandedCounts <- allDeps, taskName := "Counting features") {
-    //    sys $countsExe -T $featureThreads \
-    //                   -s 2 \
-    //                   $extraOpts \
-    //                   -o $ReverseStrandedCounts \
-    //                   $bamString
-    //}
-    //string NonStrandedCounts = countFiles+"/"+"NonStrandedCounts.txt"
-    //// don't run the task unless you have both bamFiles and gtf file
-    //task(count, NonStrandedCounts <- allDeps, taskName := "Counting features") {
-    //    sys $countsExe -T $featureThreads \
-    //                     -s 0 \
-    //                     $extraOpts \
-    //                     -o $NonStrandedCounts \
-    //                     $bamString
-    //}
-    //return [NonStrandedCounts, ReverseStrandedCounts] 
 }
 //
 string getGeneIds(string pythonExe, string gtfFile, bool setGFF){
