@@ -43,7 +43,8 @@ string getRNAseQC(string RNAseQCexe, string sampleIdsFile, string[] markedBams, 
 //
 string[] getFastqcReport(string{} cmdExe, string[] fqFiles, string extn, int threads){
     if(!cmdExe.hasKey("fastqcExe")) error "Can't get fastqc executable, check your config file $configFile"
-    if(fqFiles.isEmpty()) error "No FASTQ files found, use -fqDir /path/to/fastq/dir."
+    string fastqcExe = cmdExe{"fastqcExe"}
+    if( (fqFiles.isEmpty()) && (fastqc) ) error "No FASTQ files found, use -fqDir /path/to/fastq/dir."
 
     string fastqcReport = "fastqcReport"
     if((!fastqcReport.exists()) && (fastqc)) fastqcReport.mkdir()
@@ -51,16 +52,16 @@ string[] getFastqcReport(string{} cmdExe, string[] fqFiles, string extn, int thr
     string preFix = "_fastqc.html"
     string[] fqcDeps
     for(string fq : fqFiles) {
-        string rootName = fq.removeExt(extn)
-        fqcDeps.add(rootName+preFix)
+        string rootName = fq.baseName().removeExt(extn)
+        fqcDeps.add(fastqcReport+"/"+rootName+preFix)
     }
     string fqs = fqFiles.join(" ")
 
-    task(fastqc, fqcDeps <- fqFiles, taskName := "Running FASTQC") { 
-        sys $cmdExe{"fastqcExe"} --threads $threads \
-                                 --outdir $fastqcReport \
-                                 --format fastq \
-                                 $fqs
+    task(fastqc, fqcDeps <- fqFiles, cpus := threads, taskName := "Running FASTQC") { 
+        sys $fastqcExe --threads $threads \
+                       --outdir $fastqcReport \
+                       --format fastq \
+                       $fqs
     }
     return fqcDeps
 }
