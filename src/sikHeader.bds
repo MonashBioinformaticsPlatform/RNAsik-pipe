@@ -8,7 +8,7 @@
 helpUnsorted := true
 
 help #------------------------
-help RNAsik-pipe version 1.4.0
+help RNAsik-pipe version 1.4.3
 help #------------------------
 help #----------------------------
 help Usage: RNAsik-pipe [options]
@@ -21,14 +21,7 @@ help Example_4: RNAsik-pipe -count -gtfFile path/to/your/GTF/file
 help Example_5: RNAsik-pipe -align star -fqDir /path/to/your/fastqFiles/directory -fqRegex A -fastaRef /path/to/your/referenceFile.fa -count -gtfFile path/to/your/GTF/file
 help #---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-help Make Indices options [default STAR]:
-
-bool makeIndex     help Flag if you need to make STAR index. You must indexed your reference genome in order to do the alignemnt. \
-                              If `-genomeIdx` option isn't give and `-align` is specified `RNAsik-pipe` will automatically make an index.
-string fastaRef     help path to the reference FASTA file
-                
-
-help FASTQ mapping options [default STAR]:
+help FASTQ mapping options:
 
 string align        help please specify your aligner of choice for the alignment step
 string fqDir        help path to the directory with FASTQ files
@@ -39,7 +32,8 @@ string fqRegex      help select regex option that resembles your common fastq fi
                                            D: "_R[0-9].fastq.gz$" \
                                e.g for this file Samp12_S10_L002_R1_001.fastq.gz you'd do -fqRegex A 
 
-string genomeIdx  help path to the directory with genome index for the coresponding species. If not specified then `-makeIndex` option is assumed
+string fastaRef     help path to the reference FASTA file
+string genomeIdx    help path to the directory with genome index for the coresponding species. If not specified then index will be made on the fly provided -fastaRef exists
 
 help Reads count option [default featureCounts]:
 
