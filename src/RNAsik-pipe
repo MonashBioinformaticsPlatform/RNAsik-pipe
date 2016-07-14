@@ -59,6 +59,7 @@ string[] markedBams
 if( (!fastaRef.isEmpty()) && (!fastaRef.isFile()) ) error "Check your path to fasta file. It dosen't point to a file. $fastaRef"
 string localFastaRef = makeLocalFastaRef(fastaRef)
 // local GTF file
+if( (!gtfFile.isEmpty()) && (!gtfFile.isFile()) ) error "Check your path to gtf file. It dosen't point to a file. $gtfFile"
 string localGTF = makeLocalGTF(gtfFile)
 if(localGTF.extName() == "gff") setGFF = true
 // Make indices if required 
@@ -69,7 +70,7 @@ string{} idxOpts
 string allIdxOpts = getOpts(getOptsMap("starIndex", idxOpts, extraOpts))
 logit("STAR indexing cmd options", allIdxOpts)
 // get genomeIdx directory
-if( (!fastaRef.isEmpty()) && (genomeIdx.isEmpty()) ) {
+if( !fastaRef.isEmpty() && genomeIdx.isEmpty() && (!align.isEmpty() || align == "index") ) {
     genomeIdx = makeSTARindex(cmdExe, localFastaRef, localGTF, allIdxOpts, threads)
 } 
 logit("STAR genomic index", genomeIdx)

@@ -2,7 +2,7 @@
 # Organising FASTQ files 
 #------------------------
 string[] getFqFiles(string fqDir, string extn) {
-    if( ( (!align.isEmpty()) || (fastqc) ) && (fqDir.isEmpty()) ) error "Usage: -fqDir /path/to/your/FASTQ/files"
+    if( ( (!align.isEmpty() && align != "index") || (fastqc) ) && (fqDir.isEmpty()) ) error "Usage: -fqDir /path/to/your/FASTQ/files"
     string[] fqFiles
     // go through each file and check if its file or directory
     //TODO the if block is temporal measure due to BDS bug, is getting fixed I hope
@@ -60,7 +60,7 @@ string getRootName(string fq, string fqRegex, string samplesSheet, string extn) 
 // and value is the list of all associated FASTQ files
 // that are spread across multiple lane during sequencing
 string{} getFqMap(string[] fqFiles, string fqRegex, string samplesSheet, string extn) {
-    if( ( (!align.isEmpty()) || (fastqc) ) && (fqFiles.isEmpty()) ) error "No fastq files were found, check -fqDir path"
+    if( ( (!align.isEmpty() && align != "index") || (fastqc) ) && (fqFiles.isEmpty()) ) error "No fastq files were found, check -fqDir path"
     // Map with unique root key
     string{} fqMap
     // loop over FASTQ files
