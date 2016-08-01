@@ -2,7 +2,6 @@
 # Functions to pre-process BAM files - picard
 #--------------------------------------------------
 string getPrePro(string{} cmdExe, string bamFile, string fastaRef, string fastaDictFile){
-
     // make preqcBamFiles directory
     string preqcBamFiles = "preqcBamFiles"
     if((!preqcBamFiles.exists()) && (prePro)) preqcBamFiles.mkdir()
@@ -10,13 +9,10 @@ string getPrePro(string{} cmdExe, string bamFile, string fastaRef, string fastaD
     if(!cmdExe.hasKey("picardExe")) error "Can't get picard executable, check your config file $configFile"
     string picardExe = cmdExe{"picardExe"}
 
-    //// get dict file
-    //string fastaDictFile = makeDictFile(picardExe, fastaRef)
-
     string sortedName = preqcBamFiles+"/"+bamFile.baseName().swapExt("Aligned.out.bam", "sorted.bam")
     // try using 8 cpus to limit how picard processes can be run at a time
     // this should imporve I/O (input / output) performance
-    dep(prePro, sortedName <- bamFile, cpus := 2, taskName := "picard sorting "+bamFile) {
+    dep(sortedName <- bamFile, cpus := 2, taskName := "picard sorting "+bamFile) {
         sys $picardExe SortSam TMP_DIR=tmp/ \
                                VALIDATION_STRINGENCY=LENIENT \
                                INPUT=$bamFile \
@@ -25,7 +21,7 @@ string getPrePro(string{} cmdExe, string bamFile, string fastaRef, string fastaD
     }
 
     string reorderedName = sortedName.swapExt(".bam", "_reordered.bam")
-    dep(prePro, reorderedName <- [sortedName, fastaDictFile], cpus := 2, taskName := "picard reordering "+reorderedName) {
+    dep(reorderedName <- [sortedName, fastaDictFile], cpus := 2, taskName := "picard reordering "+reorderedName) {
         sys $picardExe ReorderSam TMP_DIR=tmp/ \
                                   VALIDATION_STRINGENCY=LENIENT \
                                   INPUT=$sortedName \
@@ -35,7 +31,7 @@ string getPrePro(string{} cmdExe, string bamFile, string fastaRef, string fastaD
     
     string mdupsName = reorderedName.swapExt(".bam", "_marked_dups.bam")
     string metricsName = reorderedName.swapExt(".bam", "_marked_dups.metrics")
-    dep(prePro, [mdupsName, metricsName] <- reorderedName, cpus := 2, taskName := "picard marking dups "+mdupsName) {
+    dep([mdupsName, metricsName] <- reorderedName, cpus := 2, taskName := "picard marking dups "+mdupsName) {
         sys $picardExe MarkDuplicates TMP_DIR=tmp/ \
                                       VALIDATION_STRINGENCY=LENIENT \
                                       CREATE_INDEX=true \
