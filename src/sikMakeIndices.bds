@@ -32,17 +32,20 @@ if( (!refFiles.exists()) && ( (!gtfFile.isEmpty()) || (!fastaRef.isEmpty()) ) ) 
 //}
 
 string makeLocalFastaRef(string fastaRef) { 
-    // at this stage its unknown if Fasta is zipped or not
+    if(fastaRef.extName() == "gz") error "Unzip your $fastaRef file before giving to the pipeline, with `gunzip` command" 
     string localFastaRef
     // temp fix, look like a bug, if fastaRef is empty, fastaRef.baseName() returns working directory
     if(!fastaRef.isEmpty()) localFastaRef = refFiles+"/"+fastaRef.baseName()
+    //string localFastaRef = refFiles+"/"+fastaRef.baseName()
     task(!fastaRef.isEmpty(), localFastaRef <- fastaRef, taskName := "Copying FASTA file") sys cp -v $fastaRef $refFiles
     return localFastaRef
 }
 
 string makeLocalGTF(string gtfFile) {
-    // at this stage its unknown if GTF is zipped or not
-    string localGTF = refFiles+"/"+gtfFile.baseName()
+    if(gtfFile.extName() == "gz") error "Unzip your $gtfFile file before giving to the pipeline, with `gunzip` command" 
+    string localGTF
+    // temp fix, look like a bug, if fastaRef is empty, fastaRef.baseName() returns working directory
+    if(!gtfFile.isEmpty()) localGTF = refFiles+"/"+fastaRef.baseName()
     task(!gtfFile.isEmpty(), localGTF <- gtfFile, taskName := "Copying GTF file") sys cp -v $gtfFile $refFiles
     return localGTF
 }
@@ -72,12 +75,13 @@ string makeSTARindex(string{} cmdExe, string fastaRef, string gtfFile, string st
     return genomeIdxDir
 }
 // make dictionary for picard pre-processing
-string makeDictFile(string{} cmdExe, string fastaRef, string[] bamsList) {
+string makeDictFile(string{} cmdExe, string fastaRef) {
     if(!cmdExe.hasKey("picardExe")) error "Can't get picard executable, check your config file $configFile"
     string picardExe = cmdExe{"picardExe"}
     // make .dict string
     string fastaDictFile = fastaRef.removeExt()+".dict"
-    task(prePro && !bamsList.isEmpty(), fastaDictFile <- fastaRef, taskName := "Making dictionary File") {
+    //task(prePro, fastaDictFile <- fastaRef, taskName := "Making dictionary File") {
+    task(prePro, fastaDictFile <- fastaRef, taskName := "Making dictionary File") {
         sys $picardExe CreateSequenceDictionary REFERENCE=$fastaRef \
                                                 OUTPUT=$fastaDictFile
     }
