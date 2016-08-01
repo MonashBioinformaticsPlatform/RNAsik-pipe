@@ -1,27 +1,18 @@
 #--------------------------------------------------
 # Functions to pre-process BAM files - picard
 #--------------------------------------------------
+string getPrePro(string{} cmdExe, string bamFile, string fastaRef, string fastaDictFile){
 
-// make dictionary for picard pre-processing
-string makeDictFile(string picardExe, string fastaRef) {
-    // make .dict string
-    string fastaDictFile = fastaRef.removeExt()+".dict"
-    task(prePro, fastaDictFile <- fastaRef, taskName := "Making dictionary File") {
-        sys $picardExe CreateSequenceDictionary REFERENCE=$fastaRef \
-                                                OUTPUT=$fastaDictFile
-    }
-    return fastaDictFile
-}
-
-string getPrePro(string{} cmdExe, string bamFile, string fastaRef){
     // make preqcBamFiles directory
     string preqcBamFiles = "preqcBamFiles"
     if((!preqcBamFiles.exists()) && (prePro)) preqcBamFiles.mkdir()
     // check if executable is there
     if(!cmdExe.hasKey("picardExe")) error "Can't get picard executable, check your config file $configFile"
     string picardExe = cmdExe{"picardExe"}
-    // get dict file
-    string fastaDictFile = makeDictFile(picardExe, fastaRef)
+
+    //// get dict file
+    //string fastaDictFile = makeDictFile(picardExe, fastaRef)
+
     string sortedName = preqcBamFiles+"/"+bamFile.baseName().swapExt("Aligned.out.bam", "sorted.bam")
     // try using 8 cpus to limit how picard processes can be run at a time
     // this should imporve I/O (input / output) performance
