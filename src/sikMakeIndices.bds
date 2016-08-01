@@ -45,7 +45,7 @@ string makeLocalGTF(string gtfFile) {
     if(gtfFile.extName() == "gz") error "Unzip your $gtfFile file before giving to the pipeline, with `gunzip` command" 
     string localGTF
     // temp fix, look like a bug, if fastaRef is empty, fastaRef.baseName() returns working directory
-    if(!gtfFile.isEmpty()) localGTF = refFiles+"/"+fastaRef.baseName()
+    if(!gtfFile.isEmpty()) localGTF = refFiles+"/"+gtfFile.baseName()
     task(!gtfFile.isEmpty(), localGTF <- gtfFile, taskName := "Copying GTF file") sys cp -v $gtfFile $refFiles
     return localGTF
 }

@@ -48,7 +48,7 @@ string getGeneIds(string pythonExe, string gtfFile, bool setGFF){
     }
     string getGeneIds = getProgPath+"/../scripts/getGeneIds.py"
     string geneIds = "geneIds.txt"
-    task(count, geneIds <- gtfFile, taskName := "getting geneIds.txt file") {
+    task(geneIds <- gtfFile, taskName := "getting geneIds.txt file") {
         sys $pythonExe $getGeneIds $pyFlag $gtfFile > $geneIds
     }
     return geneIds
@@ -56,7 +56,8 @@ string getGeneIds(string pythonExe, string gtfFile, bool setGFF){
 
 string[] getDegust(string{} cmdExe, string[] featureCounts, int bamsN, string gtfFile, bool gff, int threads) {
     if(!cmdExe.hasKey("pythonExe")) error "Can't get python executable, check your config file $configFile"
-    string geneIdsFile = getGeneIds(cmdExe{"pythonExe"}, gtfFile, gff)
+    string pythonExe = cmdExe{"pythonExe"}
+    string geneIdsFile = getGeneIds(pythonExe, gtfFile, gff)
 
     string[] withNames
 
