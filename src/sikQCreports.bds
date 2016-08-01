@@ -55,6 +55,7 @@ string[] getFastqcReport(string{} cmdExe, string[] fqFiles, string extn, int thr
         string rootName = fq.baseName().removeExt(extn)
         fqcDeps.add(fastqcReport+"/"+rootName+preFix)
     }
+
     string fqs = fqFiles.join(" ")
 
     task(fastqc, fqcDeps <- fqFiles, cpus := threads, taskName := "Running FASTQC") { 
@@ -68,10 +69,11 @@ string[] getFastqcReport(string{} cmdExe, string[] fqFiles, string extn, int thr
 //
 string getMultiqc(string{} cmdExe, string[] allDeps) {
     if(!cmdExe.hasKey("multiqcExe")) error "Can't get multiqc executable, check your config file $configFile"
+    string multiqcExe = cmdExe{"multiqcExe"}
 
     string homeDir = PWD //.pathName()
     task(multiqc, "multiqc_report.html" <- allDeps, taskName := "Generating MultiQC report") {
-        sys $cmdExe{"multiqcExe"} $homeDir
+        sys $multiqcExe -f $homeDir
     }
     return homeDir
 }
