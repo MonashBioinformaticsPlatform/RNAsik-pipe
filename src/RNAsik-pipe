@@ -22,14 +22,14 @@
 #----------------------------------------------------------------------------------------------------
 include "sikHeader.bds"
 include "sikSanityCheck.bds"
+include "sikExtraOptions.bds"
 include "sikMakeIndices.bds"
 include "sikLog.bds"
 include "sikFqFiles.bds"
 include "sikSTARaligner.bds"
-include "sikPrePro.bds"
 include "sikCounts.bds"
+include "sikPrePro.bds"
 include "sikQCreports.bds"
-include "sikExtraOptions.bds"
 #------------------------------
 # Check cmd args
 #------------------------------
@@ -65,6 +65,9 @@ if(localGTF.extName() == "gff") setGFF = true
 // Make indices if required 
 logit("FASTA file in use", localFastaRef)
 logit("Annotation file in use", localGTF)
+// 
+string fastaDictFile = makeDictFile(cmdExe, localFastaRef)
+logit("FASTA dict file for picard", fastaDictFile)
 // STAR index cmd options
 string{} idxOpts
 string allIdxOpts = getOpts(getOptsMap("starIndex", idxOpts, extraOpts))
@@ -91,9 +94,8 @@ for(string rootName : fqMap.keys()) {
     string[] reads = getReads(fqMap{rootName})
     logit("This is rootName for read below", rootName)
     logit("R1 reads string that passed to aligner", reads[0])
-    logit("R2 reads string that passed to aligner", reads[1])
-   
     paired = getPaired(reads) 
+    if(paired) logit("R2 reads string that passed to aligner", reads[1])
     // STAR aligning
     string bamFile = mapSTAR(cmdExe, rootName, reads, allSTARopts, genomeIdx, threads) 
     logit("Corresponding bam file", bamFile)
@@ -105,6 +107,7 @@ if(paired) countsOpts{"-p"} = ""
 string allCountOpts = getOpts(getOptsMap("featureCounts", countsOpts, extraOpts))
 //
 if(!fqMap && ( (count) || (prePro) ) ) {
+    print("fqMap hey \n")
     warning "No information about paired end. Use -paired to indicated paired end data"
     // get bam file from the bamFiles directory
     if(bamFiles.exists()) bamsList = bamFiles.dirPath("*.bam")
@@ -112,7 +115,7 @@ if(!fqMap && ( (count) || (prePro) ) ) {
 }
 //
 for(string bamFile : bamsList) {
-    string mdupsBam = getPrePro(cmdExe, bamFile, localFastaRef)
+    string mdupsBam = getPrePro(cmdExe, bamFile, localFastaRef, fastaDictFile)
     if(prePro) logit("Corresponding bam file with marked dups", mdupsBam)
     markedBams.add(mdupsBam)
 }
