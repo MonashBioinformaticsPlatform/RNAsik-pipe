@@ -5,11 +5,12 @@
 include "sikLog.bds"
 include "sikFqFiles.bds"
 
+// make directory
+string bamFiles = "bamFiles"
+if( (!bamFiles.exists()) && (!align.isEmpty()) ) bamFiles.mkdir()
+
 string[] mapSTAR(string{} cmdExe, string{} fqMap, string starOpts, string genomeIdx, int threads) {
     if((!align.isEmpty()) && (fastaRef.isEmpty()) && (genomeIdx.isEmpty())) error "Need to specify either -fastaRef /path/to/your/FASTA/file or -genomeIdx /path/to/your/index/directory"
-    // make directory
-    string bamFiles = "bamFiles"
-    if( (!bamFiles.exists()) && (!align.isEmpty()) ) bamFiles.mkdir()
     // get STAR executable 
     if(!cmdExe.hasKey("starExe")) error "Can't get STAR executable, check your config file $configFile"
     string starExe = cmdExe{"starExe"}
