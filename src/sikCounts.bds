@@ -12,24 +12,18 @@ string[] getReadsCount(string{} cmdExe, string[] bamsList, string extraOpts, str
 
     if( (bamsList.isEmpty()) && (count) ) error "No BAM files were found, either used -align options or specify directory with BAM files using `-bamFiles path/to/you/bams/directory`"
 
-    int featureThreads
-    if(threads == 1) featureThreads = threads
-    else featureThreads = threads/2
-
     string bamString = bamsList.join(" ")
     string[] allDeps = bamsList
     allDeps.add(localGTF)
 
     string[] featureOut
-    int[] strands = [2, 0]
-    string[] featureFiles = ["NonStrandedCounts.txt", "ReverseStrandedCounts.txt"]
-    for(string featureFile : featureFiles) {
-        string countsName = countFiles+"/"+featureFile
+    string[] featureFiles = ["NonStrandedCounts.txt", "ForwardStrandedCounts.txt", "ReverseStrandedCounts.txt"]
+    for(int i : range(0, 2)) {
+        string countsName = countFiles+"/"+featureFiles[i]
         featureOut.add(countsName)
-        int strand = strands.pop()
-        dep(count, countsName <- allDeps, taskName := "Counting features") {
-            sys $countsExe -T $featureThreads \
-                           -s $strand \
+        dep(count, countsName <- allDeps, cpus := threads, taskName := "Counting features") {
+            sys $countsExe -T $threads \
+                           -s $i \
                            $extraOpts \
                            -o $countsName \
                            $bamString
