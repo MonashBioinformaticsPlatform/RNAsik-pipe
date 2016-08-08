@@ -53,8 +53,6 @@ string{} cmdExe = config(configFile)
 string[] fqFiles
 //string  list of bam files from STAR run
 string[] bamsList
-// where BAM had been sorted, reorted and duplicates marked
-string[] markedBams
 // local Fasta file
 if( (!fastaRef.isEmpty()) && (!fastaRef.isFile()) ) error "Check your path to fasta file. It dosen't point to a file. $fastaRef"
 string localFastaRef = makeLocalFastaRef(fastaRef)
@@ -105,51 +103,54 @@ for(string rootName : fqMap.keys()) {
 string{} countsOpts = { "-a" => localGTF }
 if(paired) countsOpts{"-p"} = ""
 string allCountOpts = getOpts(getOptsMap("featureCounts", countsOpts, extraOpts))
+// where BAM had been sorted, reorted and duplicates marked
+string[] markedBams = getMarkedBams(cmdExe, bamsList, localFastaRef, fastaDictFile)
 //
-if(!fqMap && ( (count) || (prePro) ) ) {
-    print("fqMap hey \n")
-    warning "No information about paired end. Use -paired to indicated paired end data"
-    // get bam file from the bamFiles directory
-    if(bamFiles.exists()) bamsList = bamFiles.dirPath("*.bam")
-    else error "No bam files or bamFiles directory was found. You can pass bam files using -bamFiles /path/to/bamFiles/dir"
-}
-//
-for(string bamFile : bamsList) {
-    string mdupsBam = getPrePro(cmdExe, bamFile, localFastaRef, fastaDictFile)
-    if(prePro) logit("Corresponding bam file with marked dups", mdupsBam)
-    markedBams.add(mdupsBam)
-}
-
-string[] featureCounts = getReadsCount(cmdExe, bamsList, allCountOpts, localGTF, threads)
-string[] degust = getDegust(cmdExe, featureCounts, bamsList.size(), localGTF, setGFF, threads)
-// FastQC report
-string[] fqcReport = getFastqcReport(cmdExe, fqFiles, extn, threads)
-// gather all files up for multiqc 
-string[] multiqcDeps = bamFiles + markedBams + degust + fqcReport
-//
-string qcReport = getMultiqc(cmdExe, multiqcDeps)
-logit("Multiqc will run on this directory", qcReport)
-// RNAseQC report
-if(RNAseQC){
-    if(!prePro) markedBams = proBams.dirPath("*.bam")
-    if(!markedBams) error "No pre-processed BAM files were found, either used -prePro options or specify directory with appropriate BAM files using `-proBams path/to/you/bams/directory`"
-    string sampleIdsFile = "RNAseQC-sampleIds.txt"
-    string RNAseQCsampleIds = getSampleIds(markedBams)
-    sampleIdsFile.write(RNAseQCsampleIds)
-    // current options 
-    string{} rnaseqcOpts
-    if(!paired) rnaseqcOpts = { "-singleEnd" => "" }
-    //
-    //string cmdOptions = getCmdOptions("RNAseQC", extraOpts)
-    //string additionalRNAseQCoptions = getAllOptions(cmdOptions, currentRNAseQCoptions)
-    string opts = getOpts(getOptsMap("RNAseQC", rnaseqcOpts, extraOpts))
-    // make Fai file if dosen't exist
-    string getSamtoolsExe = cmdExe{"samtoolsExe"}
-    string fastaFaiFile = makeFaiFile(getSamtoolsExe, localFastaRef)
-    // get RNAseQC report 
-    string getRNAseQCexe = cmdExe{"RNAseQCexe"}
-    string qcReport = getRNAseQC(getRNAseQCexe, sampleIdsFile, markedBams, localFastaRef, localGTF, opts)
-}
-#----------------------------------------------------------------------------------------------------
-# End
-#----------------------------------------------------------------------------------------------------
+#if(!fqMap && ( (count) || (prePro) ) ) {
+#    print("fqMap hey \n")
+#    warning "No information about paired end. Use -paired to indicated paired end data"
+#    // get bam file from the bamFiles directory
+#    if(bamFiles.exists()) bamsList = bamFiles.dirPath("*.bam")
+#    else error "No bam files or bamFiles directory was found. You can pass bam files using -bamFiles /path/to/bamFiles/dir"
+#}
+#//
+#for(string bamFile : bamsList) {
+#    print("$bamFile \n")
+#    //string mdupsBam = getPrePro(cmdExe, bamFile, localFastaRef, fastaDictFile)
+#    //if(prePro) logit("Corresponding bam file with marked dups", mdupsBam)
+#    //markedBams.add(mdupsBam)
+#}
+#
+#string[] featureCounts = getReadsCount(cmdExe, bamsList, allCountOpts, localGTF, threads)
+#string[] degust = getDegust(cmdExe, featureCounts, bamsList.size(), localGTF, setGFF, threads)
+#// FastQC report
+#string[] fqcReport = getFastqcReport(cmdExe, fqFiles, extn, threads)
+#// gather all files up for multiqc 
+#string[] multiqcDeps = bamFiles + markedBams + degust + fqcReport
+#//
+#string qcReport = getMultiqc(cmdExe, multiqcDeps)
+#logit("Multiqc will run on this directory", qcReport)
+#// RNAseQC report
+#if(RNAseQC){
+#    if(!prePro) markedBams = proBams.dirPath("*.bam")
+#    if(!markedBams) error "No pre-processed BAM files were found, either used -prePro options or specify directory with appropriate BAM files using `-proBams path/to/you/bams/directory`"
+#    string sampleIdsFile = "RNAseQC-sampleIds.txt"
+#    string RNAseQCsampleIds = getSampleIds(markedBams)
+#    sampleIdsFile.write(RNAseQCsampleIds)
+#    // current options 
+#    string{} rnaseqcOpts
+#    if(!paired) rnaseqcOpts = { "-singleEnd" => "" }
+#    //
+#    //string cmdOptions = getCmdOptions("RNAseQC", extraOpts)
+#    //string additionalRNAseQCoptions = getAllOptions(cmdOptions, currentRNAseQCoptions)
+#    string opts = getOpts(getOptsMap("RNAseQC", rnaseqcOpts, extraOpts))
+#    // make Fai file if dosen't exist
+#    string getSamtoolsExe = cmdExe{"samtoolsExe"}
+#    string fastaFaiFile = makeFaiFile(getSamtoolsExe, localFastaRef)
+#    // get RNAseQC report 
+#    string getRNAseQCexe = cmdExe{"RNAseQCexe"}
+#    string qcReport = getRNAseQC(getRNAseQCexe, sampleIdsFile, markedBams, localFastaRef, localGTF, opts)
+#}
+##----------------------------------------------------------------------------------------------------
+## End
+##----------------------------------------------------------------------------------------------------
