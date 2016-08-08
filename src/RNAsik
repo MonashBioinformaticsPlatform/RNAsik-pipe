@@ -108,7 +108,7 @@ string[] featureCounts = getReadsCount(cmdExe, bamsList, allCountOpts, localGTF,
 string[] degust = getDegust(cmdExe, featureCounts, bamsList.size(), localGTF, setGFF, threads)
 // FastQC report
 string{} fastqcOpts = { "--format" => "fastq", \
-                        "--quite" => ""}
+                        "--quiet" => ""}
 //fastqcOpts{ "--casava" } = ""
 string fqQcOpts = getOpts(getOptsMap("fastqc", fastqcOpts, extraOpts))
 string[] fqcReport = getFastqcReport(cmdExe, fqFiles, fqQcOpts, extn, threads)
