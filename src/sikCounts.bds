@@ -48,7 +48,7 @@ string getGeneIds(string pythonExe, string gtfFile, bool setGFF){
     }
     string getGeneIds = getProgPath+"/../scripts/getGeneIds.py"
     string geneIds = "geneIds.txt"
-    task(geneIds <- gtfFile, taskName := "getting geneIds.txt file") {
+    task(count, geneIds <- gtfFile, taskName := "getting geneIds.txt file") {
         sys $pythonExe $getGeneIds $pyFlag $gtfFile > $geneIds
     }
     return geneIds
