@@ -73,17 +73,18 @@ string{} getFqMap(string[] fqFiles, string fqRegex, string samplesSheet, string 
 }
 //
 string[] getReads(string fqVal) {
-    string[] fqList = fqVal.split(",")
+    // remove trailing comma from the string, side effect from fqMap
+    string cleanFq = fqVal.substr(0, (fqVal.length())-1)
+    string[] fqList = cleanFq.split(",")
     int odd = fqList.size() % 2
     
     string[] rTwo
-    // joining instead of returing fqVal because
-    // this stips trailing comma from the file name
-    // for more info see getFqMap function
     if(odd == 1) return [fqList.join(",")]
-    if(fqVal.lastIndexOf("_R2") != -1) {
+    // double check that you have paired-end data
+    // if no _R2 sub-string found in the string data assumed to be single-end
+    if(cleanFq.lastIndexOf("_R2") != -1) {
         for(int i=0; i < fqList.size(); i++) {
-	   rTwo.push(fqList.removeIdx(i+1)) 
+           rTwo.push(fqList.removeIdx(i+1)) 
         }
         return [fqList.join(","), rTwo.join(",")]
 

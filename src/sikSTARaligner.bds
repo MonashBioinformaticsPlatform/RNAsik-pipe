@@ -18,8 +18,8 @@ string[] mapSTAR(string{} cmdExe, string{} fqMap, string starOpts, string genome
     string[] bamsList
 
     for(string rootName : fqMap.keys()) {
-        //TODO clean up reads, it comes with trailing comman
         string[] readsList = getReads(fqMap{rootName})
+        string check = fqMap{rootName}
         logit("This is rootName for read below", rootName)
         logit("R1 reads string that passed to aligner", readsList[0])
         paired = getPaired(readsList) 

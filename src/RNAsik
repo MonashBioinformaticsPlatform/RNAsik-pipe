@@ -86,7 +86,7 @@ string{} starOpts = { "--outSAMtype" => "BAM Unsorted", \
 string allSTARopts = getOpts(getOptsMap("STAR", starOpts, extraOpts))
 logit("STAR alignment cmd options", allSTARopts)
 //string  list of bam files from STAR run
-string[] bamsList = mapSTAR(cmdExe, fqMap, starOpts, genomeIdx, threads)
+string[] bamsList = mapSTAR(cmdExe, fqMap, allSTARopts, genomeIdx, threads)
 // featureCounts cmd options
 string{} countsOpts = { "-a" => localGTF }
 if(paired) countsOpts{"-p"} = ""
@@ -107,7 +107,11 @@ markedBams = getMarkedBams(cmdExe, bamsList, localFastaRef, fastaDictFile)
 string[] featureCounts = getReadsCount(cmdExe, bamsList, allCountOpts, localGTF, threads)
 string[] degust = getDegust(cmdExe, featureCounts, bamsList.size(), localGTF, setGFF, threads)
 // FastQC report
-string[] fqcReport = getFastqcReport(cmdExe, fqFiles, extn, threads)
+string{} fastqcOpts = { "--format" => "fastq", \
+                        "--quite" => ""}
+//fastqcOpts{ "--casava" } = ""
+string fqQcOpts = getOpts(getOptsMap("fastqc", fastqcOpts, extraOpts))
+string[] fqcReport = getFastqcReport(cmdExe, fqFiles, fqQcOpts, extn, threads)
 // gather all files up for multiqc 
 string[] multiqcDeps = bamFiles + markedBams + degust + fqcReport
 //

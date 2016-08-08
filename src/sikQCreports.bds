@@ -41,7 +41,7 @@ string getRNAseQC(string RNAseQCexe, string sampleIdsFile, string[] markedBams, 
     return "all good"
 }
 //
-string[] getFastqcReport(string{} cmdExe, string[] fqFiles, string extn, int threads){
+string[] getFastqcReport(string{} cmdExe, string[] fqFiles, string fqQcOpts, string extn, int threads){
     if(!cmdExe.hasKey("fastqcExe")) error "Can't get fastqc executable, check your config file $configFile"
     string fastqcExe = cmdExe{"fastqcExe"}
     if( (fqFiles.isEmpty()) && (fastqc) ) error "No FASTQ files found, use -fqDir /path/to/fastq/dir."
@@ -60,8 +60,8 @@ string[] getFastqcReport(string{} cmdExe, string[] fqFiles, string extn, int thr
 
     task(fastqc, fqcDeps <- fqFiles, cpus := threads, taskName := "Running FASTQC") { 
         sys $fastqcExe --threads $threads \
+                       $fqQcOpts \
                        --outdir $fastqcReport \
-                       --format fastq \
                        $fqs
     }
     return fqcDeps
