@@ -89,6 +89,7 @@ string allSTARopts = getOpts(getOptsMap("STAR", starOpts, extraOpts))
 logit("STAR alignment cmd options", allSTARopts)
 // Get BAM files
 for(string rootName : fqMap.keys()) {
+    //TODO clean up reads, it comes with trailing comman
     string[] reads = getReads(fqMap{rootName})
     logit("This is rootName for read below", rootName)
     logit("R1 reads string that passed to aligner", reads[0])
@@ -111,7 +112,9 @@ if(!fqMap && ( (count) || (prePro) ) ) {
     else error "No bam files or bamFiles directory was found. You can pass bam files using -bamFiles /path/to/bamFiles/dir"
 }
 // where BAM had been sorted, reorted and duplicates marked
-string[] markedBams = getMarkedBams(cmdExe, bamsList, localFastaRef, fastaDictFile)
+string[] markedBams
+//TODO This is tmp measure for RNAseQC, need to clean up later
+markedBams = getMarkedBams(cmdExe, bamsList, localFastaRef, fastaDictFile)
 //if(prePro) logit("Corresponding bam file with marked dups", mdupsBam)
 // get counts
 string[] featureCounts = getReadsCount(cmdExe, bamsList, allCountOpts, localGTF, threads)
