@@ -15,8 +15,7 @@ string[] getMarkedBams(string{} cmdExe, string[] bamFiles, string fastaRef, stri
         string sortedName = preqcBamFiles+"/"+bamFile.baseName().swapExt("Aligned.out.bam", "sorted.bam")
         // try using 8 cpus to limit how picard processes can be run at a time
         // this should imporve I/O (input / output) performance
-        //dep(prePro, sortedName <- bamFile, cpus := 2, taskName := "picard sorting "+bamFile) {
-        dep(sortedName <- bamFile, cpus := 2, taskName := "picard sorting "+bamFile) {
+        dep(prePro, sortedName <- bamFile, cpus := 2, taskName := "picard sorting "+bamFile) {
             sys $picardExe SortSam TMP_DIR=tmp/ \
                                    VALIDATION_STRINGENCY=LENIENT \
                                    INPUT=$bamFile \
@@ -25,7 +24,7 @@ string[] getMarkedBams(string{} cmdExe, string[] bamFiles, string fastaRef, stri
         }
 
         string reorderedName = sortedName.swapExt(".bam", "_reordered.bam")
-        dep(reorderedName <- [sortedName, fastaDictFile], cpus := 2, taskName := "picard reordering "+reorderedName) {
+        dep(prePro, reorderedName <- [sortedName, fastaDictFile], cpus := 2, taskName := "picard reordering "+reorderedName) {
             sys $picardExe ReorderSam TMP_DIR=tmp/ \
                                       VALIDATION_STRINGENCY=LENIENT \
                                       INPUT=$sortedName \
@@ -35,15 +34,14 @@ string[] getMarkedBams(string{} cmdExe, string[] bamFiles, string fastaRef, stri
         
         string mdupsName = reorderedName.swapExt(".bam", "_marked_dups.bam")
         string metricsName = reorderedName.swapExt(".bam", "_marked_dups.metrics")
-        //dep(prePro, [mdupsName, metricsName] <- reorderedName, cpus := 2, taskName := "picard marking dups "+mdupsName) {
-        dep([mdupsName, metricsName] <- reorderedName, cpus := 2, taskName := "picard marking dups "+mdupsName) {
+        dep(prePro, [mdupsName, metricsName] <- reorderedName, cpus := 2, taskName := "picard marking dups "+mdupsName) {
             sys $picardExe MarkDuplicates TMP_DIR=tmp/ \
                                           VALIDATION_STRINGENCY=LENIENT \
                                           CREATE_INDEX=true \
                                           INPUT=$reorderedName \
                                           OUTPUT=$mdupsName \
                                           METRICS_FILE=$metricsName
-            //sys rm $sortedName $reorderedName
+            sys rm $sortedName $reorderedName
         }
         markedBams.add(mdupsName)
     }
