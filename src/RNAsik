@@ -51,8 +51,6 @@ string{} cmdExe = config(configFile)
 #------------------------------
 // list of fastq files
 string[] fqFiles
-//string  list of bam files from STAR run
-string[] bamsList
 // local Fasta file
 if( (!fastaRef.isEmpty()) && (!fastaRef.isFile()) ) error "Check your path to fasta file. It dosen't point to a file. $fastaRef"
 string localFastaRef = makeLocalFastaRef(fastaRef)
@@ -87,19 +85,8 @@ string{} starOpts = { "--outSAMtype" => "BAM Unsorted", \
                       "--readFilesCommand" => "zcat"}
 string allSTARopts = getOpts(getOptsMap("STAR", starOpts, extraOpts))
 logit("STAR alignment cmd options", allSTARopts)
-// Get BAM files
-for(string rootName : fqMap.keys()) {
-    //TODO clean up reads, it comes with trailing comman
-    string[] reads = getReads(fqMap{rootName})
-    logit("This is rootName for read below", rootName)
-    logit("R1 reads string that passed to aligner", reads[0])
-    paired = getPaired(reads) 
-    if(paired) logit("R2 reads string that passed to aligner", reads[1])
-    // STAR aligning
-    string bamFile = mapSTAR(cmdExe, rootName, reads, allSTARopts, genomeIdx, threads) 
-    logit("Corresponding bam file", bamFile)
-    bamsList.add(bamFile)
-}
+//string  list of bam files from STAR run
+string[] bamsList = mapSTAR(cmdExe, fqMap, starOpts, genomeIdx, threads)
 // featureCounts cmd options
 string{} countsOpts = { "-a" => localGTF }
 if(paired) countsOpts{"-p"} = ""

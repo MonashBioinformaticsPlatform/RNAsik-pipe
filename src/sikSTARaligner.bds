@@ -1,40 +1,58 @@
 #------------------------------
-# Make directories as required
+# STAR alignment function
 #------------------------------
-string bamFiles = "bamFiles"
-if((!bamFiles.exists()) && (align == "star")) bamFiles.mkdir()
 
-string mapSTAR(string{} cmdExe, string rootName, string[] listOfReads, string starOpts, string genomeIdx, int threads) {
+include "sikLog.bds"
+include "sikFqFiles.bds"
+
+string[] mapSTAR(string{} cmdExe, string{} fqMap, string starOpts, string genomeIdx, int threads) {
     if((!align.isEmpty()) && (fastaRef.isEmpty()) && (genomeIdx.isEmpty())) error "Need to specify either -fastaRef /path/to/your/FASTA/file or -genomeIdx /path/to/your/index/directory"
+    // make directory
+    string bamFiles = "bamFiles"
+    if( (!bamFiles.exists()) && (!align.isEmpty()) ) bamFiles.mkdir()
     // get STAR executable 
     if(!cmdExe.hasKey("starExe")) error "Can't get STAR executable, check your config file $configFile"
     string starExe = cmdExe{"starExe"}
+    // BAMs
+    string[] bamsList
 
-    string rootBase = rootName.baseName()
-    string preFix = bamFiles+"/"+rootBase+"_"
-    
-    string bamOut
+    for(string rootName : fqMap.keys()) {
+        //TODO clean up reads, it comes with trailing comman
+        string[] readsList = getReads(fqMap{rootName})
+        logit("This is rootName for read below", rootName)
+        logit("R1 reads string that passed to aligner", readsList[0])
+        paired = getPaired(readsList) 
+        if(paired) logit("R2 reads string that passed to aligner", readsList[1])
 
-    int checkUnsorted = starOpts.indexOf("Unsorted")
-    int checkSorted = starOpts.indexOf("SortedByCoordinate")
+        string rootBase = rootName.baseName()
+        string preFix = bamFiles+"/"+rootBase+"_"
+        
+        string bamOut
 
-    if(checkUnsorted != -1) bamOut = preFix+"Aligned.out.bam"
-    if(checkSorted != -1) bamOut = preFix+"Aligned.sortedByCoord.out.bam"
+        int checkUnsorted = starOpts.indexOf("Unsorted")
+        int checkSorted = starOpts.indexOf("SortedByCoordinate")
 
-    string reads = listOfReads.join(" ")
-    task(align == "star", bamOut <- genomeIdx, cpus := threads, taskName := "STAR aligning "+rootBase) {
-        sys $starExe --runThreadN $threads \
-                     --genomeDir $genomeIdx \
-                     --outSAMattrRGline ID:001 CN:Unknown DS:RNA-seq PL:ILLUMINA PM:MiSeq SM:$rootBase \
-                     --readFilesIn $reads \
-                     --outFileNamePrefix $preFix \
-                     $starOpts
-                 
+        if(checkUnsorted != -1) bamOut = preFix+"Aligned.out.bam"
+        if(checkSorted != -1) bamOut = preFix+"Aligned.sortedByCoord.out.bam"
+
+        string reads = readsList.join(" ")
+        dep(align == "star", bamOut <- genomeIdx, cpus := threads, taskName := "STAR aligning "+rootBase) {
+            sys $starExe --runThreadN $threads \
+                         --genomeDir $genomeIdx \
+                         --outSAMattrRGline ID:001 CN:Unknown DS:RNA-seq PL:ILLUMINA PM:MiSeq SM:$rootBase \
+                         --readFilesIn $reads \
+                         --outFileNamePrefix $preFix \
+                         $starOpts
+                     
+        }
+        //wait
+        // you can remove wait statement and reduce number of threads
+        // however this will run all your fastq files in parallel
+        // doing this I find a bit impractical on our server because of
+        // limited RAM - only 128 Gb
+        bamsList.add(bamOut)
+        logit("Corresponding bam file", bamOut)
     }
-    //wait
-    // you can remove wait statement and reduce number of threads
-    // however this will run all your fastq files in parallel
-    // doing this I find a bit impractical on our server because of
-    // limited RAM - only 128 Gb
-    return bamOut
+    goal bamsList
+    return bamsList
 }
