@@ -6,7 +6,8 @@
 # Make directories as required
 #------------------------------
 string refFiles = "refFiles"
-if( (!refFiles.exists()) && ( (!gtfFile.isEmpty()) || (!fastaRef.isEmpty()) ) ) refFiles.mkdir()
+//if( (!refFiles.exists()) && ( (!gtfFile.isEmpty()) || (!fastaRef.isEmpty()) ) ) refFiles.mkdir()
+if(!refFiles.exists()) refFiles.mkdir()
 #------
 # Body
 #------
