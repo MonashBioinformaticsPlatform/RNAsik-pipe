@@ -1,5 +1,8 @@
 # RNAsik-pipe quick and easy way to get differentially expressed genes
 
+**RNAsik is in active development. Master branch is stable but out of date. One should really be using 1.4.x branch. I'm hoping to merge 1.4.x to master soon. 
+Also just FYI have been working on docs for RNAsik here https://monashbioinformaticsplatform.github.io/RNAsik-pipe/. Thus far have only made quick start page :) **
+
 > Why `RNAsik-pipe` cause its sik easy. Get list of differentially expressed genes in a single command line.
 > Simply give your FASTQ files to `RNAsik-pipe` with your reference files and press go ! [Enter] Go now !
 >
