@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="release-notes-version-1.3">Release Notes, version 1.3</h1>
+<h2 id="content">Content</h2>
+<ul>
+<li><a href="#general">General</a></li>
+<li><a href="#star">STAR</a></li>
+<li><a href="#featureCounts">featureCounts</a></li>
+</ul>
+<h4 id="general">General</h4>
+<ul>
+<li>Improved documentations and help menu</li>
+<li>Introduced new <code>-extraOptions</code> command. Now user can pass in any additional commands that particular tools can have. This will make pipeline rather flexible.</li>
+<li><p>Included more checks along the way, such as:</p>
+<ul>
+<li>checking if directories and files given on the cli are valid and accessible</li>
+<li>check if FASTQ files where found in the given location</li>
+<li>if no <code>-align</code> option was specified check that <code>bamFiles</code> directory exists and has BAM files</li>
+<li>if no <code>-prePro</code> options specified checks for <code>preqcBamFiles</code> directory and not present through an error. Can now use <code>-proBams</code> for processed bams to specify RNAseQC ready bams</li>
+</ul></li>
+<li><p>Made <code>RNAsik-pipe</code> more sequential, i.e step one run STAR, then run featureCounts then run processing steps. Previously featureCounts and picard tools were running in paralell and I/O was suffering. It is faster to have featureCounts end its run before doing picard processing.</p></li>
+<li>Removed <code>-makeIndicies</code> and <code>-fqDirs</code> options and simplified input
+<ul>
+<li>Combined <code>-fqDir</code> and <code>fqDirs</code> into single flag <code>-fqDir</code> under which you can specify either directory with FASTQ’s or a project directory with directories with FASTQ’s. In another way, now pipeline looks two level deep for FASTQ files in a given directory under <code>-fqDir</code></li>
+<li><code>-makeIndex</code> now only makes STAR index. In future it might accept aligner name for which to make an index</li>
+<li>other indicies for picard and RNAseQC are now made on the fly when those tools are called</li>
+</ul></li>
+<li>Don’t have to specify <code>-makeIndex</code> if running an alignment. If <code>-align</code> given and no <code>-genomeIndex</code> is specified, then pipeline will ask for <code>-fastaRef</code> and make index before aligning</li>
+<li>Improved scoping. RNAsik-pipe is a mine file that runs everything, all other files define functions and don’t look outside of the file. Everything is passed in from within main file - RANsik-pipe.</li>
+<li>Included an option to specify gzipped files, but not in the <code>-extraOptions</code> if additoinal file is need to be given through <code>extraOptions</code> and file is gzipped it won’t be handled. The gzipped option is specific for <code>fastaRef</code> and <code>gtfFile</code> only. Those can be gzipped and pipieline will handle it.</li>
+<li>also now copy <code>fastaRef</code> and <code>gtfFile</code> into <code>refFiles</code> directory. This is to avoid permission issues. Because original destination might not have all the required files, such as <code>.dict</code> and <code>.fai</code> files and if not permitted pipeline won’t be able to execute certain steps.</li>
+<li><p>Introduced <code>-sampleNames</code> options now user can “fix” BAM file names and all the downstream file and data naming to something more minegful.</p></li>
+</ul>
+<h4 id="star">STAR</h4>
+<ul>
+<li>Changed bool <code>-star</code> option for <code>-align</code> that now accepts a string. At the moment the only string it can accept is <code>star</code> (lower case). This is again step towards making pipeline more flexible for users demands. In future I’m planing to introduce other aligners to my pipeline so that user perhaps can choose an aligner.</li>
+<li>Auto detect is FASTQ are paired-end or not. Wrote a function that loops through <code>-fqDir</code> directory and counting all the R1 and R2 reads. Based on the counts it ditermines whether data is paired end or not.</li>
+</ul>
+<h4 id="featurecounts">featureCounts</h4>
+<ul>
+<li>included a couple of python script that uses <code>gffutils</code> package to make a datatbase of GTF entries and then parse that database file to get public gene names, Ensmebl Ids and gene’s biotypes. It is easy to include more information about the gene with this python module.</li>
+<li>Included more post processing on count files, now they are ready for degust upload</li>
+</ul>
+</body>
+</html>
