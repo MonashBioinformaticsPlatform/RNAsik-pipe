@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+        <meta charset="utf-8">
+        <title>RNAsik documentations</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <!-- Styles -->
+        <link href="css/bootstrap.css" rel="stylesheet">
+        <link href="css/docs.css" rel="stylesheet">
+        <link href="js/google-code-prettify/prettify.css" rel="stylesheet">
+
+        <!-- Custom styles for this template -->
+        <link href="css/jumbotron.css" rel="stylesheet">
+        <link href="css/my.css" rel="stylesheet">
+
+        <!-- hTML5 shim, for IE6-8 support of HTML5 elements -->
+        <!--[if lt IE 9]>
+        <script src="js/html5shiv.js"></script>
+        <![endif]-->
+
+        <!-- Fav and touch icons -->
+        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/apple-touch-icon-144-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="ico/apple-touch-icon-114-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="ico/apple-touch-icon-72-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" href="ico/apple-touch-icon-57-precomposed.png">
+        <link rel="shortcut icon" href="ico/favicon.png">
+</head>
+
+<body>
+<header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
+        <div class="container">
+                <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                                <span class="sr-only">Toggle navigation</span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik</a>
+                </div>
+                <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+                        <ul class="nav navbar-nav">
+                                <li><a href="quick-start.html">Quick start</a></li>
+                                <li><a href="install.html">Installation</a></li>
+                                <li><a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">Source</a></li>
+                                <li class="active"><a href="sik-docs.html">Documentation</a></li>
+				<li><a href="release-notes">Release notes</a></li>
+                                <li><a href="about.html">About</a></li>                         
+                        </ul>
+                </nav>
+        </div>
+</header>
+
+<div class="bs-docs-header" id="content">
+        <div class="container-fluid">
+                <h1 class="page-header" id="">RNAsik - The right place to start</h1>
+        </div>
+</div>
+
+<div class="container-fluid" role="main">
+
+                        <!-- ================================================== -->
+                        <div class="bs-docs-section">
+                                <h1 class="page-header" id="install">Introduction</h1>
+                                <p>Why choose RNAsik? Cause it's sik easy. Get list of differentially expressed genes in a single command line. Simply give your FASTQ files to <code>RNAsik-pipe</code> with your reference files and press go ! [Enter] Go now ! RNAsik has been written in <a href="http://pcingola.github.io/BigDataScript/">BigDataScrip</a> (BDS) language. There are many advantages in using BDS, but main ones are:</p>
+                                <ol type="1">
+                                <li>One script works on laptop, server and cluster</li>
+                                <li>Checkpoints - restart from where you've left off/li>
+                                <li>Bucket your data - push and pull over http and S3 </li>
+                                </ol>
+                        </div>
+
+                        <!-- ================================================== -->
+                        <div class="bs-docs-section">
+                                <h1 class="page-header" id="quick-start">Quick start</h1>
+                                <p>If you have a <code>module</code> system on you server/cluster make sure to <code>module load</code> all required tools e.g <code>module load STAR</code> <strong>Need to have <a href="#prerequisites">all of these tools</a> in your enviroment</strong>. Alternatively use <a href="https://github.com/serine/sik_ansible">ansible RNAsik-playbook</a> to install everything for you and <code>module load RNAsik</code> which will automatically load all the dependencies.</p>
+<p>Use <code>RNAsik</code> executable file to run it e.g <code>./RNAsik</code>. Everything else will depend on what you want to do, some examples below</p>
+
+                                <h3 id="rnasik-pipe-commands-examples">RNAsik-pipe commands examples</h3>
+                                <ul>
+                                <li>To align FASTQ files in <code>raw-data/data</code> directory use</li>
+                                </ul>
+
+                                <div class="sourceCode">
+                                        <pre class="sourceCode bash">
+                                                 RNAsik -align star -samplesSheet path/to/samplesSheet.txt -fqDir raw-data/data -fastaRef path/to/yourFASTAfile -threads 15
+                                        </pre>
+                                </div>
+
+                                <ul>
+                                <li>To just get counts on already existing bam files you must have directory <code>bamFiles</code> with all BAM files with either <code>_Aligned.out.bam</code> or <code>_Aligned.sortedByCoord.out.bam</code> postfix as per STAR aligner output.</li>
+                                </ul>
+
+                                <div class="sourceCode">
+                                        <pre class="sourceCode bash">
+                                                RNAsik -count -gtfFile path/to/your/annotation/file -threads 15
+                                        </pre>
+                               </div>
+
+
+                                <ul>
+                                <li>Full RNAsik run</li>
+                                </ul>
+
+                                <div class="sourceCode">
+                                        <pre class="sourceCode bash">
+                                                RNAsik -align star -samplesSheet path/to/samplesSheet.txt -fqDir raw-data/data -count -gtfFile path/to/your/annotation/file -prePro -fastaRef path/to/yourFASTAreference-file -threads 15
+                                        </pre>
+                                </div>
+
+                                <div>
+                                        <p><code>RNAsik</code> can’t handle gzipped files at this stage </p>
+                                </div>
+
+</div>
+
+</body>
+</html>

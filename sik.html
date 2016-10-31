@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+        <meta charset="utf-8">
+        <title>RNAsik documentations</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <!-- Styles -->
+        <link href="css/bootstrap.css" rel="stylesheet">
+        <link href="css/docs.css" rel="stylesheet">
+        <link href="js/google-code-prettify/prettify.css" rel="stylesheet">
+
+        <!-- Custom styles for this template -->
+        <link href="css/jumbotron.css" rel="stylesheet">
+        <link href="css/my.css" rel="stylesheet">
+
+        <!-- hTML5 shim, for IE6-8 support of HTML5 elements -->
+        <!--[if lt IE 9]>
+        <script src="js/html5shiv.js"></script>
+        <![endif]-->
+
+        <!-- Fav and touch icons -->
+        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/apple-touch-icon-144-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="ico/apple-touch-icon-114-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="ico/apple-touch-icon-72-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" href="ico/apple-touch-icon-57-precomposed.png">
+        <link rel="shortcut icon" href="ico/favicon.png">
+</head>
+
+<body>
+<header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
+        <div class="container">
+                <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                                <span class="sr-only">Toggle navigation</span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik</a>
+                </div>
+                <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+                        <ul class="nav navbar-nav">
+                                <li><a href="quick-start.html">Quick start</a></li>
+                                <li><a href="install.html">Installation</a></li>
+                                <li><a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">Source</a></li>
+                                <li class="active"><a href="sik-docs.html">Documentation</a></li>
+				<li><a href="release-notes">Release notes</a></li>
+                                <li><a href="about.html">About</a></li>                         
+                        </ul>
+                </nav>
+        </div>
+</header>
+
+<div class="bs-docs-header" id="content">
+        <div class="container">
+                <h1 class="page-header" id="">RNAsik</h1>
+                <p>The right place to start</p>
+        </div>
+</div>
+
+     
+<div class="col-md-9" role="main">
+
+	<div class="bs-docs-section">
+        	<h1 class="page-header" id="install">Download &amp; Install</h1>
+        	<p class="lead"> Please take a look at the <a href="download.html">download page</a>.  </p>
+
+
+<h2 class="text-center" id="prerequisites">Prerequisites</h2>
+<ul>
+<li><a href="http://pcingola.github.io/BigDataScript/download.html">BigDataScript</a></li>
+<li><a href="https://github.com/alexdobin/STAR/releases">STAR aligner</a></li>
+<li><a href="http://subread.sourceforge.net/">featureCounts</a></li>
+<li><a href="http://www.htslib.org/download/">samtools</a></li>
+<li><a href="http://broadinstitute.github.io/picard/">Picard tools</a></li>
+<li><a href="https://pypi.python.org/pypi/gffutils">gffutils</a> python package, can use <code>(sudo) pip install gffutils</code></li>
+<li><a href="https://www.broadinstitute.org/cancer/cga/rna-seqc">RNA-SeQC</a></li>
+</ul>
+<h3 id="system-requirements">System requirements</h3>
+<ul>
+<li>At least 100 Gb of disk space. <a href="https://github.com/alexdobin/STAR/releases">STAR aligner</a> you will need 100 Gb of disk space during making an index step. The index itself isn’t 100 Gb, but that much space is required.</li>
+<li>At least 32 Gb of RAM for read alignments</li>
+</ul>
+<h2 class="text-center" id="installation">Installation</h2>
+<p><strong>The easy way:</strong> use <a href="https://github.com/serine/sik_ansible">ansible RNAsik-playbook</a></p>
+<p><strong>The other way:</strong></p>
+<ul>
+<li>Install <a href="http://pcingola.github.io/BigDataScript/download.html">BigDataScript</a></li>
+<li><p>Install <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/releases">latest stable RNAsik-pipe release</a></p>
+<ol type="1">
+<li>Locate your <code>*tar.gz</code> file</li>
+<li><code>tar zxvf *tar.gz file</code></li>
+<li>You <code>RNAsik-pipe</code> executable file is located in <code>src</code> directory</li>
+</ol></li>
+<li><p>Install all <a href="#prerequisites">dependencies</a></p></li>
+</ul>
+<p><strong>To get developing version:</strong> <code>git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe.git</code></p>
+<h2 class="text-center" id="release-notes">Release notes</h2>
+<ul>
+<li><a href="supplementary/releaseNotes1.2.md">Version 1.2</a></li>
+<li><a href="supplementary/releaseNotes1.3.md">Version 1.3</a></li>
+</ul>
+
+                   <div class="col-md-3">
+			<div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" role="complementary" data-spy="affix">
+				<ul class="nav bs-docs-sidenav affix" data-spy="affix">
+					<li><a href="#prerequisites">Prerequisites</a></li>
+					<li><a href="#intro"> Introduction</a></li>
+					<li><a href="#hello"> Hello world </a></li>
+
+					<li><a href="#task"> Creating data pipelines </a>
+						<ul class="nav">
+							<li><a href="#task-depend"> Task dependencies</a></li>
+							<li><a href="#task-wait"> Wait </a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+<footer> <p class="text-center"><a class="body" href="http://www.linkedin.com/in/pablocingolani">Created by Pablo Cingolani</a></p> </footer>
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
+</body>
+</html>
+
