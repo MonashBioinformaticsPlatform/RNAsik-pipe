@@ -104,8 +104,11 @@ string toString = fqMap
 logit(logFile, "Fastq files map, where key = rootName = bam file name and value actual fastq file with that rootName", toString)
 // STAR default options
 string{} starOpts = { "--outSAMtype" => "BAM Unsorted", \
-                      "--outSAMunmapped" => "Within", \
-                      "--readFilesCommand" => "zcat"}
+                      "--outSAMunmapped" => "Within"}
+
+if(extn.endsWith(".gz")) starOpts{"--readFilesCommand"} = "zcat"
+else starOpts{"--readFilesCommand"} = "cat"
+
 string allSTARopts = getOpts(getOptsMap("STAR", starOpts, extraOpts))
 logit(logFile, "STAR alignment cmd options", allSTARopts)
 //string  list of bam files from STAR run
@@ -122,8 +125,7 @@ if(!fqMap && ( (count) || (prePro) ) ) {
     else error "No bam files or bamFiles directory was found. You can pass bam files using -bamFiles /path/to/bamFiles/dir"
 }
 // where BAM had been sorted, reorted and duplicates marked
-string[] markedBams = getMarkedBams(cmdExe, markedDupsBams, bamsList, localFastaRef, fastaDictFile)
-//if(prePro) logit(logFile, "Corresponding bam file with marked dups", mdupsBam)
+string[] markedBams = getMarkedBams(cmdExe, markedDupsBams, bamsList, localFastaRef, fastaDictFile, logFile)
 // get counts
 string[] featureCounts = getReadsCount(cmdExe, countFiles, bamsList, allCountOpts, localGTF, threads)
 string[] degust = getDegust(cmdExe, sikDir, featureCounts, bamsList.size(), localGTF, setGFF, threads)

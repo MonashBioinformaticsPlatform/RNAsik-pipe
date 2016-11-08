@@ -1,8 +1,10 @@
 #--------------------------------------------------
 # Functions to pre-process BAM files - picard
 #--------------------------------------------------
+include "sikLog.bds"
+
 //string getPrePro(string{} cmdExe, string bamFile, string fastaRef, string fastaDictFile){
-string[] getMarkedBams(string{} cmdExe, string markedDupsBams, string[] bamFiles, string fastaRef, string fastaDictFile){
+string[] getMarkedBams(string{} cmdExe, string markedDupsBams, string[] bamFiles, string fastaRef, string fastaDictFile, string logFile) {
     string[] markedBams
     // check if executable is there
     if(!cmdExe.hasKey("picardExe")) error "Can't get picard executable, check your config file $configFile"
@@ -42,6 +44,7 @@ string[] getMarkedBams(string{} cmdExe, string markedDupsBams, string[] bamFiles
             sys rm $sortedName $reorderedName
         }
         markedBams.add(mdupsName)
+        logit(logFile, "Corresponding bam file with marked dups", mdupsName)
     }
     goal markedBams
     return markedBams
