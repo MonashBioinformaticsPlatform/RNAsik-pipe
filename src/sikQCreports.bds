@@ -3,24 +3,6 @@ include "sikHeader.bds"
 # Functions to get different QC reports
 #---------------------------------------
 
-// make SampleIds.txt file for RNAseQC report
-// This function is not needed, will remove in separate commit
-//string getSampleIds(string[] markedBams){
-//    bool header = true
-//    string sampleIds
-//    
-//    for(string bamFile : markedBams){
-//        string[] getSampleIds = bamFile.split("_")
-//        string sampleId = getSampleIds[0].baseName()
-//        if(header){
-//            sampleIds += "Sample ID\tBam File\tNotes\n"
-//            header = false
-//        }
-//        sampleIds += "$sampleId\t$bamFile\tNA\n"
-//    }
-//    return sampleIds
-//}
-//
 string[] getFastqcReport(string{} cmdExe, string fastqcReport, string[] fqFiles, string fqQcOpts, string extn, int threads){
     if(!cmdExe.hasKey("fastqcExe")) error "Can't get fastqc executable, check your config file $configFile"
     string fastqcExe = cmdExe{"fastqcExe"}
