@@ -5,11 +5,7 @@
 include "sikLog.bds"
 include "sikFqFiles.bds"
 
-// make directory
-string bamFiles = "bamFiles"
-if( (!bamFiles.exists()) && (!align.isEmpty()) ) bamFiles.mkdir()
-
-string[] mapSTAR(string{} cmdExe, string{} fqMap, string starOpts, string genomeIdx, int threads) {
+string[] mapSTAR(string{} cmdExe, string bamFiles, string{} fqMap, string starOpts, string genomeIdx, int threads, string logFile) {
     if((!align.isEmpty()) && (fastaRef.isEmpty()) && (genomeIdx.isEmpty())) error "Need to specify either -fastaRef /path/to/your/FASTA/file or -genomeIdx /path/to/your/index/directory"
     // get STAR executable 
     if(!cmdExe.hasKey("starExe")) error "Can't get STAR executable, check your config file $configFile"
@@ -20,10 +16,10 @@ string[] mapSTAR(string{} cmdExe, string{} fqMap, string starOpts, string genome
     for(string rootName : fqMap.keys()) {
         string[] readsList = getReads(fqMap{rootName})
         string check = fqMap{rootName}
-        logit("This is rootName for read below", rootName)
-        logit("R1 reads string that passed to aligner", readsList[0])
+        logit(logFile, "This is rootName for read below", rootName)
+        logit(logFile, "R1 reads string that passed to aligner", readsList[0])
         paired = getPaired(readsList) 
-        if(paired) logit("R2 reads string that passed to aligner", readsList[1])
+        if(paired) logit(logFile, "R2 reads string that passed to aligner", readsList[1])
 
         string rootBase = rootName.baseName()
         string preFix = bamFiles+"/"+rootBase+"_"
@@ -39,6 +35,7 @@ string[] mapSTAR(string{} cmdExe, string{} fqMap, string starOpts, string genome
         string reads = readsList.join(" ")
         dep(align == "star", bamOut <- genomeIdx, cpus := threads, taskName := "STAR aligning "+rootBase) {
             sys $starExe --runThreadN $threads \
+                         --runMode alignReads \
                          --genomeDir $genomeIdx \
                          --outSAMattrRGline ID:001 CN:Unknown DS:RNA-seq PL:ILLUMINA PM:MiSeq SM:$rootBase \
                          --readFilesIn $reads \
@@ -52,7 +49,7 @@ string[] mapSTAR(string{} cmdExe, string{} fqMap, string starOpts, string genome
         // doing this I find a bit impractical on our server because of
         // limited RAM - only 128 Gb
         bamsList.add(bamOut)
-        logit("Corresponding bam file", bamOut)
+        logit(logFile, "Corresponding bam file", bamOut)
     }
     goal bamsList
     return bamsList

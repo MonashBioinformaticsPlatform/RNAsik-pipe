@@ -21,7 +21,6 @@ if(!fqDir.isEmpty()) {
 } 
 if(count) if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
 if(prePro) if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
-if(RNAseQC) if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
 if(!configFile.isEmpty()) if(!configFile.isFile()) error "-configFile doesn't appear to be pointing at the valid file, double check your path $configFile"
 
 if( args.isEmpty() ) {
@@ -40,7 +39,6 @@ string checkCmdArgs() {
                         "-prePro", \
                         "-fastaRef", \
                         "-fastqc", \
-                        "-RNAseQC", \
                         "-threads", \
                         "-extn", \
                         "-samplesSheet", \
@@ -50,6 +48,7 @@ string checkCmdArgs() {
                         "-proBams", \
                         "-configFile", \
                         "-multiqc", \
+                        "-outDir", \
                         "-version" \
                        ]
     // list of options specified by user

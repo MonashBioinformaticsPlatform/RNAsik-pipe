@@ -1,5 +1,4 @@
-string logit(string message, string data) {
-    string logFile = "logFile.txt"
+string logit(string logFile, string message, string data) {
     string content
     if(logFile.exists()) content = logFile.read()
     content += message + "\n"

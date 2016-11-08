@@ -2,10 +2,7 @@
 # Counts
 #----------------------------------------
 
-string[] getReadsCount(string{} cmdExe, string[] bamsList, string extraOpts, string localGTF, int threads) {
-    // make directory for counts
-    string countFiles = "countFiles"
-    if((!countFiles.exists()) && (count)) countFiles.mkdir()
+string[] getReadsCount(string{} cmdExe, string countFiles, string[] bamsList, string extraOpts, string localGTF, int threads) {
 
     if(!cmdExe.hasKey("countsExe")) error "Can't get featureCounts executable, check your config file $configFile"
     string countsExe = cmdExe{"countsExe"}
@@ -34,24 +31,24 @@ string[] getReadsCount(string{} cmdExe, string[] bamsList, string extraOpts, str
     return featureOut
 }
 //
-string getGeneIds(string pythonExe, string gtfFile, bool setGFF){
+string getGeneIds(string pythonExe, string sikDir, string gtfFile, bool setGFF){
     string getProgPath = programPath.pathName()
     string pyFlag = '--gtfFile'
     if(setGFF){
         pyFlag = '--gffFile'
     }
-    string getGeneIds = getProgPath+"/../scripts/getGeneIds.py"
-    string geneIds = "geneIds.txt"
+    string pyScript = getProgPath+"/../scripts/getGeneIds.py"
+    string geneIds = sikDir+"/"+"geneIds.txt"
     task(count, geneIds <- gtfFile, taskName := "getting geneIds.txt file") {
-        sys $pythonExe $getGeneIds $pyFlag $gtfFile > $geneIds
+        sys $pythonExe $pyScript $pyFlag $gtfFile > $geneIds
     }
     return geneIds
 }
 
-string[] getDegust(string{} cmdExe, string[] featureCounts, int bamsN, string gtfFile, bool gff, int threads) {
+string[] getDegust(string{} cmdExe, string sikDir, string[] featureCounts, int bamsN, string gtfFile, bool gff, int threads) {
     if(!cmdExe.hasKey("pythonExe")) error "Can't get python executable, check your config file $configFile"
     string pythonExe = cmdExe{"pythonExe"}
-    string geneIdsFile = getGeneIds(pythonExe, gtfFile, gff)
+    string geneIdsFile = getGeneIds(pythonExe, sikDir, gtfFile, gff)
 
     string[] withNames
 

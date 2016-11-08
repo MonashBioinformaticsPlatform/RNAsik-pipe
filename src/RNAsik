@@ -16,7 +16,6 @@
 #   * Understands if FASTQ files are paired end or single end
 #   * Understands if samples span different lanes. Merges all sample's lane at the STAR runtime
 #   * Gets count data, checks both reverse strand and no strands 
-#   * Prepares BAM files for RNAseQC report
 #   * Gets both RNA-SeQC report and Fastqc report
 #
 #----------------------------------------------------------------------------------------------------
@@ -30,20 +29,44 @@ include "sikSTARaligner.bds"
 include "sikCounts.bds"
 include "sikPrePro.bds"
 include "sikQCreports.bds"
-#------------------------------
-# Check cmd args
-#------------------------------
-string date = sys date
-logit(">Starting new RNAsik-pipe run", date.trim())
+// Check cmd args first up
 string checkCmdInput = checkCmdArgs()
+#------------------------------
+# Make directories
+#------------------------------
+string sikDir
+if(!outDir.isEmpty()) {
+    if(!outDir.exists()) {
+        outDir.mkdir()
+        sikDir = outDir
+    }
+    else sikDir = outDir
+}
+else sikDir = "sikRun"
+
+if(!sikDir.exists()) sikDir.mkdir()
+string logFile = sikDir+"/"+"logFile.txt"
+string refFiles = sikDir+"/"+"refFiles"
+if(!refFiles.exists()) refFiles.mkdir()
+string bamFiles = sikDir+"/"+"bamFiles"
+if( (!bamFiles.exists()) && (!align.isEmpty()) ) bamFiles.mkdir()
+string countFiles = sikDir+"/"+"countFiles"
+if((!countFiles.exists()) && (count)) countFiles.mkdir()
+string markedDupsBams = sikDir+"/"+"markedDupsBams"
+if((!markedDupsBams.exists()) && (prePro)) markedDupsBams.mkdir()
+string fastqcReport = sikDir+"/"+"fastqcReport"
+if((!fastqcReport.exists()) && (fastqc)) fastqcReport.mkdir()
+// Start loging
+string date = sys date
+logit(logFile, ">Starting new RNAsik-pipe run", date.trim())
 #------------------------------
 # Parse config file
 #------------------------------
-if(!configFile.isEmpty()) logit("Config file parameters passed by user", configFile.read())
+if(!configFile.isEmpty()) logit(logFile, "Config file parameters passed by user", configFile.read())
 else {
     string getProgPath = programPath.pathName()
     configFile = getProgPath+"/../sik.config"
-    logit("Default config file parameters", configFile.read())
+    logit(logFile, "Default config file parameters", configFile.read())
 }
 string{} cmdExe = config(configFile)
 #------------------------------
@@ -53,40 +76,40 @@ string{} cmdExe = config(configFile)
 string[] fqFiles
 // local Fasta file
 if( (!fastaRef.isEmpty()) && (!fastaRef.isFile()) ) error "Check your path to fasta file. It dosen't point to a file. $fastaRef"
-string localFastaRef = makeLocalFastaRef(fastaRef)
+string localFastaRef = makeLocalFastaRef(fastaRef, refFiles)
 // local GTF file
 if( (!gtfFile.isEmpty()) && (!gtfFile.isFile()) ) error "Check your path to gtf file. It dosen't point to a file. $gtfFile"
-string localGTF = makeLocalGTF(gtfFile)
+string localGTF = makeLocalGTF(gtfFile, refFiles)
 if(localGTF.extName() == "gff") setGFF = true
 // Make indices if required 
-logit("FASTA file in use", localFastaRef)
-logit("Annotation file in use", localGTF)
+logit(logFile, "FASTA file in use", localFastaRef)
+logit(logFile, "Annotation file in use", localGTF)
 // 
 string fastaDictFile = makeDictFile(cmdExe, localFastaRef)
-logit("FASTA dict file for picard", fastaDictFile)
+logit(logFile, "FASTA dict file for picard", fastaDictFile)
 // STAR index cmd options
 string{} idxOpts
 string allIdxOpts = getOpts(getOptsMap("starIndex", idxOpts, extraOpts))
-logit("STAR indexing cmd options", allIdxOpts)
+logit(logFile, "STAR indexing cmd options", allIdxOpts)
 // get genomeIdx directory
-if( !fastaRef.isEmpty() && genomeIdx.isEmpty() && (!align.isEmpty() || align == "index") ) {
-    genomeIdx = makeSTARindex(cmdExe, localFastaRef, localGTF, allIdxOpts, threads)
+if( !fastaRef.isEmpty() && genomeIdx.isEmpty() && (!align.isEmpty() || align == "starIdx") ) {
+    genomeIdx = makeSTARindex(cmdExe, refFiles, localFastaRef, localGTF, allIdxOpts, threads)
 } 
-logit("STAR genomic index", genomeIdx)
+logit(logFile, "STAR genomic index", genomeIdx)
 // grab all FASTQ files
 fqFiles = getFqFiles(fqDir, extn)
 string{} fqMap = getFqMap(fqFiles, fqRegex, samplesSheet, extn)
 // for loggin purpose convert map to string and write it to a file
 string toString = fqMap
-logit("Fastq files map, where key = rootName = bam file name and value actual fastq file with that rootName", toString)
+logit(logFile, "Fastq files map, where key = rootName = bam file name and value actual fastq file with that rootName", toString)
 // STAR default options
 string{} starOpts = { "--outSAMtype" => "BAM Unsorted", \
                       "--outSAMunmapped" => "Within", \
                       "--readFilesCommand" => "zcat"}
 string allSTARopts = getOpts(getOptsMap("STAR", starOpts, extraOpts))
-logit("STAR alignment cmd options", allSTARopts)
+logit(logFile, "STAR alignment cmd options", allSTARopts)
 //string  list of bam files from STAR run
-string[] bamsList = mapSTAR(cmdExe, fqMap, allSTARopts, genomeIdx, threads)
+string[] bamsList = mapSTAR(cmdExe, bamFiles, fqMap, allSTARopts, genomeIdx, threads, logFile)
 // featureCounts cmd options
 string{} countsOpts = { "-a" => localGTF }
 if(paired) countsOpts{"-p"} = ""
@@ -99,45 +122,22 @@ if(!fqMap && ( (count) || (prePro) ) ) {
     else error "No bam files or bamFiles directory was found. You can pass bam files using -bamFiles /path/to/bamFiles/dir"
 }
 // where BAM had been sorted, reorted and duplicates marked
-string[] markedBams
-//TODO This is tmp measure for RNAseQC, need to clean up later
-markedBams = getMarkedBams(cmdExe, bamsList, localFastaRef, fastaDictFile)
-//if(prePro) logit("Corresponding bam file with marked dups", mdupsBam)
+string[] markedBams = getMarkedBams(cmdExe, markedDupsBams, bamsList, localFastaRef, fastaDictFile)
+//if(prePro) logit(logFile, "Corresponding bam file with marked dups", mdupsBam)
 // get counts
-string[] featureCounts = getReadsCount(cmdExe, bamsList, allCountOpts, localGTF, threads)
-string[] degust = getDegust(cmdExe, featureCounts, bamsList.size(), localGTF, setGFF, threads)
+string[] featureCounts = getReadsCount(cmdExe, countFiles, bamsList, allCountOpts, localGTF, threads)
+string[] degust = getDegust(cmdExe, sikDir, featureCounts, bamsList.size(), localGTF, setGFF, threads)
 // FastQC report
 string{} fastqcOpts = { "--format" => "fastq", \
                         "--quiet" => ""}
 //fastqcOpts{ "--casava" } = ""
 string fqQcOpts = getOpts(getOptsMap("fastqc", fastqcOpts, extraOpts))
-string[] fqcReport = getFastqcReport(cmdExe, fqFiles, fqQcOpts, extn, threads)
+string[] fqQcReport = getFastqcReport(cmdExe, fastqcReport, fqFiles, fqQcOpts, extn, threads)
 // gather all files up for multiqc 
-string[] multiqcDeps = bamFiles + markedBams + degust + fqcReport
+string[] multiqcDeps = bamFiles + markedBams + degust + fqQcReport
 //
-string qcReport = getMultiqc(cmdExe, multiqcDeps)
-logit("Multiqc will run on this directory", qcReport)
-// RNAseQC report
-if(RNAseQC){
-    if(!prePro) markedBams = proBams.dirPath("*.bam")
-    if(!markedBams) error "No pre-processed BAM files were found, either used -prePro options or specify directory with appropriate BAM files using `-proBams path/to/you/bams/directory`"
-    string sampleIdsFile = "RNAseQC-sampleIds.txt"
-    string RNAseQCsampleIds = getSampleIds(markedBams)
-    sampleIdsFile.write(RNAseQCsampleIds)
-    // current options 
-    string{} rnaseqcOpts
-    if(!paired) rnaseqcOpts = { "-singleEnd" => "" }
-    //
-    //string cmdOptions = getCmdOptions("RNAseQC", extraOpts)
-    //string additionalRNAseQCoptions = getAllOptions(cmdOptions, currentRNAseQCoptions)
-    string opts = getOpts(getOptsMap("RNAseQC", rnaseqcOpts, extraOpts))
-    // make Fai file if dosen't exist
-    string getSamtoolsExe = cmdExe{"samtoolsExe"}
-    string fastaFaiFile = makeFaiFile(getSamtoolsExe, localFastaRef)
-    // get RNAseQC report 
-    string getRNAseQCexe = cmdExe{"RNAseQCexe"}
-    string qcReport = getRNAseQC(getRNAseQCexe, sampleIdsFile, markedBams, localFastaRef, localGTF, opts)
-}
+string qcReport = getMultiqc(cmdExe, sikDir, multiqcDeps)
+logit(logFile, "Multiqc will run on this directory", qcReport)
 #----------------------------------------------------------------------------------------------------
 # End
 #----------------------------------------------------------------------------------------------------

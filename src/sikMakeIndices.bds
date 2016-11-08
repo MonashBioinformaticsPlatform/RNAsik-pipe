@@ -5,9 +5,7 @@
 #------------------------------
 # Make directories as required
 #------------------------------
-string refFiles = "refFiles"
-//if( (!refFiles.exists()) && ( (!gtfFile.isEmpty()) || (!fastaRef.isEmpty()) ) ) refFiles.mkdir()
-if(!refFiles.exists()) refFiles.mkdir()
+
 #------
 # Body
 #------
@@ -32,7 +30,7 @@ if(!refFiles.exists()) refFiles.mkdir()
 //    return localGTF
 //}
 
-string makeLocalFastaRef(string fastaRef) { 
+string makeLocalFastaRef(string fastaRef, string refFiles) { 
     if(fastaRef.extName() == "gz") error "Unzip your $fastaRef file before giving to the pipeline, with `gunzip` command" 
     string localFastaRef
     // temp fix, look like a bug, if fastaRef is empty, fastaRef.baseName() returns working directory
@@ -42,7 +40,7 @@ string makeLocalFastaRef(string fastaRef) {
     return localFastaRef
 }
 
-string makeLocalGTF(string gtfFile) {
+string makeLocalGTF(string gtfFile, string refFiles) {
     if(gtfFile.extName() == "gz") error "Unzip your $gtfFile file before giving to the pipeline, with `gunzip` command" 
     string localGTF
     // temp fix, look like a bug, if fastaRef is empty, fastaRef.baseName() returns working directory
@@ -51,7 +49,7 @@ string makeLocalGTF(string gtfFile) {
     return localGTF
 }
 
-string makeSTARindex(string{} cmdExe, string fastaRef, string gtfFile, string starOpts, int threads) {
+string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string gtfFile, string starOpts, int threads) {
     // get STAR executable 
     if(!cmdExe.hasKey("starExe")) error "Can't get STAR executable, check your config file $configFile"
     string starExe = cmdExe{"starExe"}
@@ -69,6 +67,7 @@ string makeSTARindex(string{} cmdExe, string fastaRef, string gtfFile, string st
     task(genomeIdxDir <- fastaRef, cpus := threads, taskName := "Making STAR index") {
         sys $starExe --runThreadN $threads \
                      --runMode genomeGenerate \
+                     --outFileNamePrefix "$refFiles/" \
                      --genomeDir $genomeIdxDir \
                      --genomeFastaFiles $fastaRef \
                      $starOpts
