@@ -1,7 +1,41 @@
 #----------------------------------------
 # Counts
 #----------------------------------------
+// runs python script `counts_parser.py` that guess strandness of the data
+string getStrandInfo(string{} cmdExe, string[] counts) {
+    if(!cmdExe.hasKey("pythonExe")) error "Can't get python executable, check your config file $configFile"
+    string pythonExe = cmdExe{"pythonExe"}
 
+    string getProgPath = programPath.pathName()
+    string pyScript = getProgPath+"/../scripts/counts_parser.py"
+    string countsDir = counts[0].dirName()
+    string strandInfo = countsDir+"/"+"strandInfo.txt"
+
+    task(count, strandInfo <- counts, taskName := "getting strand info") {
+        sys $pythonExe $pyScript --logsDir $countsDir > $strandInfo
+    }
+    // this is temp hack to stop mask function evaluation before above python script had run
+    // because mask function has .read() on a file that doesn't exist yet.
+    // I have to think about better solution for this
+    wait
+
+    string strand = mask(countsDir, strandInfo)
+    return strand
+    
+}
+// once the strand had been guessed, mask two other .summary files
+string mask(string countsDir, string strandInfo) {
+    string strandType = strandInfo.read()
+    strandType = strandType.trim() + ".txt.summary"
+
+    for(string f : countsDir.dir("*.summary")){
+        if(f != strandType) {
+            string masked = f.replace(".summary", ".summary.masked")
+            task(count, masked <- strandType, taskName := "masking unwanted counts files") sys mv $f $masked 
+        }
+    }
+    return strandType
+}
 string[] getReadsCount(string{} cmdExe, string countFiles, string[] bamsList, string extraOpts, string localGTF, int threads) {
 
     if(!cmdExe.hasKey("countsExe")) error "Can't get featureCounts executable, check your config file $configFile"
@@ -25,7 +59,6 @@ string[] getReadsCount(string{} cmdExe, string countFiles, string[] bamsList, st
                            -o $countsName \
                            $bamString
         }
-
     }
     goal featureOut
     return featureOut
@@ -43,6 +76,21 @@ string getGeneIds(string pythonExe, string sikDir, string gtfFile, bool setGFF){
         sys $pythonExe $pyScript $pyFlag $gtfFile > $geneIds
     }
     return geneIds
+}
+
+string[] getProteinCoding(string[] counts, bool setGFF) {
+
+    string[] proteinCodingCounts
+
+    for(string countFile : counts) {
+        string proteinCoding = countFile.removeExt()+"-proteinCoding.txt"
+        proteinCodingCounts.add(proteinCoding)
+        dep(!setGFF, proteinCoding <- countFile, taskName := "getting protein coding counts") {
+            sys grep "Biotype" $countFile > $proteinCoding
+            sys grep "protein_coding" $countFile >> $proteinCoding
+        }
+    }
+    return proteinCodingCounts
 }
 
 string[] getDegust(string{} cmdExe, string sikDir, string[] featureCounts, int bamsN, string gtfFile, bool gff, int threads) {
@@ -70,5 +118,6 @@ string[] getDegust(string{} cmdExe, string sikDir, string[] featureCounts, int b
     }
     goal withNames
         
-    return withNames
+    return getProteinCoding(withNames, gff)
 }
+

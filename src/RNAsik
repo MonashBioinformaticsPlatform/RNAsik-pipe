@@ -128,6 +128,7 @@ if(!fqMap && ( (count) || (prePro) ) ) {
 string[] markedBams = getMarkedBams(cmdExe, markedDupsBams, bamsList, localFastaRef, fastaDictFile, logFile)
 // get counts
 string[] featureCounts = getReadsCount(cmdExe, countFiles, bamsList, allCountOpts, localGTF, threads)
+string strandInfo = getStrandInfo(cmdExe, featureCounts)
 string[] degust = getDegust(cmdExe, sikDir, featureCounts, bamsList.size(), localGTF, setGFF, threads)
 // FastQC report
 string{} fastqcOpts = { "--format" => "fastq", \
