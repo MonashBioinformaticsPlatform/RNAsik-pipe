@@ -31,8 +31,9 @@ string getMultiqc(string{} cmdExe, string sikDir, string[] allDeps) {
     string multiqcExe = cmdExe{"multiqcExe"}
     string outdep = sikDir+"/"+"multiqc_report.html"
     //string homeDir = PWD //.pathName()
-    task(multiqc, outdep <- allDeps, taskName := "Generating MultiQC report") {
-        sys $multiqcExe -f $sikDir --outdir $sikDir
+    dep(multiqc, outdep <- allDeps, taskName := "Generating MultiQC report") {
+        sys $multiqcExe $sikDir --outdir $sikDir -f
     }
+    goal outdep
     return sikDir
 }

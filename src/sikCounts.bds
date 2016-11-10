@@ -19,19 +19,17 @@ string getStrandInfo(string{} cmdExe, string[] counts) {
     // I have to think about better solution for this
     wait
 
-    string strand = mask(countsDir, strandInfo)
-    return strand
-    
+    return mask(countsDir, strandInfo)
 }
 // once the strand had been guessed, mask two other .summary files
 string mask(string countsDir, string strandInfo) {
     string strandType = strandInfo.read()
     strandType = strandType.trim() + ".txt.summary"
 
-    for(string f : countsDir.dir("*.summary")){
-        if(f != strandType) {
+    for(string f : countsDir.dirPath("*.summary")){
+        if(f.baseName() != strandType) {
             string masked = f.replace(".summary", ".summary.masked")
-            task(count, masked <- strandType, taskName := "masking unwanted counts files") sys mv $f $masked 
+            task(count, masked <- f, taskName := "masking unwanted counts files") sys mv $f $masked 
         }
     }
     return strandType
@@ -85,11 +83,13 @@ string[] getProteinCoding(string[] counts, bool setGFF) {
     for(string countFile : counts) {
         string proteinCoding = countFile.removeExt()+"-proteinCoding.txt"
         proteinCodingCounts.add(proteinCoding)
-        dep(!setGFF, proteinCoding <- countFile, taskName := "getting protein coding counts") {
+        //TODO need to include setGFF bool into dep OR check that protein_coding feature type is present
+        dep(proteinCoding <- countFile, taskName := "getting protein coding counts") {
             sys grep "Biotype" $countFile > $proteinCoding
             sys grep "protein_coding" $countFile >> $proteinCoding
         }
     }
+    goal proteinCodingCounts
     return proteinCodingCounts
 }
 
