@@ -30,6 +30,7 @@ if(count) if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
 if(prePro) if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
 if(mapRate) if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
 if(!configFile.isEmpty()) if(!configFile.isFile()) error "-configFile doesn't appear to be pointing at the valid file, double check your path $configFile"
+if(!genomeIdx.isEmpty()) if(!genomeIdx.isDir()) error "-genomeIdx doesn't point to valid directory, check your path to $genomeIdx"
 
 if( args.isEmpty() ) {
     printHelp()
