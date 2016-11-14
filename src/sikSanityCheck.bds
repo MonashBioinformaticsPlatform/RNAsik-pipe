@@ -23,7 +23,7 @@ if(!strand.isEmpty()) {
 
 if(!samplesSheet.isEmpty()) if(!samplesSheet.isFile()) error "-samplesSheet doesn't appear to be pointing at the valid file, double check your path $samplesSheet"
 if(!fqDir.isEmpty()) {
-    if(!fqDir.isDir()) error "-fqDir doesn't appear to be pointing at the valid directory, double check your path $fqDir"
+    if(!fqDir.isDir()) error "-fqDir doesn't point to valid directory, check your path $fqDir"
     if(align.isEmpty() && !fastqc) warning "-align and -fastqc are empty, not sure why -fqDir $fqDir was specified"
 } 
 if(count) if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
