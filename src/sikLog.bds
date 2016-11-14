@@ -1,7 +1,7 @@
 string logit(string logFile, string message, string data) {
     string content
     if(logFile.exists()) content = logFile.read()
-    content += message + "\n"
+    content += "%"+message + "\n"
     content += data + "\n"
     content += "--------------------------------------\n"
     logFile.write(content)

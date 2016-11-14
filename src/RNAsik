@@ -1,7 +1,7 @@
 #!/usr/bin/env bds
 
 #----------------------------------------------------------------------------------------------------
-# RNAsik-pipe is an easy way from FASTQ to differential gene expression #degust
+# RNAsik is fully sick way to get from FASTQ to list of counts, ready to load Degust file and more !
 #----------------------------------------------------------------------------------------------------
 
 #------------------------------
@@ -10,13 +10,13 @@
 
 #----------------------------------------------------------------------------------------------------
 #
-#    About RNAsik-pipe
+#    About RNAsik
 #
 #   * Takes a whole directory with FASTQ files
 #   * Understands if FASTQ files are paired end or single end
-#   * Understands if samples span different lanes. Merges all sample's lane at the STAR runtime
-#   * Gets count data, checks both reverse strand and no strands 
-#   * Gets both RNA-SeQC report and Fastqc report
+#   * Understands if samples span different lanes. Merges all sample's lane at the mappinig step
+#   * Gets count files, cleans them up and adds gene symbols and biotypes.
+#   * Finds out library strand
 #
 #----------------------------------------------------------------------------------------------------
 include "sikHeader.bds"
@@ -29,6 +29,7 @@ include "sikSTARaligner.bds"
 include "sikCounts.bds"
 include "sikPrePro.bds"
 include "sikQCreports.bds"
+include "sikMapRate.bds"
 // Check cmd args first up
 string checkCmdInput = checkCmdArgs()
 #------------------------------
@@ -54,11 +55,13 @@ string countFiles = sikDir+"/"+"countFiles"
 if((!countFiles.exists()) && (count)) countFiles.mkdir()
 string markedDupsBams = sikDir+"/"+"markedDupsBams"
 if((!markedDupsBams.exists()) && (prePro)) markedDupsBams.mkdir()
+string qualiMapResults = sikDir+"/"+"qualiMapResults"
+if((!qualiMapResults.exists()) && (mapRate)) qualiMapResults.mkdir()
 string fastqcReport = sikDir+"/"+"fastqcReport"
 if((!fastqcReport.exists()) && (fastqc)) fastqcReport.mkdir()
 // Start loging
 string date = sys date
-logit(logFile, ">Starting new RNAsik-pipe run", date.trim())
+logit(logFile, ">Starting new RNAsik run", date.trim())
 #------------------------------
 # Parse config file
 #------------------------------
@@ -66,7 +69,7 @@ if(!configFile.isEmpty()) logit(logFile, "Config file parameters passed by user"
 else {
     string getProgPath = programPath.pathName()
     configFile = getProgPath+"/../sik.config"
-    logit(logFile, "Default config file parameters", configFile.read())
+    logit(logFile, "Executables path", configFile.read())
 }
 string{} cmdExe = config(configFile)
 #------------------------------
@@ -82,11 +85,11 @@ if( (!gtfFile.isEmpty()) && (!gtfFile.isFile()) ) error "Check your path to gtf 
 string localGTF = makeLocalGTF(gtfFile, refFiles)
 if(localGTF.extName() == "gff") setGFF = true
 // Make indices if required 
-logit(logFile, "FASTA file in use", localFastaRef)
-logit(logFile, "Annotation file in use", localGTF)
+logit(logFile, "Referece FASTA file", localFastaRef)
+logit(logFile, "Reference GTF file", localGTF)
 // 
 string fastaDictFile = makeDictFile(cmdExe, localFastaRef)
-logit(logFile, "FASTA dict file for picard", fastaDictFile)
+logit(logFile, "Picard dictionary file", fastaDictFile)
 // STAR index cmd options
 string{} idxOpts
 string allIdxOpts = getOpts(getOptsMap("starIndex", idxOpts, extraOpts))
@@ -95,7 +98,7 @@ logit(logFile, "STAR indexing cmd options", allIdxOpts)
 if( !fastaRef.isEmpty() && genomeIdx.isEmpty() && (!align.isEmpty() || align == "starIdx") ) {
     genomeIdx = makeSTARindex(cmdExe, refFiles, localFastaRef, localGTF, allIdxOpts, threads)
 } 
-logit(logFile, "STAR genomic index", genomeIdx)
+logit(logFile, "STAR genomic index directory", genomeIdx)
 // grab all FASTQ files
 fqFiles = getFqFiles(fqDir, extn)
 string{} fqMap = getFqMap(fqFiles, fqRegex, samplesSheet, extn)
@@ -117,9 +120,10 @@ string[] bamsList = mapSTAR(cmdExe, bamFiles, fqMap, allSTARopts, genomeIdx, thr
 string{} countsOpts = { "-a" => localGTF }
 if(paired) countsOpts{"-p"} = ""
 string allCountOpts = getOpts(getOptsMap("featureCounts", countsOpts, extraOpts))
+logit(logFile, "featureCounts cmd options", allCountOpts)
 //
-if(!fqMap && ( (count) || (prePro) ) ) {
-    warning "No information about paired end. Use -paired to indicated paired end data"
+if(!fqMap && ( (count) || (prePro) || (mapRate) ) ) {
+    warning "No paired information found. Use -paired to indicated paired end data"
     // get bam file from the bamFiles directory
     if(bamFiles.exists()) bamsList = bamFiles.dirPath("*.bam")
     else error "No bam files or bamFiles directory was found. You can pass bam files using -bamFiles /path/to/bamFiles/dir"
@@ -128,8 +132,16 @@ if(!fqMap && ( (count) || (prePro) ) ) {
 string[] markedBams = getMarkedBams(cmdExe, markedDupsBams, bamsList, localFastaRef, fastaDictFile, logFile)
 // get counts
 string[] featureCounts = getReadsCount(cmdExe, countFiles, bamsList, allCountOpts, localGTF, threads)
+// get strand info
 string strandInfo = getStrandInfo(cmdExe, featureCounts)
+if(mapRate) {
+    //TODO maybe error is to strong. Have a think of a way to including warning instead. 
+    if(!count && strand.isEmpty()) error "No strand information found. Use -count flag to get it. Alternatively use -strand flag with appropriate strand type."
+    if(!count && !strand.isEmpty()) strandInfo = strand
+}
 string[] degust = getDegust(cmdExe, sikDir, featureCounts, bamsList.size(), localGTF, setGFF, threads)
+// get Int(ra|er)genic rates
+string[] exonicRates = getExonicRates(cmdExe, qualiMapResults, bamsList, localGTF, strandInfo, logFile)
 // FastQC report
 string{} fastqcOpts = { "--format" => "fastq", \
                         "--quiet" => ""}
@@ -137,7 +149,7 @@ string{} fastqcOpts = { "--format" => "fastq", \
 string fqQcOpts = getOpts(getOptsMap("fastqc", fastqcOpts, extraOpts))
 string[] fqQcReport = getFastqcReport(cmdExe, fastqcReport, fqFiles, fqQcOpts, extn, threads)
 // gather all files up for multiqc 
-string[] multiqcDeps = bamFiles + markedBams + degust + fqQcReport
+string[] multiqcDeps = bamFiles + markedBams + degust + fqQcReport + exonicRates
 //
 string qcReport = getMultiqc(cmdExe, sikDir, multiqcDeps)
 logit(logFile, "Multiqc will run on this directory", qcReport)

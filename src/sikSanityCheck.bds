@@ -14,6 +14,13 @@ if(align == "star") {
         if(fqRegex == "D") fqRegex = "_R[0-9].fastq.gz$"
     }
 }
+if(!strand.isEmpty()) {
+    if(strand == "0") strand = "non-strand-specific"
+    if(strand == "1") strand = "strand-specific-forward"
+    if(strand == "2") strand = "strand-specific-reverse"
+    //TODO need to check users input, only allo 0,1 or 2 
+}
+
 if(!samplesSheet.isEmpty()) if(!samplesSheet.isFile()) error "-samplesSheet doesn't appear to be pointing at the valid file, double check your path $samplesSheet"
 if(!fqDir.isEmpty()) {
     if(!fqDir.isDir()) error "-fqDir doesn't appear to be pointing at the valid directory, double check your path $fqDir"
@@ -21,6 +28,7 @@ if(!fqDir.isEmpty()) {
 } 
 if(count) if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
 if(prePro) if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
+if(mapRate) if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
 if(!configFile.isEmpty()) if(!configFile.isFile()) error "-configFile doesn't appear to be pointing at the valid file, double check your path $configFile"
 
 if( args.isEmpty() ) {
@@ -39,6 +47,8 @@ string checkCmdArgs() {
                         "-prePro", \
                         "-fastaRef", \
                         "-fastqc", \
+                        "-mapRate", \
+                        "-strand", \
                         "-threads", \
                         "-extn", \
                         "-samplesSheet", \

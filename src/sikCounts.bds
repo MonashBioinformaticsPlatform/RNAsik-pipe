@@ -10,7 +10,6 @@ string getStrandInfo(string{} cmdExe, string[] counts) {
     string pyScript = getProgPath+"/../scripts/counts_parser.py"
     string countsDir = counts[0].dirName()
     string strandInfo = countsDir+"/"+"strandInfo.txt"
-
     task(count, strandInfo <- counts, taskName := "getting strand info") {
         sys $pythonExe $pyScript --logsDir $countsDir > $strandInfo
     }
@@ -18,22 +17,27 @@ string getStrandInfo(string{} cmdExe, string[] counts) {
     // because mask function has .read() on a file that doesn't exist yet.
     // I have to think about better solution for this
     wait
-
     return mask(countsDir, strandInfo)
 }
 // once the strand had been guessed, mask two other .summary files
 string mask(string countsDir, string strandInfo) {
-    string strandType = strandInfo.read()
-    strandType = strandType.trim() + ".txt.summary"
 
-    for(string f : countsDir.dirPath("*.summary")){
-        if(f.baseName() != strandType) {
-            string masked = f.replace(".summary", ".summary.masked")
-            task(count, masked <- f, taskName := "masking unwanted counts files") sys mv $f $masked 
+    if(strandInfo.exists()) {
+        string strandType = strandInfo.read()
+        strandType = strandType.trim() + ".txt.summary"
+
+        for(string f : countsDir.dirPath("*.summary")){
+            if(f.baseName() != strandType) {
+                string masked = f.replace(".summary", ".summary.masked")
+                task(count, masked <- [f, strandInfo], taskName := "masking unwanted counts files") sys mv $f $masked 
+            }
         }
+        return strandInfo
     }
-    return strandType
+    //NOTE that this function if it drops into else block will return a bool false, BUT
+    // because function is set to return "string" type you need to check it as though it is a string or use parseBool()
 }
+
 string[] getReadsCount(string{} cmdExe, string countFiles, string[] bamsList, string extraOpts, string localGTF, int threads) {
 
     if(!cmdExe.hasKey("countsExe")) error "Can't get featureCounts executable, check your config file $configFile"
@@ -84,7 +88,7 @@ string[] getProteinCoding(string[] counts, bool setGFF) {
         string proteinCoding = countFile.removeExt()+"-proteinCoding.txt"
         proteinCodingCounts.add(proteinCoding)
         //TODO need to include setGFF bool into dep OR check that protein_coding feature type is present
-        dep(proteinCoding <- countFile, taskName := "getting protein coding counts") {
+        dep(count, proteinCoding <- countFile, taskName := "getting protein coding counts") {
             sys grep "Biotype" $countFile > $proteinCoding
             sys grep "protein_coding" $countFile >> $proteinCoding
         }
