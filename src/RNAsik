@@ -140,8 +140,19 @@ if(exonicRate) {
     if(!count && !strand.isEmpty()) strandInfo = strand
 }
 string[] degust = getDegust(cmdExe, sikDir, featureCounts, bamsList.size(), localGTF, setGFF, threads)
+string{} exonicOpts = { "-gtf" => localGTF }
+if(paired) {
+    // flag for paired end data
+    exonicOpts{"--paired"} = ""
+    // bams need to be sorted by name, which is default output from STAR
+    //TODO need to reinforce this! If user will output SortedByCoordinates from STAR 
+    // then this will no longer be true
+    exonicOpts{"--sorted"} = ""
+}
+string allExonicOpts = getOpts(getOptsMap("qualimap", exonicOpts, extraOpts))
+logit(logFile, "QualiMap additional cmd options", exonicOpts)
 // get Int(ra|er)genic rates
-string[] exonicRates = getExonicRates(cmdExe, sikDir, bamsList, localGTF, strandInfo, logFile)
+string[] exonicRates = getExonicRates(cmdExe, sikDir, bamsList, allExonicOpts, strandInfo, logFile)
 // FastQC report
 string{} fastqcOpts = { "--format" => "fastq", \
                         "--quiet" => ""}
