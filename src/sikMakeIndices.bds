@@ -1,51 +1,28 @@
 #-----------------------------------------
 # Fucntion to make indices for RNAsik-pipe
 #-----------------------------------------
-
-#------------------------------
-# Make directories as required
-#------------------------------
-
-#------
-# Body
-#------
-//string makeLocalFastaRef(string fastaRef) { 
-//    // at this stage its unknown if Fasta is zipped or not
-//    string localRef
-//    // temp fix, look like a bug, if fastaRef is empty, fastaRef.baseName() returns working directory
-//    if(!fastaRef.isEmpty()) localRef = refFiles+"/"+fastaRef.baseName()
-//    string localFastaRef = localRef.removeExt(".gz")
-//    dep(!fastaRef.isEmpty(), localRef <- fastaRef, taskName := "Copying FASTA file") sys cp -v $fastaRef $refFiles
-//    dep(localRef.extName() == "gz", localFastaRef <- localRef, taskName := "gzip FASTA file") sys gunzip -c $localRef > $localFastaRef
-//    goal localFastaRef
-//    return localFastaRef
-//}
-//string makeLocalGTF(string gtfFile) {
-//    // at this stage its unknown if GTF is zipped or not
-//    string localRef = refFiles+"/"+gtfFile.baseName()
-//    string localGTF = localRef.removeExt(".gz")
-//    dep(!gtfFile.isEmpty(), localRef <- gtfFile, taskName := "Copying GTF file") sys cp -v $gtfFile $refFiles
-//    dep(localGTF.extName() == "gz", localGTF <- localRef, taskName := "gunzip ing GTF file") sys gunzip -c $localRef > $localGTF
-//    goal localGTF
-//    return localGTF
-//}
-
 string makeLocalFastaRef(string fastaRef, string refFiles) { 
-    if(fastaRef.extName() == "gz") error "Unzip your $fastaRef file before giving to the pipeline, with `gunzip` command" 
-    string localFastaRef
-    // temp fix, look like a bug, if fastaRef is empty, fastaRef.baseName() returns working directory
-    if(!fastaRef.isEmpty()) localFastaRef = refFiles+"/"+fastaRef.baseName()
-    //string localFastaRef = refFiles+"/"+fastaRef.baseName()
-    task(!fastaRef.isEmpty(), localFastaRef <- fastaRef, taskName := "Copying FASTA file") sys cp -v $fastaRef $refFiles
+
+    string localRef = refFiles+"/"+fastaRef.baseName()
+    string getExtn = fastaRef.extName()
+    string localFastaRef = localRef
+    if(getExtn == "gz") localFastaRef = localRef.removeExt(".gz")
+
+    task(!fastaRef.isEmpty(), localRef <- fastaRef, taskName := "Copying FASTA file") sys cp -v $fastaRef $refFiles
+    task(getExtn == "gz", localFastaRef <- localRef, taskName := "gzip FASTA file") sys gunzip -c $localRef > $localFastaRef
+
     return localFastaRef
 }
-
 string makeLocalGTF(string gtfFile, string refFiles) {
-    if(gtfFile.extName() == "gz") error "Unzip your $gtfFile file before giving to the pipeline, with `gunzip` command" 
-    string localGTF
-    // temp fix, look like a bug, if fastaRef is empty, fastaRef.baseName() returns working directory
-    if(!gtfFile.isEmpty()) localGTF = refFiles+"/"+gtfFile.baseName()
-    task(!gtfFile.isEmpty(), localGTF <- gtfFile, taskName := "Copying GTF file") sys cp -v $gtfFile $refFiles
+
+    string localRef = refFiles+"/"+gtfFile.baseName()
+    string getExtn = gtfFile.extName()
+    string localGTF = localRef
+    if(getExtn == "gz") localGTF = localRef.removeExt(".gz")
+
+    task(!gtfFile.isEmpty(), localRef <- gtfFile, taskName := "Copying GTF file") sys cp -v $gtfFile $refFiles
+    task(getExtn == "gz", localGTF <- localRef, taskName := "gunzip ing GTF file") sys gunzip -c $localRef > $localGTF
+
     return localGTF
 }
 
