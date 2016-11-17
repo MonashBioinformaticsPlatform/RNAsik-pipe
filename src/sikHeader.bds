@@ -52,7 +52,7 @@ string gtfFile      help path to refFile.gtf
 help QC reports:
 
 bool fastqc         help flag for FastQC reports
-bool mapRate        help flag for Int(ra|er)genic rates using qualiMap tool
+bool exonicRate        help flag for Int(ra|er)genic rates using qualiMap tool
 bool multiqc        help flag for MultiQC report
 
 help Other options

@@ -19,7 +19,7 @@ string[] getExonicRates(string{} cmdExe, string sikDir, string[] bamFiles, strin
     string strandType
     if(strandInfo.isFile()) {
         strandType = strandInfo.read().trim()
-        if(!strandMap.hasKey(strandType)) error "Something went wrong, this error should occur. Error is from sikMapRate.bds"
+        if(!strandMap.hasKey(strandType)) error "Something went wrong, this error should occur. Error is from sikExonicRate.bds"
         else strandMap{strandType} strandType = strandMap{strandType}
     }
     else strandType = strandInfo
@@ -30,7 +30,7 @@ string[] getExonicRates(string{} cmdExe, string sikDir, string[] bamFiles, strin
         string depFile = baseDir+"/"+"rnaseq_qc_results.txt"
         string countsFile = baseDir+"/"+baseFile+"_counts.txt"
 
-        dep(mapRate, depFile <- [bamFile, gtfFile, strandInfo], taskName := "getting Int(ra|er)genic rates for"+bamFile) {
+        dep(exonicRate, depFile <- [bamFile, gtfFile, strandInfo], taskName := "getting Int(ra|er)genic rates for"+bamFile) {
             sys $qualimapExe rnaseq -bam $bamFile \
                                     -gtf $gtfFile \
                                     -outdir $baseDir \

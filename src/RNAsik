@@ -29,7 +29,7 @@ include "sikSTARaligner.bds"
 include "sikCounts.bds"
 include "sikPrePro.bds"
 include "sikQCreports.bds"
-include "sikMapRate.bds"
+include "sikExonicRate.bds"
 // Check cmd args first up
 string checkCmdInput = checkCmdArgs()
 #------------------------------
@@ -56,7 +56,7 @@ if((!countFiles.exists()) && (count)) countFiles.mkdir()
 string markedDupsBams = sikDir+"/"+"markedDupsBams"
 if((!markedDupsBams.exists()) && (prePro)) markedDupsBams.mkdir()
 //string qualiMapResults = sikDir+"/"+"qualiMapResults"
-//if((!qualiMapResults.exists()) && (mapRate)) qualiMapResults.mkdir()
+//if((!qualiMapResults.exists()) && (exonicRate)) qualiMapResults.mkdir()
 string fastqcReport = sikDir+"/"+"fastqcReport"
 if((!fastqcReport.exists()) && (fastqc)) fastqcReport.mkdir()
 // Start loging
@@ -122,7 +122,7 @@ if(paired) countsOpts{"-p"} = ""
 string allCountOpts = getOpts(getOptsMap("featureCounts", countsOpts, extraOpts))
 logit(logFile, "featureCounts cmd options", allCountOpts)
 //
-if(!fqMap && ( (count) || (prePro) || (mapRate) ) ) {
+if(!fqMap && ( (count) || (prePro) || (exonicRate) ) ) {
     warning "No paired information found. Use -paired to indicated paired end data"
     // get bam file from the bamFiles directory
     if(bamFiles.exists()) bamsList = bamFiles.dirPath("*.bam")
@@ -134,7 +134,7 @@ string[] markedBams = getMarkedBams(cmdExe, markedDupsBams, bamsList, localFasta
 string[] featureCounts = getReadsCount(cmdExe, countFiles, bamsList, allCountOpts, localGTF, threads)
 // get strand info
 string strandInfo = getStrandInfo(cmdExe, featureCounts)
-if(mapRate) {
+if(exonicRate) {
     //TODO maybe error is to strong. Have a think of a way to including warning instead. 
     if(!count && strand.isEmpty()) error "No strand information found. Use -count flag to get it. Alternatively use -strand flag with appropriate strand type."
     if(!count && !strand.isEmpty()) strandInfo = strand
@@ -154,7 +154,7 @@ if(!align.isEmpty()) multiqcDeps += bamsList
 if(prePro) multiqcDeps += markedBams
 if(count) multiqcDeps += degust
 if(fastqc) multiqcDeps += fqQcReport
-if(mapRate) multiqcDeps += exonicRates
+if(exonicRate) multiqcDeps += exonicRates
 string qcReport = getMultiqc(cmdExe, sikDir, multiqcDeps)
 logit(logFile, "Multiqc will run on this directory", qcReport)
 #----------------------------------------------------------------------------------------------------
