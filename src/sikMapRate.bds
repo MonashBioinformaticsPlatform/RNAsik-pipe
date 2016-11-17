@@ -5,7 +5,7 @@ include "sikLog.bds"
 //TODO Don't need to add support for SortedByCoordinates support in sikPrePro.bds because files come out already sorted!
 //TODO do think about this more though !
 
-string[] getExonicRates(string{} cmdExe, string qualDir, string[] bamFiles, string gtfFile, string strandInfo, string logFile) {
+string[] getExonicRates(string{} cmdExe, string sikDir, string[] bamFiles, string gtfFile, string strandInfo, string logFile) {
     string[] qualiResults
     // check if executable is there
     if(!cmdExe.hasKey("qualimapExe")) error "Can't get qualiMap executable, check your config file $configFile"
@@ -26,11 +26,10 @@ string[] getExonicRates(string{} cmdExe, string qualDir, string[] bamFiles, stri
 
     for(string bamFile : bamFiles) {
         string baseFile = bamFile.baseName().removeExt("_Aligned.out.bam")
-        string baseDir = qualDir+"/"+baseFile
+        string baseDir = sikDir+"/"+"qualiMapResults"+"/"+baseFile
         string depFile = baseDir+"/"+"rnaseq_qc_results.txt"
         string countsFile = baseDir+"/"+baseFile+"_counts.txt"
-        //print("$qualimapExe rnaseq -bam $bamFile -gtf $gtfFile -outdir $baseDir -oc $countsFile -- $depFile \n")
-        //TODO fix sequncing-protocol ! 
+
         dep(mapRate, depFile <- [bamFile, gtfFile, strandInfo], taskName := "getting Int(ra|er)genic rates for"+bamFile) {
             sys $qualimapExe rnaseq -bam $bamFile \
                                     -gtf $gtfFile \
