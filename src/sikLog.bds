@@ -7,3 +7,21 @@ string logit(string logFile, string message, string data) {
     logFile.write(content)
     return "logged"
 }
+// parse fqMap into readable string
+string parseFqMap(string{} fqMap) {
+    string out
+    for(string rootName : fqMap.keys()) {
+        string v = fqMap{rootName}
+        out += " - "+rootName+"\n"
+        string cleanFq = v.substr(0, (v.length())-1)
+        string[] fqList = cleanFq.split(",")
+        for(string fq : fqList) out += "    * "+fq+"\n"
+    }
+    return out
+}
+// parse any list into readable string
+string parseList(string[] items) {
+    string out
+    for(string item : items) out += " - "+item+"\n"
+    return out
+}

@@ -41,7 +41,7 @@ string[] getExonicRates(string{} cmdExe, string sikDir, string[] bamFiles, strin
                                     --java-mem-size=4G
         }
         qualiResults.add(depFile)
-        logit(logFile, "qualiMap results for", baseDir)
+        //logit(logFile, "qualiMap results for", baseDir)
     }
     goal qualiResults
     return qualiResults

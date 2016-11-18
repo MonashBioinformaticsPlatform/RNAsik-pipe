@@ -102,8 +102,9 @@ if(!fqDir.isEmpty()) fqFiles = getFqFiles(fqDir, extn)
 string{} fqMap
 if(!fqDir.isEmpty()) fqMap = getFqMap(fqFiles, fqRegex, samplesSheet, extn)
 // for loggin purpose convert map to string and write it to a file
-string toString = fqMap
-logit(logFile, "Fastq files map, where key = rootName = bam file name and value actual fastq file with that rootName", toString)
+//string toString = fqMap
+//logit(logFile, "Fastq files map, where key = rootName = bam file name and value actual fastq file with that rootName", toString)
+logit(logFile, "Fastq files and sample names", parseFqMap(fqMap))
 // STAR default options
 string{} starOpts = { "--outSAMtype" => "BAM Unsorted", \
                       "--outSAMunmapped" => "Within"}
@@ -115,6 +116,7 @@ string allSTARopts = getOpts(getOptsMap("STAR", starOpts, extraOpts))
 logit(logFile, "STAR alignment cmd options", allSTARopts)
 //string  list of bam files from STAR run
 string[] bamsList = mapSTAR(cmdExe, bamFiles, fqMap, allSTARopts, genomeIdx, threads, logFile)
+logit(logFile, "BAM files", parseList(bamsList))
 // featureCounts cmd options
 string{} countsOpts = { "-a" => localGTF }
 if(paired) countsOpts{"-p"} = ""
@@ -129,16 +131,21 @@ if(!fqMap && ( (count) || (prePro) || (exonicRate) ) ) {
 }
 // where BAM had been sorted, reorted and duplicates marked
 string[] markedBams = getMarkedBams(cmdExe, markedDupsBams, bamsList, localFastaRef, fastaDictFile, logFile)
+logit(logFile, "Pre-processed BAM files", parseList(markedBams))
 // get counts
 string[] featureCounts = getReadsCount(cmdExe, countFiles, bamsList, allCountOpts, localGTF, threads)
+logit(logFile, "Raw counts from featureCounts", parseList(featureCounts))
 // get strand info
 string strandInfo = getStrandInfo(cmdExe, featureCounts)
+logit(logFile, "The library strandness was detected as:", strandInfo)
+logit(logFile, "The library appears to be paired end:", paired)
 if(exonicRate) {
     //TODO maybe error is to strong. Have a think of a way to including warning instead. 
     if(!count && strand.isEmpty()) error "No strand information found. Use -count flag to get it. Alternatively use -strand flag with appropriate strand type."
     if(!count && !strand.isEmpty()) strandInfo = strand
 }
 string[] degust = getDegust(cmdExe, sikDir, featureCounts, bamsList.size(), localGTF, setGFF, threads)
+logit(logFile, "Degust ready, protein_coding counts only", parseList(degust))
 string{} exonicOpts = { "-gtf" => localGTF }
 if(paired) {
     // flag for paired end data
@@ -152,12 +159,15 @@ string allExonicOpts = getOpts(getOptsMap("qualimap", exonicOpts, extraOpts))
 logit(logFile, "QualiMap additional cmd options", exonicOpts)
 // get Int(ra|er)genic rates
 string[] exonicRates = getExonicRates(cmdExe, sikDir, bamsList, allExonicOpts, strandInfo, logFile)
+logit(logFile, "Exonic rates files", parseList(exonicRates))
 // FastQC report
 string{} fastqcOpts = { "--format" => "fastq", \
                         "--quiet" => ""}
 //fastqcOpts{ "--casava" } = ""
 string fqQcOpts = getOpts(getOptsMap("fastqc", fastqcOpts, extraOpts))
+logit(logFile, "FastQC additional cmd options", fqQcOpts)
 string[] fqQcReport = getFastqcReport(cmdExe, fastqcReport, fqFiles, fqQcOpts, extn, threads)
+logit(logFile, "FastQC reports", parseList(fqQcReport))
 // gather all files up for multiqc 
 string[] multiqcDeps
 if(!align.isEmpty()) multiqcDeps += bamsList
@@ -165,6 +175,7 @@ if(prePro) multiqcDeps += markedBams
 if(count) multiqcDeps += degust
 if(fastqc) multiqcDeps += fqQcReport
 if(exonicRate) multiqcDeps += exonicRates
+logit(logFile, "MultiQC dependency files", parseList(multiqcDeps))
 string qcReport = getMultiqc(cmdExe, sikDir, multiqcDeps)
 logit(logFile, "Multiqc will run on this directory", qcReport)
 #----------------------------------------------------------------------------------------------------

@@ -2,7 +2,6 @@
 # STAR alignment function
 #------------------------------
 
-include "sikLog.bds"
 include "sikFqFiles.bds"
 
 string[] mapSTAR(string{} cmdExe, string bamFiles, string{} fqMap, string starOpts, string genomeIdx, int threads, string logFile) {
@@ -16,11 +15,7 @@ string[] mapSTAR(string{} cmdExe, string bamFiles, string{} fqMap, string starOp
 
     for(string rootName : fqMap.keys()) {
         string[] readsList = getReads(fqMap{rootName})
-        string check = fqMap{rootName}
-        logit(logFile, "This is rootName for read below", rootName)
-        logit(logFile, "R1 reads string that passed to aligner", readsList[0])
         paired = getPaired(readsList) 
-        if(paired) logit(logFile, "R2 reads string that passed to aligner", readsList[1])
 
         string rootBase = rootName.baseName()
         string preFix = bamFiles+"/"+rootBase+"_"
@@ -50,7 +45,6 @@ string[] mapSTAR(string{} cmdExe, string bamFiles, string{} fqMap, string starOp
         // doing this I find a bit impractical on our server because of
         // limited RAM - only 128 Gb
         bamsList.add(bamOut)
-        logit(logFile, "Corresponding bam file", bamOut)
     }
     goal bamsList
     return bamsList

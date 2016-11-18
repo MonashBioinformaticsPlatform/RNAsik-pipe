@@ -47,7 +47,7 @@ string[] getMarkedBams(string{} cmdExe, string markedDupsBams, string[] bamFiles
             sys rm $sortedName $sortedIdx $reorderedName
         }
         markedBams.add(mdupsName)
-        logit(logFile, "Corresponding bam file with marked dups", mdupsName)
+        //logit(logFile, "Corresponding bam file with marked dups", mdupsName)
     }
     goal markedBams
     return markedBams
