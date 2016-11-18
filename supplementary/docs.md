@@ -1,56 +1,45 @@
 # RNAsik-pipe in details
 
-- [RNAsik-pipe introduction](#rnasik-pipe-introduction)
-- [RNAsik-pipe directory hierarchy](#rnasik-pipe-directory-hierarchy)
-- [RNAsik-pipe options explained](#rnasik-pipe-options-explained)
+- [RNAsik introduction](#rnasik-pipe-introduction)
+- [RNAsik directory hierarchy](#rnasik-pipe-directory-hierarchy)
+- [RNAsik options explained](#rnasik-pipe-options-explained)
 - [FASTQ files explained](#fastq-files-explained)
 
-## RNAsik-pipe introduction
+## RNAsik introduction
 
-`RNAsik-pipe` wraps around several tools making it easy to get from [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) to counts files. Simply provide `RNAsik-pipe` with [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files and your reference files such as [FASTA](https://en.wikipedia.org/wiki/FASTA_format) and [GTF](http://mblab.wustl.edu/GTF22.html) and press Go ! 
+`RNAsik` wraps around several tools making it easy to get from [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) to counts files. Simply provide `RNAsik` with [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) directory and your reference files, [FASTA](https://en.wikipedia.org/wiki/FASTA_format) and [GTF](http://mblab.wustl.edu/GTF22.html) and press Go ! 
 
-It is recommended to use [GTF](http://mblab.wustl.edu/GTF22.html) as your annotation file. If you'd like to use [GFF](https://en.wikipedia.org/wiki/General_feature_format) instead you will need to use `-extraOptions` option to specify additional options to [STAR aligner](https://github.com/alexdobin/STAR/releases) and featureCounts for it to handle [GFF](https://en.wikipedia.org/wiki/General_feature_format). 
+It is recommended to use [GTF](http://mblab.wustl.edu/GTF22.html) as your annotation file. However [GFF](https://en.wikipedia.org/wiki/General_feature_format) file should also work fine.
 
-`RNAsik-pipe` assumes that all of [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files given in one directory using `fqDir` options are homogeneous data in terms of both library type and file naming. This means if your data is paired end, then no single end [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files should be located within `fqDir` directory and vice versa. `RNAsik-pipe` also assumes that your [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files will have an upper case **R** following by the number 1 or 2 e.g `_R1`, `_R2`. If your data is single-end your [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files still must have an `_R1` in the file name.
+`RNAsik` assumes that [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files in `fqDir` directory are homogeneous i.e file naming convention. For example all FASTQs have the same file ending. This also means no library type should be mixed in the `-fqDir` e.g paired end data together with single end data is not allowed in a single run. `RNAsik` further assumes that your [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files will have an upper case **R** following by the number 1 or 2 e.g `_R1`, `_R2`. If that exact feature isn't found, then `RNAsik` will run in "single end" mode and treat each FASTQ individually, which is wrong for paired end data!
 
-At this stage `RNAsik-pipe` does not deals well with symbolic links. If you don't change the name of the file, than it is okay to use symlinks with `RNAsik-pipe`, however if symlink name is different to canonical file name, then `RNAsik-pipe` will use canonical file name instead. This may cause some unexpected results, for example if canonical filename doesn't have an **_R1** suffix and you make symlink with such suffix, assuming that `RNAsik-pipe` will work, but it will not. 
+At this stage `RNAsik` does not deals well with symbolic links. If you don't change the name of the file, than it is okay to use symlinks with `RNAsik`, however if symlink name is different to canonical file name, then `RNAsik` will use canonical file name instead. This may cause some unexpected results, for example if canonical filename doesn't have an **_R1** suffix and you make symlink with such suffix, assuming that `RNAsik` will work, but it will not. 
 
-The best practice in running `RNAsik-pipe` is to make new directory for your RNAseq analysis e.g koVSwt-MouseLiver, `cd koVSwt-MouseLiver` and run your `RNAsik-pipe` from within this, "root", directory
+`RNAsik` has "sanity checks" inbuilt, checking command line options, checking if options are valid files/directories and it will talk to you if you didn't specify the right options so don't sweat :)
 
-`RNAsik-pipe` has "sanity checks" inbuilt, checking command line options, checking if options are valid files/directories and it will talk to you if you didn't specify the right options so don't sweat.
-
-Three main parts to the pipeline:
-
-  1. Read aligning using [STAR aligner](https://github.com/alexdobin/STAR/releases) - get BAMs
-  2. Read counting using [featureCounts](http://subread.sourceforge.net/) - get counts
-  3. Getting RNAseq metrics report using [RNA-SeQC](https://www.broadinstitute.org/cancer/cga/rna-seqc).
-
-You can do each part separately, for example just get BAMs or just get counts or just pre-process your BAM files or just run [RNA-SeQC](https://www.broadinstitute.org/cancer/cga/rna-seqc) OR you can run all at once and `RNAsik-pipe` will figure out files dependencies.
-
-## RNAsik-pipe directory hierarchy
+## RNAsik directory hierarchy
 
 ### Directories explained
 
-  - `refFile/` this directory will hold your reference files including [STAR aligner](https://github.com/alexdobin/STAR/releases) index and other indices that might be required for downstream analysis. You [FASTA](https://en.wikipedia.org/wiki/FASTA_format) and GFT files will be copied across to this directory. You can reuse [STAR aligner](https://github.com/alexdobin/STAR/releases) index if you are aligning to the same reference genome. [STAR aligner](https://github.com/alexdobin/STAR/releases) index will be located in the directory with postfix `-starIndex`
-  - `bamFiles/` this directory will be created if running `RNAsik-pipe` with `-aling` option. This directory will hold your BAM files from [STAR aligner](https://github.com/alexdobin/STAR/releases). If you already have BAM files, you can use them with other parts of the `RNAsik-pipe` except BAM files should have either `_Aligned.out.bam` or `_Aligned.sortedByCoord.out.bam` postfix as per [STAR aligner](https://github.com/alexdobin/STAR/releases) aligner output. This will make downstream file naming consistent and clean.
-  - `countFiles/` directory will hold eight text files, half for non stranded feature counting and the other four for reverse strand feature counting. `featureNo.txt` and `featureReverse.txt` and its associated `.summary` files are output straight from `featureCounts`. `featureNoCounts.txt` and `featureReverseCounts.txt` is a filtered version of respective file. Filtering header and columns 2 to 5 out of those files. Finally `-withNames.txt` postfix indicates that two additional columns were added to those files with public gene names and biotype.
-  - `preqcBamFiles/` directory with pre-processed BAM files. Files are pre-processed using [Picard tools](http://broadinstitute.github.io/picard/)
-  - `RNAseQC-report/` this direcotry is set as an output directory for `rna-seqc` run. All of your metrics information held in it. You can simply open that directory in the web browser to see your RNAseq metrics report.
-  - `fastqcReport/` will hold your `FastQC` report per each `[FASTQ](https://en.wikipedia.org/wiki/FASTQ_format)` file
+  - `refFile/` this directory holds your reference files and several indices, including [STAR aligner](https://github.com/alexdobin/STAR/releases) index. [FASTA](https://en.wikipedia.org/wiki/FASTA_format) and GFT files will be copied across to this directory, this need because some tools make assumption about location of index and reference files location i.e they need to be in the same directory. You can reuse [STAR aligner](https://github.com/alexdobin/STAR/releases) index if you are aligning to the same reference genome. STAR index has a postfix `-starIndex`.
 
-### Files explained
+  - `bamFiles/` directory holds your BAM files from [STAR aligner](https://github.com/alexdobin/STAR/releases). If you already have BAM files, you can use them with other parts of the `RNAsik`.
 
-  - `RNAseQC-SampleIds.txt` file will be created when you run `RNAsik-pipe` with option `-RNAseQC`. This is an essential file for `rna-seqc` tools. It specify all of your sample names and path those files.
-  - `*.html` [BDS](http://pcingola.github.io/BigDataScript/) automatically creates HTML report for your run. You can see all setps and more about your `RNAsik-pipe` run by looking at that report.
+  - `countFiles/` directory holds output from featureCounts, which will be file for non-stranded, reverse-stranded and forward-stranded counts. `RNAsik` will then do additional steps to make those counts files [Degust](http://dna.med.monash.edu:4000/) ready.
 
-## RNAsik-pipe options explained
+  - `markedBams/` directory holds pre-processed BAM files i.e sorted with marked duplicates. This is useful for downstream analysis where you need sorted BAM files, e.g visualisation in [IGV](http://software.broadinstitute.org/software/igv/).
+
+  - `fastqcReport/` directory holds your `FastQC` report per each [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) file
+
+  - `qualiMapResults/` directory holds int(ra|er)genic information per BAM file from [QualiMap tool](http://qualimap.bioinfo.cipf.es/)
+
+## RNAsik options explained
 
 #### Aligning options
 
-   - `-makeIndex` use this option to make [STAR aligner](https://github.com/alexdobin/STAR/releases) index. This is must do step before aligning you reads to the reference genome. The indexing step, indexes your reference genome to make access to it quicker during alignment process.
    - `-align` use this option to initiate specify your aligner (at this stage only supporting [STAR aligner](https://github.com/alexdobin/STAR/releases) ). At this stage it will always be `-align star`.
    - `-fqDir` use this option to specify path to directory with [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files. `fqDir` can and will look two level deep to account for both use cases explained [here](#get-your-fastq-files).
-   - `-fqRegex` specify one of the four possible options (A,B,C or D) that are inbuilt in `RNAsik-pipe`
+   - `-fqRegex` specify one of the four possible options (A,B,C or D) that are inbuilt in `RNAsik`
 
    ![fqRegex-sample](fqRegex-sample.png)
 
@@ -63,22 +52,24 @@ You can do each part separately, for example just get BAMs or just get counts or
   
 #### Read counting options
 
-  - `-count` this will initiate read counts. If specified together with `-align star` option `RNAsik-pipe` will wait for read aligning to finish i.e wait for BAM files, before processing with read counting.
-  -`gtfFile` you need this file for read counting. This file specifies feature coordinates. If you just using `RNAsik-pipe` to count and not proceeding with `-RNAseQC` you can specify `.saf` file and indicate that you did so using `-exptraOptions "featureCounts > -F SAF"
+  - `-count` this will initiate read counts. If specified together with `-align star` option `RNAsik` will wait for read aligning to finish i.e wait for BAM files, before processing with read counting.
+  - `gtfFile` you need this file for read counting. This file specifies feature coordinates.
 
-#### RNAseQC report
-
-  - `-prePro` you must pre-process you BAM files in a particular way for RNAseQC report to work, for more information refere [here](https://www.broadinstitute.org/cancer/cga/rna-seqc). This will pre-process BAM files in the right way, this is a three step process using picard tools.
-  - `RNAseQC` will run `rna-seqc`
 
 #### Other options
 
+  - `-prePro` you must pre-process you BAM files in a particular way for RNAseQC report to work, for more information refere [here](https://www.broadinstitute.org/cancer/cga/rna-seqc). This will pre-process BAM files in the right way, this is a three step process using picard tools.
+
   - `-fastqc` will generate per [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) file report 
+
   - `-extn` if your [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files have different extention to `fastq.gz` you can specify alternative extention using this option
+
   - `-threads` to specify number of threads to use. Note that featureCounts will split number of threads in half, because two separate instances of featureCounts run in parallel. You don't have to worry about specifying an even number of threads, but bear in mind that if you do specify an odd number of threads then featureCounts will be give one less threads.
+
   - `-extraOptions` You can add extra option to any of the tools used in the pipeline. Use this syntax e.g `-extraOptions "STAR > --outSAMtype BAM Unsorted, --outReadsUnmapped Fastx; starIndex > --sjdbGTFfile /path/to/GTF/file, --sjdbOverhang 99; featureCounts > -t gene"`. Each command is separated by semi-colon (;) after the last options. The command options and command name are separated by grater than sign (>) 
-  - `-checkPair` You can use this option to indicate if you library is paired-end. However if you are using `-fqDir` options then `RNAsik-pipe` will look into [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) directory and figure out if the data is paired-end or not. Normally you'd only use this option if you are not doing alignment, but are using other features of the pipeline e.g just running `-RNAseQC`, then you'll need to specify `-checkPair` if you library was paire-end
-  - `-proBams` If you just want to run RNAseQC and you processed BAM files located in some other directory but the `preqcBamFiles/` directory then you can provide directory with processed BAM files using this option
+
+  - `-paired` You can use this option to indicate if you library is paired-end. However if you are using `-fqDir` options then `RNAsik` will look into [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) directory and figure out if the data is paired-end or not. Normally you'd only use this option if you are not doing alignment, but are using other features of the pipeline e.g just running `-RNAseQC`, then you'll need to specify `-checkPair` if you library was paire-end
+
   - `-bamFiles` If you want to start using pipeline post read alignment and you BAM files located in other directory but the `bamFiles/` directory then you can specify directory with BAM files using this option
 
 ## FASTQ files explained
@@ -121,4 +112,4 @@ Your [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) files might also reside
 In this example each sample is placed into its own directory. Now we can see directory `Sample_14-09157`, 
 which will hold four files described above.
 
-**`RNAsik-pipe` can work with either of those two options.**
+**`RNAsik` can work with either of those two options.**
