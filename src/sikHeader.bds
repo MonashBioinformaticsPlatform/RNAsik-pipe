@@ -24,8 +24,9 @@ help #--------------------------------------------------------------------------
 help Read alignment and index generation:
 
 string align        help specify your aligner of choice for the alignment OR use "Idx" postfix to indicate index generation only: \
-                                          - star \
-                                          - starIdx
+                                          - star # most generic, will do both index generation (if required) and alignment\
+                                          - starIdx # will just create an index\
+                                          - starWithAnn # will generate index if required and do alignment utilising annotation file for better splice junctions handling
 string fastaRef     help path to refFile.fa
 string fqDir        help path to FASTQ directory. RNAsik will traverse fqDir and find all FASTQ files
 

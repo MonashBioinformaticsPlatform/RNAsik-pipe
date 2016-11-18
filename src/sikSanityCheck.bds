@@ -5,37 +5,16 @@
 include "sikHeader.bds"
 include "sikMakeIndices.bds"
 
-if(align == "star") {
-    // if regex string was given, be sure to set the right regex
-    if(!fqRegex.isEmpty()){
-        if(fqRegex == "A") fqRegex = "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"
-        if(fqRegex == "B") fqRegex = "_L[0-9]{3}_R[0-9].fastq.gz$"
-        if(fqRegex == "C") fqRegex = "_R[0-9]_[0-9]{3}.fastq.gz$"
-        if(fqRegex == "D") fqRegex = "_R[0-9].fastq.gz$"
-    }
+// only call this function is -align isn't empty
+string chkAlignArgs() {
+    string[] alignArgs = ["star", \
+                        "starIdx", \
+                        "starWithAnn" \
+                       ]
+   if(!alignArgs.has(align)) error "Not a valid option for -align $align. Check your input parameter"
+   return "thumbs up"
 }
-if(!strand.isEmpty()) {
-    if(strand == "0") strand = "non-strand-specific"
-    if(strand == "1") strand = "strand-specific-forward"
-    if(strand == "2") strand = "strand-specific-reverse"
-    //TODO need to check users input, only allo 0,1 or 2 
-}
-
-if(!samplesSheet.isEmpty()) if(!samplesSheet.isFile()) error "-samplesSheet doesn't appear to be pointing at the valid file, double check your path $samplesSheet"
-if(!fqDir.isEmpty()) {
-    if(!fqDir.isDir()) error "-fqDir doesn't point to valid directory, check your path $fqDir"
-    if(align.isEmpty() && !fastqc) warning "-align and -fastqc are empty, not sure why -fqDir $fqDir was specified"
-} 
-if(count) if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
-if(prePro) if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
-if(exonicRate) if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
-if(!configFile.isEmpty()) if(!configFile.isFile()) error "-configFile doesn't appear to be pointing at the valid file, double check your path $configFile"
-if(!genomeIdx.isEmpty()) if(!genomeIdx.isDir()) error "-genomeIdx doesn't point to valid directory, check your path to $genomeIdx"
-
-if( args.isEmpty() ) {
-    printHelp()
-    exit(1)
-}
+if(!align.isEmpty()) string alingArgsChk = chkAlignArgs()
 // this functions checks if all arguments on the cmd are right
 string checkCmdArgs() {
     // list of allowed command line options
@@ -74,4 +53,38 @@ string checkCmdArgs() {
         }
     }
     return "thumbs up"
+}
+// if regex string was given, be sure to set the right regex
+if(!fqRegex.isEmpty()){
+    if(fqRegex == "A") fqRegex = "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"
+    if(fqRegex == "B") fqRegex = "_L[0-9]{3}_R[0-9].fastq.gz$"
+    if(fqRegex == "C") fqRegex = "_R[0-9]_[0-9]{3}.fastq.gz$"
+    if(fqRegex == "D") fqRegex = "_R[0-9].fastq.gz$"
+}
+// assign strand
+if(!strand.isEmpty()) {
+    if(strand == "0") strand = "non-strand-specific"
+    if(strand == "1") strand = "strand-specific-forward"
+    if(strand == "2") strand = "strand-specific-reverse"
+    //TODO need to check users input, only allo 0,1 or 2 
+}
+
+if(!samplesSheet.isEmpty()) if(!samplesSheet.isFile()) error "-samplesSheet doesn't appear to be pointing at the valid file, double check your path $samplesSheet"
+if(!fqDir.isEmpty()) {
+    if(!fqDir.isDir()) error "-fqDir doesn't point to valid directory, check your path $fqDir"
+    if(align.isEmpty() && !fastqc) warning "-align and -fastqc are empty, not sure why -fqDir $fqDir was specified"
+} 
+if( !align.isEmpty() && genomeIdx.isEmpty() ) {
+    if(fastaRef.isEmpty()) error "You need to either specify -genomeIdx or -fastaRef"
+} 
+if(fastqc && fqDir.isEmpty()) error "Usage: -fqDir /path/to/FASTQ/files"
+if(count) if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
+if(prePro) if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
+if(exonicRate) if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
+if(!configFile.isEmpty()) if(!configFile.isFile()) error "-configFile doesn't appear to be pointing at the valid file, double check your path $configFile"
+if(!genomeIdx.isEmpty()) if(!genomeIdx.isDir()) error "-genomeIdx doesn't point to valid directory, check your path to $genomeIdx"
+
+if( args.isEmpty() ) {
+    printHelp()
+    exit(1)
 }

@@ -6,7 +6,6 @@ include "sikLog.bds"
 include "sikFqFiles.bds"
 
 string[] mapSTAR(string{} cmdExe, string bamFiles, string{} fqMap, string starOpts, string genomeIdx, int threads, string logFile) {
-    if((!align.isEmpty()) && (fastaRef.isEmpty()) && (genomeIdx.isEmpty())) error "Need to specify either -fastaRef /path/to/your/FASTA/file or -genomeIdx /path/to/your/index/directory"
     // get STAR executable 
     if(!cmdExe.hasKey("starExe")) error "Can't get STAR executable, check your config file $configFile"
     string starExe = cmdExe{"starExe"}

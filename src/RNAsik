@@ -50,7 +50,7 @@ string logFile = sikDir+"/"+"logFile.txt"
 string refFiles = sikDir+"/"+"refFiles"
 if(!refFiles.exists()) refFiles.mkdir()
 string bamFiles = sikDir+"/"+"bamFiles"
-if( (!bamFiles.exists()) && (!align.isEmpty()) ) bamFiles.mkdir()
+if( (!bamFiles.exists()) && (!fqDir.isEmpty()) ) bamFiles.mkdir()
 string countFiles = sikDir+"/"+"countFiles"
 if((!countFiles.exists()) && (count)) countFiles.mkdir()
 string markedDupsBams = sikDir+"/"+"markedDupsBams"
@@ -69,49 +69,50 @@ if(!configFile.isEmpty()) logit(logFile, "Config file parameters passed by user"
 else {
     string getProgPath = programPath.pathName()
     configFile = getProgPath+"/../sik.config"
-    logit(logFile, "Executables path", configFile.read())
+    logit(logFile, "Paths to the executables", configFile.read())
 }
 string{} cmdExe = config(configFile)
-#------------------------------
-# Global Variables
-#------------------------------
 // list of fastq files
 string[] fqFiles
 // local Fasta file
 if( (!fastaRef.isEmpty()) && (!fastaRef.isFile()) ) error "Check your path to fasta file. It dosen't point to a file. $fastaRef"
 string localFastaRef = makeLocalFastaRef(fastaRef, refFiles)
+logit(logFile, "Referece FASTA file", localFastaRef)
 // local GTF file
 if( (!gtfFile.isEmpty()) && (!gtfFile.isFile()) ) error "Check your path to gtf file. It dosen't point to a file. $gtfFile"
 string localGTF = makeLocalGTF(gtfFile, refFiles)
-if(localGTF.extName() == "gff") setGFF = true
-// Make indices if required 
-logit(logFile, "Referece FASTA file", localFastaRef)
 logit(logFile, "Reference GTF file", localGTF)
+if(localGTF.extName() == "gff") setGFF = true
+logit(logFile, "You are using GFF annotation file", setGFF)
 // 
 string fastaDictFile = makeDictFile(cmdExe, localFastaRef)
 logit(logFile, "Picard dictionary file", fastaDictFile)
 // STAR index cmd options
 string{} idxOpts
+if(align == "starWithAnn") idxOpts = {"--sjdbGTFfile" => localGTF, "--sjdbOverhang" => 100 }
+if(setGFF) idxOpts{"--sjdbGTFtagExonParentTranscript"} = "Parent" 
+
 string allIdxOpts = getOpts(getOptsMap("starIndex", idxOpts, extraOpts))
 logit(logFile, "STAR indexing cmd options", allIdxOpts)
 // get genomeIdx directory
-if( !fastaRef.isEmpty() && genomeIdx.isEmpty() && (!align.isEmpty() || align == "starIdx") ) {
+if( !align.isEmpty() && genomeIdx.isEmpty() ) {
     genomeIdx = makeSTARindex(cmdExe, refFiles, localFastaRef, localGTF, allIdxOpts, threads)
 } 
 logit(logFile, "STAR genomic index directory", genomeIdx)
 // grab all FASTQ files
 fqFiles = getFqFiles(fqDir, extn)
-string{} fqMap = getFqMap(fqFiles, fqRegex, samplesSheet, extn)
+string{} fqMap
+if(!fqDir.isEmpty()) fqMap = getFqMap(fqFiles, fqRegex, samplesSheet, extn)
 // for loggin purpose convert map to string and write it to a file
 string toString = fqMap
 logit(logFile, "Fastq files map, where key = rootName = bam file name and value actual fastq file with that rootName", toString)
 // STAR default options
 string{} starOpts = { "--outSAMtype" => "BAM Unsorted", \
                       "--outSAMunmapped" => "Within"}
-
+// use right file streaming cmd
 if(extn.endsWith(".gz")) starOpts{"--readFilesCommand"} = "zcat"
 else starOpts{"--readFilesCommand"} = "cat"
-
+//
 string allSTARopts = getOpts(getOptsMap("STAR", starOpts, extraOpts))
 logit(logFile, "STAR alignment cmd options", allSTARopts)
 //string  list of bam files from STAR run

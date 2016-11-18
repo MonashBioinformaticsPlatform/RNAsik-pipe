@@ -2,7 +2,7 @@
 # Organising FASTQ files 
 #------------------------
 string[] getFqFiles(string fqDir, string extn) {
-    if( ( (!align.isEmpty() && align != "starIdx") || (fastqc) ) && (fqDir.isEmpty()) ) error "Usage: -fqDir /path/to/your/FASTQ/files"
+    //if(fqDir.isEmpty()) error "No FASTQ file found, check your -fqDir parameter"
     string[] fqFiles
     // go through each file and check if its file or directory
     //TODO the if block is temporal measure due to BDS bug, is getting fixed I hope

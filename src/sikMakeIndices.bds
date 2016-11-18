@@ -1,6 +1,9 @@
 #-----------------------------------------
 # Fucntion to make indices for RNAsik-pipe
 #-----------------------------------------
+
+include "sikLog.bds"
+
 string makeLocalFastaRef(string fastaRef, string refFiles) { 
 
     string localRef = refFiles+"/"+fastaRef.baseName()
@@ -34,14 +37,14 @@ string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string g
     string genomeIdxDir = fastaRef.removeExt()+"-starIndex"
     if(!genomeIdxDir.exists()) genomeIdxDir.mkdir()
 
-    string[] refFilesIn 
-    refFilesIn += fastaRef
+    //string[] refFilesIn 
+    //refFilesIn += fastaRef
 
-    int chkGTF = starOpts.indexOf("--sjdbGTFfile")
-    if(chkGTF != -1) refFilesIn += gtfFile
+    //int chkGTF = starOpts.indexOf("--sjdbGTFfile")
+    //if(chkGTF != -1) refFilesIn += gtfFile
 
     //task(genomeIdxDir <- refFilesIn, cpus := threads, taskName := "Making STAR index") {
-    task(genomeIdxDir <- fastaRef, cpus := threads, taskName := "Making STAR index") {
+    task(!fastaRef.isEmpty(), genomeIdxDir <- fastaRef, cpus := threads, taskName := "Making STAR index") {
         sys $starExe --runThreadN $threads \
                      --runMode genomeGenerate \
                      --outFileNamePrefix "$refFiles/" \
