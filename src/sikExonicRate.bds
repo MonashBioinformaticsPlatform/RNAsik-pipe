@@ -25,7 +25,9 @@ string[] getExonicRates(string{} cmdExe, string sikDir, string[] bamFiles, strin
     else strandType = strandInfo
 
     for(string bamFile : bamFiles) {
-        string baseFile = bamFile.baseName().removeExt("_Aligned.out.bam")
+	string[] sampleName = bamFile.baseName().split("_")
+        //string baseFile = bamFile.baseName().removeExt("_Aligned.out.bam")
+        string baseFile = sampleName[0]
         string baseDir = sikDir+"/"+"qualiMapResults"+"/"+baseFile
         string depFile = baseDir+"/"+"rnaseq_qc_results.txt"
         string countsFile = baseDir+"/"+baseFile+"_counts.txt"

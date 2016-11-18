@@ -11,7 +11,10 @@ string[] getMarkedBams(string{} cmdExe, string markedDupsBams, string[] bamFiles
     string picardExe = cmdExe{"picardExe"}
 
     for(string bamFile : bamFiles) {
-        string sortedName = markedDupsBams+"/"+bamFile.baseName().swapExt("Aligned.out.bam", "sorted.bam")
+	string[] sampleName = bamFile.baseName().split("_")
+        //string sortedName = markedDupsBams+"/"+bamFile.baseName().swapExt("Aligned.out.bam", "sorted.bam")
+        string sortedName = markedDupsBams+"/"+sampleName[0]+"_sorted.bam"
+        string sortedIdx = markedDupsBams+"/"+sampleName[0]+"_sorted.bai"
         // try using 8 cpus to limit how picard processes can be run at a time
         // this should imporve I/O (input / output) performance
         dep(prePro, sortedName <- bamFile, cpus := 2, taskName := "picard sorting "+bamFile) {
@@ -41,7 +44,7 @@ string[] getMarkedBams(string{} cmdExe, string markedDupsBams, string[] bamFiles
                                           INPUT=$reorderedName \
                                           OUTPUT=$mdupsName \
                                           METRICS_FILE=$metricsName
-            sys rm $sortedName $reorderedName
+            sys rm $sortedName $sortedIdx $reorderedName
         }
         markedBams.add(mdupsName)
         logit(logFile, "Corresponding bam file with marked dups", mdupsName)
