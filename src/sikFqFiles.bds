@@ -60,7 +60,7 @@ string getRootName(string fq, string fqRegex, string samplesSheet, string extn) 
 // and value is the list of all associated FASTQ files
 // that are spread across multiple lane during sequencing
 string{} getFqMap(string[] fqFiles, string fqRegex, string samplesSheet, string extn) {
-    if( ( (!align.isEmpty() && align != "starIdx") || (fastqc) ) && (fqFiles.isEmpty()) ) error "No fastq files were found, check -fqDir path"
+    if(fqFiles.isEmpty()) error "getFqFiles function retuned nothing, something up with -fqDir parameter, check FASTQ file extention and pass correct -extn value maybe?"
     // Map with unique root key
     string{} fqMap
     // loop over FASTQ files

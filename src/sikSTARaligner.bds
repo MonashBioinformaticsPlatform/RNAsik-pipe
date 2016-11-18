@@ -6,6 +6,8 @@ include "sikLog.bds"
 include "sikFqFiles.bds"
 
 string[] mapSTAR(string{} cmdExe, string bamFiles, string{} fqMap, string starOpts, string genomeIdx, int threads, string logFile) {
+    // double check
+    //if(!fqMap) error "This error shouldn't occur. It should be caught earlier. Either way fqMap is empty $fqMap"
     // get STAR executable 
     if(!cmdExe.hasKey("starExe")) error "Can't get STAR executable, check your config file $configFile"
     string starExe = cmdExe{"starExe"}
@@ -32,7 +34,7 @@ string[] mapSTAR(string{} cmdExe, string bamFiles, string{} fqMap, string starOp
         if(checkSorted != -1) bamOut = preFix+"Aligned.sortedByCoord.out.bam"
 
         string reads = readsList.join(" ")
-        dep(align == "star", bamOut <- genomeIdx, cpus := threads, taskName := "STAR aligning "+rootBase) {
+        dep(!fqDir.isEmpty(), bamOut <- genomeIdx, cpus := threads, taskName := "STAR aligning "+rootBase) {
             sys $starExe --runThreadN $threads \
                          --runMode alignReads \
                          --genomeDir $genomeIdx \

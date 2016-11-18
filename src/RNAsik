@@ -32,9 +32,7 @@ include "sikQCreports.bds"
 include "sikExonicRate.bds"
 // Check cmd args first up
 string checkCmdInput = checkCmdArgs()
-#------------------------------
-# Make directories
-#------------------------------
+// set main directory
 string sikDir
 if(!outDir.isEmpty()) {
     if(!outDir.exists()) {
@@ -44,7 +42,7 @@ if(!outDir.isEmpty()) {
     else sikDir = outDir
 }
 else sikDir = "sikRun"
-
+// make directories as required
 if(!sikDir.exists()) sikDir.mkdir()
 string logFile = sikDir+"/"+"logFile.txt"
 string refFiles = sikDir+"/"+"refFiles"
@@ -72,8 +70,6 @@ else {
     logit(logFile, "Paths to the executables", configFile.read())
 }
 string{} cmdExe = config(configFile)
-// list of fastq files
-string[] fqFiles
 // local Fasta file
 if( (!fastaRef.isEmpty()) && (!fastaRef.isFile()) ) error "Check your path to fasta file. It dosen't point to a file. $fastaRef"
 string localFastaRef = makeLocalFastaRef(fastaRef, refFiles)
@@ -84,14 +80,14 @@ string localGTF = makeLocalGTF(gtfFile, refFiles)
 logit(logFile, "Reference GTF file", localGTF)
 if(localGTF.extName() == "gff") setGFF = true
 logit(logFile, "You are using GFF annotation file", setGFF)
-// 
+// get .dict file 
 string fastaDictFile = makeDictFile(cmdExe, localFastaRef)
 logit(logFile, "Picard dictionary file", fastaDictFile)
 // STAR index cmd options
 string{} idxOpts
 if(align == "starWithAnn") idxOpts = {"--sjdbGTFfile" => localGTF, "--sjdbOverhang" => 100 }
 if(setGFF) idxOpts{"--sjdbGTFtagExonParentTranscript"} = "Parent" 
-
+//
 string allIdxOpts = getOpts(getOptsMap("starIndex", idxOpts, extraOpts))
 logit(logFile, "STAR indexing cmd options", allIdxOpts)
 // get genomeIdx directory
@@ -99,8 +95,10 @@ if( !align.isEmpty() && genomeIdx.isEmpty() ) {
     genomeIdx = makeSTARindex(cmdExe, refFiles, localFastaRef, localGTF, allIdxOpts, threads)
 } 
 logit(logFile, "STAR genomic index directory", genomeIdx)
-// grab all FASTQ files
-fqFiles = getFqFiles(fqDir, extn)
+// list of fastq files
+string[] fqFiles
+// grab all FASTQ files recursively
+if(!fqDir.isEmpty()) fqFiles = getFqFiles(fqDir, extn)
 string{} fqMap
 if(!fqDir.isEmpty()) fqMap = getFqMap(fqFiles, fqRegex, samplesSheet, extn)
 // for loggin purpose convert map to string and write it to a file
