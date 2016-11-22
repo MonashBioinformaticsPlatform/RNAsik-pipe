@@ -526,7 +526,7 @@ pre {
   .col-9 {
     width: 98%; }
   .col-10 {
-    width: 91%; }
+    width: 93%; }
   .col-11 {
     width: 98%; }
   .col-12 {
@@ -629,7 +629,7 @@ ul.topnav li.icon {display: none;}
     float: right;
     display: inline-block;
   }
-  h1 {display: none}
+  h1 {display: none;}
 }
 
 @media screen and (max-width:680px) {
@@ -642,6 +642,7 @@ ul.topnav li.icon {display: none;}
   ul.topnav.responsive li {
     float: none;
     display: inline;
+    overflow: scroll;
   }
   ul.topnav.responsive li a {
     display: block;
