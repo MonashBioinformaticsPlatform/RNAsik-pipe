@@ -56,7 +56,7 @@ RNAsik -align star \
 
 ## Introduction
 
-RNAsik does alignment AND read counting, which makes Degust analysis one upload away AND BAM file pre-processing for IGV AND diagnostic QC metrics. RNAsik wraps [these tools](#prerequisites) making your RNAseq analysis more streamline. `RNAsik` has also "sanity checks" inbuilt, checking command line options, checking if options are valid files/directories and it will talk to you so don't sweat :) and read the error message.
+`RNAsik` does alignment AND read counting, which makes Degust analysis one upload away AND BAM file pre-processing for IGV AND diagnostic QC metrics. `RNAsik` wraps [these tools](#prerequisites) making your RNAseq analysis more streamline. `RNAsik` has also "sanity checks" inbuilt, checking command line options, checking if options are valid files/directories and it will talk to you so don't sweat :) and read the error message.
 
 ## Prerequisites
 
@@ -94,7 +94,7 @@ It is highly recommended that both of those files come from the same distributor
 
 ##### Raw data
 
-RNAsik can handle nested directories as long as your data is homogeneous i.e all data belongs to the same library type e.g paired-end. 
+`RNAsik` can handle nested directories as long as your data is homogeneous i.e all data belongs to the same library type e.g paired-end. 
 
 <table class="table table-striped">
 <tr><thead> <td>Input</td><td>Explained</td></thead></tr>
@@ -119,7 +119,7 @@ RNAsik can handle nested directories as long as your data is homogeneous i.e all
 
 <table class="table table-striped">
 <tr><thead> <td>Files</td><td>Explained</td></thead></tr>
-<tr><td class="args">logFile.txt</td><td> Keeps log of RNAsik events, including FASTQ to BAM mapping and file in use. It doesn't keep stdout/stderr from individual tool in use. Each tool should have its own logging implemented. Look in the corresponding directory for tool specific log files.</td></tr>
+<tr><td class="args">logFile.txt</td><td> Keeps log of `RNAsik` events, including FASTQ to BAM mapping and file in use. It doesn't keep stdout/stderr from individual tool in use. Each tool should have its own logging implemented. Look in the corresponding directory for tool specific log files.</td></tr>
 </table>
 
 ## Command line options
