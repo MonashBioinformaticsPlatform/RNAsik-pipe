@@ -54,7 +54,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div class="row">
 <div class="col-2">
 <h2 id="content">Content</h2>
-<ul>
+<ul class="topnav" id="myTopnav">
 <li><a href="#quick-start">Quick start</a></li>
 <li><a href="#introduction">Introduction</a></li>
 <li><a href="#prerequisites">Prerequisites</a></li>
@@ -62,6 +62,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li><a href="#user-input">User input</a></li>
 <li><a href="#directories-and-files-explained">Directories and files explained</a></li>
 <li><a href="#command-line-options">Command line optioins</a></li>
+<li class="icon">
+    <a href="javascript:void(0);" style="font-size:15px;" onclick="myFunction()">☰</a>
+  </li>
 </ul>
 <p class="twitter-btn">
 <a class="twitter-share-button"
@@ -460,5 +463,15 @@ specify path to BAMs directory. Use if bams were generated outside of the pipeli
 <a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to <span class="citation" data-cites="kizza_a">@kizza_a</span></a>
 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 </p>
+<script>
+function myFunction() {
+    var x = document.getElementById("myTopnav");
+    if (x.className === "topnav") {
+        x.className += " responsive";
+    } else {
+        x.className = "topnav";
+    }
+}
+</script>
 </body>
 </html>
