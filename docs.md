@@ -1,10 +1,7 @@
-# RNAsik pipeline docs
-
 <div class="grid grid-fluid">
 <div class="row">
+# RNAsik pipeline docs
 <div class="col-2">
-
-## Content
 
 - [Quick start](#quick-start)
 - [Introduction](#introduction)
@@ -13,6 +10,7 @@
 - [User input](#user-input)
 - [Directories and files explained](#directories-and-files-explained)
 - [Command line optioins](#command-line-options)
+<li class="icon"> <a href="javascript:void(0);" style="font-size:15px;" onclick="myFunction()">☰</a>  </li>
 
 <p class="twitter-btn">
 <a class="twitter-share-button"
@@ -178,7 +176,16 @@ It is highly recommended that both of those files come from the same distributor
 <tr><td class="args">-paired</td> <td> flag to indicate that your data is paired-end. If `-fqDir` options is given `RNAsik` will automatically detect library type </td></tr>
 <tr><td class="args">-bamFiles</td> <td> specify path to BAMs directory. Use if bams were generated outside of the pipeline </td></tr>
 </table>
-
+<script>
+function myFunction() {
+    var x = document.getElementById("myTopnav");
+    if (x.className === "topnav") {
+        x.className += " responsive";
+    } else {
+        x.className = "topnav";
+    }
+}
+</script>
 <footer> <p><a href="http://github.com/serine">Created by Kirill Tsyganov</a></p> </footer>
 <p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p>
 

@@ -603,7 +603,8 @@ ul.topnav {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background-color: #333;
+  background: #707b7a;
+  border-radius: 25px;
 }
 
 ul.topnav li {float: left;}
@@ -628,6 +629,7 @@ ul.topnav li.icon {display: none;}
     float: right;
     display: inline-block;
   }
+  h1 {display: none}
 }
 
 @media screen and (max-width:680px) {
