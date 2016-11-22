@@ -45,6 +45,10 @@ p {
   margin-top: 0px;
   display: block; }
 
+.twitter-btn {
+  margin-left: 4em;
+}
+
 ul, ol {
   line-height: 28px;
   margin-bottom: 16px;

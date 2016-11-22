@@ -14,7 +14,7 @@
 - [Directories and files explained](#directories-and-files-explained)
 - [Command line optioins](#command-line-options)
 
-<p>
+<p class="twitter-btn">
 <a class="twitter-share-button"
   href="https://twitter.com/intent/tweet?text=Hey%20I%27m%20using%20this%20fully%20sick%20RNAseq%20pipeline%20It%27s%20sik%20easy%20http%3A%2F%2Fgithub%2Ecom%2Fmonashbioinformaticsplatform%2FRNAsik%2Dpipe%20by%20%40kizza%5Fa%20from%20%40MonashBioinfo" data-size="large">
 Share</a>
