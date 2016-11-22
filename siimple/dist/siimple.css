@@ -72,9 +72,9 @@ h1 {
  font-size: 50px;
  color: white;
  padding: 5%; 
- width: 64%;
+ width: 73%;
  vertical-align: top;
- margin-left: 10px;
+ margin-left: 5em;
 }
 
 /*h1 {
@@ -495,11 +495,11 @@ pre {
 
 .col-10 {
   /*width: 97.99%;*/
-  width: 70%;
+  width: 79.34%;
   margin: auto;
   display: inline-block;
   vertical-align: top;
-  float: left;
+  float: right;
   padding: 3%; }
 
 @media (max-width: 400px) {
