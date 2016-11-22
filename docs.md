@@ -14,6 +14,8 @@
 - [Directories and files explained](#directories-and-files-explained)
 - [Command line optioins](#command-line-options)
 
+<p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p>
+
 </div>
 
 <div class="col-10">
@@ -72,6 +74,7 @@ git clone https://github.com/serine/bio-ansible --branch from-scratch
 cd bio-ansible/
 ansible-playbook -i host bio.yml --tags bds,rnasik,star,subread,samtools,htslib,picard,qualimap,fastqc
 ```
+[Need more help?](http://github.com/serine/bio-ansible)
 
 ## User input
 
@@ -172,5 +175,5 @@ RNAsik can handle nested directories as long as your data is homogeneous i.e all
 <tr><td class="args">-bamFiles</td> <td> specify path to BAMs directory. Use if bams were generated outside of the pipeline </td></tr>
 </table>
 
-<footer> <p><a href="http://github.com/serine">Created by Kirill Tsyganov</a></p><p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p> </footer>
+<footer> <p><a href="http://github.com/serine">Created by Kirill Tsyganov</a></p> </footer>
 
