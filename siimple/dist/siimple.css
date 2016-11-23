@@ -45,9 +45,9 @@ p {
   margin-top: 0px;
   display: block; }
 
-.twitter-btn {
+/*.twitter-btn {
   margin-left: 4em;
-}
+}*/
 
 ul, ol {
   line-height: 28px;
@@ -642,7 +642,7 @@ ul.topnav li.icon {display: none;}
   ul.topnav.responsive li {
     float: none;
     display: inline;
-    overflow: scroll;
+    overflow: visible;
   }
   ul.topnav.responsive li a {
     display: block;
