@@ -547,6 +547,10 @@ ul.topnav li a:hover {background-color: #555;}
 ul.topnav li.icon {display: none;}
 
 @media screen and (max-width:980px) {
+  ul.topnav {
+    opacity: 0.75;
+  }
+
   ul.topnav li:not(:first-child) {display: none;}
   ul.topnav li.icon {
     float: right;
