@@ -76,9 +76,10 @@ h1 {
  font-size: 50px;
  color: white;
  padding: 5%; 
- width: 73%;
  vertical-align: top;
- margin-left: 5em;
+ width: 73.34%;
+ margin-right: 0.2em;
+ float: right
 }
 
 /*h1 {
@@ -418,80 +419,10 @@ pre {
     display: table;
     line-height: 0; }
 
-.col-1 {
-  width: 6.33%;
-  display: inline-block;
-  vertical-align: top;
-  float: left;
-  padding: 1%; }
-
 .col-2 {
   width: 14.66%;
   position: fixed;
   top: 1em;
-  display: inline-block;
-  vertical-align: top;
-  float: left;
-  padding: 1%; }
-
-.col-3 {
-  width: 22.99%;
-  display: inline-block;
-  vertical-align: top;
-  float: left;
-  padding: 1%; }
-
-.col-4 {
-  width: 31.33%;
-  display: inline-block;
-  vertical-align: top;
-  float: left;
-  padding: 1%; }
-
-.col-5 {
-  width: 39.66%;
-  display: inline-block;
-  vertical-align: top;
-  float: left;
-  padding: 1%; }
-
-.col-6 {
-  width: 47.99%;
-  display: inline-block;
-  vertical-align: top;
-  float: left;
-  padding: 1%; }
-
-.col-7 {
-  width: 56.33%;
-  display: inline-block;
-  vertical-align: top;
-  float: left;
-  padding: 1%; }
-
-.col-8 {
-  width: 64.66%;
-  display: inline-block;
-  vertical-align: top;
-  float: left;
-  padding: 1%; }
-
-.col-9 {
-  width: 72.99%;
-  display: inline-block;
-  vertical-align: top;
-  float: left;
-  padding: 1%; }
-
-/*.col-10 {
-  width: 81.33%;
-  display: inline-block;
-  vertical-align: top;
-  float: left;
-  padding: 1%; }
-*/
-.col-11 {
-  width: 89.66%;
   display: inline-block;
   vertical-align: top;
   float: left;
@@ -506,26 +437,18 @@ pre {
   float: right;
   padding: 3%; }
 
-@media (max-width: 400px) {
+@media (max-width: 680px) {
+   .row {
+      display: block;
+   }
   .col-1 {
     width: 98%; }
   .col-2 {
-    width: 98%; }
-  .col-3 {
-    width: 98%; }
-  .col-4 {
-    width: 98%; }
-  .col-5 {
-    width: 98%; }
-  .col-6 {
-    width: 98%; }
-  .col-7 {
-    width: 98%; }
-  .col-8 {
-    width: 98%; }
-  .col-9 {
+    margin-top: 0px;
+    margin-bottom: 100px;
     width: 98%; }
   .col-10 {
+    margin-top: 110px;
     width: 93%; }
   .col-11 {
     width: 98%; }
@@ -607,13 +530,13 @@ ul.topnav {
   border-radius: 25px;
 }
 
-ul.topnav li {float: left;}
+/*ul.topnav li {float: left;}*/
 
 ul.topnav li a {
   display: inline-block;
   color: #f2f2f2;
-  text-align: center;
-  padding: 14px 16px;
+  /*text-align: center;*/
+  padding: 7px;
   text-decoration: none;
   transition: 0.3s;
   font-size: 17px;
@@ -623,7 +546,7 @@ ul.topnav li a:hover {background-color: #555;}
 
 ul.topnav li.icon {display: none;}
 
-@media screen and (max-width:680px) {
+@media screen and (max-width:980px) {
   ul.topnav li:not(:first-child) {display: none;}
   ul.topnav li.icon {
     float: right;
@@ -632,7 +555,7 @@ ul.topnav li.icon {display: none;}
   h1 {display: none;}
 }
 
-@media screen and (max-width:680px) {
+@media screen and (max-width:980px) {
   ul.topnav.responsive {position: relative;}
   ul.topnav.responsive li.icon {
     position: absolute;
@@ -642,7 +565,6 @@ ul.topnav li.icon {display: none;}
   ul.topnav.responsive li {
     float: none;
     display: inline;
-    overflow: visible;
   }
   ul.topnav.responsive li a {
     display: block;
