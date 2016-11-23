@@ -79,7 +79,7 @@ string[] getMarkedBams(string{} cmdExe, string markedDupsBams, string[] bamFiles
     //        sys rm $sortedName $sortedIdx $reorderedName
     //    }
     //    markedBams.add(mdupsName)
-    //}
+    }
     goal markedBams
     return markedBams
 }
