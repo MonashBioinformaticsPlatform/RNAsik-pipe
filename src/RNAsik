@@ -137,10 +137,7 @@ string[] featureCounts = getReadsCount(cmdExe, countFiles, bamsList, allCountOpt
 logit(logFile, "Raw counts from featureCounts", parseList(featureCounts))
 // get strand info
 string strandInfo = getStrandInfo(cmdExe, featureCounts)
-//NOTE I don't like strandInfo.read() operation becuase strandInfo file doesn't always exists
-if(strandInfo.exists()) strandInfo = strandInfo.read()
-else strandInfo = "Unknown"
-logit(logFile, "The library strandness was detected as:", strandInfo)
+if(strandInfo.isFile()) logit(logFile, "The library strandness was detected as:", strandInfo.read().trim())
 logit(logFile, "The library appears to be paired end:", paired)
 if(exonicRate) {
     //TODO maybe error is to strong. Have a think of a way to including warning instead. 

@@ -14,7 +14,7 @@ help #----------------------------
 help Usage: RNAsik-pipe [options]
 help #----------------------------
 help #---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-help Example_1: RNAsik -align starIdx -fastaRef /path/to/your/refFile.fa
+help Example_1: RNAsik -align star -fastaRef /path/to/your/refFile.fa
 help Example_2: RNAsik -align star -fastaRef /path/to/your/refFile.fa -fqDir /path/to/your/FASTQ/directory
 help Example_3: RNAsik -align star -fastaRef /path/to/your/refFile.fa -fqDir /path/to/your/FASTQ/directory -samplesSheet yourSamplesSheet.txt
 help Example_4: RNAsik -count -gtfFile path/to/your/refFile.gtf
