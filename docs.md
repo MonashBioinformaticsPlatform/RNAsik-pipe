@@ -115,7 +115,7 @@ It is highly recommended that both of those files come from the same distributor
 <tr><thead> <td>Files</td><td>Explained</td></thead></tr>
 <tr><td class="args">geneIds.txt</td><td> Three additonal columns for read counts. Gene Id, Gene Name, Gene Biotype. Count files with "-withNames" postfix have those columns included </td></tr>
 <tr><td class="args">logFile.txt</td><td> Keeps log of `RNAsik` events, including FASTQ to BAM mapping and file in use. It doesn't keep stdout/stderr from individual tool in use. Each tool should have its own logging implemented. Look in the corresponding directory for tool specific log files.</td></tr>
-<tr><td class="args">multiqc_report.html/</td><td> </td></tr>
+<tr><td class="args">multiqc_report.html</td><td>This report file produced by MultiQC tool. This is stand alone html file and can be viewed in any browser</td></tr>
 </table>
 
 ## Command line options
