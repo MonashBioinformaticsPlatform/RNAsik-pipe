@@ -1,7 +1,7 @@
 <script src="js/respons.js"></script>
 <div class="grid grid-fluid">
 <div class="row">
-# RNAsik pipeline docs
+# RNAsik pipeline docs 
 <div class="col-2">
 
 - [Quick start](#quick-start)
@@ -106,13 +106,16 @@ It is highly recommended that both of those files come from the same distributor
 <tr><td class="args">markedBams/</td><td> Hold pre-processed BAM files, these BAMs have beep sorted, reordered and duplicates marked as well as indexed, all using picard tools. These BAMs are [IGV reads](http://software.broadinstitute.org/software/igv/) </td></tr>
 <tr><td class="args">fastqReport/</td><td> Hold HTML reports for individual FASTQ file</td></tr>
 <tr><td class="args">qualiMapResults/</td><td> Hold int(ra|er)genic rates per BAM files. Each BAM has its own directory with metric files. These results generated using `QualiMap rnaseq` command</td></tr>
+<tr><td class="args">multiqc_data/</td><td>Directory created by MultiQC holds parsed text file, it doesn't server any purpose for html file</td></tr>
 </table>
 
 ##### Files explained
 
 <table class="table table-striped">
 <tr><thead> <td>Files</td><td>Explained</td></thead></tr>
+<tr><td class="args">geneIds.txt</td><td> Three additonal columns for read counts. Gene Id, Gene Name, Gene Biotype. Count files with "-withNames" postfix have those columns included </td></tr>
 <tr><td class="args">logFile.txt</td><td> Keeps log of `RNAsik` events, including FASTQ to BAM mapping and file in use. It doesn't keep stdout/stderr from individual tool in use. Each tool should have its own logging implemented. Look in the corresponding directory for tool specific log files.</td></tr>
+<tr><td class="args">multiqc_report.html/</td><td> </td></tr>
 </table>
 
 ## Command line options

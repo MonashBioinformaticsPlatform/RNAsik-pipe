@@ -90,7 +90,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h2 id="introduction">Introduction</h2>
 <p><code>RNAsik</code> does alignment AND read counting, which makes Degust analysis one upload away AND BAM file pre-processing for IGV AND diagnostic QC metrics. <code>RNAsik</code> wraps <a href="#prerequisites">these tools</a> making your RNAseq analysis more streamline. <code>RNAsik</code> has also “sanity checks” inbuilt, checking command line options, checking if options are valid files/directories and it will talk to you so don’t sweat :) and read the error message.</p>
 <h2 id="prerequisites">Prerequisites</h2>
-<ul>
+<ul class="topnav" id="myTopnav">
 <li><a href="http://pcingola.github.io/BigDataScript/download.html">BigDataScript</a></li>
 <li><a href="https://github.com/alexdobin/STAR/releases">STAR aligner</a></li>
 <li><a href="http://subread.sourceforge.net/">subread</a></li>
@@ -220,6 +220,14 @@ qualiMapResults/
 Hold int(ra|er)genic rates per BAM files. Each BAM has its own directory with metric files. These results generated using <code>QualiMap rnaseq</code> command
 </td>
 </tr>
+<tr>
+<td class="args">
+multiqc_data/
+</td>
+<td>
+Directory created by MultiQC holds parsed text file, it doesn’t server any purpose for html file
+</td>
+</tr>
 </table>
 <h5 id="files-explained">Files explained</h5>
 <table class="table table-striped">
@@ -235,10 +243,25 @@ Explained
 </tr>
 <tr>
 <td class="args">
+geneIds.txt
+</td>
+<td>
+Three additonal columns for read counts. Gene Id, Gene Name, Gene Biotype. Count files with “-withNames” postfix have those columns included
+</td>
+</tr>
+<tr>
+<td class="args">
 logFile.txt
 </td>
 <td>
 Keeps log of <code>RNAsik</code> events, including FASTQ to BAM mapping and file in use. It doesn’t keep stdout/stderr from individual tool in use. Each tool should have its own logging implemented. Look in the corresponding directory for tool specific log files.
+</td>
+</tr>
+<tr>
+<td class="args">
+multiqc_report.html/
+</td>
+<td>
 </td>
 </tr>
 </table>
