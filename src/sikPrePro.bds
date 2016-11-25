@@ -1,10 +1,8 @@
 #--------------------------------------------------
 # Functions to pre-process BAM files - picard
 #--------------------------------------------------
-include "sikLog.bds"
 
-//string getPrePro(string{} cmdExe, string bamFile, string fastaRef, string fastaDictFile){
-string[] getMarkedBams(string{} cmdExe, string markedDupsBams, string[] bamFiles, string fastaRef, string fastaDictFile, string logFile) {
+string[] getMarkedBams(string{} cmdExe, string markedDupsBams, string[] bamFiles, string fastaRef, string fastaDictFile) {
     string[] markedBams
     // check if executable is there
     if(!cmdExe.hasKey("picardExe")) error "Can't get picard executable, check your config file $configFile"
@@ -12,32 +10,24 @@ string[] getMarkedBams(string{} cmdExe, string markedDupsBams, string[] bamFiles
 
     for(string bamFile : bamFiles) {
         string[] sampleName = bamFile.baseName().split("_")
-        //string sortedName = markedDupsBams+"/"+bamFile.baseName().swapExt("Aligned.out.bam", "sorted.bam")
         string sortedName = markedDupsBams+"/"+sampleName[0]+"_sorted.bam"
         string sortedIdx = markedDupsBams+"/"+sampleName[0]+"_sorted.bai"
-        // try using 8 cpus to limit how picard processes can be run at a time
-        // this should imporve I/O (input / output) performance
-        dep(prePro, sortedName <- bamFile, cpus := 2, taskName := "picard sorting "+bamFile) {
+        string reorderedName = sortedName.swapExt(".bam", "_reordered.bam")
+        string mdupsName = reorderedName.swapExt(".bam", "_marked_dups.bam")
+        string metricsName = reorderedName.swapExt(".bam", "_marked_dups.metrics")
+
+        dep(prePro, [mdupsName, metricsName] <- bamFile, cpus := 6, taskName := "picard sorting "+bamFile) {
             sys $picardExe SortSam TMP_DIR=tmp/ \
                                    VALIDATION_STRINGENCY=LENIENT \
                                    CREATE_INDEX=true \
                                    INPUT=$bamFile \
                                    OUTPUT=$sortedName \
                                    SORT_ORDER=coordinate
-        }
-
-        string reorderedName = sortedName.swapExt(".bam", "_reordered.bam")
-        dep(prePro, reorderedName <- [sortedName, fastaDictFile], cpus := 2, taskName := "picard reordering "+reorderedName) {
             sys $picardExe ReorderSam TMP_DIR=tmp/ \
                                       VALIDATION_STRINGENCY=LENIENT \
                                       INPUT=$sortedName \
                                       OUTPUT=$reorderedName \
                                       REFERENCE=$fastaRef
-        }
-        
-        string mdupsName = reorderedName.swapExt(".bam", "_marked_dups.bam")
-        string metricsName = reorderedName.swapExt(".bam", "_marked_dups.metrics")
-        dep(prePro, [mdupsName, metricsName] <- reorderedName, cpus := 2, taskName := "picard marking dups "+mdupsName) {
             sys $picardExe MarkDuplicates TMP_DIR=tmp/ \
                                           VALIDATION_STRINGENCY=LENIENT \
                                           CREATE_INDEX=true \
@@ -47,38 +37,6 @@ string[] getMarkedBams(string{} cmdExe, string markedDupsBams, string[] bamFiles
             sys rm $sortedName $sortedIdx $reorderedName
         }
         markedBams.add(mdupsName)
-    //for(string bamFile : bamFiles) {
-    //    string[] sampleName = bamFile.baseName().split("_")
-    //    //string sortedName = markedDupsBams+"/"+bamFile.baseName().swapExt("Aligned.out.bam", "sorted.bam")
-    //    string sortedName = markedDupsBams+"/"+sampleName[0]+"_sorted.bam"
-    //    string sortedIdx = markedDupsBams+"/"+sampleName[0]+"_sorted.bai"
-    //    // try using 8 cpus to limit how picard processes can be run at a time
-    //    // this should imporve I/O (input / output) performance
-    //    string reorderedName = sortedName.swapExt(".bam", "_reordered.bam")
-    //    string mdupsName = reorderedName.swapExt(".bam", "_marked_dups.bam")
-    //    string metricsName = reorderedName.swapExt(".bam", "_marked_dups.metrics")
-
-    //    task(prePro, [mdupsName, metricsName] <- bamFile, cpus := 6, taskName := "picard sorting "+bamFile) {
-    //        sys $picardExe SortSam TMP_DIR=tmp/ \
-    //                               VALIDATION_STRINGENCY=LENIENT \
-    //                               CREATE_INDEX=true \
-    //                               INPUT=$bamFile \
-    //                               OUTPUT=$sortedName \
-    //                               SORT_ORDER=coordinate
-    //        sys $picardExe ReorderSam TMP_DIR=tmp/ \
-    //                                  VALIDATION_STRINGENCY=LENIENT \
-    //                                  INPUT=$sortedName \
-    //                                  OUTPUT=$reorderedName \
-    //                                  REFERENCE=$fastaRef
-    //        sys $picardExe MarkDuplicates TMP_DIR=tmp/ \
-    //                                      VALIDATION_STRINGENCY=LENIENT \
-    //                                      CREATE_INDEX=true \
-    //                                      INPUT=$reorderedName \
-    //                                      OUTPUT=$mdupsName \
-    //                                      METRICS_FILE=$metricsName
-    //        sys rm $sortedName $sortedIdx $reorderedName
-    //    }
-    //    markedBams.add(mdupsName)
     }
     goal markedBams
     return markedBams
