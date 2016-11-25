@@ -4,7 +4,7 @@
 
 > `RNAsik-pipe` implemented in [BigDataScrip](http://pcingola.github.io/BigDataScript/) (BDS) language.
 
-## IF Super quick start {
+## IF( SuperQuickStart ) {
 
 ```BASH
 RNAsik -align star \
