@@ -1,15 +1,41 @@
 #------------------------
 # Organising FASTQ files 
 #------------------------
-string[] getFqFiles(string fqDir, string extn) {
-    //if(fqDir.isEmpty()) error "No FASTQ file found, check your -fqDir parameter"
+string getTarDir(string tarFile, string sikDir) {
+
+    string getExtn = tarFile.extName()
+    string tarDir = sikDir+"/"+"fastqDir"
+    if(!tarDir.exists()) tarDir.mkdir()
+    //string tarName = sikDir+"/"+tarFile.baseName()
+    //bool tarOk = tarFile.download(tarName)
+    string tarRef = tarFile.download()
+    string[] argsList = ["-x", "-f"]
+    if(getExtn == "gz") argsList.add("-z")
+    string tarArgs = argsList.join(" ")
+    //NOTE need to think about smartter dependencies, maybe there is a way to get rid of wait statement 
+    task(tarDir <- tarRef, taskName := "unarchiving $tarRef to $tarDir") {
+	sys echo "inside tar  task"
+        sys tar $tarArgs $tarRef -C $tarDir
+    }
+    wait
+    return tarDir
+}
+
+string[] getFqFiles(string fqDir, string extn, string sikDir) {
+
+    int chkHttp = fqDir.toLower().indexOf("http:")
+    if(chkHttp != -1) fqDir = getTarDir(fqDir, sikDir)
+
+    string[] originDir = fqDir.dirPath() 
+    if(originDir.isEmpty()) error "No FASTQ file found, check -fqDir option"
     string[] fqFiles
     // go through each file and check if its file or directory
     //TODO the if block is temporal measure due to BDS bug, is getting fixed I hope
     if(!fqDir.isEmpty()) {
-        for(string dir : fqDir.dirPath()){
+        //for(string dir : fqDir.dirPath()){
+        for(string dir : originDir){
             // check if dir is directory and call getFqFiles on it
-            if(dir.isDir()) fqFiles += getFqFiles(dir, extn)
+            if(dir.isDir()) fqFiles += getFqFiles(dir, extn, sikDir)
             // otherwise check if dir is FASTQ file and append it to the fqFiles
             else if(dir.endsWith(extn)) fqFiles.add(dir)
         }

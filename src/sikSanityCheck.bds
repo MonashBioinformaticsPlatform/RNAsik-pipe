@@ -70,7 +70,8 @@ if(!strand.isEmpty()) {
 
 if(!samplesSheet.isEmpty()) if(!samplesSheet.isFile()) error "-samplesSheet doesn't appear to be pointing at the valid file, double check your path $samplesSheet"
 if(!fqDir.isEmpty()) {
-    if(!fqDir.isDir()) error "-fqDir doesn't point to valid directory, check your path $fqDir"
+    int chkHttp = fqDir.toLower().indexOf("http:")
+    if(!fqDir.isDir() && chkHttp == -1) error "-fqDir doesn't point to valid directory, check your path $fqDir"
     if(align.isEmpty() && !fastqc) warning "-align and -fastqc are empty, not sure why -fqDir $fqDir was specified"
 } 
 if( !align.isEmpty() && genomeIdx.isEmpty() ) {
@@ -83,6 +84,8 @@ if(prePro) if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFast
 if(exonicRate) if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
 if(!configFile.isEmpty()) if(!configFile.isFile()) error "-configFile doesn't appear to be pointing at the valid file, double check your path $configFile"
 if(!genomeIdx.isEmpty()) if(!genomeIdx.isDir()) error "-genomeIdx doesn't point to valid directory, check your path to $genomeIdx"
+if( (!fastaRef.isEmpty()) && (!fastaRef.isFile()) ) error "Check your path to fasta file. It dosen't point to a file. $fastaRef"
+if( (!gtfFile.isEmpty()) && (!gtfFile.isFile()) ) error "Check your path to gtf file. It dosen't point to a file. $gtfFile"
 
 if( args.isEmpty() ) {
     printHelp()

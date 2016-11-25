@@ -30,6 +30,7 @@ include "sikCounts.bds"
 include "sikPrePro.bds"
 include "sikQCreports.bds"
 include "sikExonicRate.bds"
+include "sikCleanUp.bds"
 // Check cmd args first up
 string checkCmdInput = checkCmdArgs()
 // set main directory
@@ -71,12 +72,12 @@ else {
 }
 string{} cmdExe = config(configFile)
 // local Fasta file
-if( (!fastaRef.isEmpty()) && (!fastaRef.isFile()) ) error "Check your path to fasta file. It dosen't point to a file. $fastaRef"
-string localFastaRef = makeLocalFastaRef(fastaRef, refFiles)
+string localFastaRef
+if(!fastaRef.isEmpty()) localFastaRef = makeLocalRef(fastaRef, refFiles, "fasta")
 logit(logFile, "Referece FASTA file", localFastaRef)
 // local GTF file
-if( (!gtfFile.isEmpty()) && (!gtfFile.isFile()) ) error "Check your path to gtf file. It dosen't point to a file. $gtfFile"
-string localGTF = makeLocalGTF(gtfFile, refFiles)
+string localGTF
+if(!gtfFile.isEmpty()) localGTF = makeLocalRef(gtfFile, refFiles, "gtf")
 logit(logFile, "Reference GTF file", localGTF)
 if(localGTF.extName() == "gff") setGFF = true
 logit(logFile, "You are using GFF annotation file", setGFF)
@@ -98,7 +99,7 @@ logit(logFile, "STAR genomic index directory", genomeIdx)
 // list of fastq files
 string[] fqFiles
 // grab all FASTQ files recursively
-if(!fqDir.isEmpty()) fqFiles = getFqFiles(fqDir, extn)
+if(!fqDir.isEmpty()) fqFiles = getFqFiles(fqDir, extn, sikDir)
 string{} fqMap
 if(!fqDir.isEmpty()) fqMap = getFqMap(fqFiles, fqRegex, samplesSheet, extn)
 // for loggin purpose convert map to string and write it to a file
@@ -130,7 +131,7 @@ if(!fqMap && ( (count) || (prePro) || (exonicRate) ) ) {
     else error "No bam files or bamFiles directory was found. You can pass bam files using -bamFiles /path/to/bamFiles/dir"
 }
 // where BAM had been sorted, reorted and duplicates marked
-string[] markedBams = getMarkedBams(cmdExe, markedDupsBams, bamsList, localFastaRef, fastaDictFile, logFile)
+string[] markedBams = getMarkedBams(cmdExe, markedDupsBams, bamsList, localFastaRef, fastaDictFile)
 logit(logFile, "Pre-processed BAM files", parseList(markedBams))
 // get counts
 string[] featureCounts = getReadsCount(cmdExe, countFiles, bamsList, allCountOpts, localGTF, threads)
@@ -168,6 +169,13 @@ string fqQcOpts = getOpts(getOptsMap("fastqc", fastqcOpts, extraOpts))
 logit(logFile, "FastQC additional cmd options", fqQcOpts)
 string[] fqQcReport = getFastqcReport(cmdExe, fastqcReport, fqFiles, fqQcOpts, extn, threads)
 logit(logFile, "FastQC reports", parseList(fqQcReport))
+// removed BAMS from STAR output to save space, use -keepBams if you'd like to keep them
+//TODO I think best approach for cleaning up would be as a separate flag e.g -cleanUp
+// that will make it explicit for user that lots of intermidiate files will be deleted
+// otherwise I'm running a risk deleting dependencies files. Although when pipeline becomes more mature
+// -cleanUp can be set to true by defualt
+// also make -cleanUp work with -outDir such that user can pass in just those two options and that directory will be cleaned
+//string cleanUp = cleanBamsUp(bamsList, markedBams, featureCounts, exonicRates)
 // gather all files up for multiqc 
 string[] multiqcDeps
 if(!align.isEmpty()) multiqcDeps += bamsList
