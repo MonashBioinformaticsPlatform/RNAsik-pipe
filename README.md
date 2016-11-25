@@ -22,6 +22,3 @@ RNAsik -align star \
 ##}
 
 ## ELSE [RNAsik-website](https://monashbioinformaticsplatform.github.io/RNAsik-pipe/)
-
-- [Version 1.2](supplementary/releaseNotes1.2.md)
-- [Version 1.3](supplementary/releaseNotes1.3.md)
