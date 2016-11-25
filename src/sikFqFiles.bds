@@ -13,10 +13,7 @@ string getTarDir(string tarFile, string sikDir) {
     if(getExtn == "gz") argsList.add("-z")
     string tarArgs = argsList.join(" ")
     //NOTE need to think about smartter dependencies, maybe there is a way to get rid of wait statement 
-    task(tarDir <- tarRef, taskName := "unarchiving $tarRef to $tarDir") {
-	sys echo "inside tar  task"
-        sys tar $tarArgs $tarRef -C $tarDir
-    }
+    task(tarDir <- tarRef, taskName := "unarchiving $tarRef to $tarDir") sys tar $tarArgs $tarRef -C $tarDir
     wait
     return tarDir
 }

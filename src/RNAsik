@@ -30,7 +30,7 @@ include "sikCounts.bds"
 include "sikPrePro.bds"
 include "sikQCreports.bds"
 include "sikExonicRate.bds"
-include "sikCleanUp.bds"
+//include "sikCleanUp.bds"
 // Check cmd args first up
 string checkCmdInput = checkCmdArgs()
 // set main directory
