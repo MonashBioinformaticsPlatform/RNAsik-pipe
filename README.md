@@ -4,5 +4,5 @@
 
 ```BASH
 pandoc docs.md -S -s -c siimple/dist/siimple.css -t html5 --title=RNAsik-docs -o index.html 
-perl -0777 -i -pe 's/ul/ul class="topnav" id="myTopnav/' index.html                           
+perl -0777 -i -pe 's/ul/ul class="topnav" id="myTopnav"/' index.html                           
 ```
