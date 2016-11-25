@@ -47,6 +47,23 @@ RNAsik -align star \
        -threads 15
 ```
 
+##### Try it out!
+
+```BASH
+RNAsik -align star \
+       -fastaRef http://bioinformatics.erc.monash.edu/home/kirill/RNAsikSampleData/refFiles/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa.gz \
+       -fqDir http://bioinformatics.erc.monash.edu/home/kirill/RNAsikSampleData/rawData/GSE69937.tar \
+       -count \
+       -gtfFile http://bioinformatics.erc.monash.edu/home/kirill/RNAsikSampleData/refFiles/Mus_musculus.GRCm38.84.gtf.gz \
+       -prePro \
+       -multiqc \
+       -fastqc \
+       -exonicRate \
+       -threads 10
+```
+
+This publicly available data from [NCBI](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE69937). 
+
 ## Introduction
 
 `RNAsik` does alignment AND read counting, which makes Degust analysis one upload away AND BAM file pre-processing for IGV AND diagnostic QC metrics. `RNAsik` wraps [these tools](#prerequisites) making your RNAseq analysis more streamline. `RNAsik` has also "sanity checks" inbuilt, checking command line options, checking if options are valid files/directories and it will talk to you so don't sweat :) and read the error message.
@@ -106,6 +123,7 @@ It is highly recommended that both of those files come from the same distributor
 <tr><td class="args">markedBams/</td><td> Hold pre-processed BAM files, these BAMs have beep sorted, reordered and duplicates marked as well as indexed, all using picard tools. These BAMs are [IGV reads](http://software.broadinstitute.org/software/igv/) </td></tr>
 <tr><td class="args">fastqReport/</td><td> Hold HTML reports for individual FASTQ file</td></tr>
 <tr><td class="args">qualiMapResults/</td><td> Hold int(ra|er)genic rates per BAM files. Each BAM has its own directory with metric files. These results generated using `QualiMap rnaseq` command</td></tr>
+<tr><td class="args">fastqDir/</td><td> If you are going to pull your FASTQ file over http in tarball, then tarball will be unarchived here</td></tr>
 <tr><td class="args">multiqc_data/</td><td>Directory created by MultiQC holds parsed text file, it doesn't server any purpose for html file</td></tr>
 </table>
 

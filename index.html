@@ -87,6 +87,18 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
        -multiqc \
        -exonicRate \
        -threads 15</code></pre></div>
+<h5 id="try-it-out">Try it out!</h5>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">RNAsik</span> -align star \
+       -fastaRef http://bioinformatics.erc.monash.edu/home/kirill/RNAsikSampleData/refFiles/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa.gz \
+       -fqDir http://bioinformatics.erc.monash.edu/home/kirill/RNAsikSampleData/rawData/GSE69937.tar \
+       -count \
+       -gtfFile http://bioinformatics.erc.monash.edu/home/kirill/RNAsikSampleData/refFiles/Mus_musculus.GRCm38.84.gtf.gz \
+       -prePro \
+       -multiqc \
+       -fastqc \
+       -exonicRate \
+       -threads 10</code></pre></div>
+<p>This publicly available data from <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE69937">NCBI</a>.</p>
 <h2 id="introduction">Introduction</h2>
 <p><code>RNAsik</code> does alignment AND read counting, which makes Degust analysis one upload away AND BAM file pre-processing for IGV AND diagnostic QC metrics. <code>RNAsik</code> wraps <a href="#prerequisites">these tools</a> making your RNAseq analysis more streamline. <code>RNAsik</code> has also “sanity checks” inbuilt, checking command line options, checking if options are valid files/directories and it will talk to you so don’t sweat :) and read the error message.</p>
 <h2 id="prerequisites">Prerequisites</h2>
@@ -218,6 +230,14 @@ qualiMapResults/
 </td>
 <td>
 Hold int(ra|er)genic rates per BAM files. Each BAM has its own directory with metric files. These results generated using <code>QualiMap rnaseq</code> command
+</td>
+</tr>
+<tr>
+<td class="args">
+fastqDir/
+</td>
+<td>
+If you are going to pull your FASTQ file over http in tarball, then tarball will be unarchived here
 </td>
 </tr>
 <tr>
