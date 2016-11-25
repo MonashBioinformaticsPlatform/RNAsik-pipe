@@ -2,33 +2,58 @@
 # Fucntion to make indices for RNAsik-pipe
 #-----------------------------------------
 
-include "sikLog.bds"
-
-string makeLocalFastaRef(string fastaRef, string refFiles) { 
-
-    string localRef = refFiles+"/"+fastaRef.baseName()
-    string getExtn = fastaRef.extName()
-    string localFastaRef = localRef
-    if(getExtn == "gz") localFastaRef = localRef.removeExt(".gz")
-
-    task(!fastaRef.isEmpty(), localRef <- fastaRef, taskName := "Copying FASTA file") sys cp -v $fastaRef $refFiles
-    task(getExtn == "gz", localFastaRef <- localRef, taskName := "gzip FASTA file") sys gunzip -c $localRef > $localFastaRef
-
-    return localFastaRef
-}
-string makeLocalGTF(string gtfFile, string refFiles) {
-
-    string localRef = refFiles+"/"+gtfFile.baseName()
-    string getExtn = gtfFile.extName()
-    string localGTF = localRef
-    if(getExtn == "gz") localGTF = localRef.removeExt(".gz")
-
-    task(!gtfFile.isEmpty(), localRef <- gtfFile, taskName := "Copying GTF file") sys cp -v $gtfFile $refFiles
-    task(getExtn == "gz", localGTF <- localRef, taskName := "gunzip ing GTF file") sys gunzip -c $localRef > $localGTF
-
-    return localGTF
+string getUnziped(string refFile) {
+    string getExtn = refFile.extName()
+    string refUnziped = refFile.removeExt(".gz")
+    task(refFile.extName() == "gz", refUnziped <- refFile, taskName := "gzip $refFile file") sys gunzip -c $refFile > $refUnziped
+    return refUnziped
 }
 
+string chkFileExtn(string fileName, string fileType) {
+    string getExtn = fileName.extName()
+    string[] extns 
+    if(fileType == "fasta") {
+        extns = ["fa", \
+                 "fasta", \
+                 "fa.gz", \
+                 "fasta.gz" \
+                ]
+    }
+    if(fileType == "gtf") {
+        extns = ["gtf", \
+                 "gff", \
+                 "gtf.gz", \
+                 "gff.gz" \
+                ]
+    }
+    
+    if(!extns.has(getExtn)) error "It appears that your file type -> $fileType has invalid extention"
+    return fileName
+}
+
+string copyFile(string f, string refDir, string fileType) {
+    string fileName = f.baseName()
+    string localRef = refDir+"/"+fileName
+    task(localRef <- f, taskName := "Copying $f to $refDir") sys cp -v $f $refDir
+    return chkFileExtn(getUnziped(localRef), fileType)
+}
+
+string downloadFile(string f, string refDir, string fileType) {
+    string fileName = f.baseName()
+    string localRef = refDir+"/"+fileName
+    task(localRef <- f, taskName := "downloading $f to $refDir") sys cp -v $f $refDir
+    return chkFileExtn(getUnziped(localRef), fileType)
+}
+
+string makeLocalRef(string refFile, string refDir, string fileType) { 
+
+    int chkHttp = refFile.toLower().indexOf("http:")
+    string localRef
+    //NOTE if/else block assumes that user can only pass in url with http, BDS also supports s3
+    if(chkHttp != -1) localRef = downloadFile(refFile, refDir, fileType)
+    else localRef = copyFile(refFile, refDir, fileType)
+    return localRef
+}
 string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string gtfFile, string starOpts, int threads) {
     // get STAR executable 
     if(!cmdExe.hasKey("starExe")) error "Can't get STAR executable, check your config file $configFile"
