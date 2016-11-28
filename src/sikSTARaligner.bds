@@ -16,20 +16,20 @@ string[] mapSTAR(string{} cmdExe, string bamFiles, string{} fqMap, string starOp
     for(string rootName : fqMap.keys()) {
         string[] readsList = getReads(fqMap{rootName})
         paired = getPaired(readsList) 
+        string[] deps = readsList
+        deps += genomeIdx
 
         string rootBase = rootName.baseName()
         string preFix = bamFiles+"/"+rootBase+"_"
         
         string bamOut
-
         int checkUnsorted = starOpts.indexOf("Unsorted")
         int checkSorted = starOpts.indexOf("SortedByCoordinate")
-
         if(checkUnsorted != -1) bamOut = preFix+"Aligned.out.bam"
         if(checkSorted != -1) bamOut = preFix+"Aligned.sortedByCoord.out.bam"
 
         string reads = readsList.join(" ")
-        dep(!fqDir.isEmpty(), bamOut <- genomeIdx, cpus := threads, taskName := "STAR aligning "+rootBase) {
+        dep(!fqDir.isEmpty(), bamOut <- deps, cpus := threads, taskName := "STAR aligning "+rootBase) {
             sys $starExe --runThreadN $threads \
                          --runMode alignReads \
                          --genomeDir $genomeIdx \
