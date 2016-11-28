@@ -1,4 +1,7 @@
+
+<script src="js/libs/clipboard.min.js"></script>
 <script src="js/respons.js"></script>
+<script src="js/clip.js"></script>
 <div class="grid grid-fluid">
 <div class="row">
 # RNAsik pipeline docs 
@@ -48,6 +51,8 @@ RNAsik -align star \
 ```
 
 ##### Try it out!
+<!-- Trigger -->
+<button class="btn" data-clipboard-text="RNAsik -align star -fastaRef http://bioinformatics.erc.monash.edu/home/kirill/RNAsikSampleData/refFiles/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa.gz -fqDir http://bioinformatics.erc.monash.edu/home/kirill/RNAsikSampleData/rawData/GSE69937.tar -count -gtfFile http://bioinformatics.erc.monash.edu/home/kirill/RNAsikSampleData/refFiles/Mus_musculus.GRCm38.84.gtf.gz -prePro -multiqc -fastqc -exonicRate -threads 10">Copy command</button>
 
 ```BASH
 RNAsik -align star \
