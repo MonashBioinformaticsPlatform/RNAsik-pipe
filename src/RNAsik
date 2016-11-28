@@ -1,4 +1,4 @@
-#/usr/bin/env bds
+#!/usr/bin/env bds
 
 #----------------------------------------------------------------------------------------------------
 # RNAsik is fully sick way to get from FASTQ to list of counts, ready to load Degust file and more !
