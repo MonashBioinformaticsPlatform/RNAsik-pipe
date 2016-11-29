@@ -31,17 +31,18 @@ string chkFileExtn(string fileName, string fileType) {
     return fileName
 }
 
-string copyFile(string f, string refDir, string fileType) {
-    string fileName = f.baseName()
+string copyFile(string refFile, string refDir, string fileType) {
+    string fileName = refFile.baseName()
     string localRef = refDir+"/"+fileName
-    task(localRef <- f, taskName := "Copying $f to $refDir") sys cp -v $f $refDir
+    task(localRef <- refFile, taskName := "Copying $refFile to $refDir") sys cp -v $refFile $refDir
     return chkFileExtn(getUnziped(localRef), fileType)
 }
 
-string downloadFile(string f, string refDir, string fileType) {
-    string fileName = f.baseName()
+string downloadFile(string refFile, string refDir, string fileType) {
+    string fileName = refFile.baseName()
+    string downLocus = refFile.download()
     string localRef = refDir+"/"+fileName
-    task(localRef <- f, taskName := "downloading $f to $refDir") sys cp -v $f $refDir
+    task(localRef <- downLocus, taskName := "downloading $refFile to $refDir") sys cp -v $downLocus $refDir
     return chkFileExtn(getUnziped(localRef), fileType)
 }
 
