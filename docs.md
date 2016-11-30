@@ -4,7 +4,7 @@
 <script src="js/clip.js"></script>
 <div class="grid grid-fluid">
 <div class="row">
-# RNAsik pipeline docs 
+# [RNAsik pipeline docs](http://github.com/monashbioinformaticsplatform/RNAsik-pipe.git)
 <div class="col-2">
 
 - [Quick start](#quick-start)
