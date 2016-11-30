@@ -2,62 +2,96 @@
 # Fucntion to make indices for RNAsik-pipe
 #-----------------------------------------
 
-#------------------------------
-# Make directories as required
-#------------------------------
-string refFiles = "refFiles"
-if( (!refFiles.exists()) && ( (!gtfFile.isEmpty()) || (!fastaRef.isEmpty()) ) ) refFiles.mkdir()
-#------
-# Body
-#------
-string makeLocalFastaRef(string fastaRef) { 
-    // at this stage its unknown if Fasta is zipped or not
-    string localRef = refFiles+"/"+fastaRef.baseName()
-    string localFastaRef = localRef.removeExt(".gz")
-    dep(localRef <- fastaRef, taskName := "Copying FASTA file") sys cp -v $fastaRef $refFiles
-    dep(localRef.extName() == "gz", localFastaRef <- localRef, taskName := "gzip FASTA file") sys gunzip $localRef
-    goal localFastaRef
-    return localFastaRef
+string getUnziped(string refFile) {
+    string getExtn = refFile.extName()
+    string refUnziped = refFile.removeExt(".gz")
+    task(refFile.extName() == "gz", refUnziped <- refFile, taskName := "gzip $refFile file") sys gunzip -c $refFile > $refUnziped
+    return refUnziped
 }
 
-string makeLocalGTF(string gtfFile) {
-    // at this stage its unknown if GTF is zipped or not
-    string localRef = refFiles+"/"+gtfFile.baseName()
-    string localGTF = localRef.removeExt(".gz")
-    dep(localRef <- gtfFile, taskName := "Copying GTF file") sys cp -v $gtfFile $refFiles
-    dep(localRef.extName() == "gz", localGTF <- localRef, taskName := "gunzip ing GTF file") sys gunzip $localRef
-    goal localGTF
-    return localGTF
+string chkFileExtn(string fileName, string fileType) {
+    string getExtn = fileName.extName()
+    string[] extns 
+    if(fileType == "fasta") {
+        extns = ["fa", \
+                 "fasta", \
+                 "fa.gz", \
+                 "fasta.gz" \
+                ]
+    }
+    if(fileType == "gtf") {
+        extns = ["gtf", \
+                 "gff", \
+                 "gtf.gz", \
+                 "gff.gz" \
+                ]
+    }
+    
+    if(!extns.has(getExtn)) error "It appears that your file type -> $fileType has invalid extention"
+    return fileName
 }
 
-string makeSTARindex(string{} cmdExe, string fastaRef, string starOpts, int threads) {
+string copyFile(string refFile, string refDir, string fileType) {
+    string fileName = refFile.baseName()
+    string localRef = refDir+"/"+fileName
+    task(localRef <- refFile, taskName := "Copying $refFile to $refDir") sys cp -v $refFile $refDir
+    return chkFileExtn(getUnziped(localRef), fileType)
+}
+
+string downloadFile(string refFile, string refDir, string fileType) {
+    string fileName = refFile.baseName()
+    string downLocus = refFile.download()
+    string localRef = refDir+"/"+fileName
+    task(localRef <- downLocus, taskName := "downloading $refFile to $refDir") sys cp -v $downLocus $refDir
+    return chkFileExtn(getUnziped(localRef), fileType)
+}
+
+string makeLocalRef(string refFile, string refDir, string fileType) { 
+
+    int chkHttp = refFile.toLower().indexOf("http:")
+    string localRef
+    //NOTE if/else block assumes that user can only pass in url with http, BDS also supports s3
+    if(chkHttp != -1) localRef = downloadFile(refFile, refDir, fileType)
+    else localRef = copyFile(refFile, refDir, fileType)
+    return localRef
+}
+string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string gtfFile, string starOpts, int threads) {
     // get STAR executable 
     if(!cmdExe.hasKey("starExe")) error "Can't get STAR executable, check your config file $configFile"
     string starExe = cmdExe{"starExe"}
 
-    string genomeIdx = fastaRef.removeExt()+"-starIndex"
-    if(!genomeIdx.exists()) genomeIdx.mkdir()
+    string genomeIdxDir = fastaRef.removeExt()+"-starIndex"
+    if(!genomeIdxDir.exists()) genomeIdxDir.mkdir()
 
-    string[] idxDeps
-    string[] idxFiles = ["SAindex", "SA", "Genome"]
-    // make proper file path
-    for(string idx : idxFiles) idxDeps.add(genomeIdx+"/"+idx)
+    //string[] refFilesIn 
+    //refFilesIn += fastaRef
 
-    int chkGTF = starOpts.indexOf("--sjdbGTFfile")
-    if(chkGTF != -1) {
-        string[] gtfFiles = ["sjdbInfo.txt", "sjdbList.fromGTF.out.tab", "sjdbList.out.tab", "transcriptInfo.tab"]
-        // make proper file path
-        for(string gtf : gtfFiles) idxDeps.add(genomeIdx+"/"+gtf)
-    }
-    threads -= 2
-    task(idxDeps <- fastaRef, taskName := "Making STAR index") {
+    //int chkGTF = starOpts.indexOf("--sjdbGTFfile")
+    //if(chkGTF != -1) refFilesIn += gtfFile
+
+    //task(genomeIdxDir <- refFilesIn, cpus := threads, taskName := "Making STAR index") {
+    task(!fastaRef.isEmpty(), genomeIdxDir <- fastaRef, cpus := threads, taskName := "Making STAR index") {
         sys $starExe --runThreadN $threads \
                      --runMode genomeGenerate \
-                     --genomeDir $genomeIdx \
+                     --outFileNamePrefix "$refFiles/" \
+                     --genomeDir $genomeIdxDir \
                      --genomeFastaFiles $fastaRef \
                      $starOpts
     }
-    return genomeIdx
+    return genomeIdxDir
+}
+// make dictionary for picard pre-processing
+string makeDictFile(string{} cmdExe, string fastaRef) {
+    if(!cmdExe.hasKey("picardExe")) error "Can't get picard executable, check your config file $configFile"
+    string picardExe = cmdExe{"picardExe"}
+    // make .dict string
+    string fastaDictFile = fastaRef.removeExt()+".dict"
+    //task(prePro, fastaDictFile <- fastaRef, taskName := "Making dictionary File") {
+    task(prePro, fastaDictFile <- fastaRef, taskName := "Making dictionary File") {
+        sys $picardExe CreateSequenceDictionary REFERENCE=$fastaRef \
+                                                OUTPUT=$fastaDictFile
+    }
+    return fastaDictFile
 }
 // Index FASTA reference file when needed
 string makeFaiFile(string samtoolsExe, string fastaRef) {

@@ -1,18 +1,40 @@
 #------------------------
 # Organising FASTQ files 
 #------------------------
-string[] getFqFiles(string fqDir, string extn) {
-    if( ( (!align.isEmpty()) || (fastqc) ) && (fqDir.isEmpty()) ) error "Usage: -fqDir /path/to/your/FASTQ/files"
+string getTarDir(string tarFile, string sikDir) {
+
+    string getExtn = tarFile.extName()
+    string tarDir = sikDir+"/"+"fastqDir"
+    if(!tarDir.exists()) tarDir.mkdir()
+    //string tarName = sikDir+"/"+tarFile.baseName()
+    //bool tarOk = tarFile.download(tarName)
+    string tarRef = tarFile.download()
+    string[] argsList = ["-x", "-f"]
+    if(getExtn == "gz") argsList.add("-z")
+    string tarArgs = argsList.join(" ")
+    //NOTE need to think about smartter dependencies, maybe there is a way to get rid of wait statement 
+    task(tarDir <- tarRef, taskName := "unarchiving $tarRef to $tarDir") sys tar $tarArgs $tarRef -C $tarDir
+    wait
+    return tarDir
+}
+
+string[] getFqFiles(string fqDir, string extn, string sikDir) {
+
+    int chkHttp = fqDir.toLower().indexOf("http:")
+    if(chkHttp != -1) fqDir = getTarDir(fqDir, sikDir)
+
+    string[] originDir = fqDir.dirPath() 
+    if(originDir.isEmpty()) error "No FASTQ file found, check -fqDir option"
     string[] fqFiles
     // go through each file and check if its file or directory
-    for(string dir : fqDir.dirPath()){
-        bool chkDir = dir.isDir()
-        // check if dir is directory call getFqFiles on it
-        if(chkDir) fqFiles += getFqFiles(dir, extn)
-        // otherwise check if dir is FASTQ file and append it to the fqFiles
-        else {
-            bool fqFile = dir.endsWith(extn)
-            if(fqFile) fqFiles.add(dir)
+    //TODO the if block is temporal measure due to BDS bug, is getting fixed I hope
+    if(!fqDir.isEmpty()) {
+        //for(string dir : fqDir.dirPath()){
+        for(string dir : originDir){
+            // check if dir is directory and call getFqFiles on it
+            if(dir.isDir()) fqFiles += getFqFiles(dir, extn, sikDir)
+            // otherwise check if dir is FASTQ file and append it to the fqFiles
+            else if(dir.endsWith(extn)) fqFiles.add(dir)
         }
     }
     // return fqFiles array
@@ -61,8 +83,8 @@ string getRootName(string fq, string fqRegex, string samplesSheet, string extn) 
 // and value is the list of all associated FASTQ files
 // that are spread across multiple lane during sequencing
 string{} getFqMap(string[] fqFiles, string fqRegex, string samplesSheet, string extn) {
-    if(fqFiles.isEmpty()) error "No fastq files were found, check -fqDir path"
-    # Map with unique root key
+    if(fqFiles.isEmpty()) error "getFqFiles function retuned nothing, something up with -fqDir parameter, check FASTQ file extention and pass correct -extn value maybe?"
+    // Map with unique root key
     string{} fqMap
     // loop over FASTQ files
     for(string fq : fqFiles) {
@@ -74,17 +96,18 @@ string{} getFqMap(string[] fqFiles, string fqRegex, string samplesSheet, string 
 }
 //
 string[] getReads(string fqVal) {
-    string[] fqList = fqVal.split(",")
+    // remove trailing comma from the string, side effect from fqMap
+    string cleanFq = fqVal.substr(0, (fqVal.length())-1)
+    string[] fqList = cleanFq.split(",")
     int odd = fqList.size() % 2
     
     string[] rTwo
-    // joining instead of returing fqVal because
-    // this stips trailing comma from the file name
-    // for more info see getFqMap function
     if(odd == 1) return [fqList.join(",")]
-    if(fqVal.lastIndexOf("_R2") != -1) {
+    // double check that you have paired-end data
+    // if no _R2 sub-string found in the string data assumed to be single-end
+    if(cleanFq.lastIndexOf("_R2") != -1) {
         for(int i=0; i < fqList.size(); i++) {
-	   rTwo.push(fqList.removeIdx(i+1)) 
+           rTwo.push(fqList.removeIdx(i+1)) 
         }
         return [fqList.join(","), rTwo.join(",")]
 

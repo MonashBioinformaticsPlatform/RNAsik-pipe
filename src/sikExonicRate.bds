@@ -1,0 +1,48 @@
+#--------------------------------------------------
+# Functions to pre-process BAM files - picard
+#--------------------------------------------------
+include "sikLog.bds"
+//TODO Don't need to add support for SortedByCoordinates support in sikPrePro.bds because files come out already sorted!
+//TODO do think about this more though !
+
+string[] getExonicRates(string{} cmdExe, string sikDir, string[] bamFiles, string exonicOpts, string strandInfo, string logFile) {
+    string[] qualiResults
+    // check if executable is there
+    if(!cmdExe.hasKey("qualimapExe")) error "Can't get qualiMap executable, check your config file $configFile"
+    string qualimapExe = cmdExe{"qualimapExe"}
+    // map to get qualiMap string 
+    string{} strandMap = {"NonStrandedCounts" => "non-strand-specific", \
+	                  "ForwardStrandedCounts" => "strand-specific-forward", \
+                          "ReverseStrandedCounts" => "strand-specific-reverse" }
+    // if strandInfo comes from the user cmd input it'll be a string
+    // otherwise it'll be a file
+    string strandType
+    if(strandInfo.isFile()) {
+        strandType = strandInfo.read().trim()
+        if(!strandMap.hasKey(strandType)) error "Something went wrong, this error should occur. Error is from sikExonicRate.bds"
+        else strandMap{strandType} strandType = strandMap{strandType}
+    }
+    else strandType = strandInfo
+
+    for(string bamFile : bamFiles) {
+	string[] sampleName = bamFile.baseName().split("_")
+        //string baseFile = bamFile.baseName().removeExt("_Aligned.out.bam")
+        string baseFile = sampleName[0]
+        string baseDir = sikDir+"/"+"qualiMapResults"+"/"+baseFile
+        string depFile = baseDir+"/"+"rnaseq_qc_results.txt"
+        string countsFile = baseDir+"/"+baseFile+"_counts.txt"
+
+        dep(exonicRate, depFile <- [bamFile, gtfFile, strandInfo], taskName := "getting Int(ra|er)genic rates for"+bamFile) {
+            sys $qualimapExe rnaseq -bam $bamFile \
+                                    -outdir $baseDir \
+                                    $exonicOpts \
+                                    -oc $countsFile \
+                                    --sequencing-protocol $strandType \
+                                    --java-mem-size=4G
+        }
+        qualiResults.add(depFile)
+        //logit(logFile, "qualiMap results for", baseDir)
+    }
+    goal qualiResults
+    return qualiResults
+}

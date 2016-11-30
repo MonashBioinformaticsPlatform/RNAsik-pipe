@@ -1,68 +1,106 @@
 #----------------------------------------
 # Counts
 #----------------------------------------
+// runs python script `counts_parser.py` that guess strandness of the data
+string getStrandInfo(string{} cmdExe, string[] counts) {
+    if(!cmdExe.hasKey("pythonExe")) error "Can't get python executable, check your config file $configFile"
+    string pythonExe = cmdExe{"pythonExe"}
 
-#------------------------------
-# Make directories as required
-#------------------------------
-string countFiles = "countFiles"
-if((!countFiles.exists()) && (count)) countFiles.mkdir()
-#------
-# Body
-#------
-string[] getReadsCount(string{} cmdExe, string[] bamsList, string extraOpts, int threads) {
+    string getProgPath = programPath.pathName()
+    string pyScript = getProgPath+"/../scripts/counts_parser.py"
+    string countsDir = counts[0].dirName()
+    string strandInfo = countsDir+"/"+"strandInfo.txt"
+    task(count, strandInfo <- counts, taskName := "getting strand info") {
+        sys $pythonExe $pyScript --logsDir $countsDir > $strandInfo
+    }
+    // this is temp hack to stop mask function evaluation before above python script had run
+    // because mask function has .read() on a file that doesn't exist yet.
+    // I have to think about better solution for this
+    wait
+    return mask(countsDir, strandInfo)
+}
+// once the strand had been guessed, mask two other .summary files
+string mask(string countsDir, string strandInfo) {
+
+    if(strandInfo.exists()) {
+        string strandType = strandInfo.read()
+        strandType = strandType.trim() + ".txt.summary"
+
+        for(string f : countsDir.dirPath("*.summary")){
+            if(f.baseName() != strandType) {
+                string masked = f.replace(".summary", ".summary.masked")
+                task(count, masked <- [f, strandInfo], taskName := "masking unwanted counts files") sys mv $f $masked 
+            }
+        }
+        return strandInfo
+    }
+    //NOTE that this function if it drops into else block will return a bool false, BUT
+    // because function is set to return "string" type you need to check it as though it is a string or use parseBool()
+}
+
+string[] getReadsCount(string{} cmdExe, string countFiles, string[] bamsList, string extraOpts, string localGTF, int threads) {
 
     if(!cmdExe.hasKey("countsExe")) error "Can't get featureCounts executable, check your config file $configFile"
     string countsExe = cmdExe{"countsExe"}
 
-    if(!bamsList) error "No BAM files were found, either used -align options or specify directory with BAM files using `-bamFiles path/to/you/bams/directory`"
-
-    int featureThreads
-    if(threads == 1) featureThreads = threads
-    else featureThreads = threads/2
+    if( (bamsList.isEmpty()) && (count) ) error "No BAM files were found, either used -align options or specify directory with BAM files using `-bamFiles path/to/you/bams/directory`"
 
     string bamString = bamsList.join(" ")
     string[] allDeps = bamsList
     allDeps.add(localGTF)
-    
-    string ReverseStrandedCounts = countFiles+"/"+"ReverseStrandedCounts.txt"
-    // don't run the task unless you have both bamFiles and gtf file
-    task(count, ReverseStrandedCounts <- allDeps, taskName := "Counting features") {
-        sys $countsExe -T $featureThreads \
-                       -s 2 \
-                       $extraOpts \
-                       -o $ReverseStrandedCounts \
-                       $bamString
+
+    string[] featureOut
+    string[] featureFiles = ["NonStrandedCounts.txt", "ForwardStrandedCounts.txt", "ReverseStrandedCounts.txt"]
+    for(int i : range(0, 2)) {
+        string countsName = countFiles+"/"+featureFiles[i]
+        featureOut.add(countsName)
+        dep(count, countsName <- allDeps, cpus := threads, taskName := "Counting features") {
+            sys $countsExe -T $threads \
+                           -s $i \
+                           $extraOpts \
+                           -o $countsName \
+                           $bamString
+        }
     }
-    string NonStrandedCounts = countFiles+"/"+"NonStrandedCounts.txt"
-    // don't run the task unless you have both bamFiles and gtf file
-    task(count, NonStrandedCounts <- allDeps, taskName := "Counting features") {
-        sys $countsExe -T $featureThreads \
-                         -s 0 \
-                         $extraOpts \
-                         -o $NonStrandedCounts \
-                         $bamString
-    }
-    return [NonStrandedCounts, ReverseStrandedCounts] 
+    goal featureOut
+    return featureOut
 }
 //
-string getGeneIds(string pythonExe, string gtfFile, bool setGFF){
+string getGeneIds(string pythonExe, string sikDir, string gtfFile, bool setGFF){
     string getProgPath = programPath.pathName()
     string pyFlag = '--gtfFile'
     if(setGFF){
         pyFlag = '--gffFile'
     }
-    string getGeneIds = getProgPath+"/../scripts/getGeneIds.py"
-    string geneIds = "geneIds.txt"
+    string pyScript = getProgPath+"/../scripts/getGeneIds.py"
+    string geneIds = sikDir+"/"+"geneIds.txt"
     task(count, geneIds <- gtfFile, taskName := "getting geneIds.txt file") {
-        sys $pythonExe $getGeneIds $pyFlag $gtfFile > $geneIds
+        sys $pythonExe $pyScript $pyFlag $gtfFile > $geneIds
     }
     return geneIds
 }
 
-string getDegust(string{} cmdExe, string[] featureCounts, int bamsN, string gtfFile, bool gff, int threads) {
+string[] getProteinCoding(string[] counts, bool setGFF) {
+
+    string[] proteinCodingCounts
+
+    for(string countFile : counts) {
+        string proteinCoding = countFile.removeExt()+"-proteinCoding.txt"
+        proteinCodingCounts.add(proteinCoding)
+        //TODO need to include setGFF bool into dep OR check that protein_coding feature type is present
+        dep(count, proteinCoding <- countFile, taskName := "getting protein coding counts") {
+            sys grep "Biotype" $countFile > $proteinCoding
+            sys grep "protein_coding" $countFile >> $proteinCoding
+        }
+    }
+    goal proteinCodingCounts
+    return proteinCodingCounts
+}
+
+string[] getDegust(string{} cmdExe, string sikDir, string[] featureCounts, int bamsN, string gtfFile, bool gff, int threads) {
     if(!cmdExe.hasKey("pythonExe")) error "Can't get python executable, check your config file $configFile"
-    string geneIdsFile = getGeneIds(cmdExe{"pythonExe"}, gtfFile, gff)
+    string pythonExe = cmdExe{"pythonExe"}
+    string geneIdsFile = getGeneIds(pythonExe, sikDir, gtfFile, gff)
 
     string[] withNames
 
@@ -84,5 +122,6 @@ string getDegust(string{} cmdExe, string[] featureCounts, int bamsN, string gtfF
     }
     goal withNames
         
-    return withNames
+    return getProteinCoding(withNames, gff)
 }
+

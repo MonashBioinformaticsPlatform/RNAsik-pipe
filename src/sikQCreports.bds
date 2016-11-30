@@ -1,76 +1,37 @@
 include "sikHeader.bds"
-#--------------------------------------------------
-# Functions to get QC reports, RNAseQC and FASTQC
-#--------------------------------------------------
+#---------------------------------------
+# Functions to get different QC reports
+#---------------------------------------
 
-// make SampleIds.txt file for RNAseQC report
-string getSampleIds(string[] markedBams){
-    bool header = true
-    string sampleIds
-    
-    for(string bamFile : markedBams){
-        string[] getSampleIds = bamFile.split("_")
-        string sampleId = getSampleIds[0].baseName()
-        if(header){
-            sampleIds += "Sample ID\tBam File\tNotes\n"
-            header = false
-        }
-        sampleIds += "$sampleId\t$bamFile\tNA\n"
-    }
-    return sampleIds
-}
-//
-string getRNAseQC(string RNAseQCexe, string sampleIdsFile, string[] markedBams, string fastaRef, string localGTF, string additionalRNAseQCoptions){
-
-    string getProgPath = programPath.pathName()
-    string getCmd = getProgPath+"/../scripts/checkBiotype.bash"
-    // assuming that refFiles have been created, which is should have been
-    string gtfQC = "refFiles/"+localGTF.baseName().removeExt()+"-RNAseQC.gtf"
-    
-    string RNAseQCreport = "RNAseQC-report"
-
-    task(RNAseQCreport <- markedBams, taskName := "Running RNAseQC report"){
-	sys grep -v -P "\tgene\t" $localGTF > $gtfQC
-        sys /bin/bash $getCmd $gtfQC
-        sys $RNAseQCexe -o $RNAseQCreport \
-                        -r $fastaRef \
-                        -s $sampleIdsFile\
-                        -t $gtfQC\
-                        $additionalRNAseQCoptions
-    }
-    return "all good"
-}
-//
-string[] getFastqcReport(string{} cmdExe, string[] fqFiles, string extn, int threads){
+string[] getFastqcReport(string{} cmdExe, string fastqcReport, string[] fqFiles, string fqQcOpts, string extn, int threads){
     if(!cmdExe.hasKey("fastqcExe")) error "Can't get fastqc executable, check your config file $configFile"
-    if(fqFiles.isEmpty()) error "No FASTQ files found, use -fqDir /path/to/fastq/dir."
+    string fastqcExe = cmdExe{"fastqcExe"}
+    if( (fqFiles.isEmpty()) && (fastqc) ) error "No FASTQ files found, use -fqDir /path/to/fastq/dir."
 
-    string fastqcReport = "fastqcReport"
-    if((!fastqcReport.exists()) && (fastqc)) fastqcReport.mkdir()
-   
     string preFix = "_fastqc.html"
     string[] fqcDeps
     for(string fq : fqFiles) {
-        string rootName = fq.removeExt(extn)
-        fqcDeps.add(rootName+preFix)
+        string rootName = fq.baseName().removeExt(extn)
+        fqcDeps.add(fastqcReport+"/"+rootName+preFix)
     }
+
     string fqs = fqFiles.join(" ")
 
-    task(fastqc, fqcDeps <- fqFiles, taskName := "Running FASTQC") { 
-        sys $cmdExe{"fastqcExe"} --threads $threads \
-                                 --outdir $fastqcReport \
-                                 --format fastq \
-                                 $fqs
+    task(fastqc, fqcDeps <- fqFiles, cpus := threads, taskName := "Running FASTQC") { 
+        sys $fastqcExe --threads $threads \
+                       $fqQcOpts \
+                       --outdir $fastqcReport \
+                       $fqs
     }
     return fqcDeps
 }
 //
-string getMultiqc(string{} cmdExe, string[] allDeps) {
+string getMultiqc(string{} cmdExe, string sikDir, string[] allDeps) {
     if(!cmdExe.hasKey("multiqcExe")) error "Can't get multiqc executable, check your config file $configFile"
-
-    string homeDir = PWD //.pathName()
-    task(multiqc, "multiqc_report.html" <- allDeps, taskName := "Generating MultiQC report") {
-        sys $cmdExe{"multiqcExe"} $homeDir
+    string multiqcExe = cmdExe{"multiqcExe"}
+    string outdep = sikDir+"/"+"multiqc_report.html"
+    task(multiqc, outdep <- allDeps, taskName := "Generating MultiQC report") {
+        sys $multiqcExe $sikDir --outdir $sikDir -f
     }
-    return homeDir
+    return outdep
 }

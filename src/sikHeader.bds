@@ -8,75 +8,71 @@
 helpUnsorted := true
 
 help #------------------------
-help RNAsik-pipe version 1.3.9
+help RNAsik-pipe version 1.4.5
 help #------------------------
 help #----------------------------
 help Usage: RNAsik-pipe [options]
 help #----------------------------
 help #---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-help Example_1: RNAsik-pipe -makeIndex -fastaRef /path/to/your/referenceFile.fa
-help Example_2: RNAsik-pipe -makeIndex -fastaRef /path/to/your/referenceFile.fa -align star -fqDir /path/to/your/fastqFiles/directory -fqRegex A
-help Example_3: RNAsik-pipe -align star -fqDir /path/to/your/fastqFiles/directory -fqRegex A -fastaRef /path/to/your/referenceFile.fa 
-help Example_4: RNAsik-pipe -count -gtfFile path/to/your/GTF/file
-help Example_5: RNAsik-pipe -align star -fqDir /path/to/your/fastqFiles/directory -fqRegex A -fastaRef /path/to/your/referenceFile.fa -count -gtfFile path/to/your/GTF/file
+help Example_1: RNAsik -align star -fastaRef /path/to/your/refFile.fa
+help Example_2: RNAsik -align star -fastaRef /path/to/your/refFile.fa -fqDir /path/to/your/FASTQ/directory
+help Example_3: RNAsik -align star -fastaRef /path/to/your/refFile.fa -fqDir /path/to/your/FASTQ/directory -samplesSheet yourSamplesSheet.txt
+help Example_4: RNAsik -count -gtfFile path/to/your/refFile.gtf
+help Example_5: RNAsik -align star -fastaRef /path/to/your/refFile.fa -fqDir /path/to/your/FASTQ/directory -samplesSheet yourSamplesSheet.txt -count -gtfFile path/to/your/refFile.gtf
 help #---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-help Make Indices options [default STAR]:
+help Read alignment and index generation:
 
-bool makeIndex     help Flag if you need to make STAR index. You must indexed your reference genome in order to do the alignemnt. \
-                              If `-genomeIdx` option isn't give and `-align` is specified `RNAsik-pipe` will automatically make an index.
-string fastaRef     help path to the reference FASTA file
-                
+string align        help specify your aligner of choice for the alignment OR use "Idx" postfix to indicate index generation only: \
+                                          - star # most generic, will do both index generation (if required) and alignment\
+                                          - starWithAnn # will generate index if required and do alignment utilising annotation file for better splice junctions handling
+string fastaRef     help path to refFile.fa
+string fqDir        help path to FASTQ directory. RNAsik will traverse fqDir and find all FASTQ files
 
-help FASTQ mapping options [default STAR]:
+help You can use samplesSheet OR fqRegex OR nothing at all
 
-string align        help please specify your aligner of choice for the alignment step
-string fqDir        help path to the directory with FASTQ files
-string fqRegex      help select regex option that resembles your common fastq file ending\
+string samplesSheet help specify a text file with alternative sample names using tab as a column separator e.g  \
+                                             Old_prefix \t New_prefix  \
+                                             160714_LHI34001346_L2_MUStd-34_1 \t sample-1 \
+                                             160714_LHI35001346_L2_MUStd-35_1 \t sample-2
+string fqRegex      help select regex option that resembles your common fastq file ending \
                                            A: "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"\
                                            B: "_L[0-9]{3}_R[0-9].fastq.gz$"\
                                            C: "_R[0-9]_[0-9]{3}.fastq.gz$"\
                                            D: "_R[0-9].fastq.gz$" \
                                e.g for this file Samp12_S10_L002_R1_001.fastq.gz you'd do -fqRegex A 
 
-string genomeIdx  help path to the directory with genome index for the coresponding species. If not specified then `-makeIndex` option is assumed
+string genomeIdx    help path to the directory with genome index for the coresponding species. If not specified then index will be made on the fly provided -fastaRef exists
 
-help Reads count option [default featureCounts]:
+help Reads counting [featureCounts]:
 
 bool count          help flag if you like to count reads
-string gtfFile      help path to the GTF file
+string gtfFile      help path to refFile.gtf
 
-help RNA-SeQC report option [default RNA-SeQC]:
+help QC reports:
 
-bool prePro         help flag if you like to preprocess your bam files (must for -RNAseQC) \
-                          if you are just processing your BAM files you will also need to specify your reference genome file \
-                          use `-fastaRef` option for that
-bool RNAseQC        help flag if you like to run RNA-SeQC report
-
-help fastQC report [default FastQC]: 
-
-bool fastqc         help flag if you like to run fastQC report on the files
-bool multiqc        help flag if you like to run multiqc report on analysis directory
+bool fastqc         help flag for FastQC reports
+bool exonicRate        help flag for Int(ra|er)genic rates using qualiMap tool
+bool multiqc        help flag for MultiQC report
 
 help Other options
 
+string outDir       help specify name of your analysis directory [sikRun]
+bool prePro         help this does additional preprocessing of your bam files such as sorting and marking duplicates.
 int threads = 4     help specify number of threads to use. This number will be used for STAR genome indexing\
                          and STAR raed alignment as well as for featureCounts, default [1]
 string extn = ".fastq.gz"        help optional, specify your files extension default [.fastq.gz]
-string samplesSheet help optional, specify a text file with alternative sample names
 string extraOpts help You can add extra option to any of the tools using args.txt file, where name of your tool and options you are passing in separated by "=" sign. Make new line for each tool  sign. \
                    e.g STAR = --outSAMtype BAM Unsorted, --outReadsUnmapped Fastx \
                        starIndex = --sjdbGTFfile /path/to/GTF/file, --sjdbOverhang 99 \
                        featureCounts = -t gene 
 string configFile   help You can specify configuration file
-// initialise empty variable
-string localFastaRef 
-// initialise empty variable
-string localGTF
 // check if data is paired end or not
 bool paired
 // can use this string to pass in marked bams
 string proBams
+// strand information
+string strand
 # Get general info about tools versions and files used 
 //string generalInfo = getInfo()
 // setting GFF to false, default is GTF format

@@ -1,0 +1,10 @@
+string cleanBamsUp(string[] bamsList, string[] markedBams, string[] countFiles, string[] exonicRates) {
+
+    string[] depFiles 
+    if(prePro) depFiles += markedBams
+    if(count) depFiles += countFiles
+    if(exonicRate) depFiles += exonicRates
+    string delBams = bamsList.join(" ")
+    task(!keepBams && !bamsList.isEmpty(), depFiles <- bamsList, taskName := "cleaning up BAM files") sys rm $delBams
+    return "all good"
+}
