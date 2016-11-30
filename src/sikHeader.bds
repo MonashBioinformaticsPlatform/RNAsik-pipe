@@ -8,7 +8,7 @@
 helpUnsorted := true
 
 help #------------------------
-help RNAsik-pipe version 1.4.0
+help RNAsik-pipe version 1.3.9
 help #------------------------
 help #----------------------------
 help Usage: RNAsik-pipe [options]
