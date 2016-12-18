@@ -100,12 +100,13 @@ logit(logFile, "STAR genomic index directory", genomeIdx)
 string[] fqFiles
 // grab all FASTQ files recursively
 if(!fqDir.isEmpty()) fqFiles = getFqFiles(fqDir, extn, sikDir)
+logit(logFile, "Fastq files found in the fqDir directory", parseList(fqFiles))
 string{} fqMap
 if(!fqDir.isEmpty()) fqMap = getFqMap(fqFiles, fqRegex, samplesSheet, extn)
 // for loggin purpose convert map to string and write it to a file
 //string toString = fqMap
 //logit(logFile, "Fastq files map, where key = rootName = bam file name and value actual fastq file with that rootName", toString)
-logit(logFile, "Fastq files and sample names", parseFqMap(fqMap))
+logit(logFile, "Fastq files grouped by samples", parseFqMap(fqMap))
 // STAR default options
 string{} starOpts = { "--outSAMtype" => "BAM Unsorted", \
                       "--outSAMunmapped" => "Within"}
