@@ -46,7 +46,7 @@ string getKey(string fq, string samplesSheet) {
     string[] prefixes = samples.keys()
     prefixes = prefixes.sort().reverse()
     for(string prefix : prefixes) {
-        bool chk = fq.startsWith(prefix)
+        bool chk = fq.baseName().startsWith(prefix)
         if(chk) return samples{prefix}
     }
     error "No prefix was found for this $fq file"
