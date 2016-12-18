@@ -62,7 +62,13 @@ string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string g
 
     string genomeIdxDir = fastaRef.removeExt()+"-starIndex"
     if(!genomeIdxDir.exists()) genomeIdxDir.mkdir()
-
+    
+    string[] idxFiles = ["chrLength.txt", "chrNameLength.txt", "chrName.txt", "chrStart.txt", "Genome", "genomeParameters.txt", "SA", "SAindex"]
+    string[] genomeIdxFiles
+    for(string idxFile : idxFiles) {
+        string idxDep = genomeIdxDir + "/" + idxFile
+        genomeIdxFiles.add(idxDep)
+    }
     //string[] refFilesIn 
     //refFilesIn += fastaRef
 
@@ -70,7 +76,8 @@ string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string g
     //if(chkGTF != -1) refFilesIn += gtfFile
 
     //task(genomeIdxDir <- refFilesIn, cpus := threads, taskName := "Making STAR index") {
-    task(!fastaRef.isEmpty(), genomeIdxDir <- fastaRef, cpus := threads, taskName := "Making STAR index") {
+    //task(!fastaRef.isEmpty(), genomeIdxDir <- fastaRef, cpus := threads, taskName := "Making STAR index") {
+    task(!fastaRef.isEmpty(), genomeIdxFiles <- fastaRef, cpus := threads, taskName := "Making STAR index") {
         sys $starExe --runThreadN $threads \
                      --runMode genomeGenerate \
                      --outFileNamePrefix "$refFiles/" \

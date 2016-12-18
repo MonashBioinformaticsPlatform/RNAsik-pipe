@@ -13,11 +13,18 @@ string[] mapSTAR(string{} cmdExe, string bamFiles, string{} fqMap, string starOp
     // BAMs
     string[] bamsList
 
+    string[] idxFiles = ["chrLength.txt", "chrNameLength.txt", "chrName.txt", "chrStart.txt", "Genome", "genomeParameters.txt", "SA", "SAindex"]
+    string[] genomeIdxFiles
+    for(string idxFile : idxFiles) {
+        string idxDep = genomeIdx + "/" + idxFile
+        genomeIdxFiles.add(idxDep)
+    }
+
     for(string rootName : fqMap.keys()) {
         string[] readsList = getReads(fqMap{rootName})
         paired = getPaired(readsList) 
         string[] deps = readsList
-        deps += genomeIdx
+        deps += genomeIdxFiles
 
         string rootBase = rootName.baseName()
         string preFix = bamFiles+"/"+rootBase+"_"
