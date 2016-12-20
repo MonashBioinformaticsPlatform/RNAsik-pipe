@@ -30,7 +30,7 @@ string getMultiqc(string{} cmdExe, string sikDir, string[] allDeps) {
     if(!cmdExe.hasKey("multiqcExe")) error "Can't get multiqc executable, check your config file $configFile"
     string multiqcExe = cmdExe{"multiqcExe"}
     string outdep = sikDir+"/"+"multiqc_report.html"
-    task(multiqc, outdep <- allDeps, taskName := "Generating MultiQC report") {
+    task(multiqc, outdep <- allDeps, canFail := true, taskName := "Generating MultiQC report") {
         sys $multiqcExe $sikDir --outdir $sikDir -f
     }
     return outdep
