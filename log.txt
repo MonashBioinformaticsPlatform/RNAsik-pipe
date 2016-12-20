@@ -5,3 +5,6 @@
 - fixed samplesSheet parser. Instead using `indexOf()` to search for a pattern now use `startsWith()`. Also do `baseName()` on file path, which is the right thing to do. 
 - included star index files as a list of file which are dependencies for indexing step as an ouput files and as input file in star mapping
 - added new logging line to log all Fastq file found in the directory
+- found couple of bugs in sikPrePro.bds and sikExonicRate.bds, both to do with dependencies, all fixed now
+- trying out `canFail := true` option inside a task to enable graceful exit. Should include that statement in number of non essential tasks
+- fixed sik.config
