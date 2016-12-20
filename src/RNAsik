@@ -30,7 +30,6 @@ include "sikCounts.bds"
 include "sikPrePro.bds"
 include "sikQCreports.bds"
 include "sikExonicRate.bds"
-print("Kiz \n")
 //include "sikCleanUp.bds"
 // Check cmd args first up
 string checkCmdInput = checkCmdArgs()
