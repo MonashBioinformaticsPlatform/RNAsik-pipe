@@ -30,6 +30,7 @@ include "sikCounts.bds"
 include "sikPrePro.bds"
 include "sikQCreports.bds"
 include "sikExonicRate.bds"
+print("Kiz \n")
 //include "sikCleanUp.bds"
 // Check cmd args first up
 string checkCmdInput = checkCmdArgs()
@@ -160,7 +161,7 @@ if(paired) {
 string allExonicOpts = getOpts(getOptsMap("qualimap", exonicOpts, extraOpts))
 logit(logFile, "QualiMap additional cmd options", allExonicOpts)
 // get Int(ra|er)genic rates
-string[] exonicRates = getExonicRates(cmdExe, sikDir, bamsList, allExonicOpts, strandInfo, logFile)
+string[] exonicRates = getExonicRates(cmdExe, sikDir, bamsList, allExonicOpts, strandInfo, gtfFile, logFile)
 logit(logFile, "Exonic rates files", parseList(exonicRates))
 // FastQC report
 string{} fastqcOpts = { "--format" => "fastq", \

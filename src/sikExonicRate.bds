@@ -5,7 +5,7 @@ include "sikLog.bds"
 //TODO Don't need to add support for SortedByCoordinates support in sikPrePro.bds because files come out already sorted!
 //TODO do think about this more though !
 
-string[] getExonicRates(string{} cmdExe, string sikDir, string[] bamFiles, string exonicOpts, string strandInfo, string logFile) {
+string[] getExonicRates(string{} cmdExe, string sikDir, string[] bamFiles, string exonicOpts, string strandInfo, string gtfFile, string logFile) {
     string[] qualiResults
     // check if executable is there
     if(!cmdExe.hasKey("qualimapExe")) error "Can't get qualiMap executable, check your config file $configFile"
