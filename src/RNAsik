@@ -94,6 +94,8 @@ if( !align.isEmpty() && genomeIdx.isEmpty() ) {
     genomeIdx = makeSTARindex(cmdExe, refFiles, localFastaRef, localGTF, allIdxOpts, threads)
 } 
 logit(logFile, "STAR genomic index directory", genomeIdx)
+//log if -samplesSheet was used
+if(!samplesSheet.isEmpty()) logit(logFile, "Samples Sheet: Old prefix \\t New prefix", parseMap(config(samplesSheet)))
 // list of fastq files
 string[] fqFiles
 // grab all FASTQ files recursively
