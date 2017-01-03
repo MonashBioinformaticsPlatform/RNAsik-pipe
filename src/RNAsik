@@ -21,11 +21,14 @@
 #----------------------------------------------------------------------------------------------------
 include "sikHeader.bds"
 include "sikSanityCheck.bds"
-include "sikExtraOptions.bds"
+//include "sikExtraOptions.bds"
 include "sikMakeIndices.bds"
 include "sikLog.bds"
 include "sikFqFiles.bds"
-include "sikSTARaligner.bds"
+//include "sikSTARaligner.bds"
+//include "sikHisat2.bds"
+include "sikMapping.bds"
+include "sikIndexing.bds"
 include "sikCounts.bds"
 include "sikPrePro.bds"
 include "sikQCreports.bds"
@@ -82,16 +85,9 @@ logit(logFile, "You are using GFF annotation file", setGFF)
 // get .dict file 
 string fastaDictFile = makeDictFile(cmdExe, localFastaRef)
 logit(logFile, "Picard dictionary file", fastaDictFile)
-// STAR index cmd options
-string{} idxOpts
-if(align == "starWithAnn") idxOpts = {"--sjdbGTFfile" => localGTF, "--sjdbOverhang" => 100 }
-if(setGFF) idxOpts{"--sjdbGTFtagExonParentTranscript"} = "Parent" 
-//
-string allIdxOpts = getOpts(getOptsMap("starIndex", idxOpts, extraOpts))
-logit(logFile, "STAR indexing cmd options", allIdxOpts)
 // get genomeIdx directory
 if( !align.isEmpty() && genomeIdx.isEmpty() ) {
-    genomeIdx = makeSTARindex(cmdExe, refFiles, localFastaRef, localGTF, allIdxOpts, threads)
+    genomeIdx = getIdx(cmdExe, align, setGFF, refFiles, localFastaRef, localGTF, extraOpts, threads, logFile)
 } 
 logit(logFile, "STAR genomic index directory", genomeIdx)
 //log if -samplesSheet was used
@@ -104,17 +100,8 @@ logit(logFile, "Fastq files found in the fqDir directory", parseList(fqFiles))
 string{} fqMap
 if(!fqDir.isEmpty()) fqMap = getFqMap(fqFiles, fqRegex, samplesSheet, extn)
 logit(logFile, "Fastq files grouped by samples", parseFqMap(fqMap))
-// STAR default options
-string{} starOpts = { "--outSAMtype" => "BAM Unsorted", \
-                      "--outSAMunmapped" => "Within"}
-// use right file streaming cmd
-if(extn.endsWith(".gz")) starOpts{"--readFilesCommand"} = "zcat"
-else starOpts{"--readFilesCommand"} = "cat"
-//
-string allSTARopts = getOpts(getOptsMap("STAR", starOpts, extraOpts))
-logit(logFile, "STAR alignment cmd options", allSTARopts)
-//string  list of bam files from STAR run
-string[] bamsList = mapSTAR(cmdExe, bamFiles, fqMap, allSTARopts, genomeIdx, threads, logFile)
+// BAM files
+string[] bamsList = getBams(cmdExe, align, bamFiles, fqMap, extraOpts, genomeIdx, threads, logFile)
 logit(logFile, "BAM files", parseList(bamsList))
 // featureCounts cmd options
 string{} countsOpts = { "-a" => localGTF }
