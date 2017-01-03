@@ -8,3 +8,9 @@
 - found couple of bugs in sikPrePro.bds and sikExonicRate.bds, both to do with dependencies, all fixed now
 - trying out `canFail := true` option inside a task to enable graceful exit. Should include that statement in number of non essential tasks
 - fixed sik.config
+- added samplesSheet logging 
+
+- generalised main RNAsik executable. Replaced specific aligner and indexing functions with generic one from sikMapping.bds and sikIndexing.bds
+- adding three new files one for all the hisat2 stuff and with the other two Im trying to generalise mapping and indexing, so that in future I'd be able to include several other aligners and I'll only need to update sikIndexing and sikMapping files
+- inclusing Hisat2 aligner into pipeline. Added two new variables for hisat2 to sikHeader. Moved makeSTARindex function from sikMakeIndex.bds to sikSTARaligner.bds and also added extra conditionals to star mapping task. Added couple of sanity-checks for hisat2 into sikSanityCheck.bds. Updated sik.config to include hisat2
+- added samplesSheep logging
