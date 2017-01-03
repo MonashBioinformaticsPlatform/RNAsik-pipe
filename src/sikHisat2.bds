@@ -1,0 +1,63 @@
+#------------------------------
+# Hisat2 alignment function
+#------------------------------
+
+include "sikFqFiles.bds"
+
+string makeHisat2Idx(string{} cmdExe, string refFiles, string fastaRef, string gtfFile, string hisat2Opts, int threads) {
+    // get Hisat2 executable 
+    if(!cmdExe.hasKey("hisat2Exe")) error "Can't get Hisat2 executable, check your config file $configFile"
+    string hisat2Exe = cmdExe{"hisat2Exe"}+"-build"
+
+    string genomeIdxDir = fastaRef.removeExt()+"-hisat2Idx"
+    if(!genomeIdxDir.exists()) genomeIdxDir.mkdir()
+    string preFix = genomeIdxDir+"/"+fastaRef.baseName()
+    string idxLog = preFix+".log"
+
+    string[] outs
+
+    string[] genomeIdxFiles
+    for(int i : range(1, 8)) genomeIdxFiles += preFix+".$i.ht2"
+
+    outs += genomeIdxFiles
+    outs += idxLog
+
+    task(!fastaRef.isEmpty() && hisat2Idx, outs <- fastaRef, cpus := threads, taskName := "Making Hisat2 index") {
+        sys $hisat2Exe $fastaRef \
+                       $preFix 2> $idxLog
+    }
+    return preFix
+}
+string[] mapHisat2(string{} cmdExe, string bamFiles, string{} fqMap, string hisat2Opts, string genomeIdx, int threads, string logFile) {
+    // get Hisat2 executable 
+    if(!cmdExe.hasKey("hisat2Exe")) error "Can't get Hisat2 executable, check your config file $configFile"
+    string hisat2Exe = cmdExe{"hisat2Exe"}
+    // BAMs
+    string[] bamsList
+
+    string[] genomeIdxFiles
+    for(int i : range(1, 8)) genomeIdxFiles += genomeIdx+".$i.ht2"
+
+    for(string rootName : fqMap.keys()) {
+        string[] readsList = getReads(fqMap{rootName})
+        paired = getPaired(readsList) 
+        string[] deps = readsList
+        deps += genomeIdxFiles
+
+        string rootBase = rootName.baseName()
+        string bamOut = bamFiles+"/"+rootBase+"_aligned.bam"
+        string bamLog = bamFiles+"/"+rootBase+"_aligned.log"
+        //TODO need to add Read Group
+        //dep(!fqDir.isEmpty(), [bamOut, bamLog] <- deps, cpus := threads, taskName := "Hisat2 aligning "+rootBase) {
+        dep(!fqDir.isEmpty() && align == "hisat2", [bamOut, bamLog] <- deps, cpus := threads, taskName := "Hisat2 aligning "+rootBase) {
+            sys $hisat2Exe -x $genomeIdx \
+                           -1 readsList[0] \
+                           -2 readsList[1] \
+                           --threads 30 2> $bamLog | samtools view -S -b - > $bamOut
+        }
+        bamsList.add(bamOut)
+    }
+    goal bamsList
+    return bamsList
+}
+
