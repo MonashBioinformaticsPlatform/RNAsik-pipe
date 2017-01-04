@@ -21,12 +21,9 @@
 #----------------------------------------------------------------------------------------------------
 include "sikHeader.bds"
 include "sikSanityCheck.bds"
-//include "sikExtraOptions.bds"
 include "sikMakeIndices.bds"
 include "sikLog.bds"
 include "sikFqFiles.bds"
-//include "sikSTARaligner.bds"
-//include "sikHisat2.bds"
 include "sikMapping.bds"
 include "sikIndexing.bds"
 include "sikCounts.bds"
@@ -62,9 +59,7 @@ if((!fastqcReport.exists()) && (fastqc)) fastqcReport.mkdir()
 // Start loging
 string date = sys date
 logit(logFile, ">Starting new RNAsik run", date.trim())
-#------------------------------
-# Parse config file
-#------------------------------
+// Parse config file
 if(!configFile.isEmpty()) logit(logFile, "Config file parameters passed by user", configFile.read())
 else {
     string getProgPath = programPath.pathName()
@@ -80,12 +75,13 @@ logit(logFile, "Referece FASTA file", localFastaRef)
 string localGTF
 if(!gtfFile.isEmpty()) localGTF = makeLocalRef(gtfFile, refFiles, "gtf")
 logit(logFile, "Reference GTF file", localGTF)
+// checking if annoation file is gff
 if(localGTF.extName() == "gff") setGFF = true
 logit(logFile, "You are using GFF annotation file", setGFF)
 // get .dict file 
 string fastaDictFile = makeDictFile(cmdExe, localFastaRef)
 logit(logFile, "Picard dictionary file", fastaDictFile)
-// get genomeIdx directory
+// get genomeIdx 
 if( !align.isEmpty() && genomeIdx.isEmpty() ) {
     genomeIdx = getIdx(cmdExe, align, setGFF, refFiles, localFastaRef, localGTF, extraOpts, threads, logFile)
 } 
@@ -97,27 +93,28 @@ string[] fqFiles
 // grab all FASTQ files recursively
 if(!fqDir.isEmpty()) fqFiles = getFqFiles(fqDir, extn, sikDir)
 logit(logFile, "Fastq files found in the fqDir directory", parseList(fqFiles))
+// map of FASTQ to unique name i.e gathering FASTQ that are split across different lanes
 string{} fqMap
 if(!fqDir.isEmpty()) fqMap = getFqMap(fqFiles, fqRegex, samplesSheet, extn)
 logit(logFile, "Fastq files grouped by samples", parseFqMap(fqMap))
 // BAM files
 string[] bamsList = getBams(cmdExe, align, bamFiles, fqMap, extraOpts, genomeIdx, threads, logFile)
 logit(logFile, "BAM files", parseList(bamsList))
-// featureCounts cmd options
-string{} countsOpts = { "-a" => localGTF }
-if(paired) countsOpts{"-p"} = ""
-string allCountOpts = getOpts(getOptsMap("featureCounts", countsOpts, extraOpts))
-logit(logFile, "featureCounts cmd options", allCountOpts)
-//
+// If user wants to use other parts of the pipeline without generating BAM files
 if(!fqMap && ( (count) || (prePro) || (exonicRate) ) ) {
     warning "No paired information found. Use -paired to indicated paired end data"
     // get bam file from the bamFiles directory
     if(bamFiles.exists()) bamsList = bamFiles.dirPath("*.bam")
     else error "No bam files or bamFiles directory was found. You can pass bam files using -bamFiles /path/to/bamFiles/dir"
 }
-// where BAM had been sorted, reorted and duplicates marked
+// sorted, reorted and marking duplicates in BAM files
 string[] markedBams = getMarkedBams(cmdExe, markedDupsBams, bamsList, localFastaRef, fastaDictFile)
 logit(logFile, "Pre-processed BAM files", parseList(markedBams))
+// featureCounts cmd options
+string{} countsOpts = { "-a" => localGTF }
+if(paired) countsOpts{"-p"} = ""
+string allCountOpts = getOpts(getOptsMap("featureCounts", countsOpts, extraOpts))
+logit(logFile, "featureCounts cmd options", allCountOpts)
 // get counts
 string[] featureCounts = getReadsCount(cmdExe, countFiles, bamsList, allCountOpts, localGTF, threads)
 logit(logFile, "Raw counts from featureCounts", parseList(featureCounts))
