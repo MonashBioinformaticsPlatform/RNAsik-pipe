@@ -17,7 +17,7 @@ string[] getFastqcReport(string{} cmdExe, string fastqcReport, string[] fqFiles,
 
     string fqs = fqFiles.join(" ")
 
-    task(fastqc, fqcDeps <- fqFiles, cpus := threads, taskName := "Running FASTQC") { 
+    task(fastqc, fqcDeps <- fqFiles, canFail := true, cpus := threads, taskName := "Running FASTQC") { 
         sys $fastqcExe --threads $threads \
                        $fqQcOpts \
                        --outdir $fastqcReport \
