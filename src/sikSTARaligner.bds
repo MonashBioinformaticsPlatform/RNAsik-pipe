@@ -29,7 +29,7 @@ string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string g
     task(!fastaRef.isEmpty() && starIdx, genomeIdxFiles <- fastaRef, cpus := threads, taskName := "Making STAR index") {
         sys $starExe --runThreadN $threads \
                      --runMode genomeGenerate \
-                     --outFileNamePrefix "$refFiles/" \
+                     --outFileNamePrefix $refFiles/ \
                      --genomeDir $genomeIdxDir \
                      --genomeFastaFiles $fastaRef \
                      $starOpts
