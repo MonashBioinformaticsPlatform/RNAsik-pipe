@@ -12,7 +12,9 @@ string makeHisat2Idx(string{} cmdExe, string refFiles, string fastaRef, string g
     string genomeIdxDir = fastaRef.removeExt()+"-hisat2Idx"
     if(!genomeIdxDir.exists()) genomeIdxDir.mkdir()
     string preFix = genomeIdxDir+"/"+fastaRef.baseName()
-    string idxLog = preFix+".log"
+    //string idxLog = preFix+".log"
+    string idxStderr = preFix+".stderr"
+    string idxStdout = preFix+".stdout"
 
     string[] outs
 
@@ -20,11 +22,13 @@ string makeHisat2Idx(string{} cmdExe, string refFiles, string fastaRef, string g
     for(int i : range(1, 8)) genomeIdxFiles += preFix+".$i.ht2"
 
     outs += genomeIdxFiles
-    outs += idxLog
+    //outs += idxLog
+    outs += idxStdout
+    outs += idxStderr
 
     task(!fastaRef.isEmpty() && hisat2Idx, outs <- fastaRef, cpus := threads, taskName := "Making Hisat2 index") {
         sys $hisat2Exe $fastaRef \
-                       $preFix 2> $idxLog
+                       $preFix 1> $idxStdout 2> $idxStderr
     }
     return preFix
 }
@@ -51,8 +55,14 @@ string[] mapHisat2(string{} cmdExe, string bamFiles, string{} fqMap, string hisa
         //dep(!fqDir.isEmpty(), [bamOut, bamLog] <- deps, cpus := threads, taskName := "Hisat2 aligning "+rootBase) {
         dep(!fqDir.isEmpty() && align == "hisat2", [bamOut, bamLog] <- deps, cpus := threads, taskName := "Hisat2 aligning "+rootBase) {
             sys $hisat2Exe -x $genomeIdx \
-                           -1 readsList[0] \
-                           -2 readsList[1] \
+                           -1 $readsList[0] \
+                           -2 $readsList[1] \
+                           --rg-id ID:001 \
+                           --rg CN:Unknown \
+                           --rg DS:RNA-seq \
+                           --rg PL:ILLUMINA \
+                           --rg PM:MiSeq \
+                           --rg SM:$rootBase \
                            --threads 30 2> $bamLog | samtools view -S -b - > $bamOut
         }
         bamsList.add(bamOut)

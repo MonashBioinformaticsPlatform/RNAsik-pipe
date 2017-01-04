@@ -7,10 +7,8 @@ string getIdx(string{} cmdExe, string aligner, bool gff, string refFiles, string
     string genomeIdx
     // STAR index cmd options
     string{} starIdxOpts
-    if(align == "starWithAnn")
-        starIdxOpts = {"--sjdbGTFfile" => localGTF, "--sjdbOverhang" => 100 }
-    if(gff)
-        starIdxOpts{"--sjdbGTFtagExonParentTranscript"} = "Parent" 
+    if(align == "starWithAnn") starIdxOpts = {"--sjdbGTFfile" => localGTF, "--sjdbOverhang" => 100 }
+    if(gff) starIdxOpts{"--sjdbGTFtagExonParentTranscript"} = "Parent" 
     string allStarIdxOpts = getOpts(getOptsMap("starIndex", starIdxOpts, userExtraOpts))
     logit(logFile, "STAR indexing cmd options", allStarIdxOpts)
     // Hisat2 index cmd options
