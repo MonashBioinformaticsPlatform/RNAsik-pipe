@@ -26,7 +26,7 @@ string makeHisat2Idx(string{} cmdExe, string refFiles, string fastaRef, string g
     outs += idxStdout
     outs += idxStderr
 
-    task(!fastaRef.isEmpty() && hisat2Idx, outs <- fastaRef, cpus := threads, taskName := "Making Hisat2 index") {
+    task(!fastaRef.isEmpty(), outs <- fastaRef, cpus := threads, taskName := "Making Hisat2 index") {
         sys $hisat2Exe $fastaRef \
                        $preFix 1> $idxStdout 2> $idxStderr
     }
@@ -53,7 +53,7 @@ string[] mapHisat2(string{} cmdExe, string bamFiles, string{} fqMap, string hisa
         string bamLog = bamFiles+"/"+rootBase+"_aligned.log"
         //TODO need to add Read Group
         //dep(!fqDir.isEmpty(), [bamOut, bamLog] <- deps, cpus := threads, taskName := "Hisat2 aligning "+rootBase) {
-        dep(!fqDir.isEmpty() && align == "hisat2", [bamOut, bamLog] <- deps, cpus := threads, taskName := "Hisat2 aligning "+rootBase) {
+        dep(!fqDir.isEmpty(), [bamOut, bamLog] <- deps, cpus := threads, taskName := "Hisat2 aligning "+rootBase) {
             sys $hisat2Exe -x $genomeIdx \
                            -1 $readsList[0] \
                            -2 $readsList[1] \

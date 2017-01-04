@@ -76,7 +76,4 @@ string strand
 # Get general info about tools versions and files used 
 //string generalInfo = getInfo()
 // setting GFF to false, default is GTF format
-bool setGFF = false
-// setting extra index variables, default is false
-bool starIdx
-bool hisat2Idx 
+bool setGFF

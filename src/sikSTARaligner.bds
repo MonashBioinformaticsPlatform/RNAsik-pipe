@@ -25,8 +25,7 @@ string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string g
     //if(chkGTF != -1) refFilesIn += gtfFile
 
     //task(genomeIdxDir <- refFilesIn, cpus := threads, taskName := "Making STAR index") {
-    //task(!fastaRef.isEmpty(), genomeIdxDir <- fastaRef, cpus := threads, taskName := "Making STAR index") {
-    task(!fastaRef.isEmpty() && starIdx, genomeIdxFiles <- fastaRef, cpus := threads, taskName := "Making STAR index") {
+    task(!fastaRef.isEmpty(), genomeIdxFiles <- fastaRef, cpus := threads, taskName := "Making STAR index") {
         sys $starExe --runThreadN $threads \
                      --runMode genomeGenerate \
                      --outFileNamePrefix $refFiles/ \
@@ -69,8 +68,8 @@ string[] mapSTAR(string{} cmdExe, string bamFiles, string{} fqMap, string starOp
         if(checkSorted != -1) bamOut = preFix+"Aligned.sortedByCoord.out.bam"
 
         string reads = readsList.join(" ")
-        //dep(!fqDir.isEmpty(), bamOut <- deps, cpus := threads, taskName := "STAR aligning "+rootBase) {
-        dep(!fqDir.isEmpty() && (align == "star" || align == "starWithAnn"), bamOut <- deps, cpus := threads, taskName := "STAR aligning "+rootBase) {
+        //dep(!fqDir.isEmpty() && (align == "star" || align == "starWithAnn"), bamOut <- deps, cpus := threads, taskName := "STAR aligning "+rootBase) {
+        dep(!fqDir.isEmpty(), bamOut <- deps, cpus := threads, taskName := "STAR aligning "+rootBase) {
             sys $starExe --runThreadN $threads \
                          --runMode alignReads \
                          --genomeDir $genomeIdx \
