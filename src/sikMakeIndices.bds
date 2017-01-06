@@ -55,31 +55,6 @@ string makeLocalRef(string refFile, string refDir, string fileType) {
     else localRef = copyFile(refFile, refDir, fileType)
     return localRef
 }
-string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string gtfFile, string starOpts, int threads) {
-    // get STAR executable 
-    if(!cmdExe.hasKey("starExe")) error "Can't get STAR executable, check your config file $configFile"
-    string starExe = cmdExe{"starExe"}
-
-    string genomeIdxDir = fastaRef.removeExt()+"-starIndex"
-    if(!genomeIdxDir.exists()) genomeIdxDir.mkdir()
-
-    //string[] refFilesIn 
-    //refFilesIn += fastaRef
-
-    //int chkGTF = starOpts.indexOf("--sjdbGTFfile")
-    //if(chkGTF != -1) refFilesIn += gtfFile
-
-    //task(genomeIdxDir <- refFilesIn, cpus := threads, taskName := "Making STAR index") {
-    task(!fastaRef.isEmpty(), genomeIdxDir <- fastaRef, cpus := threads, taskName := "Making STAR index") {
-        sys $starExe --runThreadN $threads \
-                     --runMode genomeGenerate \
-                     --outFileNamePrefix "$refFiles/" \
-                     --genomeDir $genomeIdxDir \
-                     --genomeFastaFiles $fastaRef \
-                     $starOpts
-    }
-    return genomeIdxDir
-}
 // make dictionary for picard pre-processing
 string makeDictFile(string{} cmdExe, string fastaRef) {
     if(!cmdExe.hasKey("picardExe")) error "Can't get picard executable, check your config file $configFile"

@@ -25,3 +25,8 @@ string parseList(string[] items) {
     for(string item : items) out += " - "+item+"\n"
     return out
 }
+string parseMap(string{} simpleMap) {
+    string out
+    for(string item : simpleMap.keys()) out += " - "+item+" = "+simpleMap{item}+"\n"
+    return out
+}

@@ -16,7 +16,7 @@ string[] getMarkedBams(string{} cmdExe, string markedDupsBams, string[] bamFiles
         string mdupsName = reorderedName.swapExt(".bam", "_marked_dups.bam")
         string metricsName = reorderedName.swapExt(".bam", "_marked_dups.metrics")
 
-        dep(prePro, [mdupsName, metricsName] <- bamFile, cpus := 6, taskName := "picard sorting "+bamFile) {
+        dep(prePro, [mdupsName, metricsName] <- [bamFile, fastaDictFile], cpus := 6, taskName := "picard sorting "+bamFile) {
             sys $picardExe SortSam TMP_DIR=tmp/ \
                                    VALIDATION_STRINGENCY=LENIENT \
                                    CREATE_INDEX=true \

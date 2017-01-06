@@ -46,8 +46,8 @@ string getKey(string fq, string samplesSheet) {
     string[] prefixes = samples.keys()
     prefixes = prefixes.sort().reverse()
     for(string prefix : prefixes) {
-        string idx = fq.indexOf(prefix)
-        if(idx != -1) return samples{prefix}
+        bool chk = fq.baseName().startsWith(prefix)
+        if(chk) return samples{prefix}
     }
     error "No prefix was found for this $fq file"
 }
@@ -88,9 +88,14 @@ string{} getFqMap(string[] fqFiles, string fqRegex, string samplesSheet, string 
     string{} fqMap
     // loop over FASTQ files
     for(string fq : fqFiles) {
-        string rootName = getRootName(fq, fqRegex, samplesSheet, extn)
-        if(!fqMap.hasKey(rootName)) fqMap{rootName}=""
-        fqMap{rootName}+=fq+","
+	// sometimes fastq directory also holds indices files
+        // don't use those index files !
+	int chkIdxFile = fq.lastIndexOf("_I1")
+ 	if(chkIdxFile == -1) {
+            string rootName = getRootName(fq, fqRegex, samplesSheet, extn)
+            if(!fqMap.hasKey(rootName)) fqMap{rootName}=""
+            fqMap{rootName}+=fq+","
+        }
     }
     return fqMap
 }

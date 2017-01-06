@@ -8,7 +8,8 @@ include "sikMakeIndices.bds"
 // only call this function is -align isn't empty
 string chkAlignArgs() {
     string[] alignArgs = ["star", \
-                        "starWithAnn" \
+                        "starWithAnn", \
+                        "hisat2" \
                        ]
    if(!alignArgs.has(align)) error "Not a valid option for -align $align. Check your input parameter"
    return "thumbs up"
@@ -76,7 +77,7 @@ if(!fqDir.isEmpty()) {
 } 
 if( !align.isEmpty() && genomeIdx.isEmpty() ) {
     if(fastaRef.isEmpty()) error "You need to either specify -genomeIdx or -fastaRef"
-} 
+}
 if(align == "starWithAnn" && gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
 if(fastqc && fqDir.isEmpty()) error "Usage: -fqDir /path/to/FASTQ/files"
 if(count) if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"

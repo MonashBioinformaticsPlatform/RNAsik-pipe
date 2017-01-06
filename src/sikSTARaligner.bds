@@ -4,6 +4,38 @@
 
 include "sikFqFiles.bds"
 
+string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string gtfFile, string starOpts, int threads) {
+    // get STAR executable 
+    if(!cmdExe.hasKey("starExe")) error "Can't get STAR executable, check your config file $configFile"
+    string starExe = cmdExe{"starExe"}
+
+    string genomeIdxDir = fastaRef.removeExt()+"-starIndex"
+    if(!genomeIdxDir.exists()) genomeIdxDir.mkdir()
+    
+    string[] idxFiles = ["chrLength.txt", "chrNameLength.txt", "chrName.txt", "chrStart.txt", "Genome", "genomeParameters.txt", "SA", "SAindex"]
+    string[] genomeIdxFiles
+    for(string idxFile : idxFiles) {
+        string idxDep = genomeIdxDir + "/" + idxFile
+        genomeIdxFiles.add(idxDep)
+    }
+    //string[] refFilesIn 
+    //refFilesIn += fastaRef
+
+    //int chkGTF = starOpts.indexOf("--sjdbGTFfile")
+    //if(chkGTF != -1) refFilesIn += gtfFile
+
+    //task(genomeIdxDir <- refFilesIn, cpus := threads, taskName := "Making STAR index") {
+    task(!fastaRef.isEmpty(), genomeIdxFiles <- fastaRef, cpus := threads, taskName := "Making STAR index") {
+        sys $starExe --runThreadN $threads \
+                     --runMode genomeGenerate \
+                     --outFileNamePrefix $refFiles/ \
+                     --genomeDir $genomeIdxDir \
+                     --genomeFastaFiles $fastaRef \
+                     $starOpts
+    }
+    return genomeIdxDir
+}
+
 string[] mapSTAR(string{} cmdExe, string bamFiles, string{} fqMap, string starOpts, string genomeIdx, int threads, string logFile) {
     // double check
     //if(!fqMap) error "This error shouldn't occur. It should be caught earlier. Either way fqMap is empty $fqMap"
@@ -13,11 +45,18 @@ string[] mapSTAR(string{} cmdExe, string bamFiles, string{} fqMap, string starOp
     // BAMs
     string[] bamsList
 
+    string[] idxFiles = ["chrLength.txt", "chrNameLength.txt", "chrName.txt", "chrStart.txt", "Genome", "genomeParameters.txt", "SA", "SAindex"]
+    string[] genomeIdxFiles
+    for(string idxFile : idxFiles) {
+        string idxDep = genomeIdx + "/" + idxFile
+        genomeIdxFiles.add(idxDep)
+    }
+
     for(string rootName : fqMap.keys()) {
         string[] readsList = getReads(fqMap{rootName})
         paired = getPaired(readsList) 
         string[] deps = readsList
-        deps += genomeIdx
+        deps += genomeIdxFiles
 
         string rootBase = rootName.baseName()
         string preFix = bamFiles+"/"+rootBase+"_"
@@ -29,6 +68,7 @@ string[] mapSTAR(string{} cmdExe, string bamFiles, string{} fqMap, string starOp
         if(checkSorted != -1) bamOut = preFix+"Aligned.sortedByCoord.out.bam"
 
         string reads = readsList.join(" ")
+        //dep(!fqDir.isEmpty() && (align == "star" || align == "starWithAnn"), bamOut <- deps, cpus := threads, taskName := "STAR aligning "+rootBase) {
         dep(!fqDir.isEmpty(), bamOut <- deps, cpus := threads, taskName := "STAR aligning "+rootBase) {
             sys $starExe --runThreadN $threads \
                          --runMode alignReads \

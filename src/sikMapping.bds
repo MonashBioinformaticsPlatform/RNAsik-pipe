@@ -1,0 +1,25 @@
+include "sikSTARaligner.bds"
+include "sikHisat2.bds"
+include "sikLog.bds"
+
+string[] getBams(string{} cmdExe, string aligner, string bamsDir, string{} fqMap, string userExtraOpts, string genomeIdx, int threads, string logFile) {
+    string[] bamsList
+    // STAR default options
+    string{} starOpts = { "--outSAMtype" => "BAM Unsorted", \
+                          "--outSAMunmapped" => "Within"}
+    // use right file streaming cmd
+    if(extn.endsWith(".gz")) starOpts{"--readFilesCommand"} = "zcat"
+    else starOpts{"--readFilesCommand"} = "cat"
+    // Hisat2 default options
+    string{} hisat2Opts = {}
+    // Get all options and log them
+    string allSTARopts = getOpts(getOptsMap("STAR", starOpts, userExtraOpts))
+    logit(logFile, "STAR alignment cmd options", allSTARopts)
+    string allHisat2Opts = getOpts(getOptsMap("Hisat2", hisat2Opts, userExtraOpts))
+    logit(logFile, "Hisat2 alignment cmd options", allHisat2Opts)
+    // Run the right aligner
+    if(aligner.indexOf("star") != -1) bamsList = mapSTAR(cmdExe, bamsDir, fqMap, allSTARopts, genomeIdx, threads, logFile)
+    if(aligner.indexOf("hisat2") != -1) bamsList = mapHisat2(cmdExe, bamsDir, fqMap, allHisat2Opts, genomeIdx, threads, logFile)
+
+    return bamsList
+}

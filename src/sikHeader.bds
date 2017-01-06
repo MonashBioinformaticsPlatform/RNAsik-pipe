@@ -11,7 +11,7 @@ help #------------------------
 help RNAsik-pipe version 1.4.5
 help #------------------------
 help #----------------------------
-help Usage: RNAsik-pipe [options]
+help Usage: RNAsik [options]
 help #----------------------------
 help #---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 help Example_1: RNAsik -align star -fastaRef /path/to/your/refFile.fa
@@ -76,4 +76,4 @@ string strand
 # Get general info about tools versions and files used 
 //string generalInfo = getInfo()
 // setting GFF to false, default is GTF format
-bool setGFF = false
+bool setGFF
