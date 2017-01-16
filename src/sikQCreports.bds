@@ -34,7 +34,7 @@ string getMultiqc(string{} cmdExe, string sikDir, string[] allDeps, string multi
     task(multiqc, outdep <- allDeps, canFail := true, taskName := "Generating MultiQC report") {
         sys $multiqcExe $sikDir \
                         --outdir $sikDir \
-                        $multiqcOpts
+                        $multiqcOpts \
                         -f
     }
     return outdep
