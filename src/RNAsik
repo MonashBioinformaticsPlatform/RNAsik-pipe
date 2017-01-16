@@ -166,7 +166,15 @@ if(count) multiqcDeps += degust
 if(fastqc) multiqcDeps += fqQcReport
 if(exonicRate) multiqcDeps += exonicRates
 logit(logFile, "MultiQC dependency files", parseList(multiqcDeps))
-string qcReport = getMultiqc(cmdExe, sikDir, multiqcDeps)
+
+string{} multiqcOpts = {}
+
+if(cmdExe.hasKey("multiqcConfig")) {
+    multiqcOpts{"--config"} = cmdExe{"multiqcConfig"}
+}
+
+string allMultiqcOpts = getOpts(getOptsMap("multiqc", multiqcOpts, extraOpts))
+string qcReport = getMultiqc(cmdExe, sikDir, multiqcDeps, allMultiqcOpts)
 logit(logFile, "Multiqc will run on this directory", qcReport)
 #----------------------------------------------------------------------------------------------------
 # End
