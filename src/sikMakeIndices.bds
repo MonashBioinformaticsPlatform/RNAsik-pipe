@@ -22,8 +22,10 @@ string chkFileExtn(string fileName, string fileType) {
     if(fileType == "gtf") {
         extns = ["gtf", \
                  "gff", \
+                 "gff3", \
                  "gtf.gz", \
                  "gff.gz" \
+                 "gff3.gz" \
                 ]
     }
     
