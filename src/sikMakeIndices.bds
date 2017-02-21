@@ -24,7 +24,7 @@ string chkFileExtn(string fileName, string fileType) {
                  "gff", \
                  "gff3", \
                  "gtf.gz", \
-                 "gff.gz" \
+                 "gff.gz", \
                  "gff3.gz" \
                 ]
     }
