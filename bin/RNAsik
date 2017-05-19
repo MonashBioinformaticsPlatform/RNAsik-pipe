@@ -1,0 +1,3 @@
+#!/bin/bash
+
+bds -log -reportHtml ../src/RNAsik

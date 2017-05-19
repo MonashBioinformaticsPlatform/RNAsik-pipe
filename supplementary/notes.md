@@ -39,3 +39,7 @@ RNA_1_C6HCPANXX_TGACCAAT_L003_R2.fastq.gz
 RNA_1_C6HCPANXX_TGACCAAT_L004_R1.fastq.gz
 RNA_1_C6HCPANXX_TGACCAAT_L004_R2.fastq.gz
 
+
+## Useful links to other pipelines
+
+- http://gkno.me/
