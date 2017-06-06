@@ -97,7 +97,7 @@ string{} fqMap
 if(!fqDir.isEmpty()) fqMap = getFqMap(fqFiles, fqRegex, samplesSheet, extn)
 logit(logFile, "Fastq files grouped by samples", parseFqMap(fqMap))
 // BAM files
-string[] bamsList = getBams(cmdExe, align, bamFiles, fqMap, extraOpts, genomeIdx, threads, logFile)
+string[] bamsList = getBams(cmdExe, align, bamFiles, fqMap, extraOpts, genomeIdx, threads, memory, logFile)
 logit(logFile, "BAM files", parseList(bamsList))
 // If user wants to use other parts of the pipeline without generating BAM files
 if(!fqMap && ( (count) || (prePro) || (exonicRate) ) ) {

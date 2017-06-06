@@ -60,7 +60,8 @@ help Other options
 string outDir       help specify name of your analysis directory [sikRun]
 bool prePro         help this does additional preprocessing of your bam files such as sorting and marking duplicates.
 int threads = 4     help specify number of threads to use. This number will be used for STAR genome indexing\
-                         and STAR raed alignment as well as for featureCounts, default [1]
+                         and STAR raed alignment as well as for featureCounts, default [4]
+int memory = 40000000000 help specify amount of memory in bytes, default [40000000000]
 string extn = ".fastq.gz"        help optional, specify your files extension default [.fastq.gz]
 string extraOpts help You can add extra option to any of the tools using args.txt file, where name of your tool and options you are passing in separated by "=" sign. Make new line for each tool  sign. \
                    e.g STAR = --outSAMtype BAM Unsorted, --outReadsUnmapped Fastx \

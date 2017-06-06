@@ -36,7 +36,7 @@ string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string g
     return genomeIdxDir
 }
 
-string[] mapSTAR(string{} cmdExe, string bamFiles, string{} fqMap, string starOpts, string genomeIdx, int threads, string logFile) {
+string[] mapSTAR(string{} cmdExe, string bamFiles, string{} fqMap, string starOpts, string genomeIdx, int threads, int memory, string logFile) {
     // double check
     //if(!fqMap) error "This error shouldn't occur. It should be caught earlier. Either way fqMap is empty $fqMap"
     // get STAR executable 
@@ -68,8 +68,7 @@ string[] mapSTAR(string{} cmdExe, string bamFiles, string{} fqMap, string starOp
         if(checkSorted != -1) bamOut = preFix+"Aligned.sortedByCoord.out.bam"
 
         string reads = readsList.join(" ")
-        //dep(!fqDir.isEmpty() && (align == "star" || align == "starWithAnn"), bamOut <- deps, cpus := threads, taskName := "STAR aligning "+rootBase) {
-        dep(!fqDir.isEmpty(), bamOut <- deps, cpus := threads, taskName := "STAR aligning "+rootBase) {
+        dep(!fqDir.isEmpty(), bamOut <- deps, cpus := threads, mem := memory, taskName := "STAR aligning "+rootBase) {
             sys $starExe --runThreadN $threads \
                          --runMode alignReads \
                          --genomeDir $genomeIdx \
@@ -79,11 +78,6 @@ string[] mapSTAR(string{} cmdExe, string bamFiles, string{} fqMap, string starOp
                          $starOpts
                      
         }
-        //wait
-        // you can remove wait statement and reduce number of threads
-        // however this will run all your fastq files in parallel
-        // doing this I find a bit impractical on our server because of
-        // limited RAM - only 128 Gb
         bamsList.add(bamOut)
     }
     goal bamsList
