@@ -1,4 +1,4 @@
 #!/bin/bash
 
 sik_origin=`dirname "${BASH_SOURCE[0]}"`
-bds -log -reportHtml "${sik_origin}"/../src/RNAsik "$@"
+bds -log -reportHtml "${sik_origin}"/../src/RNAsik.bds "$@"
