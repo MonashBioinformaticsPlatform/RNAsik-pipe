@@ -1,0 +1,4 @@
+---
+
+extra_fn_clean_exts:
+    - _sorted

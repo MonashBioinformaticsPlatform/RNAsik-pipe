@@ -62,7 +62,7 @@ logit(logFile, ">Starting new RNAsik run", date.trim())
 if(!configFile.isEmpty()) logit(logFile, "Config file parameters passed by user", configFile.read())
 else {
     string getProgPath = programPath.pathName()
-    configFile = getProgPath+"/../sik.config"
+    configFile = getProgPath+"/../configs/sik.config"
     logit(logFile, "Paths to the executables", configFile.read())
 }
 string{} cmdExe = config(configFile)
@@ -168,10 +168,13 @@ logit(logFile, "MultiQC dependency files", parseList(multiqcDeps))
 
 string{} multiqcOpts = {}
 
+// check that they key exist, but it does with default value EMPTY ("")
 if(cmdExe.hasKey("multiqcConfig")) {
-    multiqcOpts{"--config"} = cmdExe{"multiqcConfig"}
+	print(cmdExe{"multiqcConfig"})
+    // also need to check if config value isn't empty
+    if(cmdExe{"multiqcConfig"} != "") multiqcOpts{"--config"} = cmdExe{"multiqcConfig"}
 }
-
+print("$multiqcOpts\n")
 string allMultiqcOpts = getOpts(getOptsMap("multiqc", multiqcOpts, extraOpts))
 string qcReport = getMultiqc(cmdExe, sikDir, multiqcDeps, allMultiqcOpts)
 logit(logFile, "Multiqc will run on this directory", qcReport)
