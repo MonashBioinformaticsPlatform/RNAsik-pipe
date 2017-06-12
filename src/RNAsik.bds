@@ -1,4 +1,3 @@
-#!/usr/bin/env bds
 
 #----------------------------------------------------------------------------------------------------
 # RNAsik is fully sick way to get from FASTQ to list of counts, ready to load Degust file and more !
@@ -63,7 +62,7 @@ logit(logFile, ">Starting new RNAsik run", date.trim())
 if(!configFile.isEmpty()) logit(logFile, "Config file parameters passed by user", configFile.read())
 else {
     string getProgPath = programPath.pathName()
-    configFile = getProgPath+"/../sik.config"
+    configFile = getProgPath+"/../configs/sik.config"
     logit(logFile, "Paths to the executables", configFile.read())
 }
 string{} cmdExe = config(configFile)
@@ -98,7 +97,7 @@ string{} fqMap
 if(!fqDir.isEmpty()) fqMap = getFqMap(fqFiles, fqRegex, samplesSheet, extn)
 logit(logFile, "Fastq files grouped by samples", parseFqMap(fqMap))
 // BAM files
-string[] bamsList = getBams(cmdExe, align, bamFiles, fqMap, extraOpts, genomeIdx, threads, logFile)
+string[] bamsList = getBams(cmdExe, align, bamFiles, fqMap, extraOpts, genomeIdx, threads, memory, logFile)
 logit(logFile, "BAM files", parseList(bamsList))
 // If user wants to use other parts of the pipeline without generating BAM files
 if(!fqMap && ( (count) || (prePro) || (exonicRate) ) ) {
@@ -166,7 +165,18 @@ if(count) multiqcDeps += degust
 if(fastqc) multiqcDeps += fqQcReport
 if(exonicRate) multiqcDeps += exonicRates
 logit(logFile, "MultiQC dependency files", parseList(multiqcDeps))
-string qcReport = getMultiqc(cmdExe, sikDir, multiqcDeps)
+
+string{} multiqcOpts = {}
+
+// check that they key exist, but it does with default value EMPTY ("")
+if(cmdExe.hasKey("multiqcConfig")) {
+	print(cmdExe{"multiqcConfig"})
+    // also need to check if config value isn't empty
+    if(cmdExe{"multiqcConfig"} != "") multiqcOpts{"--config"} = cmdExe{"multiqcConfig"}
+}
+print("$multiqcOpts\n")
+string allMultiqcOpts = getOpts(getOptsMap("multiqc", multiqcOpts, extraOpts))
+string qcReport = getMultiqc(cmdExe, sikDir, multiqcDeps, allMultiqcOpts)
 logit(logFile, "Multiqc will run on this directory", qcReport)
 #----------------------------------------------------------------------------------------------------
 # End

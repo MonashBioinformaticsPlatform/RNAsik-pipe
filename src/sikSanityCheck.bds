@@ -30,6 +30,7 @@ string checkCmdArgs() {
                         "-exonicRate", \
                         "-strand", \
                         "-threads", \
+                        "-memory", \
                         "-extn", \
                         "-samplesSheet", \
                         "-extraOpts", \
@@ -87,6 +88,7 @@ if(!configFile.isEmpty()) if(!configFile.isFile()) error "-configFile doesn't ap
 if(!genomeIdx.isEmpty()) if(!genomeIdx.isDir()) error "-genomeIdx doesn't point to valid directory, check your path to $genomeIdx"
 if( (!fastaRef.isEmpty()) && (!fastaRef.isFile()) ) error "Check your path to fasta file. It dosen't point to a file. $fastaRef"
 if( (!gtfFile.isEmpty()) && (!gtfFile.isFile()) ) error "Check your path to gtf file. It dosen't point to a file. $gtfFile"
+if(memory < 32000000000) error "Don't set memory less then 32 Gb since STAR requires at least that amount"
 
 if( args.isEmpty() ) {
     printHelp()
