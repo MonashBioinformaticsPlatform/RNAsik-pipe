@@ -8,22 +8,21 @@ string[] getFastqcReport(string{} cmdExe, string fastqcReport, string[] fqFiles,
     string fastqcExe = cmdExe{"fastqcExe"}
     if( (fqFiles.isEmpty()) && (fastqc) ) error "No FASTQ files found, use -fqDir /path/to/fastq/dir."
 
+    string[] fqHtmls
+
     string preFix = "_fastqc.html"
-    string[] fqcDeps
+
     for(string fq : fqFiles) {
         string rootName = fq.baseName().removeExt(extn)
-        fqcDeps.add(fastqcReport+"/"+rootName+preFix)
-    }
+        string fqHtml = fastqcReport+"/"+rootName+preFix
 
-    string fqs = fqFiles.join(" ")
-
-    task(fastqc, fqcDeps <- fqFiles, canFail := true, cpus := threads, taskName := "Running FASTQC") { 
-        sys $fastqcExe --threads $threads \
-                       $fqQcOpts \
-                       --outdir $fastqcReport \
-                       $fqs
+        dep(fastqc, fqHtml <- fq, cpus := threads, taskName := "Running FASTQC") { 
+            sys $fastqcExe $fqQcOpts --outdir $fastqcReport $fq
+        }
+        fqHtmls.add(fqHtml)
     }
-    return fqcDeps
+    goal fqHtmls
+    return fqHtmls
 }
 //
 string getMultiqc(string{} cmdExe, string sikDir, string[] allDeps, string multiqcOpts) {

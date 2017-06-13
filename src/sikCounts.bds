@@ -54,8 +54,8 @@ string[] getReadsCount(string{} cmdExe, string countFiles, string[] bamsList, st
     for(int i : range(0, 2)) {
         string countsName = countFiles+"/"+featureFiles[i]
         featureOut.add(countsName)
-        dep(count, countsName <- allDeps, cpus := threads, taskName := "Counting features $countsName") {
-            sys $countsExe -T $threads \
+        dep(count, countsName <- allDeps, taskName := "Counting features $countsName") {
+            sys $countsExe -T 4 \
                            -s $i \
                            $extraOpts \
                            -o $countsName \

@@ -13,7 +13,7 @@ help Usage: RNAsik -fqDir </path/to/your/fastqs> [options]
 help main
 
 string fqDir        help path to FASTQ directory, can be nested
-string align        help pick your aligner [star|hisat]
+string align        help pick your aligner [star|hisat|bwa]
 string fastaRef     help path to refFile.fa
 string samplesSheet help tab delimited file [old_prefix \t new_prefix]
 bool paired         help paired end data [false]

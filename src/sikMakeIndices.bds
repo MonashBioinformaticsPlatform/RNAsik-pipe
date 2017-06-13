@@ -14,9 +14,11 @@ string chkFileExtn(string fileName, string fileType) {
     string[] extns 
     if(fileType == "fasta") {
         extns = ["fa", \
-                 "fasta", \
                  "fa.gz", \
-                 "fasta.gz" \
+                 "fasta", \
+                 "fasta.gz", \
+                 "fna", \
+                 "fna.gz" \
                 ]
     }
     if(fileType == "gtf") {

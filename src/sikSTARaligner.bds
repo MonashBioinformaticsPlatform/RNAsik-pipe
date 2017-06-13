@@ -78,7 +78,7 @@ string[] mapSTAR(string{} cmdExe, string bamFiles, string{} samplesMap, string p
                          $starOpts
                      
         }
-        sikLoger(".log/bams.txt", bamOut)
+        sikLoger(bamFiles+"/.log/bams.txt", bamOut)
         bamsList.add(bamOut)
     }
     goal bamsList

@@ -42,10 +42,10 @@ if((!fastqcReport.exists()) && (fastqc)) fastqcReport.mkdir()
 string date = sys date
 logit(logFile, ">Starting new RNAsik run", date.trim())
 // Parse config file
+string sikProgPath = programPath.pathName()
 if(!configFile.isEmpty()) logit(logFile, "Config file parameters passed by user", configFile.read())
 else {
-    string getProgPath = programPath.pathName()
-    configFile = getProgPath+"/../configs/sik.config"
+    configFile = sikProgPath+"/../configs/sik.config"
     logit(logFile, "Paths to the executables", configFile.read())
 }
 string{} cmdExe = config(configFile)
@@ -64,7 +64,7 @@ logit(logFile, "You are using GFF annotation file", setGFF)
 string fastaDictFile = makeDictFile(cmdExe, localFastaRef)
 logit(logFile, "Picard dictionary file", fastaDictFile)
 // get genomeIdx 
-if( !align.isEmpty() && genomeIdx.isEmpty() ) {
+if(!align.isEmpty() && genomeIdx.isEmpty()) {
     genomeIdx = getIdx(cmdExe, align, setGFF, refFiles, localFastaRef, localGTF, extraOpts, threads, logFile)
 } 
 logit(logFile, "STAR genomic index directory", genomeIdx)
@@ -148,15 +148,8 @@ if(fastqc) multiqcDeps += fqQcReport
 if(exonicRate) multiqcDeps += exonicRates
 logit(logFile, "MultiQC dependency files", parseList(multiqcDeps))
 
-string{} multiqcOpts = {}
+string{} multiqcOpts = {"--config" => sikProgPath+"/../configs/multiqc_conf.yml"}
 
-// check that they key exist, but it does with default value EMPTY ("")
-if(cmdExe.hasKey("multiqcConfig")) {
-	print(cmdExe{"multiqcConfig"})
-    // also need to check if config value isn't empty
-    if(cmdExe{"multiqcConfig"} != "") multiqcOpts{"--config"} = cmdExe{"multiqcConfig"}
-}
-print("$multiqcOpts\n")
 string allMultiqcOpts = getOpts(getOptsMap("multiqc", multiqcOpts, extraOpts))
 string qcReport = getMultiqc(cmdExe, sikDir, multiqcDeps, allMultiqcOpts)
 logit(logFile, "Multiqc will run on this directory", qcReport)

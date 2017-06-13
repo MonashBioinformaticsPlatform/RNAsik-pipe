@@ -9,7 +9,8 @@ include "sikMakeIndices.bds"
 string chkAlignArgs() {
     string[] alignArgs = ["star", \
                         "starWithAnn", \
-                        "hisat2" \
+                        "hisat2", \
+                        "bwa"  \
                        ]
    if(!alignArgs.has(align)) error "Not a valid option for -align $align. Check your input parameter"
    return "thumbs up"

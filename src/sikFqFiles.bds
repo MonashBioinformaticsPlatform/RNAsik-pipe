@@ -57,8 +57,9 @@ string{} getSamplesMap(string[] fqFiles,  string samplesSheet) {
 	    for(string prefix : prefixes) {
     	        if(fq.baseName().startsWith(prefix)) {
 		    noPrefix = false
-		    if(!samplesMap.hasKey(prefix)) samplesMap{prefix} = ""
-            	    samplesMap{prefix} += fq+","
+		    string myKey = samples{prefix}
+		    if(!samplesMap.hasKey(myKey)) samplesMap{myKey} = ""
+            	    samplesMap{myKey} += fq+","
                 }
     	    }
 
