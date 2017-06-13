@@ -21,7 +21,6 @@ string checkCmdArgs() {
     // list of allowed command line options
     string[] sikArgs = ["-align", \
                         "-fqDir", \
-                        "-fqRegex", \
                         "-genomeIdx", \
                         "-count", \
                         "-gtfFile", \
@@ -55,13 +54,6 @@ string checkCmdArgs() {
         }
     }
     return "thumbs up"
-}
-// if regex string was given, be sure to set the right regex
-if(!fqRegex.isEmpty()){
-    if(fqRegex == "A") fqRegex = "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"
-    if(fqRegex == "B") fqRegex = "_L[0-9]{3}_R[0-9].fastq.gz$"
-    if(fqRegex == "C") fqRegex = "_R[0-9]_[0-9]{3}.fastq.gz$"
-    if(fqRegex == "D") fqRegex = "_R[0-9].fastq.gz$"
 }
 // assign strand
 if(!strand.isEmpty()) {

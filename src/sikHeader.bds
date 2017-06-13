@@ -12,7 +12,7 @@ help Usage: RNAsik -fqDir </path/to/your/fastqs> [options]
 
 help main
 
-string fqDir        help path to FASTQ directory, can be nested
+string fqDir        help path to fastqs directory, can be nested
 string align        help pick your aligner [star|hisat|bwa]
 string fastaRef     help path to refFile.fa
 string samplesSheet help tab delimited file [old_prefix \t new_prefix]
@@ -22,23 +22,18 @@ string gtfFile      help path to refFile.gtf
 
 help other
 
-bool fastqc         help do FastQC reports
+string genomeIdx    help genome index
+bool fastqc         help do FastQC reports [fastqc]
 bool exonicRate     help do Int(ra|er)genic rates [qualiMap]
-bool multiqc        help do MultiQC report
+bool multiqc        help do MultiQC report [multiqc]
 bool prePro         help sort and mark duplicates [picard]
-string genomeIdx    help genome index for the coresponding species
-string outDir       help output director name [sikRun]
+string outDir       help output directory [sikRun]
 int threads = 4     help number of threads [4]
 int memory = 40000000000 help amount of memory in bytes [40000000000]
 
 string extn = ".fastq.gz"        #help specify FASTQ files extension [.fastq.gz]
 string pairIds = "_R1,_R2"
 
-string fqRegex      #help select regex option that resembles your common fastq file ending \
-                    #                       A: "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"\
-                    #                       B: "_L[0-9]{3}_R[0-9].fastq.gz$"\
-                    #                       C: "_R[0-9]_[0-9]{3}.fastq.gz$"\
-                    #                       D: "_R[0-9].fastq.gz$" \
 string extraOpts #help You can add extra option to any of the tools using args.txt file, where name of your tool and options you are passing in separated by "=" sign. Make new line for each tool  sign. \
                  #  e.g STAR = --outSAMtype BAM Unsorted, --outReadsUnmapped Fastx \
                  #      starIndex = --sjdbGTFfile /path/to/GTF/file, --sjdbOverhang 99 \
