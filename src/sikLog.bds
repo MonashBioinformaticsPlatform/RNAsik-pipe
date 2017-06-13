@@ -30,3 +30,15 @@ string parseMap(string{} simpleMap) {
     for(string item : simpleMap.keys()) out += " - "+item+" = "+simpleMap{item}+"\n"
     return out
 }
+
+string sikLoger(string logFile, string content) {
+    string logDir = logFile.dirName()
+    string prevContent
+    if(!logDir.exists()) logDir.mkdir()
+    if(logFile.exists()) prevContent = logFile.read()
+    else prevContent = content
+    prevContent += content
+    prevContent += "\n"
+    logFile.write(prevContent)
+    return "logged"
+}

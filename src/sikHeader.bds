@@ -7,74 +7,46 @@
 #------------------------------
 helpUnsorted := true
 
-help #------------------------
-help RNAsik-pipe version 1.4.7
-help #------------------------
-help #----------------------------
-help Usage: RNAsik [options]
-help #----------------------------
-help #---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-help Example_1: RNAsik -align star -fastaRef /path/to/your/refFile.fa
-help Example_2: RNAsik -align star -fastaRef /path/to/your/refFile.fa -fqDir /path/to/your/FASTQ/directory
-help Example_3: RNAsik -align star -fastaRef /path/to/your/refFile.fa -fqDir /path/to/your/FASTQ/directory -samplesSheet yourSamplesSheet.txt
-help Example_4: RNAsik -count -gtfFile path/to/your/refFile.gtf
-help Example_5: RNAsik -align star -fastaRef /path/to/your/refFile.fa -fqDir /path/to/your/FASTQ/directory -samplesSheet yourSamplesSheet.txt -count -gtfFile path/to/your/refFile.gtf
-help #---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+help RNAsik version 1.4.7
+help Usage: RNAsik -fqDir </path/to/your/fastqs> [options]
 
-help Read alignment and index generation:
+help main
 
-string align        help specify your aligner of choice for the alignment OR use "Idx" postfix to indicate index generation only: \
-                                          - star # most generic, will do both index generation (if required) and alignment\
-                                          - starWithAnn # will generate index if required and do alignment utilising annotation file for better splice junctions handling
+string fqDir        help path to FASTQ directory, can be nested
+string align        help pick your aligner [star|hisat]
 string fastaRef     help path to refFile.fa
-string fqDir        help path to FASTQ directory. RNAsik will traverse fqDir and find all FASTQ files
-
-help You can use samplesSheet OR fqRegex OR nothing at all
-
-string samplesSheet help specify a text file with alternative sample names using tab as a column separator e.g  \
-                                             Old_prefix \t New_prefix  \
-                                             160714_LHI34001346_L2_MUStd-34_1 \t sample-1 \
-                                             160714_LHI35001346_L2_MUStd-35_1 \t sample-2
-string fqRegex      help select regex option that resembles your common fastq file ending \
-                                           A: "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"\
-                                           B: "_L[0-9]{3}_R[0-9].fastq.gz$"\
-                                           C: "_R[0-9]_[0-9]{3}.fastq.gz$"\
-                                           D: "_R[0-9].fastq.gz$" \
-                               e.g for this file Samp12_S10_L002_R1_001.fastq.gz you'd do -fqRegex A 
-
-string genomeIdx    help path to the directory with genome index for the coresponding species. If not specified then index will be made on the fly provided -fastaRef exists
-
-help Reads counting [featureCounts]:
-
-bool count          help flag if you like to count reads
+string samplesSheet help tab delimited file [old_prefix \t new_prefix]
+bool paired         help paired end data [false]
+bool count          help do read counts [featureCounts]
 string gtfFile      help path to refFile.gtf
 
-help QC reports:
+help other
 
-bool fastqc         help flag for FastQC reports
-bool exonicRate        help flag for Int(ra|er)genic rates using qualiMap tool
-bool multiqc        help flag for MultiQC report
+bool fastqc         help do FastQC reports
+bool exonicRate     help do Int(ra|er)genic rates [qualiMap]
+bool multiqc        help do MultiQC report
+bool prePro         help sort and mark duplicates [picard]
+string genomeIdx    help genome index for the coresponding species
+string outDir       help output director name [sikRun]
+int threads = 4     help number of threads [4]
+int memory = 40000000000 help amount of memory in bytes [40000000000]
 
-help Other options
+string extn = ".fastq.gz"        #help specify FASTQ files extension [.fastq.gz]
+string pairIds = "_R1,_R2"
 
-string outDir       help specify name of your analysis directory [sikRun]
-bool prePro         help this does additional preprocessing of your bam files such as sorting and marking duplicates.
-int threads = 4     help specify number of threads to use. This number will be used for STAR genome indexing\
-                         and STAR raed alignment as well as for featureCounts, default [4]
-int memory = 40000000000 help specify amount of memory in bytes, default [40000000000]
-string extn = ".fastq.gz"        help optional, specify your files extension default [.fastq.gz]
-string extraOpts help You can add extra option to any of the tools using args.txt file, where name of your tool and options you are passing in separated by "=" sign. Make new line for each tool  sign. \
-                   e.g STAR = --outSAMtype BAM Unsorted, --outReadsUnmapped Fastx \
-                       starIndex = --sjdbGTFfile /path/to/GTF/file, --sjdbOverhang 99 \
-                       featureCounts = -t gene 
-string configFile   help You can specify configuration file
-// check if data is paired end or not
-bool paired
+string fqRegex      #help select regex option that resembles your common fastq file ending \
+                    #                       A: "_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$"\
+                    #                       B: "_L[0-9]{3}_R[0-9].fastq.gz$"\
+                    #                       C: "_R[0-9]_[0-9]{3}.fastq.gz$"\
+                    #                       D: "_R[0-9].fastq.gz$" \
+string extraOpts #help You can add extra option to any of the tools using args.txt file, where name of your tool and options you are passing in separated by "=" sign. Make new line for each tool  sign. \
+                 #  e.g STAR = --outSAMtype BAM Unsorted, --outReadsUnmapped Fastx \
+                 #      starIndex = --sjdbGTFfile /path/to/GTF/file, --sjdbOverhang 99 \
+                 #      featureCounts = -t gene 
+string configFile   #help You can specify configuration file
 // can use this string to pass in marked bams
 string proBams
 // strand information
 string strand
-# Get general info about tools versions and files used 
-//string generalInfo = getInfo()
 // setting GFF to false, default is GTF format
 bool setGFF

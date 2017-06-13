@@ -3,6 +3,7 @@
 #------------------------------
 
 include "sikFqFiles.bds"
+include "sikLog.bds"
 
 string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string gtfFile, string starOpts, int threads) {
     // get STAR executable 
@@ -36,9 +37,9 @@ string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string g
     return genomeIdxDir
 }
 
-string[] mapSTAR(string{} cmdExe, string bamFiles, string{} fqMap, string starOpts, string genomeIdx, int threads, int memory, string logFile) {
+string[] mapSTAR(string{} cmdExe, string bamFiles, string{} samplesMap, string pairIds, bool paired, string starOpts, string genomeIdx, int threads, int memory) {
     // double check
-    //if(!fqMap) error "This error shouldn't occur. It should be caught earlier. Either way fqMap is empty $fqMap"
+    //if(!samplesMap) error "This error shouldn't occur. It should be caught earlier. Either way samplesMap is empty $samplesMap"
     // get STAR executable 
     if(!cmdExe.hasKey("starExe")) error "Can't get STAR executable, check your config file $configFile"
     string starExe = cmdExe{"starExe"}
@@ -52,9 +53,8 @@ string[] mapSTAR(string{} cmdExe, string bamFiles, string{} fqMap, string starOp
         genomeIdxFiles.add(idxDep)
     }
 
-    for(string rootName : fqMap.keys()) {
-        string[] readsList = getReads(fqMap{rootName})
-        paired = getPaired(readsList) 
+    for(string rootName : samplesMap.keys()) {
+        string[] readsList = alignerReads(samplesMap{rootName}, pairIds)
         string[] deps = readsList
         deps += genomeIdxFiles
 
@@ -78,6 +78,7 @@ string[] mapSTAR(string{} cmdExe, string bamFiles, string{} fqMap, string starOp
                          $starOpts
                      
         }
+        sikLoger(".log/bams.txt", bamOut)
         bamsList.add(bamOut)
     }
     goal bamsList

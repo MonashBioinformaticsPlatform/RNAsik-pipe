@@ -32,7 +32,7 @@ string makeHisat2Idx(string{} cmdExe, string refFiles, string fastaRef, string g
     }
     return preFix
 }
-string[] mapHisat2(string{} cmdExe, string bamFiles, string{} fqMap, string hisat2Opts, string genomeIdx, int threads, string logFile) {
+string[] mapHisat2(string{} cmdExe, string bamFiles, string{} samplesMap, string pairIds, bool paired, string hisat2Opts, string genomeIdx, int threads) {
     // get Hisat2 executable 
     if(!cmdExe.hasKey("hisat2Exe")) error "Can't get Hisat2 executable, check your config file $configFile"
     string hisat2Exe = cmdExe{"hisat2Exe"}
@@ -42,9 +42,8 @@ string[] mapHisat2(string{} cmdExe, string bamFiles, string{} fqMap, string hisa
     string[] genomeIdxFiles
     for(int i : range(1, 8)) genomeIdxFiles += genomeIdx+".$i.ht2"
 
-    for(string rootName : fqMap.keys()) {
-        string[] readsList = getReads(fqMap{rootName})
-        paired = getPaired(readsList) 
+    for(string rootName : samplesMap.keys()) {
+        string[] readsList = alignerReads(samplesMap{rootName}, pairIds)
         string[] deps = readsList
         deps += genomeIdxFiles
 

@@ -1,23 +1,7 @@
-
 #----------------------------------------------------------------------------------------------------
 # RNAsik is fully sick way to get from FASTQ to list of counts, ready to load Degust file and more !
 #----------------------------------------------------------------------------------------------------
 
-#------------------------------
-#  Serine #MonashFlavour
-#------------------------------
-
-#----------------------------------------------------------------------------------------------------
-#
-#    About RNAsik
-#
-#   * Takes a whole directory with FASTQ files
-#   * Understands if FASTQ files are paired end or single end
-#   * Understands if samples span different lanes. Merges all sample's lane at the mappinig step
-#   * Gets count files, cleans them up and adds gene symbols and biotypes.
-#   * Finds out library strand
-#
-#----------------------------------------------------------------------------------------------------
 include "sikHeader.bds"
 include "sikSanityCheck.bds"
 include "sikMakeIndices.bds"
@@ -29,7 +13,6 @@ include "sikCounts.bds"
 include "sikPrePro.bds"
 include "sikQCreports.bds"
 include "sikExonicRate.bds"
-//include "sikCleanUp.bds"
 // Check cmd args first up
 string checkCmdInput = checkCmdArgs()
 // set main directory
@@ -93,15 +76,14 @@ string[] fqFiles
 if(!fqDir.isEmpty()) fqFiles = getFqFiles(fqDir, extn, sikDir)
 logit(logFile, "Fastq files found in the fqDir directory", parseList(fqFiles))
 // map of FASTQ to unique name i.e gathering FASTQ that are split across different lanes
-string{} fqMap
-if(!fqDir.isEmpty()) fqMap = getFqMap(fqFiles, fqRegex, samplesSheet, extn)
-logit(logFile, "Fastq files grouped by samples", parseFqMap(fqMap))
+string{} samplesMap
+if(!fqDir.isEmpty()) samplesMap = getSamplesMap(fqFiles, samplesSheet)
+logit(logFile, "Fastq files grouped by samples", parseFqMap(samplesMap))
 // BAM files
-string[] bamsList = getBams(cmdExe, align, bamFiles, fqMap, extraOpts, genomeIdx, threads, memory, logFile)
+string[] bamsList = getBams(cmdExe, align, bamFiles, samplesMap, pairIds, paired, extraOpts, genomeIdx, threads, memory, logFile)
 logit(logFile, "BAM files", parseList(bamsList))
 // If user wants to use other parts of the pipeline without generating BAM files
-if(!fqMap && ( (count) || (prePro) || (exonicRate) ) ) {
-    warning "No paired information found. Use -paired to indicated paired end data"
+if(!samplesMap && ( (count) || (prePro) || (exonicRate) ) ) {
     // get bam file from the bamFiles directory
     if(bamFiles.exists()) bamsList = bamFiles.dirPath("*.bam")
     else error "No bam files or bamFiles directory was found. You can pass bam files using -bamFiles /path/to/bamFiles/dir"
