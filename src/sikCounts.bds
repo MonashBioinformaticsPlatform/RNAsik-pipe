@@ -49,6 +49,10 @@ string[] getReadsCount(string{} cmdExe, string countFiles, string[] bamsList, st
     string[] allDeps = bamsList
     allDeps.add(localGTF)
 
+    int chkPaired = extraOpts.indexOf("-p")
+    if(chkPaired != -1 && !paired) error "featureCounts had been set for paired end data but -paired is unset $paired"
+    if(chkPaired == -1 && paired) error "featureCounts hadn't been set for paired end data but -paired is set $paired"
+
     string[] featureOut
     string[] featureFiles = ["NonStrandedCounts.txt", "ForwardStrandedCounts.txt", "ReverseStrandedCounts.txt"]
     for(int i : range(0, 2)) {

@@ -44,7 +44,7 @@ string{} getSamplesMap(string[] fqFiles,  string samplesSheet) {
 
     string{} samplesMap
 
-    if(samplesSheet.isEmpty()) error "-samplesSheet is empty"
+    if(samplesSheet.isEmpty()) error "This error shouldn't happened, something is wrong with auto generating samplesSheet or users input"
     string{} samples = config(samplesSheet)
     string[] prefixes = samples.keys()
     prefixes = prefixes.sort().reverse()
@@ -63,7 +63,7 @@ string{} getSamplesMap(string[] fqFiles,  string samplesSheet) {
                 }
     	    }
 
-	    if(noPrefix) error "No prefix was found for this $fq file"
+	    if(noPrefix) error "No prefix was found for this $fq file, check you samplesSheet $samplesSheet"
         }
     }
     return samplesMap

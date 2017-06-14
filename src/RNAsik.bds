@@ -67,7 +67,7 @@ string localGTF
 if(!gtfFile.isEmpty()) localGTF = makeLocalRef(gtfFile, refFiles, "gtf")
 logit(logFile, "Reference GTF file", localGTF)
 // checking if annoation file is gff
-if(localGTF.extName() == "gff") setGFF = true
+if(localGTF.extName() == "gff" || localGTF.extName() == "gff3") setGFF = true
 logit(logFile, "You are using GFF annotation file", setGFF)
 // get .dict file 
 string fastaDictFile = makeDictFile(cmdExe, localFastaRef)
@@ -96,6 +96,10 @@ logit(logFile, "Pre-processed BAM files", parseList(markedBams))
 // featureCounts cmd options
 string{} countsOpts = { "-a" => localGTF }
 if(paired) countsOpts{"-p"} = ""
+if(setGFF) {
+    countsOpts{"-t"} = "CDS"
+    countsOpts{"-g"} = "Parent"
+}
 string allCountOpts = getOpts(getOptsMap("featureCounts", countsOpts, extraOpts))
 logit(logFile, "featureCounts cmd options", allCountOpts)
 // get counts
