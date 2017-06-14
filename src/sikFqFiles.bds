@@ -120,7 +120,7 @@ string[] getFqPrefix(string fqRead, string[] fqRgxs, string pairIds, string extn
     else error "No prefix was found, although this should really happened"
 }
 
-string makeSamplesSheet(string[] fqReads, string[] fqRgxs, string pairIds, string extn, string sikDir) {
+string makeSamplesSheet(string[] fqReads, string[] fqRgxs, string pairIds, string extn, string refFiles) {
     string{} autoGen
     // get uniq prefix 
     for(string fq : fqReads ) {
@@ -133,7 +133,7 @@ string makeSamplesSheet(string[] fqReads, string[] fqRgxs, string pairIds, strin
         samplesConfig += "$k\t" + autoGen{k} + "\n"
     }
     // write samples sheet out to a file
-    string samplesSheet = sikDir+"/samplesSheet.txt"
+    string samplesSheet = refFiles+"/samplesSheet.txt"
     samplesSheet.write(samplesConfig)
     return samplesSheet
 }

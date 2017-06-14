@@ -3,7 +3,7 @@
 #------------------------------
 
 include "sikHeader.bds"
-include "sikMakeIndices.bds"
+include "sikRefFiles.bds"
 
 // only call this function is -align isn't empty
 string chkAlignArgs() {
