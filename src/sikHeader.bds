@@ -15,13 +15,13 @@ help main
 string fqDir        help path to fastqs directory, can be nested
 string align        help pick your aligner [star|hisat|bwa]
 string fastaRef     help path to refFile.fa
-string samplesSheet help tab delimited file [old_prefix \t new_prefix]
 bool paired         help paired end data [false]
 bool count          help do read counts [featureCounts]
 string gtfFile      help path to refFile.gtf
 
 help other
 
+string samplesSheet help tab delimited file [old_prefix \t new_prefix]
 string genomeIdx    help genome index
 bool fastqc         help do FastQC reports [fastqc]
 bool exonicRate     help do Int(ra|er)genic rates [qualiMap]
@@ -45,3 +45,8 @@ string proBams
 string strand
 // setting GFF to false, default is GTF format
 bool setGFF
+
+string[] fqRgxs = ["_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$", \
+                    "_L[0-9]{3}_R[0-9].fastq.gz$", \
+                    "_R[0-9]_[0-9]{3}.fastq.gz$", \
+                    "_R[0-9].fastq.gz$"]

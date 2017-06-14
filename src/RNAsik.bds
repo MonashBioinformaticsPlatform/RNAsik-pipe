@@ -49,6 +49,14 @@ else {
     logit(logFile, "Paths to the executables", configFile.read())
 }
 string{} cmdExe = config(configFile)
+
+string[] fqFiles
+if(!fqDir.isEmpty()) fqFiles = getFqFiles(fqDir, extn, sikDir)
+logit(logFile, "Fastq files found in the fqDir directory", parseList(fqFiles))
+
+if(samplesSheet.isEmpty()) samplesSheet = makeSamplesSheet(fqFiles, fqRgxs, pairIds, extn, sikDir)
+logit(logFile, "Samples Sheet: Old prefix \\t New prefix", parseMap(config(samplesSheet)))
+
 // local Fasta file
 string localFastaRef
 if(!fastaRef.isEmpty()) localFastaRef = makeLocalRef(fastaRef, refFiles, "fasta")
@@ -68,13 +76,6 @@ if(!align.isEmpty() && genomeIdx.isEmpty()) {
     genomeIdx = getIdx(cmdExe, align, setGFF, refFiles, localFastaRef, localGTF, extraOpts, threads, logFile)
 } 
 logit(logFile, "STAR genomic index directory", genomeIdx)
-//log if -samplesSheet was used
-if(!samplesSheet.isEmpty()) logit(logFile, "Samples Sheet: Old prefix \\t New prefix", parseMap(config(samplesSheet)))
-// list of fastq files
-string[] fqFiles
-// grab all FASTQ files recursively
-if(!fqDir.isEmpty()) fqFiles = getFqFiles(fqDir, extn, sikDir)
-logit(logFile, "Fastq files found in the fqDir directory", parseList(fqFiles))
 // map of FASTQ to unique name i.e gathering FASTQ that are split across different lanes
 string{} samplesMap
 if(!fqDir.isEmpty()) samplesMap = getSamplesMap(fqFiles, samplesSheet)

@@ -59,7 +59,7 @@ string[] mapSTAR(string{} cmdExe, string bamFiles, string{} samplesMap, string p
         deps += genomeIdxFiles
 
         int chkLen = readsList.size()
-        if(chkLen < 2 && paired) error "R2 reads had been found $readsList, but -paired set to $paired"
+        if(chkLen < 2 && paired) error "R2 reads hadn't been found $readsList, but -paired set to $paired"
         if(chkLen > 1 && !paired) error "-paired set to $paired, but only R1 reads found $readsList"
 
         string rootBase = rootName.baseName()

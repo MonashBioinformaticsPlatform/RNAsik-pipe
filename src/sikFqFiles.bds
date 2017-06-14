@@ -77,15 +77,63 @@ string[] alignerReads(string fqString, string pairIds) {
     
     string[] readOne
     string[] readTwo
-    string[] readSingle
     
     for(string fq : fqClean.split(",")) {
         if(fq.lastIndexOf(pairIdsList[0]) != -1) readOne.add(fq)
         else {
 	   if(fq.lastIndexOf(pairIdsList[1]) != -1) readTwo.add(fq)
-	   else readSingle.add(fq)
+	   else error "check your pairIds value $pairIds, make sure it corresponds to your fastq files $fq" 
         }
     }
-    if(readSingle.isEmpty()) return [readOne.join(","), readTwo.join(",")]
-    else return [readSingle.join(",")]
+    //TODO clean this up 
+    string readOneStr = readOne.join(",")
+    //string readOneClean = readOneStr.substr(0, (readOneStr.length())-1)
+    string readOneClean = readOneStr
+
+    if(readTwo.isEmpty()) return [readOneClean]
+    else {
+	string readTwoStr = readTwo.join(",")
+    	//string readTwoClean = readTwoStr.substr(0, (readTwoStr.length())-1)
+    	string readTwoClean = readTwoStr
+        return [readOneClean, readTwoClean]
+    }
+}
+
+string[] getFqPrefix(string fqRead, string[] fqRgxs, string pairIds, string extn) {
+    for(string fqRgx : fqRgxs) {
+        string[] tmp = fqRead.baseName().split(fqRgx)
+        int tmpLen = tmp.size()
+        if(tmpLen > 1) return [tmp[0], tmp[0].replace("_", "-")]
+        if(tmpLen < 1) error "This shouldn't happened, check makeSampleSheet function"
+    }
+    string[] pairIdsList = pairIds.split(",")
+    // check if R1 is in the file name
+    int oneIdx = fqRead.lastIndexOf(pairIdsList[0])
+    int twoIdx = fqRead.lastIndexOf(pairIdsList[1])
+    
+    if(oneIdx != -1) return [fqRead.baseName().substr(0, oneIdx), fqRead.baseName().substr(0, oneIdx).replace("_", "-")]
+    if(twoIdx != -1) return [fqRead.baseName().substr(0, twoIdx), fqRead.baseName().substr(0, twoIdx).replace("_", "-")]
+    // if all of the above failed
+    // use simply remove extn from the file and use that as a rootName
+    if( (oneIdx == -1) && (twoIdx == -1) ) return [fqRead.baseName(extn), fqRead.baseName(extn).replace("_", "-")]
+    
+    else error "No prefix was found, although this should really happened"
+}
+
+string makeSamplesSheet(string[] fqReads, string[] fqRgxs, string pairIds, string extn, string sikDir) {
+    string{} autoGen
+    // get uniq prefix 
+    for(string fq : fqReads ) {
+        string[] prefix = getFqPrefix(fq, fqRgxs, pairIds, extn)
+        autoGen{prefix[0]} = prefix[1]
+    }
+    // convert hash into a string
+    string samplesConfig
+    for(string k : autoGen.keys()) {
+        samplesConfig += "$k\t" + autoGen{k} + "\n"
+    }
+    // write samples sheet out to a file
+    string samplesSheet = sikDir+"/samplesSheet.txt"
+    samplesSheet.write(samplesConfig)
+    return samplesSheet
 }
