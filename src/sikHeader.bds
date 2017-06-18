@@ -2,12 +2,11 @@
 # The Header File 
 #---------------------------------
 
-#------------------------------
-#  Input Parametrs
-#------------------------------
-helpUnsorted := true
+string versionFile = programPath.pathName()+"/sikVersion.bds"
+string version = versionFile.read()
+print("RNAsik version $version") 
 
-help RNAsik version 1.4.7
+helpUnsorted := true
 help Usage: RNAsik -fqDir </path/to/your/fastqs> [options]
 
 help main
