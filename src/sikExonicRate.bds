@@ -18,7 +18,10 @@ string[] getExonicRates(string{} cmdExe, string sikDir, string[] bamFiles, strin
     // otherwise it'll be a file
     string strandType
     if(strandInfo.isFile()) {
-        strandType = strandInfo.read().trim()
+
+        string strandExitCode
+        (strandType, strandExitCode) = strandInfo.read().trim.split(",")
+
         if(!strandMap.hasKey(strandType)) error "Something went wrong, this error should occur. Error is from sikExonicRate.bds"
         else strandMap{strandType} strandType = strandMap{strandType}
     }

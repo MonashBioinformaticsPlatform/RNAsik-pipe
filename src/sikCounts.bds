@@ -15,7 +15,7 @@ string getStrandInfo(string{} cmdExe, string[] counts) {
     }
     // this is temp hack to stop mask function evaluation before above python script had run
     // because mask function has .read() on a file that doesn't exist yet.
-    // I have to think about better solution for this
+    // I have to think about better solution for this OR "fix" multiqc to be able to handle multiple featureCounts files
     wait
     return mask(countsDir, strandInfo)
 }
@@ -23,7 +23,10 @@ string getStrandInfo(string{} cmdExe, string[] counts) {
 string mask(string countsDir, string strandInfo) {
 
     if(strandInfo.exists()) {
-        string strandType = strandInfo.read()
+        string strandExitCode
+        string strandType
+        (strandType, strandExitCode) = strandInfo.read().split(",")
+
         strandType = strandType.trim() + ".txt.summary"
 
         for(string f : countsDir.dirPath("*.summary")){
@@ -70,14 +73,14 @@ string[] getReadsCount(string{} cmdExe, string countFiles, string[] bamsList, st
     return featureOut
 }
 //
-string getGeneIds(string pythonExe, string sikDir, string gtfFile, bool setGFF){
+string getGeneIds(string pythonExe, string countFilesDir, string gtfFile, bool setGFF){
     string getProgPath = programPath.pathName()
     string pyFlag = '--gtfFile'
     if(setGFF){
         pyFlag = '--gffFile'
     }
     string pyScript = getProgPath+"/../scripts/getGeneIds.py"
-    string geneIds = sikDir+"/"+"geneIds.txt"
+    string geneIds = countFilesDir+"/"+"geneIds.txt"
     task(count, geneIds <- gtfFile, taskName := "getting geneIds.txt file") {
         sys $pythonExe $pyScript $pyFlag $gtfFile > $geneIds
     }
@@ -101,10 +104,10 @@ string[] getProteinCoding(string[] counts, bool setGFF) {
     return proteinCodingCounts
 }
 
-string[] getDegust(string{} cmdExe, string sikDir, string[] featureCounts, int bamsN, string gtfFile, bool gff, int threads) {
+string[] getDegust(string{} cmdExe, string countFilesDir, string[] featureCounts, int bamsN, string gtfFile, bool gff, int threads) {
     if(!cmdExe.hasKey("pythonExe")) error "Can't get python executable, check your config file $configFile"
     string pythonExe = cmdExe{"pythonExe"}
-    string geneIdsFile = getGeneIds(pythonExe, sikDir, gtfFile, gff)
+    string geneIdsFile = getGeneIds(pythonExe, countFilesDir, gtfFile, gff)
 
     string[] withNames
 

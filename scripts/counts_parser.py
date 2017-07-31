@@ -6,6 +6,7 @@
 
 import os
 import sys
+import math
 import argparse
 
 parser = argparse.ArgumentParser(usage='%(prog)s --logsDir <path/to/logFiles/directory>',
@@ -83,12 +84,47 @@ def make_flip(d):
     return dd
     
 def which_strand(d):
-    dd = {}
 
-    for k, v in d.items():
-        dd[k] = sum(map(int, v["Assigned"]))
+    assigned_reads = {}
+    
+    for k,v in data_dict.items():
+        counts = map(int, v['Assigned'])
+        s = sum(counts)
+        assigned_reads[k] = s
+    
+    forward = int(assigned_reads['ForwardStrandedCounts'])
+    reverse = int(assigned_reads['ReverseStrandedCounts'])
+    nonstranded = int(assigned_reads['NonStrandedCounts'])
+    
+    # if positive data is forward stranded
+    # if negative data is reverse stranded
+    strnd_val = float(forward-reverse)/float(forward+reverse)
+    
+    # confidence test
+    non_strnd_test = (20-1)/float(20+1) #0.904
+    strnd_test = (55-45)/float(55+45)   #0.1
+    def sign(x):
+        if x >= 0:
+            return 1
+        return -1
+    
+    if abs(strnd_val) < strnd_test:
+        #print "Data is stranded %s" % sign(strnd_val)
 
-    return max(dd, key=dd.get)
+        if strnd_val >= 0:
+            return "ForwardStrandedCounts,0"
+        return "ReverseStrandedCounts,0"
+
+    elif abs(strnd_val) > non_strnd_test:
+        #print "Data is non stranded %s" % sign(strnd_val)
+        return "NonStrandedCounts,0"
+    #NOTE default to non stranded counts, should do be ok to get through RNAsik run
+    elif strnd_test < abs(strnd_val) < non_strnd_test:
+        #print "It is hard to guess what strand the data is %s" % sign(strnd_val)
+        return "NonStrandedCounts,1"
+    else:
+        #print "ERROR: This should not happend"
+        return "NonStrandedCounts,1"
 
 for text_file in list_of_files:
     if text_file.endswith(pattern):
@@ -107,8 +143,6 @@ for text_file in list_of_files:
                     data_dict[name][key] = [os.path.basename(b).split("_")[0] for b in line]
                 else:
                     data_dict[name][key] = line
-
-print which_strand(data_dict)
 
 #if flip:
 #    d = make_flip(data_dict)

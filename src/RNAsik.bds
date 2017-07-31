@@ -114,7 +114,7 @@ if(exonicRate) {
     if(!count && strand.isEmpty()) error "No strand information found. Use -count flag to get it. Alternatively use -strand flag with appropriate strand type."
     if(!count && !strand.isEmpty()) strandInfo = strand
 }
-string[] degust = getDegust(cmdExe, sikDir, featureCounts, bamsList.size(), localGTF, setGFF, threads)
+string[] degust = getDegust(cmdExe, countFiles, featureCounts, bamsList.size(), localGTF, setGFF, threads)
 logit(logFile, "Degust ready, protein_coding counts only", parseList(degust))
 string{} exonicOpts = { "-gtf" => localGTF }
 if(paired) {
