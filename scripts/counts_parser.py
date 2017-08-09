@@ -144,27 +144,4 @@ for text_file in list_of_files:
                 else:
                     data_dict[name][key] = line
 
-#if flip:
-#    d = make_flip(data_dict)
-#else:
-#    d = data_dict
-#
-#for a, b in sorted(d.items()):
-#    print "<table class='check' border=1 frame=void rules=all cellpadding=5px>"
-#
-#    tbl_header = b.pop("Status")
-#    tbl_header.insert(0, a)
-#    cell = '<td>%s</td>'
-#    cells = '<tr>'+cell * len(tbl_header)+'</tr>'
-#    print cells % tuple(tbl_header)
-#
-#    for k, v in sorted(b.items()):
-#
-#        tbl_data = v
-#        tbl_data.insert(0, k)
-#        cell = '<td>%s</td>'
-#        cells = '<tr>'+cell * len(tbl_data)+'</tr>'
-#        print cells % tuple(tbl_data)
-#
-#    print "</table>"
-#    print '''<p>Some long text descriptiont goes here </p>'''
+print which_strand(data_dict)
