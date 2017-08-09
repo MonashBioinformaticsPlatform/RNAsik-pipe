@@ -13,6 +13,7 @@ include "sikCounts.bds"
 include "sikPrePro.bds"
 include "sikQCreports.bds"
 include "sikExonicRate.bds"
+include "sikCoverage.bds"
 // Check cmd args first up
 string checkCmdInput = checkCmdArgs()
 // set main directory
@@ -36,6 +37,8 @@ string countFiles = sikDir+"/"+"countFiles"
 if((!countFiles.exists()) && (count)) countFiles.mkdir()
 string markedDupsBams = sikDir+"/"+"markedDupsBams"
 if((!markedDupsBams.exists()) && (prePro)) markedDupsBams.mkdir()
+string coverageFilesDir = sikDir+"/"+"coverageFiles"
+if((!coverageFilesDir.exists()) && (prePro)) coverageFilesDir.mkdir()
 string fastqcReport = sikDir+"/"+"fastqcReport"
 if((!fastqcReport.exists()) && (fastqc)) fastqcReport.mkdir()
 // Start loging
@@ -72,6 +75,9 @@ logit(logFile, "You are using GFF annotation file", setGFF)
 // get .dict file 
 string fastaDictFile = makeDictFile(cmdExe, localFastaRef)
 logit(logFile, "Picard dictionary file", fastaDictFile)
+// get .chrom.sizes file 
+string chromSizes = makeChromSizes(localFastaRef)
+logit(logFile, "chrom sizes", chromSizes)
 // get genomeIdx 
 if(!align.isEmpty() && genomeIdx.isEmpty()) {
     genomeIdx = getIdx(cmdExe, align, setGFF, refFiles, localFastaRef, localGTF, extraOpts, threads, logFile)
@@ -93,6 +99,11 @@ if(!samplesMap && ( (count) || (prePro) || (exonicRate) ) ) {
 // sorted, reorted and marking duplicates in BAM files
 string[] markedBams = getMarkedBams(cmdExe, markedDupsBams, bamsList, localFastaRef, fastaDictFile)
 logit(logFile, "Pre-processed BAM files", parseList(markedBams))
+// coverage files
+string[] strands = ["for", "rev"]
+for(string strand : strands) {
+    string[] covFiles = getCovFiles(markedBams, coverageFilesDir, localFastaRef, chromSizes, strand)
+}
 // featureCounts cmd options
 string{} countsOpts = { "-a" => localGTF }
 if(paired) countsOpts{"-p"} = ""

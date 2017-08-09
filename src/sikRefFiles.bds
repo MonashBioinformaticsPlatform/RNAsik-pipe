@@ -89,3 +89,12 @@ string makeFaiFile(string samtoolsExe, string fastaRef) {
     }
     return fastaFaiFile
 }
+
+string makeChromSizes(string fastaRef) {
+    string chromSizes = fastaRef.removeExt()+".chrom.sizes"
+    string faChrom = programPath.pathName()+"/../scripts/ucsc_bin/faChrom"
+    task(chromSizes <- fastaRef, taskName := "Make chrom sizes file") {
+        sys faChrom -detailed $fastaRef > $chromSizes
+    }
+    return chromSizes
+}
