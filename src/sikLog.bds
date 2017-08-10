@@ -43,21 +43,21 @@ string sikLoger(string logFile, string content) {
     return "logged"
 }
 
-string getToolsVersions(string sikDir) {
+string getToolsVersions(string versionsDir) {
 
-    string starVersion = sikDir+"/.versions/star"
-    string bwaVersion = sikDir+"/.versions/bwa"
-    string samtoolsVersion = sikDir+"/.versions/samtools"
-    string bedtools2Version = sikDir+"/.versions/bedtools2"
-    string featureCountsVersion = sikDir+"/.versions/featureCounts"
-    string fastqcVersion = sikDir+"/.versions/fastqc"
-    string pythonVersion = sikDir+"/.versions/python"
-    string sortSamVersion = sikDir+"/.versions/SortSam"
-    string reorderSamVersion = sikDir+"/.versions/ReorderSam"
-    string markDupsVersion = sikDir+"/.versions/MarkDuplicates"
-    string qualimapVersion = sikDir+"/.versions/qualimap"
-    string multiqcVersion = sikDir+"/.versions/multiqc"
-    string rnasikVersion = sikDir+"/.versions/RNAsik"
+    string starVersion = versionsDir+"/star"
+    string bwaVersion = versionsDir+"/bwa"
+    string samtoolsVersion = versionsDir+"/samtools"
+    string bedtools2Version = versionsDir+"/bedtools2"
+    string featureCountsVersion = versionsDir+"/featureCounts"
+    string fastqcVersion = versionsDir+"/fastqc"
+    string pythonVersion = versionsDir+"/python"
+    string sortSamVersion = versionsDir+"/SortSam"
+    string reorderSamVersion = versionsDir+"/ReorderSam"
+    string markDupsVersion = versionsDir+"/MarkDuplicates"
+    string qualimapVersion = versionsDir+"/qualimap"
+    string multiqcVersion = versionsDir+"/multiqc"
+    string rnasikVersion = versionsDir+"/RNAsik"
     
     string[] toolsVersions = [starVersion, \
                               bwaVersion, \

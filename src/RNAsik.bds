@@ -31,6 +31,8 @@ if(!sikDir.exists()) sikDir.mkdir()
 string logFile = sikDir+"/"+"logFile.txt"
 string refFiles = sikDir+"/"+"refFiles"
 if(!refFiles.exists()) refFiles.mkdir()
+string versionsDir = sikDir+"/.versions"
+if(!versionsDir.exists()) versionsDir.mkdir()
 string bamFiles = sikDir+"/"+"bamFiles"
 if( (!bamFiles.exists()) && (!fqDir.isEmpty()) ) bamFiles.mkdir()
 string countFiles = sikDir+"/"+"countFiles"
@@ -44,7 +46,7 @@ if((!fastqcReport.exists()) && (fastqc)) fastqcReport.mkdir()
 // Start loging
 string date = sys date
 logit(logFile, ">Starting new RNAsik run", date.trim())
-string toolsVersions = getToolsVersions(sikDir)
+string toolsVersions = getToolsVersions(versionsDir)
 // Parse config file
 string sikProgPath = programPath.pathName()
 if(!configFile.isEmpty()) logit(logFile, "Config file parameters passed by user", configFile.read())
