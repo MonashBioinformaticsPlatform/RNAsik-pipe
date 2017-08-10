@@ -57,6 +57,7 @@ string getToolsVersions(string sikDir) {
     string markDupsVersion = sikDir+"/.versions/MarkDuplicates"
     string qualimapVersion = sikDir+"/.versions/qualimap"
     string multiqcVersion = sikDir+"/.versions/multiqc"
+    string rnasikVersion = sikDir+"/.versions/RNAsik"
     
     string[] toolsVersions = [starVersion, \
                               bwaVersion, \
@@ -69,7 +70,8 @@ string getToolsVersions(string sikDir) {
                               reorderSamVersion, \
                               markDupsVersion, \
                               qualimapVersion, \
-                              multiqcVersion]
+                              multiqcVersion, \
+                              rnasikVersion]
     
     task(toolsVersions <- "dummy", taskName := "Getting tools versions" ) {
         sys STAR --version > $starVersion
@@ -84,6 +86,7 @@ string getToolsVersions(string sikDir) {
         sys qualimap --help | grep -A 1 QualiMap > $qualimapVersion
         sys multiqc --version > $multiqcVersion 
         sys python --version |& grep Python > $pythonVersion 
+        sys RNAsik -version > $rnasikVersion 
     }
     return "all good!"
 }
