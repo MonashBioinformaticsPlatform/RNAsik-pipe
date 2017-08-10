@@ -3,8 +3,8 @@
 #---------------------------------
 
 string versionFile = programPath.pathName()+"/sikVersion.bds"
-string version = versionFile.read()
-print("RNAsik version $version") 
+string versionNumber = versionFile.read()
+print("RNAsik version $versionNumber") 
 
 helpUnsorted := true
 help Usage: RNAsik -fqDir </path/to/your/fastqs> [options]
@@ -44,6 +44,7 @@ string proBams
 string strand
 // setting GFF to false, default is GTF format
 bool setGFF
+bool version
 
 string[] fqRgxs = ["_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$", \
                     "_L[0-9]{3}_R[0-9].fastq.gz$", \

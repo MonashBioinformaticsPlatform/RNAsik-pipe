@@ -83,6 +83,11 @@ if( (!fastaRef.isEmpty()) && (!fastaRef.isFile()) ) error "Check your path to fa
 if( (!gtfFile.isEmpty()) && (!gtfFile.isFile()) ) error "Check your path to gtf file. It dosen't point to a file. $gtfFile"
 if(memory < 32000000000) error "Don't set memory less then 32 Gb since STAR requires at least that amount"
 
+// version gets printed no matter what in sikHeader file
+// if just want the version let exit before the rest of help 
+// gets printed - code block below
+if(version) exit(1)
+
 if( args.isEmpty() ) {
     printHelp()
     exit(1)

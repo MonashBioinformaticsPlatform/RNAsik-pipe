@@ -92,7 +92,7 @@ string makeFaiFile(string samtoolsExe, string fastaRef) {
 
 string makeChromSizes(string fastaRef) {
     string chromSizes = fastaRef.removeExt()+".chrom.sizes"
-    string faChrom = programPath.pathName()+"/../scripts/ucsc_bin/faChrom"
+    string faChrom = programPath.pathName()+"/../scripts/ucsc_bin/faSize"
     task(chromSizes <- fastaRef, taskName := "Make chrom sizes file") {
         sys faChrom -detailed $fastaRef > $chromSizes
     }

@@ -44,6 +44,7 @@ if((!fastqcReport.exists()) && (fastqc)) fastqcReport.mkdir()
 // Start loging
 string date = sys date
 logit(logFile, ">Starting new RNAsik run", date.trim())
+string toolsVersions = getToolsVersions(sikDir)
 // Parse config file
 string sikProgPath = programPath.pathName()
 if(!configFile.isEmpty()) logit(logFile, "Config file parameters passed by user", configFile.read())
@@ -102,7 +103,7 @@ logit(logFile, "Pre-processed BAM files", parseList(markedBams))
 // coverage files
 string[] strands = ["for", "rev"]
 for(string strand : strands) {
-    string[] covFiles = getCovFiles(markedBams, coverageFilesDir, localFastaRef, chromSizes, strand)
+    string[] covFiles = getCovFiles(cmdExe, markedBams, coverageFilesDir, localFastaRef, chromSizes, strand)
 }
 // featureCounts cmd options
 string{} countsOpts = { "-a" => localGTF }
