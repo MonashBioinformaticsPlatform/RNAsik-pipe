@@ -61,8 +61,8 @@ string[] fqFiles
 if(!fqDir.isEmpty()) fqFiles = getFqFiles(fqDir, extn, sikDir)
 logit(logFile, "Fastq files found in the fqDir directory", parseList(fqFiles))
 
-if(samplesSheet.isEmpty()) samplesSheet = makeSamplesSheet(fqFiles, fqRgxs, pairIds, extn, refFiles)
-else string usrSamplesSheet = copySamplesSheet(refFiles, samplesSheet)
+if(samplesSheet.isEmpty()) samplesSheet = makeSamplesSheet(fqFiles, fqRgxs, pairIds, extn, sikDir)
+else string usrSamplesSheet = copySamplesSheet(sikDir, samplesSheet)
 logit(logFile, "Samples Sheet: Old prefix \\t New prefix", parseMap(config(samplesSheet)))
 
 // local Fasta file

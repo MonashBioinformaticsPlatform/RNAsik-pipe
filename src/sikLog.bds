@@ -104,7 +104,8 @@ string getToolsVersions(string{} cmdExe, string versionsDir) {
         sys $qualimapExe --help | grep -A 1 QualiMap > $qualimapVersion
         sys $multiqcExe --version > $multiqcVersion 
         sys $pythonExe --version |& grep Python > $pythonVersion 
-        sys RNAsik -version > $rnasikVersion //TODO this is error pron if users uses full path, this won't work..
+        sys RNAsik -version > $rnasikVersion
     }
+    //TODO sys RNAsik is error pron if users uses full path, this wont work..
     return "all good!"
 }
