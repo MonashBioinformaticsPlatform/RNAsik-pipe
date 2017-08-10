@@ -43,8 +43,40 @@ string sikLoger(string logFile, string content) {
     return "logged"
 }
 
-string getToolsVersions(string versionsDir) {
+string getToolsVersions(string{} cmdExe, string versionsDir) {
+    //NOTE I think it would be better to make these versions calls embeded into individual function
+    // e.g star version check can be inside star align task.
+    // the problem with doing it this way; STAR gets called several times, depending on number of fastq files
+    // and everytime we are going to check its version.
 
+    string tools = ["starExe", \
+                    "hisat2Exe", \
+                    "bwaExe", \
+                    "samtoolsExe", \
+                    "bedtoolsExe", \
+                    "countsExe", \
+                    "fastqcExe", \
+                    "pythonExe", \
+                    "picardExe", \
+                    "qualimapExe", \
+                    "multiqcExe"]
+
+    for(string t : tools) {
+        if(!cmdExe.hasKey(t)) error "Can't get $t executable, check your config file $configFile"
+    }
+
+    string starExe = cmdExe{"starExe"}
+    string hisat2Exe = cmdExe{"hisat2Exe"}
+    string bwaExe = cmdExe{"bwaExe"}
+    string samtoolsExe = cmdExe{"samtoolsExe"}
+    string bedtoolsExe = cmdExe{"bedtoolsExe"}
+    string countsExe = cmdExe{"countsExe"}
+    string fastqcExe = cmdExe{"fastqcExe"}
+    string pythonExe = cmdExe{"pythonExe"}
+    string picardExe = cmdExe{"picardExe"}
+    string qualimapExe = cmdExe{"qualimapExe"}
+    string multiqcExe = cmdExe{"multiqcExe"}
+   
     string starVersion = versionsDir+"/star"
     string bwaVersion = versionsDir+"/bwa"
     string samtoolsVersion = versionsDir+"/samtools"
@@ -59,34 +91,20 @@ string getToolsVersions(string versionsDir) {
     string multiqcVersion = versionsDir+"/multiqc"
     string rnasikVersion = versionsDir+"/RNAsik"
     
-    string[] toolsVersions = [starVersion, \
-                              bwaVersion, \
-                              samtoolsVersion, \
-                              bedtools2Version, \
-                              featureCountsVersion, \
-                              fastqcVersion, \
-                              pythonVersion, \
-                              sortSamVersion, \
-                              reorderSamVersion, \
-                              markDupsVersion, \
-                              qualimapVersion, \
-                              multiqcVersion, \
-                              rnasikVersion]
-    
     task(toolsVersions <- "dummy", taskName := "Getting tools versions" ) {
-        sys STAR --version > $starVersion
-        sys bwa |& grep Version > $bwaVersion 
-        sys samtools |& grep Version > $samtoolsVersion 
-        sys bedtools --version > $bedtools2Version 
-        sys featureCounts -v |& sed '/^\s*$/d' > $featureCountsVersion 
-        sys fastqc --version > $fastqcVersion 
-        sys picard SortSam |& grep Version > $sortSamVersion
-        sys picard ReorderSam |& grep Version > $reorderSamVersion
-        sys picard MarkDuplicates |& grep Version > $markDupsVersion
-        sys qualimap --help | grep -A 1 QualiMap > $qualimapVersion
-        sys multiqc --version > $multiqcVersion 
-        sys python --version |& grep Python > $pythonVersion 
-        sys RNAsik -version > $rnasikVersion 
+        sys starExe --version > $starVersion
+        sys bwaExe |& grep Version > $bwaVersion 
+        sys samtoolsExe |& grep Version > $samtoolsVersion 
+        sys bedtoolsExe --version > $bedtools2Version 
+        sys countsExe -v |& sed '/^\s*$/d' > $featureCountsVersion 
+        sys fastqcExe --version > $fastqcVersion 
+        sys picardExe SortSam |& grep Version > $sortSamVersion
+        sys picardExe ReorderSam |& grep Version > $reorderSamVersion
+        sys picardExe MarkDuplicates |& grep Version > $markDupsVersion
+        sys qualimapExe --help | grep -A 1 QualiMap > $qualimapVersion
+        sys multiqcExe --version > $multiqcVersion 
+        sys pythonExe --version |& grep Python > $pythonVersion 
+        sys RNAsik -version > $rnasikVersion //TODO this is error pron if users uses full path, this won't work..
     }
     return "all good!"
 }
