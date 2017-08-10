@@ -49,17 +49,17 @@ string getToolsVersions(string{} cmdExe, string versionsDir) {
     // the problem with doing it this way; STAR gets called several times, depending on number of fastq files
     // and everytime we are going to check its version.
 
-    string tools = ["starExe", \
-                    "hisat2Exe", \
-                    "bwaExe", \
-                    "samtoolsExe", \
-                    "bedtoolsExe", \
-                    "countsExe", \
-                    "fastqcExe", \
-                    "pythonExe", \
-                    "picardExe", \
-                    "qualimapExe", \
-                    "multiqcExe"]
+    string[] tools = ["starExe", \
+                      "hisat2Exe", \
+                      "bwaExe", \
+                      "samtoolsExe", \
+                      "bedtoolsExe", \
+                      "countsExe", \
+                      "fastqcExe", \
+                      "pythonExe", \
+                      "picardExe", \
+                      "qualimapExe", \
+                      "multiqcExe"]
 
     for(string t : tools) {
         if(!cmdExe.hasKey(t)) error "Can't get $t executable, check your config file $configFile"
@@ -91,19 +91,19 @@ string getToolsVersions(string{} cmdExe, string versionsDir) {
     string multiqcVersion = versionsDir+"/multiqc"
     string rnasikVersion = versionsDir+"/RNAsik"
     
-    task(toolsVersions <- "dummy", taskName := "Getting tools versions" ) {
-        sys starExe --version > $starVersion
-        sys bwaExe |& grep Version > $bwaVersion 
-        sys samtoolsExe |& grep Version > $samtoolsVersion 
-        sys bedtoolsExe --version > $bedtools2Version 
-        sys countsExe -v |& sed '/^\s*$/d' > $featureCountsVersion 
-        sys fastqcExe --version > $fastqcVersion 
-        sys picardExe SortSam |& grep Version > $sortSamVersion
-        sys picardExe ReorderSam |& grep Version > $reorderSamVersion
-        sys picardExe MarkDuplicates |& grep Version > $markDupsVersion
-        sys qualimapExe --help | grep -A 1 QualiMap > $qualimapVersion
-        sys multiqcExe --version > $multiqcVersion 
-        sys pythonExe --version |& grep Python > $pythonVersion 
+    task(taskName := "Getting versions of tools in use" ) {
+        sys $starExe --version > $starVersion
+        sys $bwaExe |& grep Version > $bwaVersion 
+        sys $samtoolsExe |& grep Version > $samtoolsVersion 
+        sys $bedtoolsExe --version > $bedtools2Version 
+        sys $countsExe -v |& sed '/^\s*$/d' > $featureCountsVersion 
+        sys $fastqcExe --version > $fastqcVersion 
+        sys $picardExe SortSam |& grep Version > $sortSamVersion
+        sys $picardExe ReorderSam |& grep Version > $reorderSamVersion
+        sys $picardExe MarkDuplicates |& grep Version > $markDupsVersion
+        sys $qualimapExe --help | grep -A 1 QualiMap > $qualimapVersion
+        sys $multiqcExe --version > $multiqcVersion 
+        sys $pythonExe --version |& grep Python > $pythonVersion 
         sys RNAsik -version > $rnasikVersion //TODO this is error pron if users uses full path, this won't work..
     }
     return "all good!"
