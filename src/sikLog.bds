@@ -91,6 +91,8 @@ string getToolsVersions(string{} cmdExe, string versionsDir) {
     string multiqcVersion = versionsDir+"/multiqc"
     string rnasikVersion = versionsDir+"/RNAsik"
     
+    string rnasikVersionFile = programPath.pathName()+"/sikVersion.bds"
+
     task(taskName := "Getting versions of tools in use" ) {
         sys $starExe --version > $starVersion
         sys $bwaExe |& grep Version > $bwaVersion 
@@ -104,8 +106,7 @@ string getToolsVersions(string{} cmdExe, string versionsDir) {
         sys $qualimapExe --help | grep -A 1 QualiMap > $qualimapVersion
         sys $multiqcExe --version > $multiqcVersion 
         sys $pythonExe --version |& grep Python > $pythonVersion 
-        sys RNAsik -version > $rnasikVersion
+        sys cat $rnasikVersionFile > $rnasikVersion
     }
-    //TODO sys RNAsik is error pron if users uses full path, this wont work..
     return "all good!"
 }

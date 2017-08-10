@@ -44,7 +44,6 @@ string proBams
 string strand
 // setting GFF to false, default is GTF format
 bool setGFF
-bool version
 
 string[] fqRgxs = ["_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$", \
                     "_L[0-9]{3}_R[0-9].fastq.gz$", \
