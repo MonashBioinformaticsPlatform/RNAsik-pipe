@@ -100,7 +100,7 @@ if(!samplesMap && ( (count) || (prePro) || (exonicRate) ) ) {
     if(bamFiles.exists()) bamsList = bamFiles.dirPath("*.bam")
     else error "No bam files or bamFiles directory was found. You can pass bam files using -bamFiles /path/to/bamFiles/dir"
 }
-// sorted, reorted and marking duplicates in BAM files
+// sorted, resorted and marking duplicates in BAM files
 string[] markedBams = getMarkedBams(cmdExe, markedDupsBams, bamsList, localFastaRef, fastaDictFile)
 logit(logFile, "Pre-processed BAM files", parseList(markedBams))
 // coverage files

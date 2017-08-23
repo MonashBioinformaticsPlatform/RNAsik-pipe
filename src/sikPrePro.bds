@@ -8,6 +8,16 @@ string[] getMarkedBams(string{} cmdExe, string markedDupsBams, string[] bamFiles
     if(!cmdExe.hasKey("picardExe")) error "Can't get picard executable, check your config file $configFile"
     string picardExe = cmdExe{"picardExe"}
 
+    // 16 Gb RAM by default
+    int picardMemory
+    if(cmdExe.hasKey("preProMemory")) {
+        picardMemory = cmdExe{"preProMemory"}.parseInt()
+    } else {
+        picardMemory = 17179869184
+    }
+
+    if(cmdExe.hasKey("preProMemory")) picardMemory := cmdExe{"preProMemory"}
+
     for(string bamFile : bamFiles) {
         string[] sampleName = bamFile.baseName().split("_")
         string sortedName = markedDupsBams+"/"+sampleName[0]+"_sorted.bam"
@@ -16,7 +26,7 @@ string[] getMarkedBams(string{} cmdExe, string markedDupsBams, string[] bamFiles
         string mdupsName = reorderedName.swapExt(".bam", "_marked_dups.bam")
         string metricsName = reorderedName.swapExt(".bam", "_marked_dups.metrics")
 
-        dep(prePro, [mdupsName, metricsName] <- [bamFile, fastaDictFile], cpus := 6, taskName := "picard sorting "+bamFile) {
+        dep(prePro, [mdupsName, metricsName] <- [bamFile, fastaDictFile], cpus := 6, mem := picardMemory, taskName := "picard sorting "+bamFile) {
             sys $picardExe SortSam TMP_DIR=tmp/ \
                                    VALIDATION_STRINGENCY=LENIENT \
                                    CREATE_INDEX=true \
