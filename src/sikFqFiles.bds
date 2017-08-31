@@ -79,7 +79,7 @@ string[] alignerReads(string fqString, string pairIds) {
     string[] readTwo
     
     for(string fq : fqClean.split(",")) {
-        if(fq.lastIndexOf(pairIdsList[0]) != -1) readOne.add(fq)
+        if(fq.lastIndexOf(pairIdsList[0]) != -1 || !paired) readOne.add(fq)
         else {
 	   if(fq.lastIndexOf(pairIdsList[1]) != -1) readTwo.add(fq)
 	   else error "check your pairIds value $pairIds, make sure it corresponds to your fastq files $fq" 

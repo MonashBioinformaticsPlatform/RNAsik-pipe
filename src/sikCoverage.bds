@@ -15,7 +15,7 @@ string[] getCovFiles(string{} cmdExe, string[] sortedBams, string coverageFiles,
         string bigWigFile = covFile.replace(".bedGraph", ".bw")
 
         dep(bigWigFile <- [bam, chromSizes, fastaRef], canFail := true, taskName := "Getting coverage files in bigWig for $bam") {
-            sys $bedtoolsExe genomecov -d \
+            sys $bedtoolsExe genomecov -bga \
                                        -split \
                                        -strand $sign \
                                        -ibam $bam \
