@@ -65,9 +65,9 @@ if gtfFile:
     header = True
     for key, value in genesAttributes.items():
         if header:
-            print '\t'.join(("Gene.ID", "Gene.Name", "Biotype"))
+            print('\t'.join(("Gene.ID", "Gene.Name", "Biotype")))
             header = False
-        print '\t'.join((key, value[0], value[1]))
+        print('\t'.join((key, value[0], value[1])))
 
 # Get gene Ids from GFF file format
 if gffFile:
@@ -108,6 +108,6 @@ if gffFile:
     header = True
     for key, value in genesAttributes.items():
         if header:
-            print '\t'.join(("Gene.ID", "Gene.Name", "Biotype"))
+            print('\t'.join(("Gene.ID", "Gene.Name", "Biotype")))
             header = False
-        print '\t'.join((key, value[0], value[1]))
+        print('\t'.join((key, value[0], value[1])))
