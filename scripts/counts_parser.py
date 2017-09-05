@@ -67,8 +67,8 @@ def inner_flip(dd):
 
     flipped = {}
 
-    l = len(dd.values()[0])
-    k = dd.keys()
+    l = len(list(dd.values())[0])
+    k = list(dd.keys())
 
     flipped[k.pop(0)] = k
     for i in range(l):
@@ -144,4 +144,4 @@ for text_file in list_of_files:
                 else:
                     data_dict[name][key] = line
 
-print which_strand(data_dict)
+print(which_strand(data_dict))
