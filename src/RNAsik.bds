@@ -105,9 +105,10 @@ string[] markedBams = getMarkedBams(cmdExe, markedDupsBams, bamsList, localFasta
 logit(logFile, "Pre-processed BAM files", parseList(markedBams))
 // coverage files
 string[] strands = ["for", "rev"]
-for(string strand : strands) {
-    string[] covFiles = getCovFiles(cmdExe, markedBams, coverageFilesDir, localFastaRef, chromSizes, strand)
-}
+//for(string strand : strands) {
+//NOTE this is for future implementation of strand specific coverage
+string[] covFiles = getCovFiles(cmdExe, markedBams, coverageFilesDir, localFastaRef, chromSizes)
+//}
 // featureCounts cmd options
 string{} countsOpts = { "-a" => localGTF }
 if(paired) countsOpts{"-p"} = ""
