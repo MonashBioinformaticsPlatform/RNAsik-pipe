@@ -40,7 +40,8 @@ if gtfFile:
     with open(gtfFile) as features:
         for i in features:
             if not i.startswith("#"):
-                ninthField = i.split('\t')[8]
+                line = i.split('\t')
+                ninthField = line[8]
     
                 geneId = re.search('gene_id\s.([A-z0-9]+)', ninthField)
                 checkName = re.search('gene_name\s.([A-z0-9_.:-]+)', ninthField)
@@ -61,13 +62,14 @@ if gtfFile:
                         genesAttributes[geneId.group(1)] = []
                         genesAttributes[geneId.group(1)].append(geneName)
                         genesAttributes[geneId.group(1)].append(geneBiotype)
+                        genesAttributes[geneId.group(1)].append(line[0])
            
     header = True
     for key, value in genesAttributes.items():
         if header:
-            print '\t'.join(("Gene.ID", "Gene.Name", "Biotype"))
+            print '\t'.join(("Gene.ID", "Chrom", "Gene.Name", "Biotype"))
             header = False
-        print '\t'.join((key, value[0], value[1]))
+        print '\t'.join((key, value[2], value[0], value[1]))
 
 # Get gene Ids from GFF file format
 if gffFile:
@@ -104,10 +106,11 @@ if gffFile:
                             genesAttributes[geneId.group(1)] = []
                             genesAttributes[geneId.group(1)].append(geneName)
                             genesAttributes[geneId.group(1)].append(geneBiotype)
+                            genesAttributes[geneId.group(1)].append(feature[0])
            
     header = True
     for key, value in genesAttributes.items():
         if header:
-            print '\t'.join(("Gene.ID", "Gene.Name", "Biotype"))
+            print '\t'.join(("Gene.ID", "Chrom", "Gene.Name", "Biotype"))
             header = False
-        print '\t'.join((key, value[0], value[1]))
+        print '\t'.join((key, value[2], value[0], value[1]))
