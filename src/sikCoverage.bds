@@ -1,11 +1,14 @@
 
 string[] getCovFiles(string{} cmdExe, string[] sortedBams, string coverageFiles, string fastaRef, string chromSizes) {
 
-    if(!cmdExe.hasKey("samtoolsExe")) error "Can't get samtools executable, check your config file $configFile"
-    string samtoolsExe = cmdExe{"samtoolsExe"}
+    //if(!cmdExe.hasKey("samtoolsExe")) error "Can't get samtools executable, check your config file $configFile"
+    //string samtoolsExe = cmdExe{"samtoolsExe"}
+
+    if(!cmdExe.hasKey("bedtoolsExe")) error "Can't get bedtools executable, check your config file $configFile"
+    string samtoolsExe = cmdExe{"bedtoolsExe"}
 
     string bedGraphToBigWig = programPath.pathName()+"/../scripts/ucsc_bin/bedGraphToBigWig"
-    string covExe = programPath.pathName()+"/../scripts/cov"
+    //string covExe = programPath.pathName()+"/../scripts/cov"
 
     //NOTE this is for future implementation of strand specific coverage
     //string samFlag = "-F"
@@ -16,17 +19,30 @@ string[] getCovFiles(string{} cmdExe, string[] sortedBams, string coverageFiles,
         //string bedGraphFile = coverageFiles+"/"+bam.baseName().swapExt(".bam", "_$strand.bedGraph")
         string bedGraphFile = coverageFiles+"/"+bam.baseName().swapExt(".bam", ".bedGraph")
         string bigWigFile = bedGraphFile.split("_")[0]+".bw"
-        string trackName = bam.split("_")[0].baseName()
+        //string trackName = bam.split("_")[0].baseName()
 
-        dep(bigWigFile <- [bam, chromSizes, fastaRef], canFail := true, taskName := "Getting coverage files in bigWig for $bam", tmp := "$bedGraphFile.tmp", tmp2 := "$bedGraphFile.tmp2") {
-            sys $samtoolsExe depth -a -d 2000000000 --reference $fastaRef $bam | \
-                $covExe $trackName > $tmp
-            sys sort -k1,1 -k2,2n $tmp > $tmp2
-            sys grep track $tmp2 > $bedGraphFile
-            sys grep -v track $tmp2 >> $bedGraphFile
+        //string bigWigFile = covFile.replace(".bedGraph", ".bw")
+
+        dep(bigWigFile <- [bam, chromSizes, fastaRef], canFail := true, taskName := "Getting coverage files in bigWig for $bam", tmp := "$bedGraphFile.tmp") {
+            sys $bedtoolsExe genomecov -bga \
+                                       -split \
+                                       -ibam $bam \
+                                       -g $fastaRef > $tmp 
+
+            sys sort -k1,1 -k2,2n $tmp > $bedGraphFile 
             sys $bedGraphToBigWig $bedGraphFile $chromSizes $bigWigFile
-            sys rm $bedGraphFile $tmp $tmp2
+            sys rm $bedGraph $tmp
         }
+
+        //dep(bigWigFile <- [bam, chromSizes, fastaRef], canFail := true, taskName := "Getting coverage files in bigWig for $bam", tmp := "$bedGraphFile.tmp", tmp2 := "$bedGraphFile.tmp2") {
+        //    sys $samtoolsExe depth -a -d 2000000000 --reference $fastaRef $bam | \
+        //        $covExe $trackName > $tmp
+        //    sys sort -k1,1 -k2,2n $tmp > $tmp2
+        //    sys grep track $tmp2 > $bedGraphFile
+        //    sys grep -v track $tmp2 >> $bedGraphFile
+        //    sys $bedGraphToBigWig $bedGraphFile $chromSizes $bigWigFile
+        //    sys rm $bedGraphFile $tmp $tmp2
+        //}
         bigWigFiles.add(bigWigFile)
     }
     goal bigWigFiles
