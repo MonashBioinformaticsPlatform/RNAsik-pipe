@@ -24,7 +24,7 @@ string checkCmdArgs() {
                         "-genomeIdx", \
                         "-refFiles", \
                         "-metrics", \
-                        "-count", \
+                        "-counts", \
                         "-gtfFile", \
                         "-prePro", \
                         "-fastaRef", \
@@ -84,7 +84,7 @@ if( !align.isEmpty() && genomeIdx.isEmpty() ) {
 if(align == "starWithAnn" && (refFiles.isEmpty() || gtfFile.isEmpty())) error "Usage: -gtfFile /path/to/GTFfile"
 if(fastqc && fqDir.isEmpty()) error "Usage: -fqDir /path/to/FASTQ/files"
 
-if(count) {
+if(counts) {
     if(refFiles.isEmpty()) {
         if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
     }

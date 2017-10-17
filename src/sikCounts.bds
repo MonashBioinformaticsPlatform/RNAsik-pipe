@@ -2,15 +2,15 @@
 # Counts
 #----------------------------------------
 // runs python script `counts_parser.py` that guess strandness of the data
-string getStrandInfo(string{} cmdExe, string[] counts) {
+string getStrandInfo(string{} cmdExe, string[] readCounts) {
     if(!cmdExe.hasKey("pythonExe")) error "Can't get python executable, check your config file $configFile"
     string pythonExe = cmdExe{"pythonExe"}
 
     string getProgPath = programPath.pathName()
     string pyScript = getProgPath+"/../scripts/counts_parser.py"
-    string countsDir = counts[0].dirName()
+    string countsDir = readCounts[0].dirName()
     string strandInfo = countsDir+"/"+"strandInfo.txt"
-    task(count, strandInfo <- counts, taskName := "getting strand info") {
+    task(counts, strandInfo <- readCounts, taskName := "getting strand info") {
         sys $pythonExe $pyScript --logsDir $countsDir > $strandInfo
     }
     // this is temp hack to stop mask function evaluation before above python script had run
@@ -32,7 +32,7 @@ string mask(string countsDir, string strandInfo) {
         for(string f : countsDir.dirPath("*.summary")){
             if(f.baseName() != strandType) {
                 string masked = f.replace(".summary", ".summary.masked")
-                task(count, masked <- [f, strandInfo], taskName := "masking unwanted counts files") sys mv $f $masked 
+                task(counts, masked <- [f, strandInfo], taskName := "masking unwanted counts files") sys mv $f $masked 
             }
         }
         return strandInfo
@@ -46,7 +46,7 @@ string[] getReadsCount(string{} cmdExe, string countFiles, string[] bamsList, st
     if(!cmdExe.hasKey("countsExe")) error "Can't get featureCounts executable, check your config file $configFile"
     string countsExe = cmdExe{"countsExe"}
 
-    if( (bamsList.isEmpty()) && (count) ) error "No BAM files were found, either used -align options or specify directory with BAM files using `-bamFiles path/to/you/bams/directory`"
+    if( (bamsList.isEmpty()) && (counts) ) error "No BAM files were found, either used -align options or specify directory with BAM files using `-bamFiles path/to/you/bams/directory`"
 
     string bamString = bamsList.join(" ")
     string[] allDeps = bamsList
@@ -61,7 +61,7 @@ string[] getReadsCount(string{} cmdExe, string countFiles, string[] bamsList, st
     for(int i : range(0, 2)) {
         string countsName = countFiles+"/"+featureFiles[i]
         featureOut.add(countsName)
-        dep(count, countsName <- allDeps, taskName := "Counting features $countsName") {
+        dep(counts, countsName <- allDeps, taskName := "Counting features $countsName") {
             sys $countsExe -T 4 \
                            -s $i \
                            $extraOpts \
@@ -81,21 +81,21 @@ string getGeneIds(string pythonExe, string countFilesDir, string gtfFile, bool s
     }
     string pyScript = getProgPath+"/../scripts/getGeneIds.py"
     string geneIds = countFilesDir+"/"+"geneIds.txt"
-    task(count, geneIds <- gtfFile, taskName := "getting geneIds.txt file") {
+    task(counts, geneIds <- gtfFile, taskName := "getting geneIds.txt file") {
         sys $pythonExe $pyScript $pyFlag $gtfFile > $geneIds
     }
     return geneIds
 }
 
-string[] getProteinCoding(string[] counts, bool setGFF) {
+string[] getProteinCoding(string[] readCounts, bool setGFF) {
 
     string[] proteinCodingCounts
 
-    for(string countFile : counts) {
+    for(string countFile : readCounts) {
         string proteinCoding = countFile.removeExt()+"-proteinCoding.txt"
         proteinCodingCounts.add(proteinCoding)
         //TODO need to include setGFF bool into dep OR check that protein_coding feature type is present
-        dep(count, proteinCoding <- countFile, taskName := "getting protein coding counts") {
+        dep(counts, proteinCoding <- countFile, taskName := "getting protein coding counts") {
             sys grep "Biotype" $countFile > $proteinCoding
             sys grep "protein_coding" $countFile >> $proteinCoding
         }
@@ -118,7 +118,7 @@ string[] getDegust(string{} cmdExe, string countFilesDir, string[] featureCounts
     for(string countFile : featureCounts) {
         string withName = countFile.removeExt()+"-withNames.txt"
         withNames.add(withName)
-        dep(count, withName <- [countFile, geneIdsFile], taskName := "Degust-ready counts file", tmp := "$countFile.tmp", tmp2 := "$countFile.tmp2") {
+        dep(counts, withName <- [countFile, geneIdsFile], taskName := "Degust-ready counts file", tmp := "$countFile.tmp", tmp2 := "$countFile.tmp2") {
             sys grep -v "#" $countFile | cut -f1,$cutRange | perl -pe 's{\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $tmp
             sys sed -i '0,/Geneid/s/Geneid/Gene.ID/' $tmp
             sys /bin/bash -c "join -j 1 <(sort -k1,1 $geneIdsFile) <(sort -k1,1 $tmp) -t $'\t' > $tmp2"
