@@ -1,13 +1,13 @@
 #----------------------------------------
 # Counts
 #----------------------------------------
-// runs python script `counts_parser.py` that guess strandness of the data
+// runs python script `strand_guessing.py` that guess strandness of the data
 string getStrandInfo(string{} cmdExe, string[] readCounts) {
     if(!cmdExe.hasKey("pythonExe")) error "Can't get python executable, check your config file $configFile"
     string pythonExe = cmdExe{"pythonExe"}
 
     string getProgPath = programPath.pathName()
-    string pyScript = getProgPath+"/../scripts/counts_parser.py"
+    string pyScript = getProgPath+"/../scripts/strand_guessing.py"
     string countsDir = readCounts[0].dirName()
     string strandInfo = countsDir+"/"+"strandInfo.txt"
     task(counts, strandInfo <- readCounts, taskName := "getting strand info") {
