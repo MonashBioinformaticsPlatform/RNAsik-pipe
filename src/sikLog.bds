@@ -63,22 +63,23 @@ string sikLoger(string logFile, string content) {
     return "logged"
 }
 
-//string logOpts(string toolName, string toolOpts, string logsDir) {
-//    string optsLogDir = logsDir+"/toolsOptions"
-//    if(!optsLogDir.exists()) optsLogDir.mkdir()
-//    
-//    string toolLog = optsLogDir+"/"+toolName
-//    string toolOptsStr = parseMap(toolOpts)
-//    toolOptsStr.write(toolLog)
-//    return toolsOptsStr
-//
-//}
+string mkLog(string fileName, string strToLog, string logType, string logsDir) {
+    // there will be a few different types with in logsDir e.g toolsOpts, toolsVersions
+    string theLogDir = logsDir+"/"+logType
+    if(!theLogDir.exists()) theLogDir.mkdir()
 
-string getToolsVersions(string{} cmdExe, string versionsDir) {
+    string logFile = theLogDir+"/"+fileName
+    strToLog.write(logFile)
+    return strToLog
+}
+
+string getToolsVersions(string{} cmdExe, string logsDir) {
     //NOTE I think it would be better to make these versions calls embeded into individual function
     // e.g star version check can be inside star align task.
     // the problem with doing it this way; STAR gets called several times, depending on number of fastq files
     // and everytime we are going to check its version.
+    string versionsDir = logsDir+"/versions"
+    if(!versionsDir.exists()) versionsDir.mkdir()
 
     string[] tools = ["starExe", \
                       "hisat2Exe", \

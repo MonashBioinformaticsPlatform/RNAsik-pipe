@@ -4,25 +4,31 @@ include "sikBWAaligner.bds"
 include "sikExtraOptions.bds"
 include "sikLog.bds"
 
-string getIdx(string{} cmdExe, string aligner, bool gff, string refFiles, string localFastaRef, string localGTF, string userExtraOpts, int threads, string logFile) {
+string getIdx(string{} cmdExe, string aligner, bool gff, string refFiles, string localFastaRef, string localGTF, string userExtraOpts, int threads, string logsDir) {
     string genomeIdx
     // STAR index cmd options
     string{} starIdxOpts
     if(align == "starWithAnn") starIdxOpts = {"--sjdbGTFfile" => localGTF, "--sjdbOverhang" => 100 }
     if(gff) starIdxOpts{"--sjdbGTFtagExonParentTranscript"} = "Parent" 
-    string allStarIdxOpts = getOpts(getOptsMap("starIndex", starIdxOpts, userExtraOpts))
-    logit(logFile, "STAR indexing cmd options", allStarIdxOpts)
     // Hisat2 index cmd options
     string{} hisat2IdxOpts = {}
-    string allHisat2IdxOpts = getOpts(getOptsMap("hisat2Index", hisat2IdxOpts, userExtraOpts))
-    logit(logFile, "Hisat2 indexing cmd options", allHisat2IdxOpts)
     string{} bwaIdxOpts = {}
-    string allBWAidxOpts = getOpts(getOptsMap("bwaIdx", bwaIdxOpts, userExtraOpts))
-    logit(logFile, "bwaa indexing cmd options", allBWAidxOpts)
     // Run the right indexing
-    if(aligner.indexOf("star") != -1) genomeIdx = makeSTARindex(cmdExe, refFiles, localFastaRef, localGTF, allStarIdxOpts, threads)
-    if(aligner.indexOf("hisat2") != -1) genomeIdx = makeHisat2Idx(cmdExe, refFiles, localFastaRef, localGTF, allHisat2IdxOpts, threads)
-    if(aligner.indexOf("bwa") != -1) genomeIdx = makeBWAidx(cmdExe, refFiles, localFastaRef, allBWAidxOpts, threads)
+    if(aligner.indexOf("star") != -1) {
+        string allStarIdxOpts = getOpts(getOptsMap("starIndex", starIdxOpts, userExtraOpts))
+        mkLog("STAR", allStarIdxOpts, "refFiles", logsDir)
+        genomeIdx = makeSTARindex(cmdExe, refFiles, localFastaRef, localGTF, allStarIdxOpts, threads)
+    }
+    if(aligner.indexOf("hisat2") != -1) {
+        string allHisat2IdxOpts = getOpts(getOptsMap("hisat2Index", hisat2IdxOpts, userExtraOpts))
+        mkLog("Hisat2", allHisat2IdxOpts, "refFiles", logsDir)
+        genomeIdx = makeHisat2Idx(cmdExe, refFiles, localFastaRef, localGTF, allHisat2IdxOpts, threads)
+    }
+    if(aligner.indexOf("bwa") != -1) {
+        string allBWAidxOpts = getOpts(getOptsMap("bwaIdx", bwaIdxOpts, userExtraOpts))
+        mkLog("bwaMem", allBWAidxOpts, "refFiles", logsDir)
+        genomeIdx = makeBWAidx(cmdExe, refFiles, localFastaRef, allBWAidxOpts, threads)
+    }
 
     return genomeIdx
 }
