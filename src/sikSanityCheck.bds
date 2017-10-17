@@ -23,6 +23,7 @@ string checkCmdArgs() {
                         "-fqDir", \
                         "-genomeIdx", \
                         "-refFiles", \
+                        "-metrics", \
                         "-count", \
                         "-gtfFile", \
                         "-prePro", \
@@ -54,6 +55,12 @@ string checkCmdArgs() {
         }
     }
     return "thumbs up"
+}
+if(metrics) {
+    prePro = true
+    fastqc = true
+    exonicRate = true
+    multiqc = true
 }
 // assign strand
 if(!strand.isEmpty()) {

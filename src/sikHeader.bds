@@ -16,12 +16,13 @@ string align        help pick your aligner [star|hisat|bwa]
 string refFiles     help directory with reference files
 bool paired         help paired end data [false]
 bool count          help do read counts [featureCounts]
+bool metrics        help short hand for prePro, exonicRate, fastqc and multiqc
 
 help other
 
+string samplesSheet help tab delimited file [old_prefix \t new_prefix]
 string gtfFile      help path to refFile.gtf
 string fastaRef     help path to refFile.fa
-string samplesSheet help tab delimited file [old_prefix \t new_prefix]
 string genomeIdx    help genome index
 bool fastqc         help do FastQC reports [fastqc]
 bool exonicRate     help do Int(ra|er)genic rates [qualiMap]
