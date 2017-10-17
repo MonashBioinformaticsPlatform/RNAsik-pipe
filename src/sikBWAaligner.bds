@@ -3,7 +3,7 @@ string makeBWAidx(string{} cmdExe, string refFiles, string fastaRef, string bwaO
     if(!cmdExe.hasKey("bwaExe")) error "Can't get bwa mem executable, check your config file $configFile"
     string bwaExe = cmdExe{"bwaExe"}
 
-    string bwaIdxDir = refFiles+"/bwaIdxDir"
+    string bwaIdxDir = fastaRef.removeExt()+".bwaIdx"
     if(!bwaIdxDir.exists()) bwaIdxDir.mkdir()
 
     string bwaIdx = bwaIdxDir+"/"+fastaRef.baseName()
