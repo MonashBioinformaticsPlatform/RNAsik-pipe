@@ -69,7 +69,8 @@ string mkLog(string fileName, string strToLog, string logType, string logsDir) {
     if(!theLogDir.exists()) theLogDir.mkdir()
 
     string logFile = theLogDir+"/"+fileName
-    strToLog.write(logFile)
+    //strToLog.write(logFile)
+    sys echo "$strToLog" > $logFile
     return strToLog
 }
 
