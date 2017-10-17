@@ -196,6 +196,15 @@ string{} multiqcOpts = {"--config" => sikProgPath+"/../configs/multiqc_conf.yml"
 string allMultiqcOpts = getOpts(getOptsMap("multiqc", multiqcOpts, extraOpts))
 string qcReport = getMultiqc(cmdExe, sikDir, multiqcDeps, allMultiqcOpts)
 logit(logFile, "Multiqc will run on this directory", qcReport)
+
+if(prePro && (align == "star" || align == "starWithAnn")) {
+    string clnBamsDeps
+    clnBamsDeps += bamsList
+    clnBamsDeps += degust
+    task(clnBamsDeps, taskName := "removing raw bam files") {
+        sys rm $bamsList.join(" ")
+    }
+}
 #----------------------------------------------------------------------------------------------------
 # End
 #----------------------------------------------------------------------------------------------------
