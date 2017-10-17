@@ -91,7 +91,7 @@ string makeFaiFile(string samtoolsExe, string fastaRef) {
 }
 
 string makeChromSizes(string fastaRef) {
-    string chromSizes = fastaRef.removeExt()+".chrom.sizes"
+    string chromSizes = fastaRef.removeExt()+".chromSizes"
     string faChrom = programPath.pathName()+"/../scripts/ucsc_bin/faSize"
     task(chromSizes <- fastaRef, taskName := "Make chrom sizes file") {
         sys $faChrom -detailed $fastaRef > $chromSizes
@@ -105,7 +105,7 @@ string{} chkRefFiles(string refDir){
     // input to -fastaRef and -gtfFile but it will unzip them localy and I can't have that
     // since I'm assuming no write permissions to refFiles directory
     for(string refFile : refDir.dirPath()) {
-	string extn = refFile.removeExt()
+	string extn = refFile.extName()
 	if(extn == "gtf" || extn == "gff" || extn == "gff3") {
 	    totRefFiles{"gtf"} = refFile
         }
@@ -115,7 +115,7 @@ string{} chkRefFiles(string refDir){
 	if(extn == "dict"){
 	    totRefFiles{"dict"} = refFile
 	}
-	if(extn == "chrom.sizes") {
+	if(extn == "chromSizes") {
 	    totRefFiles{"chromSizes"} = refFile
 	}
 	if(extn == "starIdx" || extn == "bwaIdx") {
@@ -123,7 +123,8 @@ string{} chkRefFiles(string refDir){
 	}
     }
     //NOTE have to be strick here since we don't want to be geussing which one of multiple gtf/gff files to pick.
-    if(totRefFiles.values().size() != 5 ) error "Too many or too little refFiles were found, $totRefFiles.values().join(\"\n\"). Try using -fastaRef and -gtfFile options instead"
+    string[] itemsChk = totRefFiles.values()
+    if(itemsChk.size() != 5 ) error "Too many or too little refFiles were found, '$totRefFiles'. Try using -fastaRef and -gtfFile options instead"
 
     return totRefFiles
 }

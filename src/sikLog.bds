@@ -1,3 +1,23 @@
+
+// What needs logging: 
+//
+// - tools version
+// - samplesSheet
+// - timestamp, first run and all the consecutive runs
+// - reference files location (full path), particular now that I have -refFiles options
+// - gft or gff 
+// - paired end or not
+// - additional options for every tool
+// - strand guessing
+// 
+// Where and how to keep the log?
+// 
+// - single director "logs"
+// - with subdirectories for each task e.g:
+//    - tools versions log
+//    - tools options log
+//------------------------------------------------------------------------------------------
+
 string logit(string logFile, string message, string data) {
     string content
     if(logFile.exists()) content = logFile.read()
@@ -42,6 +62,17 @@ string sikLoger(string logFile, string content) {
     logFile.write(prevContent)
     return "logged"
 }
+
+//string logOpts(string toolName, string toolOpts, string logsDir) {
+//    string optsLogDir = logsDir+"/toolsOptions"
+//    if(!optsLogDir.exists()) optsLogDir.mkdir()
+//    
+//    string toolLog = optsLogDir+"/"+toolName
+//    string toolOptsStr = parseMap(toolOpts)
+//    toolOptsStr.write(toolLog)
+//    return toolsOptsStr
+//
+//}
 
 string getToolsVersions(string{} cmdExe, string versionsDir) {
     //NOTE I think it would be better to make these versions calls embeded into individual function
@@ -110,3 +141,4 @@ string getToolsVersions(string{} cmdExe, string versionsDir) {
     }
     return "all good!"
 }
+

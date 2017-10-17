@@ -1,7 +1,7 @@
-#----------------------------------------------------------------------------------------------------
-# RNAsik is fully sick way to get from FASTQ to list of counts, ready to load Degust file and more !
-#----------------------------------------------------------------------------------------------------
-
+#-----------------------------------------------------------------------------------------------
+# title: RNAsik is a fully sick way to get from FASTQ to list of counts and more. Degust ready !
+# author: kizza
+#-----------------------------------------------------------------------------------------------
 include "sikHeader.bds"
 include "sikSanityCheck.bds"
 include "sikRefFiles.bds"
@@ -14,6 +14,7 @@ include "sikPrePro.bds"
 include "sikQCreports.bds"
 include "sikExonicRate.bds"
 include "sikCoverage.bds"
+include "sikCleanUp.bds"
 // Check cmd args first up
 string checkCmdInput = checkCmdArgs()
 // set main directory
@@ -74,8 +75,7 @@ string localFastaRef
 if(!fastaRef.isEmpty() && !totRefFiles) localFastaRef = makeLocalRef(fastaRef, refFilesDir, "fasta")
 else localFastaRef = totRefFiles{"fa"}
 logit(logFile, "Referece FASTA file", localFastaRef)
-
-// set path to gtf file
+// set path to gtf file string localGTF
 string localGTF
 if(!gtfFile.isEmpty() && !totRefFiles) localGTF = makeLocalRef(gtfFile, refFilesDir, "gtf")
 else localGTF = totRefFiles{"gtf"}
@@ -100,7 +100,7 @@ logit(logFile, "chrom sizes", chromSizes)
 // get genomeIdx 
 if(!align.isEmpty() && totRefFiles) {
     genomeIdx = totRefFiles{"idx"}
-    string chkExtn = genomeIdx.removeExt()
+    string chkExtn = genomeIdx.extName()
     if(!chkExtn.startsWith(align)) error "Index ($genomeIdx) doesn't seem to correspond to aligner ($align) of choice"
 } 
 else if(!align.isEmpty() && genomeIdx.isEmpty()) {
@@ -125,9 +125,9 @@ if(!samplesMap && ( (count) || (prePro) || (exonicRate) ) ) {
 string[] markedBams = getMarkedBams(cmdExe, markedDupsBams, bamsList, localFastaRef, fastaDictFile)
 logit(logFile, "Pre-processed BAM files", parseList(markedBams))
 // coverage files
-string[] strands = ["for", "rev"]
-//for(string strand : strands) {
 //NOTE this is for future implementation of strand specific coverage
+//string[] strands = ["for", "rev"]
+//for(string strand : strands) {
 string[] covFiles = getCovFiles(cmdExe, markedBams, coverageFilesDir, localFastaRef, chromSizes)
 //}
 // featureCounts cmd options
@@ -164,8 +164,9 @@ if(paired) {
 }
 string allExonicOpts = getOpts(getOptsMap("qualimap", exonicOpts, extraOpts))
 logit(logFile, "QualiMap additional cmd options", allExonicOpts)
+
 // get Int(ra|er)genic rates
-string[] exonicRates = getExonicRates(cmdExe, sikDir, bamsList, allExonicOpts, strandInfo, gtfFile, logFile)
+string[] exonicRates = getExonicRates(cmdExe, sikDir, markedBams, allExonicOpts, strandInfo, gtfFile, logFile)
 logit(logFile, "Exonic rates files", parseList(exonicRates))
 // FastQC report
 string{} fastqcOpts = { "--format" => "fastq", \
@@ -175,13 +176,9 @@ string fqQcOpts = getOpts(getOptsMap("fastqc", fastqcOpts, extraOpts))
 logit(logFile, "FastQC additional cmd options", fqQcOpts)
 string[] fqQcReport = getFastqcReport(cmdExe, fastqcReport, fqFiles, fqQcOpts, extn, threads)
 logit(logFile, "FastQC reports", parseList(fqQcReport))
-// removed BAMS from STAR output to save space, use -keepBams if you'd like to keep them
-//TODO I think best approach for cleaning up would be as a separate flag e.g -cleanUp
-// that will make it explicit for user that lots of intermidiate files will be deleted
-// otherwise I'm running a risk deleting dependencies files. Although when pipeline becomes more mature
-// -cleanUp can be set to true by defualt
-// also make -cleanUp work with -outDir such that user can pass in just those two options and that directory will be cleaned
-//string cleanUp = cleanBamsUp(bamsList, markedBams, featureCounts, exonicRates)
+// remove raw bam files and symlink processed bams instead
+// this is to remove redundant bam files
+string cleanUp = cleanBamsUp(bamsList, bamFiles, featureCounts, markedBams)
 // gather all files up for multiqc 
 string[] multiqcDeps
 if(!align.isEmpty()) multiqcDeps += bamsList
@@ -197,14 +194,6 @@ string allMultiqcOpts = getOpts(getOptsMap("multiqc", multiqcOpts, extraOpts))
 string qcReport = getMultiqc(cmdExe, sikDir, multiqcDeps, allMultiqcOpts)
 logit(logFile, "Multiqc will run on this directory", qcReport)
 
-if(prePro && (align == "star" || align == "starWithAnn")) {
-    string clnBamsDeps
-    clnBamsDeps += bamsList
-    clnBamsDeps += degust
-    task(clnBamsDeps, taskName := "removing raw bam files") {
-        sys rm $bamsList.join(" ")
-    }
-}
 #----------------------------------------------------------------------------------------------------
 # End
 #----------------------------------------------------------------------------------------------------
