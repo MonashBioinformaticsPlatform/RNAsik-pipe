@@ -67,7 +67,7 @@ string[] getAddMetrics(string{} cmdExe, string[] bamFiles, string fastaRef, stri
             sys $picardExe CollectAlignmentSummaryMetrics REFERENCE_SEQUENCE=$fastaRef \
                                                           INPUT=$bamFile \
                                                           OUTPUT=$alignMetrics
-            sys $picardExe CollectGcBiasMetrics INPUT=$bamFile.bam \
+            sys $picardExe CollectGcBiasMetrics INPUT=$bamFile \
                                                 OUTPUT=$gcMetrics \
                                                 CHART_OUTPUT=$gcMetricsPdf \
                                                 SUMMARY_OUTPUT=$gcMetricsSummary \
