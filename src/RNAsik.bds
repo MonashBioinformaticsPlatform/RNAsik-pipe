@@ -63,12 +63,9 @@ string toolsVersions = getToolsVersions(cmdExe, logsDir)
 
 string[] fqFiles
 if(!fqDir.isEmpty()) fqFiles = getFqFiles(fqDir, extn, sikDir)
-
 mkLog("fqFiles", parseList(fqFiles), "samples", logsDir)
-
+//
 if(samplesSheet.isEmpty()) samplesSheet = makeSamplesSheet(fqFiles, fqRgxs, pairIds, extn, sikDir)
-else string usrSamplesSheet = copySamplesSheet(sikDir, samplesSheet)
-mkLog("samplesSheet", parseMap(config(samplesSheet)), "samples", logsDir)
 
 // set path to fasta file
 string localFastaRef
@@ -80,23 +77,19 @@ string localGTF
 if(!gtfFile.isEmpty() && !totRefFiles) localGTF = makeLocalRef(gtfFile, refFilesDir, "gtf")
 else localGTF = totRefFiles{"gtf"}
 mkLog("gtfFile", localGTF, "refFiles", logsDir)
-
 // checking if annoation file is gff
 if(localGTF.extName() == "gff" || localGTF.extName() == "gff3") setGFF = true
 mkLog("gffBool", setGFF, "other", logsDir)
-
 // get .dict file 
 string fastaDictFile
 if(!totRefFiles) fastaDictFile = makeDictFile(cmdExe, localFastaRef)
 else fastaDictFile = totRefFiles{"dict"}
 mkLog("picardDictFile", fastaDictFile, "refFiles", logsDir)
-
 // get .chrom.sizes file 
 string chromSizes
 if(!totRefFiles) chromSizes = makeChromSizes(localFastaRef)
 else chromSizes = totRefFiles{"chromSizes"}
 mkLog("chromSizes", chromSizes, "refFiles", logsDir)
-
 // get genomeIdx 
 if(!align.isEmpty() && totRefFiles) {
     genomeIdx = totRefFiles{"idx"}

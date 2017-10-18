@@ -35,14 +35,6 @@ string chkFileExtn(string fileName, string fileType) {
     return fileName
 }
 
-string copySamplesSheet(string sikDir, string samplesSheet) {
-    string dest = sikDir+"/"+samplesSheet.baseName()
-    task(!samplesSheet.isEmpty(), dest <- samplesSheet, taskName := "copying users samples sheet into $sikDir") {
-        sys cp -v $samplesSheet $sikDir
-    }
-    return dest
-}
-
 string copyFile(string refFile, string refDir, string fileType) {
     string fileName = refFile.baseName()
     string localRef = refDir+"/"+fileName
