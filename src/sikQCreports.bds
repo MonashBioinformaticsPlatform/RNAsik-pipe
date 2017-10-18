@@ -59,21 +59,21 @@ string[] getAddMetrics(string{} cmdExe, string[] bamFiles, string fastaRef, stri
         addMetrics += hist
         addMetrics += alignMetrics
 
-        dep([insertMetrics, hist, alignMetrics] <- [bamFile, fastaRef, fastaDictFile], taskName := "gathering metrics "+bamFile, canFail := true) {
-            sys picardExe CollectInsertSizeMetrics INPUT=$bamFile \
-                                                   OUTPUT=$insertMetrics \
-                                                   HISTOGRAM_FILE=$hist \
-                                                   M=0.5 \
-            sys picardExe CollectAlignmentSummaryMetrics REFERENCE_SEQUENCE=$fastaRef \
-                                                         INPUT=$bamFile \
-                                                         OUTPUT=$alignMetrics
-            sys picardExe CollectGcBiasMetrics INPUT=$bamFile.bam \
-                                               OUTPUT=$gcMetrics \
-                                               CHART_OUTPUT=$gcMetricsPdf \
-                                               SUMMARY_OUTPUT=$gcMetricsSummary \
-                                               R=$fastaRef
-            sys picardExe EstimateLibraryComplexity INPUT=$bamFile \
-                                                    OUTPUT=$libComplex
+        dep([insertMetrics, hist, alignMetrics] <- [bamFile, fastaRef, fastaDictFile], cpus := 6, taskName := "gathering metrics "+bamFile, canFail := true) {
+            sys $picardExe CollectInsertSizeMetrics INPUT=$bamFile \
+                                                    OUTPUT=$insertMetrics \
+                                                    HISTOGRAM_FILE=$hist \
+                                                    M=0.5 \
+            sys $picardExe CollectAlignmentSummaryMetrics REFERENCE_SEQUENCE=$fastaRef \
+                                                          INPUT=$bamFile \
+                                                          OUTPUT=$alignMetrics
+            sys $picardExe CollectGcBiasMetrics INPUT=$bamFile.bam \
+                                                OUTPUT=$gcMetrics \
+                                                CHART_OUTPUT=$gcMetricsPdf \
+                                                SUMMARY_OUTPUT=$gcMetricsSummary \
+                                                R=$fastaRef
+            sys $picardExe EstimateLibraryComplexity INPUT=$bamFile \
+                                                     OUTPUT=$libComplex
         }
     }
     goal addMetrics
