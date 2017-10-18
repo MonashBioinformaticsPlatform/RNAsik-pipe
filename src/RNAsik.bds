@@ -70,12 +70,12 @@ mkLog("samplesSheet", parseMap(config(samplesSheet)), "samples", logsDir)
 // set path to fasta file
 string localFastaRef
 if(!fastaRef.isEmpty() && !totRefFiles) localFastaRef = makeLocalRef(fastaRef, refFilesDir, "fasta")
-else localFastaRef = totRefFiles{"fa"}
+else if(!refFiles.isEmpty()) localFastaRef = totRefFiles{"fa"}
 mkLog("fastaRef", localFastaRef, "refFiles", logsDir)
 // set path to gtf file string localGTF
 string localGTF
 if(!gtfFile.isEmpty() && !totRefFiles) localGTF = makeLocalRef(gtfFile, refFilesDir, "gtf")
-else localGTF = totRefFiles{"gtf"}
+else if(!refFiles.isEmpty()) localGTF = totRefFiles{"gtf"}
 mkLog("gtfFile", localGTF, "refFiles", logsDir)
 // checking if annoation file is gff
 if(localGTF.extName() == "gff" || localGTF.extName() == "gff3") setGFF = true
