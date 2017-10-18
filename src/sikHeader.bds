@@ -42,6 +42,7 @@ string extraOpts #help You can add extra option to any of the tools using args.t
 string configFile   #help You can specify configuration file
 // can use this string to pass in marked bams
 string proBams
+bool cleanUp
 // strand information
 string strand
 // setting GFF to false, default is GTF format

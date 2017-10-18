@@ -173,9 +173,11 @@ mkLog("fastqc", fqQcOpts, "refFiles", logsDir)
 
 string[] fqQcReport = getFastqcReport(cmdExe, fastqcReport, fqFiles, fqQcOpts, extn, threads)
 mkLog("fastqc", parseList(fqQcReport), "data", logsDir)
-// remove raw bam files and symlink processed bams instead
-// this is to remove redundant bam files
-string cleanUp = cleanBamsUp(bamsList, bamFiles, featureCounts, markedBams)
+
+if(cleanUp) {
+    //NOTE doing this step breaks the dependencies tree and you won't be able to rerun the same script
+    string cleaned = cleanBamsUp(bamsList, bamFiles, featureCounts, markedBams)
+}
 // gather all files up for multiqc 
 string[] multiqcDeps
 if(!align.isEmpty()) multiqcDeps += bamsList

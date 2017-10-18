@@ -41,6 +41,7 @@ string checkCmdArgs() {
                         "-proBams", \
                         "-configFile", \
                         "-multiqc", \
+                        "-cleanUp", \
                         "-outDir" \
                        ]
     // list of options specified by user
