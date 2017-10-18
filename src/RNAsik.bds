@@ -117,6 +117,9 @@ if(!samplesMap && ( (counts) || (prePro) || (exonicRate) ) ) {
 // sorted, reorted and marking duplicates in BAM files
 string[] markedBams = getMarkedBams(cmdExe, markedDupsBams, bamsList, localFastaRef, fastaDictFile)
 mkLog("mdupsBams", parseList(markedBams), "data", logsDir)
+// get additional RNAseq metrics 
+string[] addMetrics = getAddMetrics(cmdExe, markedBams, localFastaRef, fastaDictFile)
+mkLog("addMetrics", parseList(addMetrics), "data", logsDir)
 // coverage files
 //NOTE this is for future implementation of strand specific coverage
 //string[] strands = ["for", "rev"]
