@@ -23,14 +23,8 @@ parser.add_argument('--pattern',
                      help="specify ending of your log files, e.g featureCounts is .summary"
                     )
 
-parser.add_argument('--flip',
-                     action='store_true',
-                     help="Can flip html table 90 degress"
-                    )
-
 args = parser.parse_args()
 logsDir = args.logsDir
-flip = args.flip
 pattern = args.pattern
 
 #s_name = "Status"
@@ -62,27 +56,12 @@ pattern = args.pattern
 
 list_of_files = os.listdir(logsDir) 
 data_dict = {}
-
-def inner_flip(dd):
-
-    flipped = {}
-
-    l = len(dd.values()[0])
-    k = dd.keys()
-
-    flipped[k.pop(0)] = k
-    for i in range(l):
-        dat = [d[i] for d in dd.values()]
-        flipped[dat.pop(0)] = dat
-
-    return flipped
-
-def make_flip(d):
-    dd = {}
-    for k,v in d.items():
-         dd[k] = inner_flip(v)
-    return dd
     
+#def sign(x):
+#    if x >= 0:
+#        return 1
+#    return -1
+
 def which_strand(d):
 
     assigned_reads = {}
@@ -94,32 +73,28 @@ def which_strand(d):
     
     forward = int(assigned_reads['ForwardStrandedCounts'])
     reverse = int(assigned_reads['ReverseStrandedCounts'])
-    nonstranded = int(assigned_reads['NonStrandedCounts'])
+    #nonstranded = int(assigned_reads['NonStrandedCounts'])
     
-    # if positive data is forward stranded
-    # if negative data is reverse stranded
     strnd_val = float(forward-reverse)/float(forward+reverse)
-    
-    # confidence test
-    non_strnd_test = (20-1)/float(20+1) #0.904
-    strnd_test = (55-45)/float(55+45)   #0.1
-    def sign(x):
-        if x >= 0:
-            return 1
-        return -1
-    
-    if abs(strnd_val) < strnd_test:
-        #print "Data is stranded %s" % sign(strnd_val)
 
+    # confidence test
+    #non_strnd_test = (20-1)/float(20+1) #0.904
+    #strnd_test = (55-45)/float(55+45)   #0.1
+    strnd_test = (20-1)/float(20+1) #0.904
+    non_strnd_test = (55-45)/float(55+45)   #0.1
+
+    if abs(strnd_val) > strnd_test:
+        #print "Data is stranded %s" % sign(strnd_val)
         if strnd_val >= 0:
             return "ForwardStrandedCounts,0"
+
         return "ReverseStrandedCounts,0"
 
-    elif abs(strnd_val) > non_strnd_test:
+    elif abs(strnd_val) < non_strnd_test:
         #print "Data is non stranded %s" % sign(strnd_val)
         return "NonStrandedCounts,0"
     #NOTE default to non stranded counts, should do be ok to get through RNAsik run
-    elif strnd_test < abs(strnd_val) < non_strnd_test:
+    elif non_strnd_test < abs(strnd_val) < strnd_test:
         #print "It is hard to guess what strand the data is %s" % sign(strnd_val)
         return "NonStrandedCounts,1"
     else:
