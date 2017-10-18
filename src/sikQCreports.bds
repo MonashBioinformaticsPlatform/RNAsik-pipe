@@ -38,3 +38,44 @@ string getMultiqc(string{} cmdExe, string sikDir, string[] allDeps, string multi
     }
     return outdep
 }
+
+string[] getAddMetrics(string{} cmdExe, string[] bamFiles, string fastaRef) {
+    if(!cmdExe.hasKey("picardExe")) error "Can't get picard executable, check your config file $configFile"
+    string picardExe = cmdExe{"picardExe"}
+
+    string[] addMetrics
+
+    for(string bamFile : bamFiles) {
+
+        string insertMetrics = bamFile.replace(".bam", "_insert_size.metrics")
+        string hist = bamFile.replace(".bam", "_insert_size_hist.pdf")
+        string alignMetrics = bamFile.replace(".bam", "_align.metrics")
+        string gcMetrics = bamFile.replace(".bam", "_gc.metrics")
+        string gcMetricsPdf = bamFile.replace(".bam", "_gc.pdf")
+        string gcMetricsSummary = bamFile.replace(".bam", "_gc_summary.metrics")
+        string libComplex = bamFile.replace(".bam", "_lib_complex.metrics")
+
+        addMetrics += insertMetrics
+        addMetrics += hist
+        addMetrics += alignMetrics
+
+        dep([insertMetrics, hist, alignMetrics] <- [bamFile, fastaRef], taskName := "gathering metrics "+bamFile, canFail := true) {
+            sys picardExe CollectInsertSizeMetrics INPUT=$bamFile \
+                                                   OUTPUT=$insertMetrics \
+                                                   HISTOGRAM_FILE=$hist \
+                                                   M=0.5 \
+            sys picardExe CollectAlignmentSummaryMetrics REFERENCE_SEQUENCE=$fastaRef \
+                                                         INPUT=$bamFile \
+                                                         OUTPUT=$alignMetrics
+            sys picardExe CollectGcBiasMetrics INPUT=$bamFile.bam \
+                                               OUTPUT=$gcMetrics \
+                                               CHART_OUTPUT=$gcMetricsPdf \
+                                               SUMMARY_OUTPUT=$gcMetricsSummary \
+                                               R=$fastaRef
+            sys picardExe EstimateLibraryComplexity INPUT=$bamFile \
+                                                    OUTPUT=$libComplex
+        }
+    }
+    goal addMetrics
+    return addMetrics
+}
