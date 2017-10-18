@@ -1,3 +1,23 @@
+
+// What needs logging: 
+//
+// - tools version
+// - samplesSheet
+// - timestamp, first run and all the consecutive runs
+// - reference files location (full path), particular now that I have -refFiles options
+// - gft or gff 
+// - paired end or not
+// - additional options for every tool
+// - strand guessing
+// 
+// Where and how to keep the log?
+// 
+// - single director "logs"
+// - with subdirectories for each task e.g:
+//    - tools versions log
+//    - tools options log
+//------------------------------------------------------------------------------------------
+
 string logit(string logFile, string message, string data) {
     string content
     if(logFile.exists()) content = logFile.read()
@@ -43,11 +63,24 @@ string sikLoger(string logFile, string content) {
     return "logged"
 }
 
-string getToolsVersions(string{} cmdExe, string versionsDir) {
+string mkLog(string fileName, string strToLog, string logType, string logsDir) {
+    // there will be a few different types with in logsDir e.g toolsOpts, toolsVersions
+    string theLogDir = logsDir+"/"+logType
+    if(!theLogDir.exists()) theLogDir.mkdir()
+
+    string logFile = theLogDir+"/"+fileName
+    //strToLog.write(logFile)
+    sys echo "$strToLog" > $logFile
+    return strToLog
+}
+
+string getToolsVersions(string{} cmdExe, string logsDir) {
     //NOTE I think it would be better to make these versions calls embeded into individual function
     // e.g star version check can be inside star align task.
     // the problem with doing it this way; STAR gets called several times, depending on number of fastq files
     // and everytime we are going to check its version.
+    string versionsDir = logsDir+"/versions"
+    if(!versionsDir.exists()) versionsDir.mkdir()
 
     string[] tools = ["starExe", \
                       "hisat2Exe", \
@@ -110,3 +143,4 @@ string getToolsVersions(string{} cmdExe, string versionsDir) {
     }
     return "all good!"
 }
+

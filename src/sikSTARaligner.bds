@@ -10,7 +10,7 @@ string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string g
     if(!cmdExe.hasKey("starExe")) error "Can't get STAR executable, check your config file $configFile"
     string starExe = cmdExe{"starExe"}
 
-    string genomeIdxDir = fastaRef.removeExt()+"-starIndex"
+    string genomeIdxDir = fastaRef.removeExt()+".starIdx"
     if(!genomeIdxDir.exists()) genomeIdxDir.mkdir()
     
     string[] idxFiles = ["chrLength.txt", "chrNameLength.txt", "chrName.txt", "chrStart.txt", "Genome", "genomeParameters.txt", "SA", "SAindex"]

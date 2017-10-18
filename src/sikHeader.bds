@@ -13,14 +13,16 @@ help main
 
 string fqDir        help path to fastqs directory, can be nested
 string align        help pick your aligner [star|hisat|bwa]
-string fastaRef     help path to refFile.fa
+string refFiles     help directory with reference files
 bool paired         help paired end data [false]
-bool count          help do read counts [featureCounts]
-string gtfFile      help path to refFile.gtf
+bool counts         help do read counts [featureCounts]
+bool metrics        help short hand for prePro, exonicRate, fastqc and multiqc
 
 help other
 
 string samplesSheet help tab delimited file [old_prefix \t new_prefix]
+string gtfFile      help path to refFile.gtf
+string fastaRef     help path to refFile.fa
 string genomeIdx    help genome index
 bool fastqc         help do FastQC reports [fastqc]
 bool exonicRate     help do Int(ra|er)genic rates [qualiMap]
@@ -40,6 +42,7 @@ string extraOpts #help You can add extra option to any of the tools using args.t
 string configFile   #help You can specify configuration file
 // can use this string to pass in marked bams
 string proBams
+bool cleanUp
 // strand information
 string strand
 // setting GFF to false, default is GTF format

@@ -1,7 +1,7 @@
-#----------------------------------------------------------------------------------------------------
-# RNAsik is fully sick way to get from FASTQ to list of counts, ready to load Degust file and more !
-#----------------------------------------------------------------------------------------------------
-
+#-----------------------------------------------------------------------------------------------
+# title: RNAsik is a fully sick way to get from FASTQ to list of counts and more. Degust ready !
+# author: kizza
+#-----------------------------------------------------------------------------------------------
 include "sikHeader.bds"
 include "sikSanityCheck.bds"
 include "sikRefFiles.bds"
@@ -14,6 +14,7 @@ include "sikPrePro.bds"
 include "sikQCreports.bds"
 include "sikExonicRate.bds"
 include "sikCoverage.bds"
+include "sikCleanUp.bds"
 // Check cmd args first up
 string checkCmdInput = checkCmdArgs()
 // set main directory
@@ -26,88 +27,102 @@ if(!outDir.isEmpty()) {
     else sikDir = outDir
 }
 else sikDir = "sikRun"
+
+string{} totRefFiles
+if(!refFiles.isEmpty()) totRefFiles = chkRefFiles(refFiles)
+
 // make directories as required
 if(!sikDir.exists()) sikDir.mkdir()
-string logFile = sikDir+"/"+"logFile.txt"
-string refFiles = sikDir+"/"+"refFiles"
-if(!refFiles.exists()) refFiles.mkdir()
-string versionsDir = sikDir+"/.versions"
-if(!versionsDir.exists()) versionsDir.mkdir()
+string refFilesDir = sikDir+"/"+"refFiles"
+if(!refFilesDir.exists() && refFiles.isEmpty()) refFilesDir.mkdir()
+string logsDir = sikDir+"/logs"
+if(!logsDir.exists()) logsDir.mkdir()
 string bamFiles = sikDir+"/"+"bamFiles"
 if( (!bamFiles.exists()) && (!fqDir.isEmpty()) ) bamFiles.mkdir()
 string countFiles = sikDir+"/"+"countFiles"
-if((!countFiles.exists()) && (count)) countFiles.mkdir()
+if((!countFiles.exists()) && (counts)) countFiles.mkdir()
 string markedDupsBams = sikDir+"/"+"markedDupsBams"
 if((!markedDupsBams.exists()) && (prePro)) markedDupsBams.mkdir()
 string coverageFilesDir = sikDir+"/"+"coverageFiles"
 if((!coverageFilesDir.exists()) && (prePro)) coverageFilesDir.mkdir()
 string fastqcReport = sikDir+"/"+"fastqcReport"
 if((!fastqcReport.exists()) && (fastqc)) fastqcReport.mkdir()
+
 // Start loging
-string date = sys date
-logit(logFile, ">Starting new RNAsik run", date.trim())
+//string date = sys date
+//logit(logFile, ">Starting new RNAsik run", date.trim())
+
 // Parse config file
 string sikProgPath = programPath.pathName()
-if(!configFile.isEmpty()) logit(logFile, "Config file parameters passed by user", configFile.read())
-else {
+if(configFile.isEmpty()) {
     configFile = sikProgPath+"/../configs/sik.config"
-    logit(logFile, "Paths to the executables", configFile.read())
 }
 string{} cmdExe = config(configFile)
 // log versions of tools used
-string toolsVersions = getToolsVersions(cmdExe, versionsDir)
+string toolsVersions = getToolsVersions(cmdExe, logsDir)
 
 string[] fqFiles
 if(!fqDir.isEmpty()) fqFiles = getFqFiles(fqDir, extn, sikDir)
-logit(logFile, "Fastq files found in the fqDir directory", parseList(fqFiles))
-
+mkLog("fqFiles", parseList(fqFiles), "samples", logsDir)
+//
 if(samplesSheet.isEmpty()) samplesSheet = makeSamplesSheet(fqFiles, fqRgxs, pairIds, extn, sikDir)
-else string usrSamplesSheet = copySamplesSheet(sikDir, samplesSheet)
-logit(logFile, "Samples Sheet: Old prefix \\t New prefix", parseMap(config(samplesSheet)))
-
-// local Fasta file
+mkLog("samplesSheet", parseMap(config(samplesSheet)), "samples", logsDir)
+// set path to fasta file
 string localFastaRef
-if(!fastaRef.isEmpty()) localFastaRef = makeLocalRef(fastaRef, refFiles, "fasta")
-logit(logFile, "Referece FASTA file", localFastaRef)
-// local GTF file
+if(!fastaRef.isEmpty() && !totRefFiles) localFastaRef = makeLocalRef(fastaRef, refFilesDir, "fasta")
+else localFastaRef = totRefFiles{"fa"}
+mkLog("fastaRef", localFastaRef, "refFiles", logsDir)
+// set path to gtf file string localGTF
 string localGTF
-if(!gtfFile.isEmpty()) localGTF = makeLocalRef(gtfFile, refFiles, "gtf")
-logit(logFile, "Reference GTF file", localGTF)
+if(!gtfFile.isEmpty() && !totRefFiles) localGTF = makeLocalRef(gtfFile, refFilesDir, "gtf")
+else localGTF = totRefFiles{"gtf"}
+mkLog("gtfFile", localGTF, "refFiles", logsDir)
 // checking if annoation file is gff
 if(localGTF.extName() == "gff" || localGTF.extName() == "gff3") setGFF = true
-logit(logFile, "You are using GFF annotation file", setGFF)
+mkLog("gffBool", setGFF, "other", logsDir)
 // get .dict file 
-string fastaDictFile = makeDictFile(cmdExe, localFastaRef)
-logit(logFile, "Picard dictionary file", fastaDictFile)
+string fastaDictFile
+if(!totRefFiles) fastaDictFile = makeDictFile(cmdExe, localFastaRef)
+else fastaDictFile = totRefFiles{"dict"}
+mkLog("picardDictFile", fastaDictFile, "refFiles", logsDir)
 // get .chrom.sizes file 
-string chromSizes = makeChromSizes(localFastaRef)
-logit(logFile, "chrom sizes", chromSizes)
+string chromSizes
+if(!totRefFiles) chromSizes = makeChromSizes(localFastaRef)
+else chromSizes = totRefFiles{"chromSizes"}
+mkLog("chromSizes", chromSizes, "refFiles", logsDir)
 // get genomeIdx 
-if(!align.isEmpty() && genomeIdx.isEmpty()) {
-    genomeIdx = getIdx(cmdExe, align, setGFF, refFiles, localFastaRef, localGTF, extraOpts, threads, logFile)
+if(!align.isEmpty() && totRefFiles) {
+    genomeIdx = totRefFiles{"idx"}
+    string chkExtn = genomeIdx.extName()
+    if(!chkExtn.startsWith(align)) error "Index ($genomeIdx) doesn't seem to correspond to aligner ($align) of choice"
 } 
-logit(logFile, "STAR genomic index directory", genomeIdx)
+else if(!align.isEmpty() && genomeIdx.isEmpty()) {
+    genomeIdx = getIdx(cmdExe, align, setGFF, refFilesDir, localFastaRef, localGTF, extraOpts, threads, logsDir)
+} 
+mkLog(align, genomeIdx, "refFiles", logsDir)
+
 // map of FASTQ to unique name i.e gathering FASTQ that are split across different lanes
 string{} samplesMap
 if(!fqDir.isEmpty()) samplesMap = getSamplesMap(fqFiles, samplesSheet)
-logit(logFile, "Fastq files grouped by samples", parseFqMap(samplesMap))
+mkLog("fqMap", parseFqMap(samplesMap), "samples", logsDir)
 // BAM files
-string[] bamsList = getBams(cmdExe, align, bamFiles, samplesMap, pairIds, paired, extraOpts, genomeIdx, threads, memory, logFile)
-logit(logFile, "BAM files", parseList(bamsList))
+string[] bamsList = getBams(cmdExe, align, bamFiles, samplesMap, pairIds, paired, extraOpts, genomeIdx, threads, memory, logsDir)
+mkLog("bams", parseList(bamsList), "data", logsDir)
 // If user wants to use other parts of the pipeline without generating BAM files
-if(!samplesMap && ( (count) || (prePro) || (exonicRate) ) ) {
+if(!samplesMap && ( (counts) || (prePro) || (exonicRate) ) ) {
     // get bam file from the bamFiles directory
     if(bamFiles.exists()) bamsList = bamFiles.dirPath("*.bam")
     else error "No bam files or bamFiles directory was found. You can pass bam files using -bamFiles /path/to/bamFiles/dir"
 }
 // sorted, reorted and marking duplicates in BAM files
 string[] markedBams = getMarkedBams(cmdExe, markedDupsBams, bamsList, localFastaRef, fastaDictFile)
-logit(logFile, "Pre-processed BAM files", parseList(markedBams))
+mkLog("mdupsBams", parseList(markedBams), "data", logsDir)
 // coverage files
-string[] strands = ["for", "rev"]
-//for(string strand : strands) {
 //NOTE this is for future implementation of strand specific coverage
+//string[] strands = ["for", "rev"]
+//for(string strand : strands) {
 string[] covFiles = getCovFiles(cmdExe, markedBams, coverageFilesDir, localFastaRef, chromSizes)
+mkLog("covFiles", parseList(covFiles), "data", logsDir)
 //}
 // featureCounts cmd options
 string{} countsOpts = { "-a" => localGTF }
@@ -117,21 +132,23 @@ if(setGFF) {
     countsOpts{"-g"} = "Parent"
 }
 string allCountOpts = getOpts(getOptsMap("featureCounts", countsOpts, extraOpts))
-logit(logFile, "featureCounts cmd options", allCountOpts)
+mkLog("featureCounts", allCountOpts, "toolsOpts", logsDir)
 // get counts
 string[] featureCounts = getReadsCount(cmdExe, countFiles, bamsList, allCountOpts, localGTF, threads)
-logit(logFile, "Raw counts from featureCounts", parseList(featureCounts))
+mkLog("featureCounts", parseList(featureCounts), "data", logsDir)
 // get strand info
 string strandInfo = getStrandInfo(cmdExe, featureCounts)
-if(strandInfo.isFile()) logit(logFile, "The library strandness was detected as:", strandInfo.read().trim())
-logit(logFile, "The library appears to be paired end:", paired)
+if(strandInfo.isFile()) {
+    mkLog("strandInfo", strandInfo.read().trim(), "data", logsDir)
+} 
+mkLog("pairedBool", paired, "other", logsDir)
 if(exonicRate) {
     //TODO maybe error is to strong. Have a think of a way to including warning instead. 
-    if(!count && strand.isEmpty()) error "No strand information found. Use -count flag to get it. Alternatively use -strand flag with appropriate strand type."
-    if(!count && !strand.isEmpty()) strandInfo = strand
+    if(!counts && strand.isEmpty()) error "No strand information found. Use -counts flag to get it. Alternatively use -strand flag with appropriate strand type."
+    if(!counts && !strand.isEmpty()) strandInfo = strand
 }
 string[] degust = getDegust(cmdExe, countFiles, featureCounts, bamsList.size(), localGTF, setGFF, threads)
-logit(logFile, "Degust ready, protein_coding counts only", parseList(degust))
+mkLog("degust", parseList(degust), "data", logsDir)
 string{} exonicOpts = { "-gtf" => localGTF }
 if(paired) {
     // flag for paired end data
@@ -142,39 +159,39 @@ if(paired) {
     exonicOpts{"--sorted"} = ""
 }
 string allExonicOpts = getOpts(getOptsMap("qualimap", exonicOpts, extraOpts))
-logit(logFile, "QualiMap additional cmd options", allExonicOpts)
+mkLog("qualiMap", allExonicOpts, "refFiles", logsDir)
+
 // get Int(ra|er)genic rates
-string[] exonicRates = getExonicRates(cmdExe, sikDir, bamsList, allExonicOpts, strandInfo, gtfFile, logFile)
-logit(logFile, "Exonic rates files", parseList(exonicRates))
+string[] exonicRates = getExonicRates(cmdExe, sikDir, markedBams, allExonicOpts, strandInfo, gtfFile)
+mkLog("qualiMap", parseList(exonicRates), "data", logsDir)
 // FastQC report
 string{} fastqcOpts = { "--format" => "fastq", \
                         "--quiet" => ""}
-//fastqcOpts{ "--casava" } = ""
+
 string fqQcOpts = getOpts(getOptsMap("fastqc", fastqcOpts, extraOpts))
-logit(logFile, "FastQC additional cmd options", fqQcOpts)
+mkLog("fastqc", fqQcOpts, "refFiles", logsDir)
+
 string[] fqQcReport = getFastqcReport(cmdExe, fastqcReport, fqFiles, fqQcOpts, extn, threads)
-logit(logFile, "FastQC reports", parseList(fqQcReport))
-// removed BAMS from STAR output to save space, use -keepBams if you'd like to keep them
-//TODO I think best approach for cleaning up would be as a separate flag e.g -cleanUp
-// that will make it explicit for user that lots of intermidiate files will be deleted
-// otherwise I'm running a risk deleting dependencies files. Although when pipeline becomes more mature
-// -cleanUp can be set to true by defualt
-// also make -cleanUp work with -outDir such that user can pass in just those two options and that directory will be cleaned
-//string cleanUp = cleanBamsUp(bamsList, markedBams, featureCounts, exonicRates)
+mkLog("fastqc", parseList(fqQcReport), "data", logsDir)
+
+if(cleanUp) {
+    //NOTE doing this step breaks the dependencies tree and you won't be able to rerun the same script
+    string cleaned = cleanBamsUp(bamsList, bamFiles, featureCounts, markedBams)
+}
 // gather all files up for multiqc 
 string[] multiqcDeps
 if(!align.isEmpty()) multiqcDeps += bamsList
 if(prePro) multiqcDeps += markedBams
-if(count) multiqcDeps += degust
+if(counts) multiqcDeps += degust
 if(fastqc) multiqcDeps += fqQcReport
 if(exonicRate) multiqcDeps += exonicRates
-logit(logFile, "MultiQC dependency files", parseList(multiqcDeps))
+//logit(logFile, "MultiQC dependency files", parseList(multiqcDeps))
 
 string{} multiqcOpts = {"--config" => sikProgPath+"/../configs/multiqc_conf.yml"}
 
 string allMultiqcOpts = getOpts(getOptsMap("multiqc", multiqcOpts, extraOpts))
+mkLog("multiqc", allMultiqcOpts, "toolsOpts", logsDir)
 string qcReport = getMultiqc(cmdExe, sikDir, multiqcDeps, allMultiqcOpts)
-logit(logFile, "Multiqc will run on this directory", qcReport)
 #----------------------------------------------------------------------------------------------------
 # End
 #----------------------------------------------------------------------------------------------------

@@ -11,30 +11,22 @@ string[] getMarkedBams(string{} cmdExe, string markedDupsBams, string[] bamFiles
     for(string bamFile : bamFiles) {
         string[] sampleName = bamFile.baseName().split("_")
         string sortedName = markedDupsBams+"/"+sampleName[0]+"_sorted.bam"
-        string sortedIdx = markedDupsBams+"/"+sampleName[0]+"_sorted.bai"
-        string reorderedName = sortedName.swapExt(".bam", "_reordered.bam")
-        string mdupsName = reorderedName.swapExt(".bam", "_marked_dups.bam")
-        string metricsName = reorderedName.swapExt(".bam", "_marked_dups.metrics")
+        string mdupsName = sortedName.swapExt(".bam", "_mdups.bam")
+        string metricsName = sortedName.swapExt(".bam", "_mdups.metrics")
 
-        dep(prePro, [mdupsName, metricsName] <- [bamFile, fastaDictFile], cpus := 6, taskName := "picard sorting "+bamFile) {
+        dep(prePro, [mdupsName, metricsName] <- [bamFile, fastaDictFile], cpus := 4, taskName := "picard sorting "+bamFile) {
             sys $picardExe SortSam TMP_DIR=tmp/ \
                                    VALIDATION_STRINGENCY=LENIENT \
-                                   CREATE_INDEX=true \
                                    INPUT=$bamFile \
                                    OUTPUT=$sortedName \
                                    SORT_ORDER=coordinate
-            sys $picardExe ReorderSam TMP_DIR=tmp/ \
-                                      VALIDATION_STRINGENCY=LENIENT \
-                                      INPUT=$sortedName \
-                                      OUTPUT=$reorderedName \
-                                      REFERENCE=$fastaRef
             sys $picardExe MarkDuplicates TMP_DIR=tmp/ \
                                           VALIDATION_STRINGENCY=LENIENT \
                                           CREATE_INDEX=true \
-                                          INPUT=$reorderedName \
+                                          INPUT=$sortedName \
                                           OUTPUT=$mdupsName \
                                           METRICS_FILE=$metricsName
-            sys rm $sortedName $sortedIdx $reorderedName
+            sys rm $sortedName
         }
         markedBams.add(mdupsName)
     }

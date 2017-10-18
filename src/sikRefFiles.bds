@@ -35,14 +35,6 @@ string chkFileExtn(string fileName, string fileType) {
     return fileName
 }
 
-string copySamplesSheet(string sikDir, string samplesSheet) {
-    string dest = sikDir+"/"+samplesSheet.baseName()
-    task(!samplesSheet.isEmpty(), dest <- samplesSheet, taskName := "copying users samples sheet into $sikDir") {
-        sys cp -v $samplesSheet $sikDir
-    }
-    return dest
-}
-
 string copyFile(string refFile, string refDir, string fileType) {
     string fileName = refFile.baseName()
     string localRef = refDir+"/"+fileName
@@ -91,10 +83,40 @@ string makeFaiFile(string samtoolsExe, string fastaRef) {
 }
 
 string makeChromSizes(string fastaRef) {
-    string chromSizes = fastaRef.removeExt()+".chrom.sizes"
+    string chromSizes = fastaRef.removeExt()+".chromSizes"
     string faChrom = programPath.pathName()+"/../scripts/ucsc_bin/faSize"
     task(chromSizes <- fastaRef, taskName := "Make chrom sizes file") {
         sys $faChrom -detailed $fastaRef > $chromSizes
     }
     return chromSizes
+}
+
+string{} chkRefFiles(string refDir){
+    string{} totRefFiles
+    //NOTE can't have gziped files here even though RNAsik can handle gziped files as
+    // input to -fastaRef and -gtfFile but it will unzip them localy and I can't have that
+    // since I'm assuming no write permissions to refFiles directory
+    for(string refFile : refDir.dirPath()) {
+	string extn = refFile.extName()
+	if(extn == "gtf" || extn == "gff" || extn == "gff3") {
+	    totRefFiles{"gtf"} = refFile
+        }
+	if(extn == "fa") {
+	    totRefFiles{"fa"} = refFile
+        }
+	if(extn == "dict"){
+	    totRefFiles{"dict"} = refFile
+	}
+	if(extn == "chromSizes") {
+	    totRefFiles{"chromSizes"} = refFile
+	}
+	if(extn == "starIdx" || extn == "bwaIdx") {
+	    totRefFiles{"idx"} = refFile
+	}
+    }
+    //NOTE have to be strick here since we don't want to be geussing which one of multiple gtf/gff files to pick.
+    string[] itemsChk = totRefFiles.values()
+    if(itemsChk.size() != 5 ) error "Too many or too little refFiles were found, '$totRefFiles'. Try using -fastaRef and -gtfFile options instead"
+
+    return totRefFiles
 }
