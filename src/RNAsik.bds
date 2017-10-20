@@ -69,27 +69,32 @@ if(samplesSheet.isEmpty()) samplesSheet = makeSamplesSheet(fqFiles, fqRgxs, pair
 mkLog("samplesSheet", parseMap(config(samplesSheet)), "samples", logsDir)
 // set path to fasta file
 string localFastaRef
-if(!fastaRef.isEmpty() && !totRefFiles) localFastaRef = makeLocalRef(fastaRef, refFilesDir, "fasta")
-else if(!refFiles.isEmpty()) localFastaRef = totRefFiles{"fa"}
+if(!refFiles.isEmpty()) localFastaRef = totRefFiles{"fa"}
+else localFastaRef = makeLocalRef(fastaRef, refFilesDir, "fasta")
 mkLog("fastaRef", localFastaRef, "refFiles", logsDir)
 // set path to gtf file string localGTF
 string localGTF
-if(!gtfFile.isEmpty() && !totRefFiles) localGTF = makeLocalRef(gtfFile, refFilesDir, "gtf")
-else if(!refFiles.isEmpty()) localGTF = totRefFiles{"gtf"}
+if(!refFiles.isEmpty()) localGTF = totRefFiles{"gtf"}
+else localGTF = makeLocalRef(gtfFile, refFilesDir, "gtf")
+
 mkLog("gtfFile", localGTF, "refFiles", logsDir)
 // checking if annoation file is gff
 if(localGTF.extName() == "gff" || localGTF.extName() == "gff3") setGFF = true
 mkLog("gffBool", setGFF, "other", logsDir)
 // get .dict file 
 string fastaDictFile
-if(!totRefFiles) fastaDictFile = makeDictFile(cmdExe, localFastaRef)
-else fastaDictFile = totRefFiles{"dict"}
+if(totRefFiles) fastaDictFile = totRefFiles{"dict"}
+else fastaDictFile = makeDictFile(cmdExe, localFastaRef)
 mkLog("picardDictFile", fastaDictFile, "refFiles", logsDir)
 // get .chrom.sizes file 
 string chromSizes
-if(!totRefFiles) chromSizes = makeChromSizes(localFastaRef)
-else chromSizes = totRefFiles{"chromSizes"}
+if(totRefFiles) chromSizes = totRefFiles{"chromSizes"}
+else chromSizes = makeChromSizes(localFastaRef)
 mkLog("chromSizes", chromSizes, "refFiles", logsDir)
+string faIdx
+if(totRefFiles) chromSizes = totRefFiles{"fai"}
+else faIdx = makeFaiFile(cmdExe, localFastaRef)
+mkLog("fai", faIdx, "refFiles", logsDir)
 // get genomeIdx 
 if(!align.isEmpty() && totRefFiles) {
     genomeIdx = totRefFiles{"idx"}

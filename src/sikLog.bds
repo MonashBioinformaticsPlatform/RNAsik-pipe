@@ -64,13 +64,16 @@ string parseMap(string{} simpleMap) {
 //}
 
 string mkLog(string fileName, string strToLog, string logType, string logsDir) {
-    // there will be a few different types with in logsDir e.g toolsOpts, toolsVersions
-    string theLogDir = logsDir+"/"+logType
-    if(!theLogDir.exists()) theLogDir.mkdir()
+    if(!fileName.isEmpty()) {
+        // there will be a few different types with in logsDir e.g toolsOpts, toolsVersions
+        string theLogDir = logsDir+"/"+logType
+        if(!theLogDir.exists()) theLogDir.mkdir()
 
-    string logFile = theLogDir+"/"+fileName
-    //strToLog.write(logFile)
-    sys echo "$strToLog" > $logFile
+        string logFile = theLogDir+"/"+fileName
+        //strToLog.write(logFile)
+        sys echo "$strToLog" > $logFile
+    }
+    else error "This shouldn't happened, check mkLog function"
     return strToLog
 }
 

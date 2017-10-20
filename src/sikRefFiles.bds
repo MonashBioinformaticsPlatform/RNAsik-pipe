@@ -73,10 +73,12 @@ string makeDictFile(string{} cmdExe, string fastaRef) {
     return fastaDictFile
 }
 // Index FASTA reference file when needed
-string makeFaiFile(string samtoolsExe, string fastaRef) {
+string makeFaiFile(string{} cmdExe, string fastaRef) {
+    if(!cmdExe.hasKey("samtoolsExe")) error "Can't get samtools executable, check your config file $configFile"
+    string samtoolsExe = cmdExe{"samtoolsExe"}
     // make a .fai string
     string fastaFaiFile = fastaRef+".fai"
-    task(fastaFaiFile <- fastaRef, taskName := "Indexing FASTA file") {
+    task(!fastaRef.isEmpty(), fastaFaiFile <- fastaRef, taskName := "Indexing FASTA file") {
         sys $samtoolsExe faidx $fastaRef
     }
     return fastaFaiFile
@@ -85,7 +87,7 @@ string makeFaiFile(string samtoolsExe, string fastaRef) {
 string makeChromSizes(string fastaRef) {
     string chromSizes = fastaRef.removeExt()+".chromSizes"
     string faChrom = programPath.pathName()+"/../scripts/ucsc_bin/faSize"
-    task(chromSizes <- fastaRef, taskName := "Make chrom sizes file") {
+    task(!fastaRef.isEmpty(), chromSizes <- fastaRef, taskName := "Make chrom sizes file") {
         sys $faChrom -detailed $fastaRef > $chromSizes
     }
     return chromSizes
@@ -104,6 +106,9 @@ string{} chkRefFiles(string refDir){
 	if(extn == "fa") {
 	    totRefFiles{"fa"} = refFile
         }
+	if(extn == "fai") {
+	    totRefFiles{"fai"} = refFile
+        }
 	if(extn == "dict"){
 	    totRefFiles{"dict"} = refFile
 	}
@@ -116,7 +121,7 @@ string{} chkRefFiles(string refDir){
     }
     //NOTE have to be strick here since we don't want to be geussing which one of multiple gtf/gff files to pick.
     string[] itemsChk = totRefFiles.values()
-    if(itemsChk.size() != 5 ) error "Too many or too little refFiles were found, '$totRefFiles'. Try using -fastaRef and -gtfFile options instead"
+    if(itemsChk.size() != 6 ) error "Too many or too little refFiles were found, '$totRefFiles'. Try using -fastaRef and -gtfFile options instead"
 
     return totRefFiles
 }
