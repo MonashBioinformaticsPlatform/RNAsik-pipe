@@ -34,6 +34,7 @@ int memory = 40000000000 help amount of memory in bytes [40000000000]
 
 string extn = ".fastq.gz"        #help specify FASTQ files extension [.fastq.gz]
 string pairIds = "_R1,_R2"
+bool cov 
 
 string extraOpts #help You can add extra option to any of the tools using args.txt file, where name of your tool and options you are passing in separated by "=" sign. Make new line for each tool  sign. \
                  #  e.g STAR = --outSAMtype BAM Unsorted, --outReadsUnmapped Fastx \

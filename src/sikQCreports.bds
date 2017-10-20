@@ -78,7 +78,7 @@ string[] getAddMetrics(string{} cmdExe, string[] bamFiles, string fastaRef, stri
                                                 SUMMARY_OUTPUT=$gcMetricsSummary \
                                                 R=$fastaRef
         }
-        task(libComplex <- bamFile, cpus := 2, taskName := "gathering metrics "+bamFile, canFail := true) {
+        task(prePro, libComplex <- bamFile, cpus := 2, taskName := "gathering metrics "+bamFile, canFail := true) {
             sys $picardExe EstimateLibraryComplexity INPUT=$bamFile \
                                                      OUTPUT=$libComplex
         }

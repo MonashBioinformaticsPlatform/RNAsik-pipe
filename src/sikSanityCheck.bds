@@ -91,6 +91,7 @@ if(counts) {
     }
 }
 if(prePro) {
+    cov = true 
     if(refFiles.isEmpty()) {
         if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
     }
