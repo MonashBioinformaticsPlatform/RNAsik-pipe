@@ -18,15 +18,15 @@
 //    - tools options log
 //------------------------------------------------------------------------------------------
 
-string logit(string logFile, string message, string data) {
-    string content
-    if(logFile.exists()) content = logFile.read()
-    content += "%"+message + "\n"
-    content += data + "\n"
-    content += "--------------------------------------\n"
-    logFile.write(content)
-    return "logged"
-}
+//string logit(string logFile, string message, string data) {
+//    string content
+//    if(logFile.exists()) content = logFile.read()
+//    content += "%"+message + "\n"
+//    content += data + "\n"
+//    content += "--------------------------------------\n"
+//    logFile.write(content)
+//    return "logged"
+//}
 // parse fqMap into readable string
 string parseFqMap(string{} fqMap) {
     string out
@@ -51,17 +51,17 @@ string parseMap(string{} simpleMap) {
     return out
 }
 
-string sikLoger(string logFile, string content) {
-    string logDir = logFile.dirName()
-    string prevContent
-    if(!logDir.exists()) logDir.mkdir()
-    if(logFile.exists()) prevContent = logFile.read()
-    else prevContent = content
-    prevContent += content
-    prevContent += "\n"
-    logFile.write(prevContent)
-    return "logged"
-}
+//string sikLoger(string logFile, string content) {
+//    string logDir = logFile.dirName()
+//    string prevContent
+//    if(!logDir.exists()) logDir.mkdir()
+//    if(logFile.exists()) prevContent = logFile.read()
+//    else prevContent = content
+//    prevContent += content
+//    prevContent += "\n"
+//    logFile.write(prevContent)
+//    return "logged"
+//}
 
 string mkLog(string fileName, string strToLog, string logType, string logsDir) {
     // there will be a few different types with in logsDir e.g toolsOpts, toolsVersions
