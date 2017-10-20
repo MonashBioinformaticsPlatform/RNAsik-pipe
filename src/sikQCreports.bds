@@ -49,33 +49,39 @@ string[] getAddMetrics(string{} cmdExe, string[] bamFiles, string fastaRef, stri
 
         string insertMetrics = bamFile.replace(".bam", "_insert_size.metrics")
         string hist = bamFile.replace(".bam", "_insert_size_hist.pdf")
+        //
         string alignMetrics = bamFile.replace(".bam", "_align.metrics")
+        //
         string gcMetrics = bamFile.replace(".bam", "_gc.metrics")
         string gcMetricsPdf = bamFile.replace(".bam", "_gc.pdf")
         string gcMetricsSummary = bamFile.replace(".bam", "_gc_summary.metrics")
+        //
         string libComplex = bamFile.replace(".bam", "_lib_complex.metrics")
 
-        addMetrics += insertMetrics
-        addMetrics += hist
-        addMetrics += alignMetrics
+        addMetrics += [insertMetrics, hist, alignMetrics, gcMetrics, gcMetricsPdf, gcMetricsSummary, libComplex]
 
-        dep([insertMetrics, hist, alignMetrics] <- [bamFile, fastaRef, fastaDictFile], cpus := 6, taskName := "gathering metrics "+bamFile, canFail := true) {
+        task(prePro && paired, [insertMetrics, hist] <- bamFile, cpus := 2, taskName := "gathering metrics "+bamFile, canFail := true) {
             sys $picardExe CollectInsertSizeMetrics INPUT=$bamFile \
                                                     OUTPUT=$insertMetrics \
                                                     HISTOGRAM_FILE=$hist \
                                                     M=0.5 
+        }
+        task(prePro, alignMetrics <- [bamFile, fastaRef, fastaDictFile], cpus := 2, taskName := "gathering metrics "+bamFile, canFail := true) {
             sys $picardExe CollectAlignmentSummaryMetrics REFERENCE_SEQUENCE=$fastaRef \
                                                           INPUT=$bamFile \
                                                           OUTPUT=$alignMetrics
+        }
+        task(prePro, [gcMetrics, gcMetricsPdf, gcMetricsSummary] <- [bamFile, fastaRef, fastaDictFile], cpus := 2, taskName := "gathering metrics "+bamFile, canFail := true) {
             sys $picardExe CollectGcBiasMetrics INPUT=$bamFile \
                                                 OUTPUT=$gcMetrics \
                                                 CHART_OUTPUT=$gcMetricsPdf \
                                                 SUMMARY_OUTPUT=$gcMetricsSummary \
                                                 R=$fastaRef
+        }
+        task(libComplex <- bamFile, cpus := 2, taskName := "gathering metrics "+bamFile, canFail := true) {
             sys $picardExe EstimateLibraryComplexity INPUT=$bamFile \
                                                      OUTPUT=$libComplex
         }
     }
-    goal addMetrics
     return addMetrics
 }
