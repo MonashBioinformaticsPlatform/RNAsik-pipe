@@ -3,7 +3,6 @@
 #------------------------------
 
 include "sikFqFiles.bds"
-include "sikLog.bds"
 
 string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string gtfFile, string starOpts, int threads) {
     // get STAR executable 
@@ -82,7 +81,6 @@ string[] mapSTAR(string{} cmdExe, string bamFiles, string{} samplesMap, string p
                          $starOpts
                      
         }
-        sikLoger(bamFiles+"/.log/bams.txt", bamOut)
         bamsList.add(bamOut)
     }
     goal bamsList
