@@ -75,11 +75,11 @@ if(!samplesSheet.isEmpty()) if(!samplesSheet.isFile()) error "-samplesSheet does
 if(!fqDir.isEmpty()) {
     int chkHttp = fqDir.toLower().indexOf("http:")
     if(!fqDir.isDir() && chkHttp == -1) error "-fqDir doesn't point to valid directory, check your path $fqDir"
-    if(align.isEmpty() && !fastqc) warning "-align and -fastqc are empty, not sure why -fqDir $fqDir was specified"
+    if(align.isEmpty() && !fastqc) error "-align and -fastqc are empty, not sure why -fqDir $fqDir was specified, add more options"
 } 
 if( !align.isEmpty() && genomeIdx.isEmpty() ) {
     if(refFiles.isEmpty()) {
-        if(fastaRef.isEmpty()) error "You need to either specify -genomeIdx or -fastaRef"
+        if(fastaRef.isEmpty()) error "You need to either specify -genomeIdx or -fastaRef or -refFiles"
     }
 }
 if(align == "starWithAnn" && (refFiles.isEmpty() || gtfFile.isEmpty())) error "Usage: -gtfFile /path/to/GTFfile"
