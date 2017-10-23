@@ -62,6 +62,8 @@ string[] mapSTAR(string{} cmdExe, string bamFiles, string{} samplesMap, string p
         if(chkLen > 1 && !paired) error "-paired set to $paired, but both R1 and R2 reads were found $readsList"
 
         string rootBase = rootName.baseName()
+        //DOCS: need to make preFix here because STAR takes a file prefix
+        // whereas bamOut need to satisfy dependencies for bds to exit
         string preFix = bamFiles+"/"+rootBase+"_"
         
         string bamOut

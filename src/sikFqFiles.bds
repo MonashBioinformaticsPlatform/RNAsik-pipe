@@ -17,53 +17,58 @@ string getTarDir(string tarFile, string sikDir) {
     wait
     return tarDir
 }
-// return array with all fastqs
+//DOCS: This is function is able to search recursively whatever is given through -fqDir 
+// it returns a list of all fastq files, if data is paired end, the list will have both R1 and R2 files
 string[] getFqFiles(string fqDir, string extn, string sikDir) {
 
     int chkHttp = fqDir.toLower().indexOf("http:")
     if(chkHttp != -1) fqDir = getTarDir(fqDir, sikDir)
 
-    string[] originDir = fqDir.dirPath() 
-    if(originDir.isEmpty()) error "No FASTQ file found, check -fqDir option"
     string[] fqFiles
     // go through each file and check if its file or directory
-    //TODO the if block is temporal measure due to BDS bug, is getting fixed I hope
-    if(!fqDir.isEmpty()) {
-        //for(string dir : fqDir.dirPath()){
-        for(string dir : originDir){
-            // check if dir is directory and call getFqFiles on it
-            if(dir.isDir()) fqFiles += getFqFiles(dir, extn, sikDir)
-            // otherwise check if dir is FASTQ file and append it to the fqFiles
-            else if(dir.endsWith(extn)) fqFiles.add(dir)
-        }
+    for(string dir : fqDir.dirPath()){
+        // check if dir is directory and call getFqFiles on it
+        if(dir.isDir()) fqFiles += getFqFiles(dir, extn, sikDir)
+        // otherwise check if dir is FASTQ file and append it to the fqFiles
+        else if(dir.endsWith(extn)) fqFiles.add(dir)
     }
     return fqFiles
 }
 string{} getSamplesMap(string[] fqFiles,  string samplesSheet) {
-    if(fqFiles.isEmpty()) error "getFqFiles function retuned nothing, something up with -fqDir parameter, check FASTQ file extention and pass correct -extn value maybe?"
+    // sanity checks
+    if(fqFiles.isEmpty()) {
+        error "getFqFiles function retuned nothing, something up with -fqDir parameter, check FASTQ file extention and pass correct -extn value maybe?"
+    }
+    if(samplesSheet.isEmpty()) {
+        error "This error shouldn't happened, something is wrong with auto generating samplesSheet or users input"
+    }
 
     string{} samplesMap
-
-    if(samplesSheet.isEmpty()) error "This error shouldn't happened, something is wrong with auto generating samplesSheet or users input"
+    //DOCS: extract oldPrefix, which is a string in fastq files 
+    // that we'll use to aggregate multi-lane and paired reads together
     string{} samples = config(samplesSheet)
-    string[] prefixes = samples.keys()
-    prefixes = prefixes.sort().reverse()
+    string[] oldPrefixes = samples.keys()
+    oldPrefixes = oldPrefixes.sort().reverse()
 
     for(string fq : fqFiles) {
-	bool noPrefix = true
+        bool noPrefix = true
         // don't use those index files
- 	if(fq.lastIndexOf("_I1") == -1) {
-
-	    for(string prefix : prefixes) {
-    	        if(fq.baseName().startsWith(prefix)) {
-		    noPrefix = false
-		    string myKey = samples{prefix}
-		    if(!samplesMap.hasKey(myKey)) samplesMap{myKey} = ""
-            	    samplesMap{myKey} += fq+","
+        if(fq.lastIndexOf("_I1") == -1) {
+            for(string oldPrefix : oldPrefixes) {
+                if(fq.baseName().startsWith(oldPrefix)) {
+                    noPrefix = false
+                    string sampleName = samples{oldPrefix}
+                    if(!samplesMap.hasKey(sampleName)) {
+                        samplesMap{sampleName} = ""
+                    }
+                    samplesMap{sampleName} += fq+","
                 }
-    	    }
-
-	    if(noPrefix) error "No prefix was found for this $fq file, check you samplesSheet $samplesSheet"
+            }
+        }
+        // want to error out even if one of the fastq files wasn't accounted for
+        // i.e if samples sheet was missing old_prefix for one of the fastq files
+        if(noPrefix) {
+            error "No oldPrefix was found for this $fq file, check you samplesSheet $samplesSheet"
         }
     }
     return samplesMap
@@ -77,49 +82,68 @@ string[] alignerReads(string fqString, string pairIds) {
     
     string[] readOne
     string[] readTwo
-    
+    //DOCS: fqString holds all fastq files from a single sample, that includes R1 and R2 reads
+    // step through individual fastq files check if it is R1 or R2 and 
     for(string fq : fqClean.split(",")) {
-        if(fq.lastIndexOf(pairIdsList[0]) != -1) readOne.add(fq)
+        if(fq.lastIndexOf(pairIdsList[0]) != -1) {
+            readOne.add(fq)
+        }
         else {
-	   if(fq.lastIndexOf(pairIdsList[1]) != -1) readTwo.add(fq)
-	   else error "check your pairIds value $pairIds, make sure it corresponds to your fastq files $fq" 
+            if(fq.lastIndexOf(pairIdsList[1]) != -1) {
+                readTwo.add(fq)
+            }
+            else {
+                error "check your pairIds value $pairIds, make sure it corresponds to your fastq files $fq"
+            }
         }
     }
-    //TODO clean this up 
-    string readOneStr = readOne.join(",")
-    //string readOneClean = readOneStr.substr(0, (readOneStr.length())-1)
-    string readOneClean = readOneStr
 
-    if(readTwo.isEmpty()) return [readOneClean]
+    string readOneStr = readOne.join(",")
+
+    if(readTwo.isEmpty()) {
+        return [readOneStr]
+    } 
     else {
-	string readTwoStr = readTwo.join(",")
-    	//string readTwoClean = readTwoStr.substr(0, (readTwoStr.length())-1)
-    	string readTwoClean = readTwoStr
-        return [readOneClean, readTwoClean]
+        string readTwoStr = readTwo.join(",")
+        return [readOneStr, readTwoStr]
     }
 }
-
+// retuns two items list [old_prefix, new_prefix]
+//TODO rename to getSampleName ?
 string[] getFqPrefix(string fqRead, string[] fqRgxs, string pairIds, string extn) {
+    string localFqRead = fqRead.baseName()
+    //attempt to guess fastq files extention that is including lane and _R prefix
+    //if guessed, then 
     for(string fqRgx : fqRgxs) {
-        string[] tmp = fqRead.baseName().split(fqRgx)
+        string[] tmp = localFqRead.split(fqRgx)
         int tmpLen = tmp.size()
-        if(tmpLen > 1) return [tmp[0], tmp[0].replace("_", "-")]
-        if(tmpLen < 1) error "This shouldn't happened, check makeSampleSheet function"
+        // if tmpLen staied at 1 then no split had happend, continue past the loop
+        if(tmpLen > 1) {
+            return [tmp[0], tmp[0].replace("_", "-")]
+        }
+        // if tmpLen is less 1 i.e zero then something is wrong with incoming fastq file
+        if(tmpLen < 1) {
+            error "This shouldn't happened, check makeSampleSheet function"
+        }
     }
+    //DOCS: if can't guess the suffix using fqRgxs fall back onto pairIdxs
     string[] pairIdsList = pairIds.split(",")
     // check if R1 is in the file name
-    int oneIdx = fqRead.lastIndexOf(pairIdsList[0])
-    int twoIdx = fqRead.lastIndexOf(pairIdsList[1])
+    int oneIdx = localFqRead.lastIndexOf(pairIdsList[0])
+    int twoIdx = localFqRead.lastIndexOf(pairIdsList[1])
     
-    if(oneIdx != -1) return [fqRead.baseName().substr(0, oneIdx), fqRead.baseName().substr(0, oneIdx).replace("_", "-")]
-    if(twoIdx != -1) return [fqRead.baseName().substr(0, twoIdx), fqRead.baseName().substr(0, twoIdx).replace("_", "-")]
-    // if all of the above failed
-    // use simply remove extn from the file and use that as a rootName
-    if( (oneIdx == -1) && (twoIdx == -1) ) return [fqRead.baseName(extn), fqRead.baseName(extn).replace("_", "-")]
-    
-    else error "No prefix was found, although this should really happened"
+    if(oneIdx != -1 || twoIdx != -1) {
+        return [localFqRead.substr(0, oneIdx), localFqRead.substr(0, oneIdx).replace("_", "-")]
+    }
+    //DOCS: if all of the above failed
+    // simply remove extn from the file and use that as a rootName
+    if( (oneIdx == -1) && (twoIdx == -1) ) {
+        return [fqRead.baseName(extn), fqRead.baseName(extn).replace("_", "-")]
+    }
+    else {
+        error "No oldPrefix was found, although this shouldn't really happened"
+    }
 }
-
 string makeSamplesSheet(string[] fqReads, string[] fqRgxs, string pairIds, string extn, string sikDir) {
     string{} autoGen
     // get uniq prefix 
