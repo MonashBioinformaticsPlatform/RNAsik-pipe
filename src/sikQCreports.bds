@@ -61,25 +61,29 @@ string[] getAddMetrics(string{} cmdExe, string{} bamsMap, string fastaRef, strin
         addMetrics += [insertMetrics, hist, alignMetrics, gcMetrics, gcMetricsPdf, gcMetricsSummary, libComplex]
 
         task(prePro && paired, [insertMetrics, hist] <- bamFile, cpus := 2, taskName := "gathering metrics "+bamFile, canFail := true) {
-            sys $picardExe CollectInsertSizeMetrics INPUT=$bamFile \
+            sys $picardExe CollectInsertSizeMetrics VALIDATION_STRINGENCY=LENIENT \
+                                                    INPUT=$bamFile \
                                                     OUTPUT=$insertMetrics \
                                                     HISTOGRAM_FILE=$hist \
                                                     M=0.5 
         }
         task(prePro, alignMetrics <- [bamFile, fastaRef, fastaDictFile], cpus := 2, taskName := "gathering metrics "+bamFile, canFail := true) {
-            sys $picardExe CollectAlignmentSummaryMetrics REFERENCE_SEQUENCE=$fastaRef \
+            sys $picardExe CollectAlignmentSummaryMetrics VALIDATION_STRINGENCY=LENIENT \
+                                                          REFERENCE_SEQUENCE=$fastaRef \
                                                           INPUT=$bamFile \
                                                           OUTPUT=$alignMetrics
         }
         task(prePro, [gcMetrics, gcMetricsPdf, gcMetricsSummary] <- [bamFile, fastaRef, fastaDictFile], cpus := 2, taskName := "gathering metrics "+bamFile, canFail := true) {
-            sys $picardExe CollectGcBiasMetrics INPUT=$bamFile \
+            sys $picardExe CollectGcBiasMetrics VALIDATION_STRINGENCY=LENIENT \
+                                                INPUT=$bamFile \
                                                 OUTPUT=$gcMetrics \
                                                 CHART_OUTPUT=$gcMetricsPdf \
                                                 SUMMARY_OUTPUT=$gcMetricsSummary \
                                                 R=$fastaRef
         }
         task(prePro, libComplex <- bamFile, cpus := 2, taskName := "gathering metrics "+bamFile, canFail := true) {
-            sys $picardExe EstimateLibraryComplexity INPUT=$bamFile \
+            sys $picardExe EstimateLibraryComplexity VALIDATION_STRINGENCY=LENIENT \
+                                                     INPUT=$bamFile \
                                                      OUTPUT=$libComplex
         }
     }
