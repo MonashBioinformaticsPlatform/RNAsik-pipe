@@ -2,15 +2,17 @@
 # Functions to pre-process BAM files - picard
 #--------------------------------------------------
 
-string[] getMarkedBams(string{} cmdExe, string markedDupsBams, string[] bamFiles, string fastaRef, string fastaDictFile) {
+string{} getMarkedBams(string{} cmdExe, string markedDupsBams, string{} bamsMap, string fastaRef, string fastaDictFile) {
     string[] markedBams
+    string{} markedBamsMap
     // check if executable is there
     if(!cmdExe.hasKey("picardExe")) error "Can't get picard executable, check your config file $configFile"
     string picardExe = cmdExe{"picardExe"}
 
-    for(string bamFile : bamFiles) {
-        string[] sampleName = bamFile.baseName().split("_")
-        string sortedName = markedDupsBams+"/"+sampleName[0]+"_sorted.bam"
+    for(string bamKey : bamsMap.keys()) {
+
+        string bamFile = bamsMap{bamKey}
+        string sortedName = markedDupsBams+"/"+bamKey+"_sorted.bam"
         string mdupsName = sortedName.swapExt(".bam", "_mdups.bam")
         string metricsName = sortedName.swapExt(".bam", "_mdups.metrics")
 
@@ -29,7 +31,12 @@ string[] getMarkedBams(string{} cmdExe, string markedDupsBams, string[] bamFiles
             sys rm $sortedName
         }
         markedBams.add(mdupsName)
+        if(markedBamsMap.hasKey(bamKey)) {
+            error "This should happened, please report this issue, sikPrePro.bds function"
+        }
+        markedBamsMap{bamKey} = mdupsName
+       
     }
     goal markedBams
-    return markedBams
+    return markedBamsMap
 }

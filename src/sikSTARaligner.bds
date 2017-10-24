@@ -36,7 +36,7 @@ string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string g
     return genomeIdxDir
 }
 
-string[] mapSTAR(string{} cmdExe, string bamFiles, string{} samplesMap, string pairIds, bool paired, string starOpts, string genomeIdx, int threads, int memory) {
+string{} mapSTAR(string{} cmdExe, string bamFiles, string{} samplesMap, string pairIds, bool paired, string starOpts, string genomeIdx, int threads, int memory) {
     // double check
     //if(!samplesMap) error "This error shouldn't occur. It should be caught earlier. Either way samplesMap is empty $samplesMap"
     // get STAR executable 
@@ -44,6 +44,7 @@ string[] mapSTAR(string{} cmdExe, string bamFiles, string{} samplesMap, string p
     string starExe = cmdExe{"starExe"}
     // BAMs
     string[] bamsList
+    string{} bamsMap
 
     string[] idxFiles = ["chrLength.txt", "chrNameLength.txt", "chrName.txt", "chrStart.txt", "Genome", "genomeParameters.txt", "SA", "SAindex"]
     string[] genomeIdxFiles
@@ -84,7 +85,11 @@ string[] mapSTAR(string{} cmdExe, string bamFiles, string{} samplesMap, string p
                      
         }
         bamsList.add(bamOut)
+        if(bamsMap.hasKey(rootBase)) {
+            error "This should happened, please report this issue, sikSTARaligner.bds function"
+        }
+        bamsMap{rootBase} = bamOut
     }
     goal bamsList
-    return bamsList
+    return bamsMap
 }

@@ -39,13 +39,13 @@ string getMultiqc(string{} cmdExe, string sikDir, string[] allDeps, string multi
     return outdep
 }
 
-string[] getAddMetrics(string{} cmdExe, string[] bamFiles, string fastaRef, string fastaDictFile) {
+string[] getAddMetrics(string{} cmdExe, string{} bamsMap, string fastaRef, string fastaDictFile) {
     if(!cmdExe.hasKey("picardExe")) error "Can't get picard executable, check your config file $configFile"
     string picardExe = cmdExe{"picardExe"}
 
     string[] addMetrics
 
-    for(string bamFile : bamFiles) {
+    for(string bamFile : bamsMap.values()) {
 
         string insertMetrics = bamFile.replace(".bam", "_insert_size.metrics")
         string hist = bamFile.replace(".bam", "_insert_size_hist.pdf")

@@ -119,7 +119,7 @@ string[] getFqPrefix(string fqRead, string[] fqRgxs, string pairIds, string extn
         int tmpLen = tmp.size()
         // if tmpLen staied at 1 then no split had happend, continue past the loop
         if(tmpLen > 1) {
-            return [tmp[0], tmp[0].replace("_", "-")]
+            return [tmp[0], tmp[0]]
         }
         // if tmpLen is less 1 i.e zero then something is wrong with incoming fastq file
         if(tmpLen < 1) {
@@ -133,12 +133,12 @@ string[] getFqPrefix(string fqRead, string[] fqRgxs, string pairIds, string extn
     int twoIdx = localFqRead.lastIndexOf(pairIdsList[1])
     
     if(oneIdx != -1 || twoIdx != -1) {
-        return [localFqRead.substr(0, oneIdx), localFqRead.substr(0, oneIdx).replace("_", "-")]
+        return [localFqRead.substr(0, oneIdx), localFqRead.substr(0, oneIdx)]
     }
     //DOCS: if all of the above failed
     // simply remove extn from the file and use that as a rootName
     if( (oneIdx == -1) && (twoIdx == -1) ) {
-        return [fqRead.baseName(extn), fqRead.baseName(extn).replace("_", "-")]
+        return [fqRead.baseName(extn), fqRead.baseName(extn)]
     }
     else {
         error "No oldPrefix was found, although this shouldn't really happened"
@@ -160,4 +160,34 @@ string makeSamplesSheet(string[] fqReads, string[] fqRgxs, string pairIds, strin
     string samplesSheet = sikDir+"/samplesSheet.txt"
     samplesSheet.write(samplesConfig)
     return samplesSheet
+}
+string{} mkBamsMap(string bamsDir, string samplesSheet) {
+    string{} bamsMap
+
+    string{} samples = config(samplesSheet)
+    string[] oldPrefixes = samples.keys()
+    oldPrefixes = oldPrefixes.sort().reverse()
+
+    for(string bam : bamsDir.dirPath()) {
+        bool noPrefix = true
+
+        if(bam.endsWith(".bam")) {
+            for(string oldPrefix : oldPrefixes) {
+                if(bam.baseName().startsWith(oldPrefix)) {
+                    noPrefix = false
+                    string bamName = samples{oldPrefix}
+                    if(bamsMap.hasKey(bamName)) {
+                        error "This should happened, please report this, mkBamsMap function"
+                    }
+                    bamsMap{bamName} = bam
+                }
+            }
+        }
+        // want to error out even if one of the fastq files wasn't accounted for
+        // i.e if samples sheet was missing old_prefix for one of the fastq files
+        if(noPrefix) {
+            error "No oldPrefix was found for this $bam file, check you samplesSheet $samplesSheet"
+        }
+    }
+    return bamsMap
 }

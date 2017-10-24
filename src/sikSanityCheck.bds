@@ -37,7 +37,7 @@ string checkCmdArgs() {
                         "-samplesSheet", \
                         "-extraOpts", \
                         "-paired", \
-                        "-bamFiles", \
+                        "-bamsDir", \
                         "-proBams", \
                         "-configFile", \
                         "-multiqc", \
@@ -106,6 +106,10 @@ if(!genomeIdx.isEmpty()) if(!genomeIdx.isDir()) error "-genomeIdx doesn't point 
 if( (!fastaRef.isEmpty()) && (!fastaRef.isFile()) ) error "Check your path to fasta file. It dosen't point to a file. $fastaRef"
 if( (!gtfFile.isEmpty()) && (!gtfFile.isFile()) ) error "Check your path to gtf file. It dosen't point to a file. $gtfFile"
 if(memory < 32000000000) error "Don't set memory less then 32 Gb since STAR requires at least that amount"
+
+if(!bamsDir.isEmpty() && !fqDir.isEmpty()) {
+    error "Can't have both -fqDir and -bamsDir set, choose one or another"
+}
 
 if( args.isEmpty() ) {
     printHelp()

@@ -46,7 +46,9 @@ string[] getReadsCount(string{} cmdExe, string countFiles, string[] bamsList, st
     if(!cmdExe.hasKey("countsExe")) error "Can't get featureCounts executable, check your config file $configFile"
     string countsExe = cmdExe{"countsExe"}
 
-    if( (bamsList.isEmpty()) && (counts) ) error "No BAM files were found, either used -align options or specify directory with BAM files using `-bamFiles path/to/you/bams/directory`"
+    if( (bamsList.isEmpty()) && (counts) ) {
+        error "No BAM files were found, either used -align options or specify directory with BAM files using `-bamsDir"
+    }
 
     string bamString = bamsList.join(" ")
     string[] allDeps = bamsList

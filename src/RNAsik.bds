@@ -111,25 +111,23 @@ string{} samplesMap
 if(!fqDir.isEmpty()) samplesMap = getSamplesMap(fqFiles, samplesSheet)
 mkLog("fqMap", parseFqMap(samplesMap), "samples", logsDir)
 // BAM files
-string[] bamsList = getBams(cmdExe, align, bamFiles, samplesMap, pairIds, paired, extraOpts, genomeIdx, threads, memory, logsDir)
-mkLog("bams", parseList(bamsList), "data", logsDir)
+string{} bamsMap = getBams(cmdExe, align, bamFiles, samplesMap, pairIds, paired, extraOpts, genomeIdx, threads, memory, logsDir)
+mkLog("bams", parseMap(bamsMap), "data", logsDir)
 // If user wants to use other parts of the pipeline without generating BAM files
-if(!samplesMap && ( (counts) || (prePro) || (exonicRate) ) ) {
-    // get bam file from the bamFiles directory
-    if(bamFiles.exists()) bamsList = bamFiles.dirPath("*.bam")
-    else error "No bam files or bamFiles directory was found. You can pass bam files using -bamFiles /path/to/bamFiles/dir"
+if(!bamsDir.isEmpty()) {
+    bamsMap = mkBamsMap(bamsDir, samplesSheet)
 }
 // sorted, reorted and marking duplicates in BAM files
-string[] markedBams = getMarkedBams(cmdExe, markedDupsBams, bamsList, localFastaRef, fastaDictFile)
-mkLog("mdupsBams", parseList(markedBams), "data", logsDir)
+string{} markedBamsMap = getMarkedBams(cmdExe, markedDupsBams, bamsMap, localFastaRef, fastaDictFile)
+mkLog("mdupsBams", parseMap(markedBamsMap), "data", logsDir)
 // get additional RNAseq metrics 
-string[] addMetrics = getAddMetrics(cmdExe, markedBams, localFastaRef, fastaDictFile)
+string[] addMetrics = getAddMetrics(cmdExe, markedBamsMap, localFastaRef, fastaDictFile)
 mkLog("addMetrics", parseList(addMetrics), "data", logsDir)
 // coverage files
 //NOTE this is for future implementation of strand specific coverage
 //string[] strands = ["for", "rev"]
 //for(string strand : strands) {
-string[] covFiles = getCovFiles(cmdExe, markedBams, coverageFilesDir, localFastaRef, chromSizes)
+string[] covFiles = getCovFiles(cmdExe, markedBamsMap, coverageFilesDir, localFastaRef, chromSizes)
 mkLog("covFiles", parseList(covFiles), "data", logsDir)
 //}
 // featureCounts cmd options
@@ -142,7 +140,7 @@ if(setGFF) {
 string allCountOpts = getOpts(getOptsMap("featureCounts", countsOpts, extraOpts))
 mkLog("featureCounts", allCountOpts, "toolsOpts", logsDir)
 // get counts
-string[] featureCounts = getReadsCount(cmdExe, countFiles, bamsList, allCountOpts, localGTF, threads)
+string[] featureCounts = getReadsCount(cmdExe, countFiles, bamsMap.values(), allCountOpts, localGTF, threads)
 mkLog("featureCounts", parseList(featureCounts), "data", logsDir)
 // get strand info
 string strandInfo = getStrandInfo(cmdExe, featureCounts)
@@ -155,7 +153,7 @@ if(exonicRate) {
     if(!counts && strand.isEmpty()) error "No strand information found. Use -counts flag to get it. Alternatively use -strand flag with appropriate strand type."
     if(!counts && !strand.isEmpty()) strandInfo = strand
 }
-string[] degust = getDegust(cmdExe, countFiles, featureCounts, bamsList.size(), localGTF, setGFF, threads)
+string[] degust = getDegust(cmdExe, countFiles, featureCounts, bamsMap.values().size(), localGTF, setGFF, threads)
 mkLog("degust", parseList(degust), "data", logsDir)
 string{} exonicOpts = { "-gtf" => localGTF }
 if(paired) {
@@ -170,7 +168,7 @@ string allExonicOpts = getOpts(getOptsMap("qualimap", exonicOpts, extraOpts))
 mkLog("qualiMap", allExonicOpts, "refFiles", logsDir)
 
 // get Int(ra|er)genic rates
-string[] exonicRates = getExonicRates(cmdExe, sikDir, markedBams, allExonicOpts, strandInfo, gtfFile)
+string[] exonicRates = getExonicRates(cmdExe, sikDir, markedBamsMap, allExonicOpts, strandInfo, gtfFile)
 mkLog("qualiMap", parseList(exonicRates), "data", logsDir)
 // FastQC report
 string{} fastqcOpts = { "--format" => "fastq", \
@@ -184,12 +182,12 @@ mkLog("fastqc", parseList(fqQcReport), "data", logsDir)
 
 if(cleanUp) {
     //NOTE doing this step breaks the dependencies tree and you won't be able to rerun the same script
-    string cleaned = cleanBamsUp(bamsList, bamFiles, featureCounts, markedBams)
+    string cleaned = cleanBamsUp(bamsMap.values(), bamFiles, featureCounts, markedBamsMap.values())
 }
 // gather all files up for multiqc 
 string[] multiqcDeps
-if(!align.isEmpty()) multiqcDeps += bamsList
-if(prePro) multiqcDeps += markedBams
+if(!align.isEmpty()) multiqcDeps += bamsMap.values()
+if(prePro) multiqcDeps += markedBamsMap.values()
 if(counts) multiqcDeps += degust
 if(fastqc) multiqcDeps += fqQcReport
 if(exonicRate) multiqcDeps += exonicRates
