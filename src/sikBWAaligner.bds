@@ -20,11 +20,12 @@ string makeBWAidx(string{} cmdExe, string refFiles, string fastaRef, string bwaO
     return bwaIdx
 }
 
-string[] mapBWA(string{} cmdExe, string bamFiles, string{} samplesMap, string pairIds, bool paired, string bwaOpts, string genomeIdx, int threads) {
+string{} mapBWA(string{} cmdExe, string bamFiles, string{} samplesMap, string pairIds, bool paired, string bwaOpts, string genomeIdx, int threads) {
     if(!cmdExe.hasKey("bwaExe")) error "Can't get bwa mem executable, check your config file $configFile"
     string bwaExe = cmdExe{"bwaExe"}
 
     string[] bamsList
+    string{} bamsMap
 
     string[] idxExts = [".amb", ".ann", ".bwt", ".pac", ".sa"]
     string[] bwaIdxFiles
@@ -67,7 +68,11 @@ string[] mapBWA(string{} cmdExe, string bamFiles, string{} samplesMap, string pa
                      
         }
         bamsList.add(bamOut)
+        if(bamsMap.hasKey(rootBase)) {
+            error "This should happened, please report this issue, sikBWAalinger.bds file"
+        }
+        bamsMap{rootBase} = bamOut
     }
     goal bamsList
-    return bamsList
+    return bamsMap
 }

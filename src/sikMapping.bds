@@ -20,16 +20,16 @@ string{} getBams(string{} cmdExe, string aligner, string bamsDir, string{} sampl
         mkLog("STAR", allSTARopts, "refFiles", logsDir)
         bamsMap = mapSTAR(cmdExe, bamsDir, samplesMap, pairIds, paired, allSTARopts, genomeIdx, threads, memory)
     }
-    //if(aligner.indexOf("hisat2") != -1) {
-    //    string allHisat2Opts = getOpts(getOptsMap("Hisat2", hisat2Opts, userExtraOpts))
-    //    mkLog("Hisat2", allHisat2Opts, "refFiles", logsDir)
-    //    bamsList = mapHisat2(cmdExe, bamsDir, samplesMap, pairIds, paired, allHisat2Opts, genomeIdx, threads)
-    //}
-    //if(aligner.indexOf("bwa") != -1) {
-    //    string allBWAopts = getOpts(getOptsMap("bwa mem", bwaMemOpts, userExtraOpts))
-    //    mkLog("bwaMem", allBWAopts, "refFiles", logsDir)
-    //    bamsList = mapBWA(cmdExe, bamsDir, samplesMap, pairIds, paired, allBWAopts, genomeIdx, threads)
-    //}
+    if(aligner.indexOf("hisat2") != -1) {
+        string allHisat2Opts = getOpts(getOptsMap("Hisat2", hisat2Opts, userExtraOpts))
+        mkLog("Hisat2", allHisat2Opts, "refFiles", logsDir)
+        bamsMap = mapHisat2(cmdExe, bamsDir, samplesMap, pairIds, paired, allHisat2Opts, genomeIdx, threads)
+    }
+    if(aligner.indexOf("bwa") != -1) {
+        string allBWAopts = getOpts(getOptsMap("bwa mem", bwaMemOpts, userExtraOpts))
+        mkLog("bwaMem", allBWAopts, "refFiles", logsDir)
+        bamsMap = mapBWA(cmdExe, bamsDir, samplesMap, pairIds, paired, allBWAopts, genomeIdx, threads)
+    }
 
     return bamsMap
 }

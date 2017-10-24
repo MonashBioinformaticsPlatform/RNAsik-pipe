@@ -32,12 +32,13 @@ string makeHisat2Idx(string{} cmdExe, string refFiles, string fastaRef, string g
     }
     return preFix
 }
-string[] mapHisat2(string{} cmdExe, string bamFiles, string{} samplesMap, string pairIds, bool paired, string hisat2Opts, string genomeIdx, int threads) {
+string{} mapHisat2(string{} cmdExe, string bamFiles, string{} samplesMap, string pairIds, bool paired, string hisat2Opts, string genomeIdx, int threads) {
     // get Hisat2 executable 
     if(!cmdExe.hasKey("hisat2Exe")) error "Can't get Hisat2 executable, check your config file $configFile"
     string hisat2Exe = cmdExe{"hisat2Exe"}
     // BAMs
     string[] bamsList
+    string{} bamsMap
 
     string[] genomeIdxFiles
     for(int i : range(1, 8)) genomeIdxFiles += genomeIdx+".$i.ht2"
@@ -65,8 +66,12 @@ string[] mapHisat2(string{} cmdExe, string bamFiles, string{} samplesMap, string
                            --threads 30 2> $bamLog | samtools view -S -b - > $bamOut
         }
         bamsList.add(bamOut)
+        if(bamsMap.hasKey(rootBase)) {
+            error "This should happened, please report this issue, sikHisat2.bds file"
+        }
+        bamsMap{rootBase} = bamOut
     }
     goal bamsList
-    return bamsList
+    return bamsMap
 }
 
