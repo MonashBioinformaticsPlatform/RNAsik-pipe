@@ -30,15 +30,16 @@ string chkFileExtn(string fileName, string fileType) {
                  "gff3.gz" \
                 ]
     }
-    
-    if(!extns.has(getExtn)) error "It appears that your file type -> $fileType has invalid extention"
+    if(!extns.has(getExtn) && fileName.isFile()) {
+        error "It appears that your file type -> $fileType has invalid extention -> $getExtn"
+    }
     return fileName
 }
 
 string copyFile(string refFile, string refDir, string fileType) {
     string fileName = refFile.baseName()
     string localRef = refDir+"/"+fileName
-    task(localRef <- refFile, taskName := "Copying $refFile to $refDir") sys cp -v $refFile $refDir
+    task(refFile.isFile(), localRef <- refFile, taskName := "Copying $refFile to $refDir") sys cp -v $refFile $refDir
     return chkFileExtn(getUnziped(localRef), fileType)
 }
 
@@ -93,7 +94,7 @@ string makeChromSizes(string fastaRef) {
     return chromSizes
 }
 
-string{} chkRefFiles(string refDir){
+string{} chkRefFiles(string refDir, string aligner){
     string{} totRefFiles
     //NOTE can't have gziped files here even though RNAsik can handle gziped files as
     // input to -fastaRef and -gtfFile but it will unzip them localy and I can't have that
@@ -115,7 +116,7 @@ string{} chkRefFiles(string refDir){
 	if(extn == "chromSizes") {
 	    totRefFiles{"chromSizes"} = refFile
 	}
-	if(extn == "starIdx" || extn == "bwaIdx") {
+        if(extn.startsWith(aligner)) {
 	    totRefFiles{"idx"} = refFile
 	}
     }

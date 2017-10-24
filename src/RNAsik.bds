@@ -29,7 +29,7 @@ if(!outDir.isEmpty()) {
 else sikDir = "sikRun"
 
 string{} totRefFiles
-if(!refFiles.isEmpty()) totRefFiles = chkRefFiles(refFiles)
+if(!refFiles.isEmpty()) totRefFiles = chkRefFiles(refFiles, align)
 
 // make directories as required
 if(!sikDir.exists()) sikDir.mkdir()
@@ -76,7 +76,6 @@ mkLog("fastaRef", localFastaRef, "refFiles", logsDir)
 string localGTF
 if(!refFiles.isEmpty()) localGTF = totRefFiles{"gtf"}
 else localGTF = makeLocalRef(gtfFile, refFilesDir, "gtf")
-
 mkLog("gtfFile", localGTF, "refFiles", logsDir)
 // checking if annoation file is gff
 if(localGTF.extName() == "gff" || localGTF.extName() == "gff3") setGFF = true
@@ -99,7 +98,14 @@ mkLog("fai", faIdx, "refFiles", logsDir)
 if(!align.isEmpty() && totRefFiles) {
     genomeIdx = totRefFiles{"idx"}
     string chkExtn = genomeIdx.extName()
-    if(!chkExtn.startsWith(align)) error "Index ($genomeIdx) doesn't seem to correspond to aligner ($align) of choice"
+    if(!chkExtn.startsWith(align)) {
+        error "Index ($genomeIdx) doesn't seem to correspond to aligner ($align) of choice"
+    }
+    if(align.startsWith("bwa")) {
+        string[] idxs = genomeIdx.dirPath()
+        string bwaIdxBase = idxs[0].removeExt()
+        genomeIdx = genomeIdx+"/"+bwaIdxBase.baseName()
+    }
 } 
 else if(!align.isEmpty() && genomeIdx.isEmpty()) {
     genomeIdx = getIdx(cmdExe, align, setGFF, refFilesDir, localFastaRef, localGTF, extraOpts, threads, logsDir)
