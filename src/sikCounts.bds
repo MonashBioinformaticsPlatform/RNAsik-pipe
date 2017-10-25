@@ -81,7 +81,7 @@ string getGeneIds(string pythonExe, string countFilesDir, string gtfFile, bool s
     if(setGFF){
         pyFlag = '--gffFile'
     }
-    string pyScript = getProgPath+"/../scripts/getGeneIds.py"
+    string pyScript = getProgPath+"/../scripts/get_geneids.py"
     string geneIds = countFilesDir+"/"+"geneIds.txt"
     task(counts, geneIds <- gtfFile, taskName := "getting geneIds.txt file") {
         sys $pythonExe $pyScript $pyFlag $gtfFile > $geneIds
@@ -89,48 +89,33 @@ string getGeneIds(string pythonExe, string countFilesDir, string gtfFile, bool s
     return geneIds
 }
 
-string[] getProteinCoding(string[] readCounts, bool setGFF) {
-
-    string[] proteinCodingCounts
-
-    for(string countFile : readCounts) {
-        string proteinCoding = countFile.removeExt()+"-proteinCoding.txt"
-        proteinCodingCounts.add(proteinCoding)
-        //TODO need to include setGFF bool into dep OR check that protein_coding feature type is present
-        dep(counts, proteinCoding <- countFile, taskName := "getting protein coding counts") {
-            sys grep "Biotype" $countFile > $proteinCoding
-            sys grep "protein_coding" $countFile >> $proteinCoding
-        }
+string getDegustFile(string{} cmdExe, string cntsDir, string[] counts, string strandInfo, string samplesSheet, string gtfFile, bool gff) {
+    // sanity check
+    if(!strandInfo.exists()) {
+        error "This shouldn't happened, check getDegustFile function"
     }
-    goal proteinCodingCounts
-    return proteinCodingCounts
-}
 
-string[] getDegust(string{} cmdExe, string countFilesDir, string[] featureCounts, int bamsN, string gtfFile, bool gff, int threads) {
-    if(!cmdExe.hasKey("pythonExe")) error "Can't get python executable, check your config file $configFile"
+    if(!cmdExe.hasKey("pythonExe")) {
+        error "Can't get python executable, check your config file $configFile"
+    }
     string pythonExe = cmdExe{"pythonExe"}
-    string geneIdsFile = getGeneIds(pythonExe, countFilesDir, gtfFile, gff)
+    string geneIdsFile = getGeneIds(pythonExe, cntsDir, gtfFile, gff)
+    
+    string strandExitCode
+    string strandType
+    (strandType, strandExitCode) = strandInfo.read().split(",")
 
-    string[] withNames
+    string cntsFile = cntsDir+"/"+strandType+".txt"
+    string degustFile = cntsFile.swapExt(".txt", "-withNames-proteinCoding.txt")
+    
+    string mkCntsFile = programPath.pathName()+"/../scripts/mk_cnts_file.py"
 
-    int bamConst = 7
-    int lastBamN = bamsN+bamConst
-    string cutRange = bamConst+"-"+lastBamN
-
-    for(string countFile : featureCounts) {
-        string withName = countFile.removeExt()+"-withNames.txt"
-        withNames.add(withName)
-        dep(counts, withName <- [countFile, geneIdsFile], taskName := "Degust-ready counts file", tmp := "$countFile.tmp", tmp2 := "$countFile.tmp2") {
-            sys grep -v "#" $countFile | cut -f1,$cutRange | perl -pe 's{\S+/([^_]+)[^/]+(\t|\n)}{$1$2}g if $. == 1' > $tmp
-            sys sed -i '0,/Geneid/s/Geneid/Gene.ID/' $tmp
-            sys /bin/bash -c "join -j 1 <(sort -k1,1 $geneIdsFile) <(sort -k1,1 $tmp) -t $'\t' > $tmp2"
-            sys grep "Biotype" $tmp2 > $withName
-            sys grep -v "Biotype" $tmp2 >> $withName
-            sys rm $tmp $tmp2
-        }
+    task(counts, degustFile <- cntsFile, taskName := "making degust file") {
+        sys $mkCntsFile --counts_file $cntsFile \
+                        --gene_ids $geneIdsFile \
+                        --samples_sheet $samplesSheet \
+                        --biotype "protein_coding" > $degustFile
     }
-    goal withNames
-        
-    return getProteinCoding(withNames, gff)
-}
 
+    return degustFile
+}
