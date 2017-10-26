@@ -1,0 +1,5 @@
+site_name: RNAsik Docs
+pages:
+  - Home: index.md
+  - About: about.md
+

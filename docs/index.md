@@ -1,11 +1,5 @@
 
-<script src="js/libs/clipboard.min.js"></script>
-<script src="js/respons.js"></script>
-<script src="js/clip.js"></script>
-<div class="grid grid-fluid">
-<div class="row">
 # [RNAsik pipeline docs](http://github.com/monashbioinformaticsplatform/RNAsik-pipe.git)
-<div class="col-2">
 
 - [Quick start](#quick-start)
 - [Introduction](#introduction)
@@ -14,11 +8,7 @@
 - [User input](#user-input)
 - [Directories and files explained](#directories-and-files-explained)
 - [Command line options](#command-line-options)
-<li class="icon"> <a href="javascript:void(0);" style="font-size:15px;" onclick="myFunction()">☰</a>  </li>
 
-</div>
-
-<div class="col-10">
 ## Quick start
 
 ##### Align raw reads
