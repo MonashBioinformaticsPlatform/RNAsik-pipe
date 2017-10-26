@@ -7,18 +7,14 @@
 ## IF( SuperQuickStart ) {
 
 ```BASH
-RNAsik -align star \
-       -fastaRef /path/to/reference.fasta \
-       -fqDir /path/to/raw-data/directory \
-       -count \
-       -gtfFile path/to/your/annotation/file \
-       -prePro \
-       -fastqc \
-       -multiqc \
-       -exonicRate \
-       -threads 15
+RNAsik -fqDir /path/to/raw-data/directory \
+       -align star \
+       -refFiles /path/to/refDir \
+       -counts \
+       -metrics \
+       -threads 10
 ```
 
-##}
+## }
 
 ## ELSE [RNAsik-website](https://monashbioinformaticsplatform.github.io/RNAsik-pipe/)
