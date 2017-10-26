@@ -141,6 +141,7 @@
 <li><a href="https://github.com/alexdobin/STAR/releases">STAR aligner</a></li>
 <li><a href="http://subread.sourceforge.net/">subread</a></li>
 <li><a href="http://www.htslib.org/download/">samtools</a></li>
+<li><a href="http://bedtools.readthedocs.io/en/latest/index.html">bedtools2</a></li>
 <li><a href="http://broadinstitute.github.io/picard/">Picard tools</a></li>
 <li><a href="http://qualimap.bioinfo.cipf.es/">QualiMap</a></li>
 <li><a href="http://multiqc.info/">MultiQC</a> </li>
@@ -148,9 +149,9 @@
 </ul>
 <h2 id="installation">Installation</h2>
 <p>Follow <a href="http://docs.ansible.com/ansible/intro_installation.html">ansible installation guid</a> to get ansible then:</p>
-<pre><code class="BASH">git clone https://github.com/serine/bio-ansible --branch from-scratch
+<pre><code class="BASH">git clone https://github.com/serine/bio-ansible
 cd bio-ansible/
-ansible-playbook -i host bio.yml --tags bds,rnasik,star,subread,samtools,htslib,picard,qualimap,fastqc
+ansible-playbook -i host bio.yml --tags bds,rnasik,star,subread,samtools,htslib,bedtools,picard,qualimap,fastqc
 </code></pre>
 
 <p><a href="http://github.com/serine/bio-ansible">Need more help?</a></p>
@@ -239,7 +240,7 @@ ansible-playbook -i host bio.yml --tags bds,rnasik,star,subread,samtools,htslib,
 <tr><td class="args">-bamsDir</td> <td> specify path to BAMs directory. Use if bams were generated outside of the pipeline </td></tr>
 </table>
 
-<footer> <p><a href="http://github.com/serine">Created by Kirill Tsyganov</a></p> </footer>
+<footer> <p><a href="http://github.com/serine">Created by Kirill Tsyganov with support from Monash Bioinformatics Platform</a></p> </footer>
 
 <p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p>
 
@@ -329,5 +330,5 @@ Share</a>
 
 <!--
 MkDocs version : 0.17.0
-Build Date UTC : 2017-10-26 01:16:12
+Build Date UTC : 2017-10-26 02:24:18
 -->
