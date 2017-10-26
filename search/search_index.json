@@ -129,6 +129,26 @@
             "location": "/about/#quality-metrics", 
             "text": "MultiQC  is an aggregate tool that pulls different metrics into one place - multiqc report. This is a good place to start understanding your data. The central bits of information are:   Are there differences in library sizes?  Is there any issues with mapping rates?  Is there any issues with reads assignment rates?   However there is so many other questions you can ask including:   What is duplication rate?  What is multi-mapping rate?  What is intragenic and interagenic rates?   As mentioned above  multiqc  report is a great first step in the attempt to answer those questions. A lot of the time everything looks fairly good and consistent allowing downstream analysis. Sometimes user can tweak certain individual parameters which can improve results, other times it comes down to experimental design and/or library preparation and sequencing issues. Either way one need to make this \"first iteration\" in order to see room for improvement.", 
             "title": "Quality metrics"
+        }, 
+        {
+            "location": "/changelog/", 
+            "text": "New in version 1.4.6\n\n\n\n\ngeneralised aligner's call, this will make it easier to add new aligners into RNAsik\n\n\nincluded support for \nhista2\naligner\n\n\nadded samplesSheep logging\n\n\nfixed few minor bugs and improved code quality\n\n\nadded \ncanFail\n option to several non crucial tasks, allowing pipeline to continue if some task failed of fastqc and qualimap to allow them to fail as those are non essential tasks.\n\n\n\n\nNew in version 1.4.7\n\n\n\n\nfixed STAR memory allocation issue, now user can run with fewer cpus without a worry for STAR spawning multiple tasks causing out of memory issue.\n\n\nmade BASH wrapper (not ideal) for \nRNAsik\n this is capture \nbds\n logs including report.html which is rather valuable piece of information about the run\n\n\nintroduced another new aligner - \nbwa mem\n to do bacterial RNAseq.\n\n\nintroduced multiqc config file in \nconfigs\n directory now\n\n\ncompletely removed \n-fqRegex\n and added sanity check for paired end data. If R2 is found and -paired isn't set or vice verse then error message sent\n\n\nseveral general bug fixes\n\n\nsimplified help menu\n\n\n\n\nNew in version 1.4.8\n\n\n\n\nadded new feature: coverage plots generation\n\n\nadded new feature: ability to pass previously generated references directory, saves spaces and time\n\n\nfixed strand guessing script, should be better at guessing now\n\n\nmoved to \nmkdocs\n for documents compilation and deployment to gh_pages\n\n\nadded new python script to make degust file, this simplifies and strengthens the code\n\n\nimproved readability of the code\n\n\nimproved and fixed bugs in handling fastq files and assignment of fastq to sample names", 
+            "title": "Changelog"
+        }, 
+        {
+            "location": "/changelog/#new-in-version-146", 
+            "text": "generalised aligner's call, this will make it easier to add new aligners into RNAsik  included support for  hista2 aligner  added samplesSheep logging  fixed few minor bugs and improved code quality  added  canFail  option to several non crucial tasks, allowing pipeline to continue if some task failed of fastqc and qualimap to allow them to fail as those are non essential tasks.", 
+            "title": "New in version 1.4.6"
+        }, 
+        {
+            "location": "/changelog/#new-in-version-147", 
+            "text": "fixed STAR memory allocation issue, now user can run with fewer cpus without a worry for STAR spawning multiple tasks causing out of memory issue.  made BASH wrapper (not ideal) for  RNAsik  this is capture  bds  logs including report.html which is rather valuable piece of information about the run  introduced another new aligner -  bwa mem  to do bacterial RNAseq.  introduced multiqc config file in  configs  directory now  completely removed  -fqRegex  and added sanity check for paired end data. If R2 is found and -paired isn't set or vice verse then error message sent  several general bug fixes  simplified help menu", 
+            "title": "New in version 1.4.7"
+        }, 
+        {
+            "location": "/changelog/#new-in-version-148", 
+            "text": "added new feature: coverage plots generation  added new feature: ability to pass previously generated references directory, saves spaces and time  fixed strand guessing script, should be better at guessing now  moved to  mkdocs  for documents compilation and deployment to gh_pages  added new python script to make degust file, this simplifies and strengthens the code  improved readability of the code  improved and fixed bugs in handling fastq files and assignment of fastq to sample names", 
+            "title": "New in version 1.4.8"
         }
     ]
 }
