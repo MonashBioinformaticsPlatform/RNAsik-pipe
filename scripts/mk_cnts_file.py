@@ -9,7 +9,7 @@ parser = argparse.ArgumentParser(usage='%(prog)s --counts_dir <path/to/coutns_di
                                  description="This script summarises log files information into html table",
                                  add_help=True
                                 )
-parser.add_argument('--counts_file'
+parser.add_argument('--counts_file',
                      required=True,
                      help="path to directory with featureCounts files"
                     )
@@ -40,7 +40,7 @@ with open(gene_ids) as handler:
         line = line.split("\t")
         if line[0] in ensembl_dict:
             raise Exception("%s gene Id is already in the dictionary, duplicated gene name" % line[0])
-        ensembl_dict[line[0]] = [line[1], line[2]]#, line[3]]
+        ensembl_dict[line[0]] = [line[1], line[2], line[3]]
 
 # make samples sheet dictionary
 ss = open(samples_sheet).read().split("\n")
@@ -70,10 +70,9 @@ with open(counts_file) as handler:
         gene_id = line[0]
         row_cnts = "\t".join(line[6:])
         if gene_id not in ensembl_dict:
-            #raise Exception("This shouldn't happened, %s and %s don't have same number of genes" % (gene_ids, "counts_file"))
-            raise Exception(gene_id)
+            raise Exception("This shouldn't happened, %s and %s don't have same number of genes" % (gene_ids, "counts_file"))
 
-        chrom,gene_name,biotype = ensembl_hash[gene_id]
+        chrom,gene_name,biotype = ensembl_dict[gene_id]
 
         if header:
             ids = "\t".join(("Gene.ID", "Chrom", "Gene.Name", "Biotype"))
