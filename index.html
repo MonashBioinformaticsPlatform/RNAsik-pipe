@@ -1,85 +1,118 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="generator" content="pandoc">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>RNAsik-docs – </title>
-  <style type="text/css">code{white-space: pre;}</style>
-  <style type="text/css">
-div.sourceCode { overflow-x: auto; }
-table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
-  margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
-td.sourceCode { padding-left: 5px; }
-code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code > span.dt { color: #902000; } /* DataType */
-code > span.dv { color: #40a070; } /* DecVal */
-code > span.bn { color: #40a070; } /* BaseN */
-code > span.fl { color: #40a070; } /* Float */
-code > span.ch { color: #4070a0; } /* Char */
-code > span.st { color: #4070a0; } /* String */
-code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code > span.ot { color: #007020; } /* Other */
-code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code > span.fu { color: #06287e; } /* Function */
-code > span.er { color: #ff0000; font-weight: bold; } /* Error */
-code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-code > span.cn { color: #880000; } /* Constant */
-code > span.sc { color: #4070a0; } /* SpecialChar */
-code > span.vs { color: #4070a0; } /* VerbatimString */
-code > span.ss { color: #bb6688; } /* SpecialString */
-code > span.im { } /* Import */
-code > span.va { color: #19177c; } /* Variable */
-code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code > span.op { color: #666666; } /* Operator */
-code > span.bu { } /* BuiltIn */
-code > span.ex { } /* Extension */
-code > span.pp { color: #bc7a00; } /* Preprocessor */
-code > span.at { color: #7d9029; } /* Attribute */
-code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-  </style>
-  <link rel="stylesheet" href="siimple/dist/siimple.css">
-  <!--[if lt IE 9]>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
-  <![endif]-->
-</head>
-<body>
-<script src="js/libs/clipboard.min.js"></script>
-<script src="js/respons.js"></script>
-<script src="js/clip.js"></script>
-<div class="grid grid-fluid">
-<div class="row">
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="None">
+        
+        
+        <link rel="shortcut icon" href="./img/favicon.ico">
+        <title>RNAsik Docs</title>
+        <link href="./css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="./css/font-awesome-4.5.0.css" rel="stylesheet">
+        <link href="./css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="./css/highlight.css">
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        <script src="./js/jquery-1.10.2.min.js"></script>
+        <script src="./js/bootstrap-3.0.3.min.js"></script>
+        <script src="./js/highlight.pack.js"></script> 
+    </head>
+
+    <body class="homepage">
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href=".">RNAsik Docs</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                    <li class="active">
+                        <a href=".">Home</a>
+                    </li>
+                    <li >
+                        <a href="about/">About</a>
+                    </li>
+                </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                    <li class="disabled">
+                        <a rel="next" >
+                            <i class="fa fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="about/">
+                            Next <i class="fa fa-arrow-right"></i>
+                        </a>
+                    </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#rnasik-pipeline-docs">RNAsik pipeline docs</a></li>
+            <li><a href="#quick-start">Quick start</a></li>
+            <li><a href="#introduction">Introduction</a></li>
+            <li><a href="#prerequisites">Prerequisites</a></li>
+            <li><a href="#installation">Installation</a></li>
+            <li><a href="#user-input">User input</a></li>
+            <li><a href="#rnasik-output-files-and-directories">RNASik Output files and directories</a></li>
+            <li><a href="#command-line-options">Command line options</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
 <h1 id="rnasik-pipeline-docs"><a href="http://github.com/monashbioinformaticsplatform/RNAsik-pipe.git">RNAsik pipeline docs</a></h1>
-<div class="col-2">
-<ul class="topnav" id="myTopnav">
+<ul>
 <li><a href="#quick-start">Quick start</a></li>
 <li><a href="#introduction">Introduction</a></li>
 <li><a href="#prerequisites">Prerequisites</a></li>
 <li><a href="#installation">Installation</a></li>
 <li><a href="#user-input">User input</a></li>
 <li><a href="#directories-and-files-explained">Directories and files explained</a></li>
-<li><a href="#command-line-options">Command line optioins</a>
-<li class="icon">
-<a href="javascript:void(0);" style="font-size:15px;" onclick="myFunction()">☰</a>
-</li></li>
+<li><a href="#command-line-options">Command line options</a></li>
 </ul>
-</div>
-<div class="col-10">
 <h2 id="quick-start">Quick start</h2>
 <h5 id="align-raw-reads">Align raw reads</h5>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">RNAsik</span> -align star \
+<pre><code class="BASH">RNAsik -align star \
        -fastaRef /path/to/reference.fasta \
-       -fqDir /path/to/raw-data/directory</code></pre></div>
+       -fqDir /path/to/raw-data/directory
+</code></pre>
+
 <h5 id="count-gene-features">Count gene features</h5>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">RNAsik</span> -count \
-       -gtfFile path/to/annotation.gtf</code></pre></div>
+<pre><code class="BASH">RNAsik -count \
+       -gtfFile path/to/annotation.gtf
+</code></pre>
+
 <h5 id="the-lot">The lot</h5>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">RNAsik</span> -align star \
+<pre><code class="BASH">RNAsik -align star \
        -fastaRef /path/to/reference.fasta \
        -fqDir /path/to/raw-data/directory \
        -count \
@@ -88,13 +121,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
        -fastqc \
        -multiqc \
        -exonicRate \
-       -threads 15</code></pre></div>
+       -threads 15
+</code></pre>
+
 <h5 id="try-it-out">Try it out!</h5>
-<!-- Trigger -->
-<button class="btn" data-clipboard-text="RNAsik -align star -fastaRef http://bioinformatics.erc.monash.edu/home/kirill/ref-files/Mus_musculus/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa.gz -fqDir http://bioinformatics.erc.monash.edu/home/kirill/RNAsikSampleData/rawData/Dicer-fl.fl-iCre75-RNAseq.tar -count -gtfFile http://bioinformatics.erc.monash.edu/home/kirill/ref-files/Mus_musculus/Mus_musculus.GRCm38.84.gtf.gz -prePro -multiqc -fastqc -exonicRate -threads 10">
-Copy command
-</button>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">RNAsik</span> -align star \
+<p><!-- Trigger -->
+<button class="btn" data-clipboard-text="RNAsik -align star -fastaRef http://bioinformatics.erc.monash.edu/home/kirill/ref-files/Mus_musculus/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa.gz -fqDir http://bioinformatics.erc.monash.edu/home/kirill/RNAsikSampleData/rawData/Dicer-fl.fl-iCre75-RNAseq.tar -count -gtfFile http://bioinformatics.erc.monash.edu/home/kirill/ref-files/Mus_musculus/Mus_musculus.GRCm38.84.gtf.gz -prePro -multiqc -fastqc -exonicRate -threads 10">Copy command</button></p>
+<pre><code class="BASH">RNAsik -align star \
        -fastaRef http://bioinformatics.erc.monash.edu/home/kirill/ref-files/Mus_musculus/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa.gz \
        -fqDir http://bioinformatics.erc.monash.edu/home/kirill/RNAsikSampleData/rawData/Dicer-fl.fl-iCre75-RNAseq.tar \
        -count \
@@ -103,10 +136,12 @@ Copy command
        -multiqc \
        -fastqc \
        -exonicRate \
-       -threads 10</code></pre></div>
-<p>This publicly available data from <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE69937">NCBI</a>.</p>
+       -threads 10
+</code></pre>
+
+<p>This publicly available data from <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE69937">NCBI</a>. </p>
 <h2 id="introduction">Introduction</h2>
-<p><code>RNAsik</code> does alignment AND read counting, which makes Degust analysis one upload away AND BAM file pre-processing for IGV AND diagnostic QC metrics. <code>RNAsik</code> wraps <a href="#prerequisites">these tools</a> making your RNAseq analysis more streamline. <code>RNAsik</code> has also “sanity checks” inbuilt, checking command line options, checking if options are valid files/directories and it will talk to you so don’t sweat :) and read the error message.</p>
+<p><code>RNAsik</code> does alignment AND read counting, which makes Degust analysis one upload away AND BAM file pre-processing for IGV AND diagnostic QC metrics. <code>RNAsik</code> wraps <a href="#prerequisites">these tools</a> making your RNAseq analysis more streamline. <code>RNAsik</code> has also "sanity checks" inbuilt, checking command line options, checking if options are valid files/directories and it will talk to you so don't sweat :) and read the error message.</p>
 <h2 id="prerequisites">Prerequisites</h2>
 <ul>
 <li><a href="http://pcingola.github.io/BigDataScript/download.html">BigDataScript</a></li>
@@ -115,411 +150,189 @@ Copy command
 <li><a href="http://www.htslib.org/download/">samtools</a></li>
 <li><a href="http://broadinstitute.github.io/picard/">Picard tools</a></li>
 <li><a href="http://qualimap.bioinfo.cipf.es/">QualiMap</a></li>
-<li><a href="http://multiqc.info/">MultiQC</a></li>
+<li><a href="http://multiqc.info/">MultiQC</a> </li>
 <li><a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/">FastQC</a></li>
 </ul>
 <h2 id="installation">Installation</h2>
 <p>Follow <a href="http://docs.ansible.com/ansible/intro_installation.html">ansible installation guid</a> to get ansible then:</p>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">git</span> clone https://github.com/serine/bio-ansible --branch from-scratch
-<span class="kw">cd</span> bio-ansible/
-<span class="kw">ansible-playbook</span> -i host bio.yml --tags bds,rnasik,star,subread,samtools,htslib,picard,qualimap,fastqc</code></pre></div>
+<pre><code class="BASH">git clone https://github.com/serine/bio-ansible --branch from-scratch
+cd bio-ansible/
+ansible-playbook -i host bio.yml --tags bds,rnasik,star,subread,samtools,htslib,picard,qualimap,fastqc
+</code></pre>
+
 <p><a href="http://github.com/serine/bio-ansible">Need more help?</a></p>
 <h2 id="user-input">User input</h2>
 <h5 id="reference-files">Reference files</h5>
-<p>It is highly recommended that both of those files come from the same distributor. Most common distributors are <a href="">Ensembl</a>, <a href="">USCS</a> and <a href="">NCBI</a>.</p>
+<p>It is highly recommended that both of those files come from the same distributor. Most common distributors are <a href="http://www.ensembl.org/index.html">Ensembl</a>, <a href="http://genome.ucsc.edu/">UCSC</a> and <a href="ftp://ftp.ncbi.nih.gov/genomes/">NCBI</a>.</p>
 <table class="table table-striped">
-<tr>
-<thead>
-<td>
-Input
-</td>
-<td>
-Explained
-</td>
-</thead>
-</tr>
-<tr>
-<td class="args">
-FASTA file
-</td>
-<td>
-Most often this is your genomic reference sequence. FASTA file holds raw DNA (or amino acid) sequence where different features e.g chromosomes are labeled uniquely
-</td>
-</tr>
-<tr>
-<td class="args">
-GTF or GFF file
-</td>
-<td>
-This is your annotation file i.e coordinates of your genes, exons and other genomic feature
-</td>
-</tr>
+<tr><thead> <td>Input File</td><td>Description</td></thead></tr>
+<tr><td class="args">FASTA file</td><td>Most often this is your genomic reference sequence. It is a FASTA file holding raw DNA sequences where different features e.g chromosomes are labeled uniquely with a header line starting with '>'. [FASTA Format Description](https://en.wikipedia.org/wiki/FASTA_format) </td></tr>
+<tr><td class="args">GTF or GFF file</td><td> This is your gene annotation file (i.e coordinates of your genes, exons and other genomic features). This should be linked and associated with your genomic reference file</td></tr>
 </table>
+
 <h5 id="raw-data">Raw data</h5>
-<p><code>RNAsik</code> can handle nested directories as long as your data is homogeneous i.e all data belongs to the same library type e.g paired-end.</p>
+<p><code>RNAsik</code> can handle nested directories as long as your data is homogeneous i.e all data belongs to the same library type e.g paired-end(if paired end, RNASik looks for 'R1' and 'R2' in the filenames to distinguish read pairs. </p>
 <table class="table table-striped">
-<tr>
-<thead>
-<td>
-Input
-</td>
-<td>
-Explained
-</td>
-</thead>
-</tr>
-<tr>
-<td class="args">
-FASTQ file
-</td>
-<td>
-These are your raw files that are provided by the sequencing facilities to you
-</td>
-</tr>
+<tr><thead> <td>Input File</td><td>Description</td></thead></tr>
+<tr><td class="args">FASTQ file</td><td>These are your raw files that are provided by the sequencing facility to you, they can be gzipped (.fq, .fastq, .fq.gz, .fastq.gz) </td></tr>
 </table>
-<h2 id="directories-and-files-explained">Directories and files explained</h2>
-<h5 id="directories-explained">Directories explained</h5>
+
+<h2 id="rnasik-output-files-and-directories">RNASik Output files and directories</h2>
+<h5 id="description-of-output-directories">Description of output directories</h5>
 <table class="table table-striped">
-<tr>
-<thead>
-<td>
-Directories
-</td>
-<td>
-Explained
-</td>
-</thead>
-</tr>
-<tr>
-<td class="args">
-refFiles/
-</td>
-<td>
-Holds several reference files (FASTA and GTF) and indices (aligner index)
-</td>
-</tr>
-<tr>
-<td class="args">
-bamFiles/
-</td>
-<td>
-Hold “raw” BAM files, outputed from an alinger. Also may hold additional files from alignment run e.g aligner specific log files
-</td>
-</tr>
-<tr>
-<td class="args">
-countFiles/
-</td>
-<td>
-Hold counts files, “raw” - from <code>featureCounts</code>, degust ready counts and filtered for protein_coding features only
-</td>
-</tr>
-<tr>
-<td class="args">
-markedBams/
-</td>
-<td>
-Hold pre-processed BAM files, these BAMs have beep sorted, reordered and duplicates marked as well as indexed, all using picard tools. These BAMs are <a href="http://software.broadinstitute.org/software/igv/">IGV reads</a>
-</td>
-</tr>
-<tr>
-<td class="args">
-fastqReport/
-</td>
-<td>
-Hold HTML reports for individual FASTQ file
-</td>
-</tr>
-<tr>
-<td class="args">
-qualiMapResults/
-</td>
-<td>
-Hold int(ra|er)genic rates per BAM files. Each BAM has its own directory with metric files. These results generated using <code>QualiMap rnaseq</code> command
-</td>
-</tr>
-<tr>
-<td class="args">
-fastqDir/
-</td>
-<td>
-If you are going to pull your FASTQ file over http in tarball, then tarball will be unarchived here
-</td>
-</tr>
-<tr>
-<td class="args">
-multiqc_data/
-</td>
-<td>
-Directory created by MultiQC holds parsed text file, it doesn’t server any purpose for html file
-</td>
-</tr>
+<tr><thead> <td>Directories</td><td>Description</td></thead></tr>
+<tr><td class="args">refFiles/</td><td> Contains the reference files (FASTA and GTF) and indices (aligner index) used in the analysis run </td></tr>
+<tr><td class="args">bamFiles/</td><td> Contains "raw" BAM files, outputed from an aligner. Also may hold additional files from alignment run e.g aligner specific log files </td></tr>
+<tr><td class="args">countFiles/</td><td> Contains read count files, "raw" - from `featureCounts`, degust ready counts and filtered for protein_coding features only</td></tr>
+<tr><td class="args">markedBams/</td><td> Contains pre-processed BAM files, these BAMs are sorted, reordered and duplicates marked as well as indexed, all using picard tools. These BAMs can be used in [IGV](http://software.broadinstitute.org/software/igv/) to view read alignments </td></tr>
+<tr><td class="args">fastqReport/</td><td> Contains FastQC HTML reports for individual FASTQ files</td></tr>
+<tr><td class="args">qualiMapResults/</td><td> Contains int(ra|er)genic rates from each BAM file. Each BAM has its own directory with metric files. These results generated using `QualiMap rnaseq` command</td></tr>
+<tr><td class="args">fastqDir/</td><td> If you are going to pull your FASTQ file over http in tarball, then tarball will be unarchived here</td></tr>
+<tr><td class="args">multiqc_data/</td><td>Directory created by MultiQC holding a parsed text file, it doesn't serve any purpose for html file</td></tr>
 </table>
-<h5 id="files-explained">Files explained</h5>
+
+<h5 id="description-of-output-files">Description of output files</h5>
 <table class="table table-striped">
-<tr>
-<thead>
-<td>
-Files
-</td>
-<td>
-Explained
-</td>
-</thead>
-</tr>
-<tr>
-<td class="args">
-geneIds.txt
-</td>
-<td>
-Three additonal columns for read counts. Gene Id, Gene Name, Gene Biotype. Count files with “-withNames” postfix have those columns included
-</td>
-</tr>
-<tr>
-<td class="args">
-logFile.txt
-</td>
-<td>
-Keeps log of <code>RNAsik</code> events, including FASTQ to BAM mapping and file in use. It doesn’t keep stdout/stderr from individual tool in use. Each tool should have its own logging implemented. Look in the corresponding directory for tool specific log files.
-</td>
-</tr>
-<tr>
-<td class="args">
-strandInfo.txt
-</td>
-<td>
-Holds guessed, based on <code>featureCounts</code> <code>.summary</code> files, strand informataion
-</td>
-</tr>
-<tr>
-<td class="args">
-multiqc_report.html
-</td>
-<td>
-This report file produced by MultiQC tool. This is stand alone html file and can be viewed in any browser
-</td>
-</tr>
+<tr><thead> <td>Files</td><td>Description</td></thead></tr>
+<tr><td class="args">geneIds.txt</td><td> Three additonal columns for read counts. Gene Id, Gene Name, Gene Biotype. Count files with "-withNames" postfix have those columns included </td></tr>
+<tr><td class="args">logFile.txt</td><td> A log of `RNAsik` events, including FASTQ to BAM mapping and file in use. It doesn't keep stdout/stderr from individual tool in use. Each tool should have its own logging implemented. Look in the corresponding directory for tool specific log files.</td></tr>
+<tr><td class="args">strandInfo.txt</td><td> Contains guesses, based on `featureCounts` `.summary` files, strand informataion</td></tr>
+<tr><td class="args">multiqc_report.html</td><td>This is the report file produced by MultiQC tool. A stand alone html file and can be viewed in any browser</td></tr>
 </table>
+
 <h2 id="command-line-options">Command line options</h2>
 <h5 id="read-alignment">Read alignment</h5>
 <table class="table table-striped">
-<tr>
-<thead>
-<td>
-Options
-</td>
-<td>
-Usage
-</td>
-</thead>
-</tr>
-<tr>
-<td class="args">
--align
-</td>
-<td>
-specify your aligner of choice
-</td>
-</tr>
-<tr>
-<td class="args">
--fqDir
-</td>
-<td>
-specify path to your raw data directory. <code>RNAsik</code> will search that path recursively, so don’t worry about nested directores
-</td>
-</tr>
-<tr>
-<td class="args">
--fastaRef
-</td>
-<td>
-specify path to your reference FASTA file, i.e file that holds your refrence genome
-</td>
-</tr>
+<tr><thead> <td>Options</td><td>Usage</td></thead></tr>
+<tr><td class="args">-align</td><td>specify your aligner of choice [star|hisat|bwa]</td></tr>
+<tr><td class="args">-fqDir</td><td>specify path to your raw data directory. `RNAsik` will search that path recursively, so don't worry about nested directores</td></tr>
+<tr><td class="args">-fastaRef</td><td>specify path to your reference FASTA file, i.e file that holds your refrence genome</td></tr>
+<tr><td class="args">-paired</td><td>specify if data is paired end (RNASik looks for R1 and R2 in the FASTQ filename representing Read 1 and Read 2 </td></tr>
 </table>
+
 <h5 id="read-counting">Read counting</h5>
 <table class="table table-striped">
-<tr>
-<thead>
-<td>
-Options
-</td>
-<td>
-Usage
-</td>
-</thead>
-</tr>
-<tr>
-<td class="args">
--count
-</td>
-<td>
-flag if you’d like to get read counts
-</td>
-</tr>
-<tr>
-<td class="args">
--gtfFile
-</td>
-<td>
-specify path to your reference annotation file (GTF or GFF)
-</td>
-</tr>
+<tr> <thead> <td>Options</td><td> Usage </td></thead></tr>
+<tr><td class="args">-count</td> <td> flag if you'd like to get read counts</td></tr>
+<tr><td class="args">-gtfFile</td> <td> specify path to your reference annotation file (GTF or GFF)</td></tr>
 </table>
+
 <h5 id="reads-metrics">Reads metrics</h5>
 <table class="table table-striped">
-<tr>
-<thead>
-<td>
-Options
-</td>
-<td>
-Usage
-</td>
-</thead>
-</tr>
-<tr>
-<td class="args">
--fastqc
-</td>
-<td>
-flag if you’d like to get FastQC reports for your fastq files
-</td>
-</tr>
-<tr>
-<td class="args">
--exonicRate
-</td>
-<td>
-flag if you’d like to get Int(ra|er)genic rates for your reads, using QualiMap tool
-</td>
-</tr>
-<tr>
-<td class="args">
--multiqc
-</td>
-<td>
-flag if you’d like to get general report that summarises different log files including <code>STAR</code>, <code>featureCounts</code>, <code>FastQC</code> and <code>QualiMap</code>
-</td>
-</tr>
+<tr> <thead> <td>Options</td><td> Usage </td></thead></tr>
+<tr><td class="args">-fastqc</td> <td> flag if you'd like to get FastQC reports for your fastq files</td></tr>
+<tr><td class="args">-exonicRate</td> <td> flag if you'd like to get Int(ra|er)genic rates for your reads, using QualiMap tool</td></tr>
+<tr><td class="args">-multiqc</td> <td> flag if you'd like to get general report that summarises different log files including `STAR`, `featureCounts`, `FastQC` and `QualiMap`</td></tr>
 </table>
+
 <h5 id="extra-options">Extra options</h5>
 <table class="table table-striped">
-<tr>
-<thead>
-<td>
-Options
-</td>
-<td>
-Usage
-</td>
-</thead>
-</tr>
-<tr>
-<td class="args">
--prePro
-</td>
-<td>
-flag to get your BAM files pre-processed i.e get them sorted, duplicates marked and index
-</td>
-</tr>
-<tr>
-<td class="args">
--samplesSheet
-</td>
-<td>
-specify tab separated, two columns, file with old and new prefixes
-</td>
-</tr>
-<tr>
-<td class="args">
--fqRegex <span class="argExtraInfo"> - <code>-fqRegex A</code> targets files like <code>sample-FASTQ-file_L001_R1_001.fastq.gz</code> - <code>-fqRegex B</code> targets files like <code>sample-FASTQ-file_L001_R1.fastq.gz</code> - <code>-fqRegex C</code> targets files like <code>sample-FASTQ-file_R1_001.fastq.gz</code> - <code>-fqRegex D</code> targets fiels like <code>sample-FASTQ-file_R1.fastq.gz</code> </span>
-</td>
-<td>
-specify common regex pattern to get “clean” sample names
-</td>
-</tr>
-<tr>
-<td class="args">
--genomeIdx
-</td>
-<td>
-specify path to pre-existing alignment index
-</td>
-</tr>
-<tr>
-<td class="args">
--outDir
-</td>
-<td>
-give a name to your analysis directory
-</td>
-</tr>
-<tr>
-<td class="args">
--extn
-</td>
-<td>
-provide your fastq files extntion. [“.fastq.gz”]
-</td>
-</tr>
-<tr>
-<td class="args">
--threads
-</td>
-<td>
-provide number of threads to use. [4]
-</td>
-</tr>
-<tr>
-<td class="args">
--extraOpts
-</td>
-<td>
-provide key=value pairs, one per line, with key being tool name and value is a string of options e.g <code>star=&quot;--outWigType bedGraph&quot;</code>
-</td>
-</tr>
-<tr>
-<td class="args">
--configFile
-</td>
-<td>
-specify your own config file with key=value pairs, one per line, for all tools
-</td>
-</tr>
+<tr> <thead> <td>Options</td><td> Usage </td></thead></tr>
+<tr><td class="args">-prePro</td> <td> flag to get your BAM files pre-processed i.e get them sorted, duplicates marked and index</td></tr>
+<tr><td class="args">-samplesSheet</td> <td> specify name of a tab separated text file, two columns,the first with old prefixes to be removed by new prefixes in the second column</td></tr>
+<tr><td class="args">-genomeIdx</td> <td> specify path to pre-existing alignment index </td></tr>
+<tr><td class="args">-outDir</td><td>give a name to your analysis output directory [sikRun] </td></tr>
+<tr><td class="args">-extn</td> <td> provide your fastq files extntion. [".fastq.gz"]  </td></tr>
+<tr><td class="args">-threads</td> <td> provide number of threads to use. [4]  </td></tr>
+<tr><td class="args">-memory</td> <td> provide amount of memory to use. [40000000000]  </td></tr>
+<tr><td class="args">-extraOpts</td> <td> provide key=value pairs, one per line, with key being tool name and value is a string of options e.g `star="--outWigType bedGraph"` </td></tr>
+<tr><td class="args">-configFile</td><td>specify your own config file with key=value pairs, one per line, for all tools</td></tr>
 </table>
+
 <h5 id="unusual-user-case">Unusual user case</h5>
 <table class="table table-striped">
-<tr>
-<td class="args">
--paired
-</td>
-<td>
-flag to indicate that your data is paired-end. If <code>-fqDir</code> options is given <code>RNAsik</code> will automatically detect library type
-</td>
-</tr>
-<tr>
-<td class="args">
--bamFiles
-</td>
-<td>
-specify path to BAMs directory. Use if bams were generated outside of the pipeline
-</td>
-</tr>
+<tr><td class="args">-bamFiles</td> <td> specify path to BAMs directory. Use if bams were generated outside of the pipeline </td></tr>
 </table>
-<footer>
-<p>
-<a href="http://github.com/serine">Created by Kirill Tsyganov</a>
-</p>
-</footer>
-<p>
-<a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to <span class="citation" data-cites="kizza_a">@kizza_a</span></a>
-<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
-</p>
+
+<footer> <p><a href="http://github.com/serine">Created by Kirill Tsyganov</a></p> </footer>
+
+<p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p>
+
 <p class="twitter-btn">
 <a class="twitter-share-button"
-  href="https://twitter.com/intent/tweet?text=Hey%20I%27m%20using%20this%20fully%20sick%20RNAseq%20pipeline%20It%27s%20sik%20easy%20http%3A%2F%2Fgithub%2Ecom%2Fmonashbioinformaticsplatform%2FRNAsik%2Dpipe%20by%20%40kizza%5Fa%20from%20%40MonashBioinfo" data-size="large"> Share</a>
-</p>
-</body>
+  href="https://twitter.com/intent/tweet?text=Hey%20I%27m%20using%20this%20fully%20sick%20RNAseq%20pipeline%20It%27s%20sik%20easy%20http%3A%2F%2Fgithub%2Ecom%2Fmonashbioinformaticsplatform%2FRNAsik%2Dpipe%20by%20%40kizza%5Fa%20from%20%40MonashBioinfo" data-size="large">
+Share</a>
+</p></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>var base_url = '.';</script>
+        <script src="./js/base.js"></script>
+        <script src="./search/require.js"></script>
+        <script src="./search/search.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="Keyboard Shortcuts Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Keyboard Shortcuts</h4>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td><kbd>&larr;</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td><kbd>&rarr;</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    </body>
 </html>
+
+<!--
+MkDocs version : 0.17.0
+Build Date UTC : 2017-10-26 00:27:20
+-->
