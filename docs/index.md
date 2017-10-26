@@ -22,38 +22,27 @@ RNAsik -align star \
 ##### Count gene features
 
 ```BASH
-RNAsik -count \
+RNAsik -counts \
        -gtfFile path/to/annotation.gtf
 ```
 ##### The lot
 
 ```BASH
-RNAsik -align star \
-       -fastaRef /path/to/reference.fasta \
-       -fqDir /path/to/raw-data/directory \
-       -count \
-       -gtfFile path/to/your/annotation/file \
-       -prePro \
-       -fastqc \
-       -multiqc \
-       -exonicRate \
-       -threads 15
+RNAsik -fqDir /path/to/raw-data/directory \
+       -align star \
+       -refFiles /path/to/refDir \
+       -counts \
+       -metrics \
+       -threads 10
 ```
-
-##### Try it out!
-<!-- Trigger -->
-<button class="btn" data-clipboard-text="RNAsik -align star -fastaRef http://bioinformatics.erc.monash.edu/home/kirill/ref-files/Mus_musculus/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa.gz -fqDir http://bioinformatics.erc.monash.edu/home/kirill/RNAsikSampleData/rawData/Dicer-fl.fl-iCre75-RNAseq.tar -count -gtfFile http://bioinformatics.erc.monash.edu/home/kirill/ref-files/Mus_musculus/Mus_musculus.GRCm38.84.gtf.gz -prePro -multiqc -fastqc -exonicRate -threads 10">Copy command</button>
 
 ```BASH
 RNAsik -align star \
        -fastaRef http://bioinformatics.erc.monash.edu/home/kirill/ref-files/Mus_musculus/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa.gz \
        -fqDir http://bioinformatics.erc.monash.edu/home/kirill/RNAsikSampleData/rawData/Dicer-fl.fl-iCre75-RNAseq.tar \
-       -count \
+       -counts \
        -gtfFile http://bioinformatics.erc.monash.edu/home/kirill/ref-files/Mus_musculus/Mus_musculus.GRCm38.84.gtf.gz \
-       -prePro \
-       -multiqc \
-       -fastqc \
-       -exonicRate \
+       -metrics \
        -threads 10
 ```
 
@@ -120,6 +109,7 @@ It is highly recommended that both of those files come from the same distributor
 <tr><td class="args">qualiMapResults/</td><td> Contains int(ra|er)genic rates from each BAM file. Each BAM has its own directory with metric files. These results generated using `QualiMap rnaseq` command</td></tr>
 <tr><td class="args">fastqDir/</td><td> If you are going to pull your FASTQ file over http in tarball, then tarball will be unarchived here</td></tr>
 <tr><td class="args">multiqc_data/</td><td>Directory created by MultiQC holding a parsed text file, it doesn't serve any purpose for html file</td></tr>
+<tr><td class="args">logs</td><td>Directory that holds subdirectories, self explanatory, with logs files</td></tr>
 </table>
 
 ##### Description of output files
@@ -127,7 +117,6 @@ It is highly recommended that both of those files come from the same distributor
 <table class="table table-striped">
 <tr><thead> <td>Files</td><td>Description</td></thead></tr>
 <tr><td class="args">geneIds.txt</td><td> Three additonal columns for read counts. Gene Id, Gene Name, Gene Biotype. Count files with "-withNames" postfix have those columns included </td></tr>
-<tr><td class="args">logFile.txt</td><td> A log of `RNAsik` events, including FASTQ to BAM mapping and file in use. It doesn't keep stdout/stderr from individual tool in use. Each tool should have its own logging implemented. Look in the corresponding directory for tool specific log files.</td></tr>
 <tr><td class="args">strandInfo.txt</td><td> Contains guesses, based on `featureCounts` `.summary` files, strand informataion</td></tr>
 <tr><td class="args">multiqc_report.html</td><td>This is the report file produced by MultiQC tool. A stand alone html file and can be viewed in any browser</td></tr>
 </table>
@@ -138,7 +127,7 @@ It is highly recommended that both of those files come from the same distributor
 
 <table class="table table-striped">
 <tr><thead> <td>Options</td><td>Usage</td></thead></tr>
-<tr><td class="args">-align</td><td>specify your aligner of choice [star|hisat|bwa]</td></tr>
+<tr><td class="args">-align</td><td>specify your aligner of choice [star|starWithAnn|hisat|bwa]</td></tr>
 <tr><td class="args">-fqDir</td><td>specify path to your raw data directory. `RNAsik` will search that path recursively, so don't worry about nested directores</td></tr>
 <tr><td class="args">-fastaRef</td><td>specify path to your reference FASTA file, i.e file that holds your refrence genome</td></tr>
 <tr><td class="args">-paired</td><td>specify if data is paired end (RNASik looks for R1 and R2 in the FASTQ filename representing Read 1 and Read 2 </td></tr>
@@ -148,7 +137,7 @@ It is highly recommended that both of those files come from the same distributor
 
 <table class="table table-striped">
 <tr> <thead> <td>Options</td><td> Usage </td></thead></tr>
-<tr><td class="args">-count</td> <td> flag if you'd like to get read counts</td></tr>
+<tr><td class="args">-counts</td> <td> flag if you'd like to get read counts</td></tr>
 <tr><td class="args">-gtfFile</td> <td> specify path to your reference annotation file (GTF or GFF)</td></tr>
 </table>
 
@@ -156,6 +145,7 @@ It is highly recommended that both of those files come from the same distributor
 
 <table class="table table-striped">
 <tr> <thead> <td>Options</td><td> Usage </td></thead></tr>
+<tr><td class="args">-metrics</td> <td> This is an aggregate flag that is a short hand of writing out -prePro, -fastqc, -exonicRate and -multiqc</td></tr>
 <tr><td class="args">-fastqc</td> <td> flag if you'd like to get FastQC reports for your fastq files</td></tr>
 <tr><td class="args">-exonicRate</td> <td> flag if you'd like to get Int(ra|er)genic rates for your reads, using QualiMap tool</td></tr>
 <tr><td class="args">-multiqc</td> <td> flag if you'd like to get general report that summarises different log files including `STAR`, `featureCounts`, `FastQC` and `QualiMap`</td></tr>
@@ -170,6 +160,7 @@ It is highly recommended that both of those files come from the same distributor
 <tr><td class="args">-genomeIdx</td> <td> specify path to pre-existing alignment index </td></tr>
 <tr><td class="args">-outDir</td><td>give a name to your analysis output directory [sikRun] </td></tr>
 <tr><td class="args">-extn</td> <td> provide your fastq files extntion. [".fastq.gz"]  </td></tr>
+<tr><td class="args">-pairIds</td> <td> provide type identification, default is [`_R1,_R2`]</td></tr>
 <tr><td class="args">-threads</td> <td> provide number of threads to use. [4]  </td></tr>
 <tr><td class="args">-memory</td> <td> provide amount of memory to use. [40000000000]  </td></tr>
 <tr><td class="args">-extraOpts</td> <td> provide key=value pairs, one per line, with key being tool name and value is a string of options e.g `star="--outWigType bedGraph"` </td></tr>
@@ -179,7 +170,7 @@ It is highly recommended that both of those files come from the same distributor
 ##### Unusual user case
 
 <table class="table table-striped">
-<tr><td class="args">-bamFiles</td> <td> specify path to BAMs directory. Use if bams were generated outside of the pipeline </td></tr>
+<tr><td class="args">-bamsDir</td> <td> specify path to BAMs directory. Use if bams were generated outside of the pipeline </td></tr>
 </table>
 <footer> <p><a href="http://github.com/serine">Created by Kirill Tsyganov</a></p> </footer>
 <p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p>
