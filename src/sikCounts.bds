@@ -111,10 +111,10 @@ string getDegustFile(string{} cmdExe, string cntsDir, string[] counts, string st
     string mkCntsFile = programPath.pathName()+"/../scripts/mk_cnts_file.py"
 
     task(counts, degustFile <- cntsFile, taskName := "making degust file") {
-        sys $mkCntsFile --counts_file $cntsFile \
-                        --gene_ids $geneIdsFile \
-                        --samples_sheet $samplesSheet \
-                        --biotype "protein_coding" > $degustFile
+        sys $pythonExe $mkCntsFile --counts_file $cntsFile \
+                                   --gene_ids $geneIdsFile \
+                                   --samples_sheet $samplesSheet \
+                                   --biotype "protein_coding" > $degustFile
     }
 
     return degustFile
