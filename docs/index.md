@@ -58,6 +58,7 @@ This publicly available data from [NCBI](https://www.ncbi.nlm.nih.gov/geo/query/
 - [STAR aligner](https://github.com/alexdobin/STAR/releases)
 - [subread](http://subread.sourceforge.net/)
 - [samtools](http://www.htslib.org/download/)
+- [bedtools2](http://bedtools.readthedocs.io/en/latest/index.html)
 - [Picard tools](http://broadinstitute.github.io/picard/)
 - [QualiMap](http://qualimap.bioinfo.cipf.es/)
 - [MultiQC](http://multiqc.info/) 
@@ -68,9 +69,9 @@ This publicly available data from [NCBI](https://www.ncbi.nlm.nih.gov/geo/query/
 Follow [ansible installation guid](http://docs.ansible.com/ansible/intro_installation.html) to get ansible then:
 
 ```BASH
-git clone https://github.com/serine/bio-ansible --branch from-scratch
+git clone https://github.com/serine/bio-ansible
 cd bio-ansible/
-ansible-playbook -i host bio.yml --tags bds,rnasik,star,subread,samtools,htslib,picard,qualimap,fastqc
+ansible-playbook -i host bio.yml --tags bds,rnasik,star,subread,samtools,htslib,bedtools,picard,qualimap,fastqc
 ```
 [Need more help?](http://github.com/serine/bio-ansible)
 
@@ -172,7 +173,7 @@ It is highly recommended that both of those files come from the same distributor
 <table class="table table-striped">
 <tr><td class="args">-bamsDir</td> <td> specify path to BAMs directory. Use if bams were generated outside of the pipeline </td></tr>
 </table>
-<footer> <p><a href="http://github.com/serine">Created by Kirill Tsyganov</a></p> </footer>
+<footer> <p><a href="http://github.com/serine">Created by Kirill Tsyganov with support from Monash Bioinformatics Platform</a></p> </footer>
 <p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p>
 
 <p class="twitter-btn">
