@@ -95,18 +95,20 @@ if(totRefFiles) chromSizes = totRefFiles{"fai"}
 else faIdx = makeFaiFile(cmdExe, localFastaRef)
 mkLog("fai", faIdx, "refFiles", logsDir)
 // get genomeIdx 
-if(!align.isEmpty() && totRefFiles) {
-    genomeIdx = totRefFiles{"idx"}
-    string chkExtn = genomeIdx.extName()
-    if(!chkExtn.startsWith(align)) {
-        error "Index ($genomeIdx) doesn't seem to correspond to aligner ($align) of choice"
-    }
+if(!align.isEmpty()) {
+    if(totRefFiles) {
+        genomeIdx = totRefFiles{"idx"}
+        string chkExtn = genomeIdx.extName()
+        if(!chkExtn.startsWith(align)) {
+            error "Index ($genomeIdx) doesn't seem to correspond to aligner ($align) of choice"
+        }
+    } 
     if(align.startsWith("bwa")) {
         string[] idxs = genomeIdx.dirPath()
         string bwaIdxBase = idxs[0].removeExt()
         genomeIdx = genomeIdx+"/"+bwaIdxBase.baseName()
     }
-} 
+}
 else if(!align.isEmpty() && genomeIdx.isEmpty()) {
     genomeIdx = getIdx(cmdExe, align, setGFF, refFilesDir, localFastaRef, localGTF, extraOpts, threads, logsDir)
 } 
@@ -159,7 +161,7 @@ if(exonicRate) {
     if(!counts && strand.isEmpty()) error "No strand information found. Use -counts flag to get it. Alternatively use -strand flag with appropriate strand type."
     if(!counts && !strand.isEmpty()) strandInfo = strand
 }
-string degustFile = getDegustFile(cmdExe, countFiles, featureCounts, strandInfo, samplesSheet, localGTF, setGFF)
+string degustFile = getDegustFile(cmdExe, countFiles, strandInfo, samplesSheet, localGTF, setGFF)
 mkLog("degust", degustFile, "data", logsDir)
 string{} exonicOpts = { "-gtf" => localGTF }
 if(paired) {

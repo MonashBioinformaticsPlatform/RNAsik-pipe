@@ -89,22 +89,24 @@ string getGeneIds(string pythonExe, string countFilesDir, string gtfFile, bool s
     return geneIds
 }
 
-string getDegustFile(string{} cmdExe, string cntsDir, string[] counts, string strandInfo, string samplesSheet, string gtfFile, bool gff) {
+string getDegustFile(string{} cmdExe, string cntsDir, string strandInfo, string samplesSheet, string gtfFile, bool gff) {
     // sanity check
-    if(!strandInfo.exists()) {
-        error "This shouldn't happened, check getDegustFile function"
-    }
-
     if(!cmdExe.hasKey("pythonExe")) {
         error "Can't get python executable, check your config file $configFile"
     }
+
+    string strandExitCode
+    string strandType
+    if(counts && strandInfo.exists()) {
+    	(strandType, strandExitCode) = strandInfo.read().split(",")
+    }
+    else if(counts && !strandInfo.exists()) {
+        error "This shouldn't happened, check getDegustFile function"
+    }
+
     string pythonExe = cmdExe{"pythonExe"}
     string geneIdsFile = getGeneIds(pythonExe, cntsDir, gtfFile, gff)
     
-    string strandExitCode
-    string strandType
-    (strandType, strandExitCode) = strandInfo.read().split(",")
-
     string cntsFile = cntsDir+"/"+strandType+".txt"
     string degustFile = cntsFile.swapExt(".txt", "-withNames-proteinCoding.txt")
     
