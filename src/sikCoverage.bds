@@ -23,7 +23,7 @@ string[] getCovFiles(string{} cmdExe, string{} sortedBamsMap, string coverageFil
                                        -ibam $bamFile \
                                        -g $fastaRef > $tmp 
 
-            sys sort -k1,1 -k2,2n $tmp > $bedGraphFile 
+            sys LC_COLLATE=C  sort -k1,1 -k2,2n $tmp > $bedGraphFile 
             sys $bedGraphToBigWig $bedGraphFile $chromSizes $bigWigFile
             sys rm $bedGraphFile $tmp
         }

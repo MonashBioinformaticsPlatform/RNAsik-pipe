@@ -88,7 +88,7 @@ string getGeneIds(string pythonExe, string countFilesDir, string gtfFile, bool s
     }
     return geneIds
 }
-
+//TODO make mkCntsFile to accept args from extraOpts file, in particular --biotype, not every annotation file will have that info
 string getDegustFile(string{} cmdExe, string cntsDir, string strandInfo, string samplesSheet, string gtfFile, bool gff) {
     // sanity check
     if(!cmdExe.hasKey("pythonExe")) {

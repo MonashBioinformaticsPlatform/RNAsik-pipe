@@ -109,7 +109,7 @@ if(!align.isEmpty()) {
         genomeIdx = genomeIdx+"/"+bwaIdxBase.baseName()
     }
 }
-else if(!align.isEmpty() && genomeIdx.isEmpty()) {
+if(!align.isEmpty() && genomeIdx.isEmpty()) {
     genomeIdx = getIdx(cmdExe, align, setGFF, refFilesDir, localFastaRef, localGTF, extraOpts, threads, logsDir)
 } 
 mkLog(align, genomeIdx, "refFiles", logsDir)
