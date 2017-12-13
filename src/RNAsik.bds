@@ -91,7 +91,7 @@ if(totRefFiles) chromSizes = totRefFiles{"chromSizes"}
 else chromSizes = makeChromSizes(localFastaRef)
 mkLog("chromSizes", chromSizes, "refFiles", logsDir)
 string faIdx
-if(totRefFiles) chromSizes = totRefFiles{"fai"}
+if(totRefFiles) faIdx = totRefFiles{"fai"}
 else faIdx = makeFaiFile(cmdExe, localFastaRef)
 mkLog("fai", faIdx, "refFiles", logsDir)
 // get genomeIdx 
