@@ -85,11 +85,11 @@ string[] alignerReads(string fqString, string pairIds) {
     //DOCS: fqString holds all fastq files from a single sample, that includes R1 and R2 reads
     // step through individual fastq files check if it is R1 or R2 and 
     for(string fq : fqClean.split(",")) {
-        if(fq.lastIndexOf(pairIdsList[0]) != -1) {
+        if(fq.lastIndexOf(pairIdsList[0]) != -1 || !paired) {
             readOne.add(fq)
         }
         else {
-            if(fq.lastIndexOf(pairIdsList[1]) != -1) {
+            if(fq.lastIndexOf(pairIdsList[1]) != -1 ) {
                 readTwo.add(fq)
             }
             else {
