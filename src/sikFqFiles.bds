@@ -108,9 +108,10 @@ string[] getFqPrefix(string fqRead, string[] fqRgxs, string pairIds, string extn
     }
     string[] pairIdsList = pairIds.split(",")
     // check if R1 is in the file name
-    int oneIdx = fqRead.lastIndexOf(pairIdsList[0])
-    int twoIdx = fqRead.lastIndexOf(pairIdsList[1])
+    int oneIdx = fqRead.baseName().lastIndexOf(pairIdsList[0])
+    int twoIdx = fqRead.baseName().lastIndexOf(pairIdsList[1])
     
+    if((oneIdx != -1) && (twoIdx != -1))  print "\n Warning: BOTH read pairIDs found in fastq filename. Defaulting to read 1.\n" 
     if(oneIdx != -1) return [fqRead.baseName().substr(0, oneIdx), fqRead.baseName().substr(0, oneIdx).replace("_", "-")]
     if(twoIdx != -1) return [fqRead.baseName().substr(0, twoIdx), fqRead.baseName().substr(0, twoIdx).replace("_", "-")]
     // if all of the above failed
