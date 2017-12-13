@@ -37,6 +37,7 @@ string checkCmdArgs() {
                         "-samplesSheet", \
                         "-extraOpts", \
                         "-paired", \
+                        "-pairIds", \
                         "-bamsDir", \
                         "-proBams", \
                         "-configFile", \
