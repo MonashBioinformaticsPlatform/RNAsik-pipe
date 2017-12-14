@@ -114,7 +114,7 @@ string{} chkRefFiles(string refDir, string aligner){
     }
     //NOTE have to be strick here since we don't want to be geussing which one of multiple gtf/gff files to pick.
     string[] itemsChk = totRefFiles.values()
-    if(itemsChk.size() < 6 ) error "Too few refFiles were found, '$totRefFiles'. Try using -fastaRef and -gtfFile options instead. Maybe the refFiles dir is from an older version of RNAsik?"
+    if(itemsChk.size() < 6 ) warning "\n refFiles doesnt contain full complement: '$totRefFiles'. Try using -fastaRef and -gtfFile options instead. Maybe the refFiles dir is from an older version of RNAsik?\n"
     if(clobberedRefFiles.size() > 0 ) error "Extra refFiles were found, '$clobberedRefFiles'. Ensure only one of each of these filetypes is in your refFiles directory."
 
     return totRefFiles
