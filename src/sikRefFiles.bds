@@ -104,7 +104,7 @@ string{} chkRefFiles(string refDir, string aligner){
     for(string refFile : refDir.dirPath()) {
         string extn = refFile.extName()
         if( extn == "gff" || extn == "gff3" ) extn = "gtf"
-        if(extn.startsWith(aligner)) extn = "idx"
+        if(extn.startsWith(aligner+"Idx")) extn = "idx"
         //NOTE make backwards-compatible with old RNA-sik refFiles extn ".chrom.sizes":
         if(refFile.endsWith(".chrom.sizes")) extn = "chromSizes"
         if( allowedExtn.has(extn)) {
