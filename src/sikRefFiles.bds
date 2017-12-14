@@ -96,33 +96,26 @@ string makeChromSizes(string fastaRef) {
 
 string{} chkRefFiles(string refDir, string aligner){
     string{} totRefFiles
+    string[] clobberedRefFiles
+    string[] allowedExtn = ["gtf", "fa", "fai", "chromSizes", "dict", "idx" ]
     //NOTE can't have gziped files here even though RNAsik can handle gziped files as
     // input to -fastaRef and -gtfFile but it will unzip them localy and I can't have that
     // since I'm assuming no write permissions to refFiles directory
     for(string refFile : refDir.dirPath()) {
-	string extn = refFile.extName()
-	if(extn == "gtf" || extn == "gff" || extn == "gff3") {
-	    totRefFiles{"gtf"} = refFile
+        string extn = refFile.extName()
+        if( extn == "gff" || extn == "gff3" ) extn = "gtf"
+        if(extn.startsWith(aligner)) extn = "idx"
+        //NOTE make backwards-compatible with old RNA-sik refFiles extn ".chrom.sizes":
+        if(refFile.endsWith(".chrom.sizes")) extn = "chromSizes"
+        if( allowedExtn.has(extn)) {
+            if (totRefFiles.hasKey(extn)) clobberedRefFiles.add(totRefFiles{extn})
+            totRefFiles{extn} = refFile
         }
-	if(extn == "fa") {
-	    totRefFiles{"fa"} = refFile
-        }
-	if(extn == "fai") {
-	    totRefFiles{"fai"} = refFile
-        }
-	if(extn == "dict"){
-	    totRefFiles{"dict"} = refFile
-	}
-	if(extn == "chromSizes") {
-	    totRefFiles{"chromSizes"} = refFile
-	}
-        if(extn.startsWith(aligner)) {
-	    totRefFiles{"idx"} = refFile
-	}
     }
     //NOTE have to be strick here since we don't want to be geussing which one of multiple gtf/gff files to pick.
     string[] itemsChk = totRefFiles.values()
-    if(itemsChk.size() != 6 ) error "Too many or too little refFiles were found, '$totRefFiles'. Try using -fastaRef and -gtfFile options instead"
+    if(itemsChk.size() < 6 ) error "Too few refFiles were found, '$totRefFiles'. Try using -fastaRef and -gtfFile options instead. Maybe the refFiles dir is from an older version of RNAsik?"
+    if(clobberedRefFiles.size() > 0 ) error "Extra refFiles were found, '$clobberedRefFiles'. Ensure only one of each of these filetypes is in your refFiles directory."
 
     return totRefFiles
 }
