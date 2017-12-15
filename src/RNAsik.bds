@@ -82,21 +82,21 @@ if(localGTF.extName() == "gff" || localGTF.extName() == "gff3") setGFF = true
 mkLog("gffBool", setGFF, "other", logsDir)
 // get .dict file 
 string fastaDictFile
-if(totRefFiles) fastaDictFile = totRefFiles{"dict"}
+if(totRefFiles && totRefFiles.hasKey("dict")) fastaDictFile = totRefFiles{"dict"}
 else fastaDictFile = makeDictFile(cmdExe, localFastaRef)
 mkLog("picardDictFile", fastaDictFile, "refFiles", logsDir)
 // get .chrom.sizes file 
 string chromSizes
-if(totRefFiles) chromSizes = totRefFiles{"chromSizes"}
+if(totRefFiles && totRefFiles.hasKey("chromSizes")) chromSizes = totRefFiles{"chromSizes"}
 else chromSizes = makeChromSizes(localFastaRef)
 mkLog("chromSizes", chromSizes, "refFiles", logsDir)
 string faIdx
-if(totRefFiles) faIdx = totRefFiles{"fai"}
+if(totRefFiles && totRefFiles.hasKey("fai")) faIdx = totRefFiles{"fai"}
 else faIdx = makeFaiFile(cmdExe, localFastaRef)
 mkLog("fai", faIdx, "refFiles", logsDir)
 // get genomeIdx 
 if(!align.isEmpty()) {
-    if(totRefFiles) {
+    if(totRefFiles && totRefFiles.hasKey("idx")) {
         genomeIdx = totRefFiles{"idx"}
         string chkExtn = genomeIdx.extName()
         if(!chkExtn.startsWith(align)) {

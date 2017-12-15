@@ -78,17 +78,21 @@ if(!fqDir.isEmpty()) {
     if(!fqDir.isDir() && chkHttp == -1) error "-fqDir doesn't point to valid directory, check your path $fqDir"
     if(align.isEmpty() && !fastqc) error "-align and -fastqc are empty, not sure why -fqDir $fqDir was specified, add more options"
 } 
-if( !align.isEmpty() && genomeIdx.isEmpty() ) {
-    if(refFiles.isEmpty()) {
-        if(fastaRef.isEmpty()) error "You need to either specify -genomeIdx or -fastaRef or -refFiles"
+if(!align.isEmpty()){
+    if( genomeIdx.isEmpty() && refFiles.isEmpty() && fastaRef.isEmpty()){
+        error "You need to specify  either -genomeIdx, -fastaRef or -refFiles"
+    }
+    //NOTE: Should we also allow -genomeIdx as an alternative to GTF for starWithAnn?
+    if(align == "starWithAnn" && refFiles.isEmpty() && gtfFile.isEmpty()){
+        error "Usage (starWithAnn): -gtfFile /path/to/GTFfile or -refFiles /path/to/refFiles "
     }
 }
-if(align == "starWithAnn" && (refFiles.isEmpty() || gtfFile.isEmpty())) error "Usage: -gtfFile /path/to/GTFfile"
+
 if(fastqc && fqDir.isEmpty()) error "Usage: -fqDir /path/to/FASTQ/files"
 
 if(counts) {
     if(refFiles.isEmpty()) {
-        if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
+        if(gtfFile.isEmpty()) error "Usage (if using -counts): -gtfFile /path/to/GTFfile"
     }
 }
 if(prePro) {
