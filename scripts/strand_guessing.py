@@ -75,7 +75,17 @@ def which_strand(d):
     reverse = int(assigned_reads['ReverseStrandedCounts'])
     #nonstranded = int(assigned_reads['NonStrandedCounts'])
     
-    strnd_val = float(forward-reverse)/float(forward+reverse)
+    #TODO account for when assignment has zero counts in all of the conditions
+    # then this becomes division by zero with error
+    #    strnd_val = float(forward-reverse)/float(forward+reverse)
+    #  ZeroDivisionError: float division by zero
+    try:
+        strnd_val = float(forward-reverse)/float(forward+reverse)
+    except ZeroDivisionError:
+            sys.exit("ERROR: Looks like you've got zero read counts against features, check that your FASTA and annotation files corresponds")
+    #TODO not particular happy with this work around / fixture
+    # I want getStrandInfo task to stop pipeline run since fair few steps
+    # depend on strand information, but was having tech difficulties with bds so leave it as is for now
 
     # confidence test
     #non_strnd_test = (20-1)/float(20+1) #0.904

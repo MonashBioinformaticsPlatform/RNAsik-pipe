@@ -25,12 +25,20 @@ parser.add_argument('--biotype',
                      default="protein_coding",
                      help="specify biotype of interest [protein_coding], 'all' is special to include everything"
                     )
+parser.add_argument('--counts_col',
+                     type = int,
+                     default = 7,
+                     help="Indicate which column begins read counts. default [7], which is featureCounts default, all columns before 7th are metadata cols"
+                    )
 
 args = parser.parse_args()
 counts_file = args.counts_file
 gene_ids = args.gene_ids
 samples_sheet = args.samples_sheet
 usr_biotype = args.biotype
+cnts_col = args.counts_col
+# this is to covert to zero based index
+cnts_col = cnts_col-1
 
 ensembl_dict = {}
 
@@ -53,7 +61,7 @@ def get_name(raw_name, sample_names):
     raise Exception("Didn't found sample name for this %s column in counts file, check your %s" % (raw_name, samples_sheet))
     
 with open(counts_file) as handler:
-    s_name = None
+    s_names = None
     header = True
     for i in handler:
         line = i.strip()
@@ -61,26 +69,27 @@ with open(counts_file) as handler:
         if line.startswith("#"):
             continue
         if line.startswith("Geneid"):
-            sample_names = line.split("\t")[6:]
+            sample_names = line.split("\t")[cnts_col:]
             sample_names = [get_name(os.path.basename(n), ss) for n in sample_names]
             s_names = '\t'.join(sample_names)
             continue
 
         line = line.split("\t")
         gene_id = line[0]
-        row_cnts = "\t".join(line[6:])
+        row_cnts = "\t".join(line[cnts_col:])
         if gene_id not in ensembl_dict:
             raise Exception("This shouldn't happened, %s and %s don't have same number of genes" % (gene_ids, "counts_file"))
 
         chrom,gene_name,biotype = ensembl_dict[gene_id]
 
         if header:
+            if not s_names:
+                sys.exit("ERROR: This shouldn't happened, check samples sheet and/or counts file columns")
             ids = "\t".join(("Gene.ID", "Chrom", "Gene.Name", "Biotype"))
             print('\t'.join((ids, s_names)))
             header = False
         
         if usr_biotype == "all":
             print '\t'.join((gene_id, chrom, gene_name, biotype, row_cnts))
-        else:
-            if biotype == usr_biotype:
-                print '\t'.join((gene_id, chrom, gene_name, biotype, row_cnts))
+        elif usr_biotype == biotype:
+            print '\t'.join((gene_id, chrom, gene_name, biotype, row_cnts))
