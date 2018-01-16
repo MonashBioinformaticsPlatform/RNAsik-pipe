@@ -42,6 +42,7 @@ string checkCmdArgs() {
                         "-configFile", \
                         "-multiqc", \
                         "-cleanUp", \
+                        "-pairIds", \
                         "-outDir" \
                        ]
     // list of options specified by user
