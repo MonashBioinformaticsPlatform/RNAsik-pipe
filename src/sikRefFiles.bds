@@ -27,7 +27,8 @@ string chkFileExtn(string fileName, string fileType) {
                  "gff3", \
                  "gtf.gz", \
                  "gff.gz", \
-                 "gff3.gz" \
+                 "gff3.gz", \
+                 "saf" \
                 ]
     }
     if(!extns.has(getExtn) && fileName.isFile()) {

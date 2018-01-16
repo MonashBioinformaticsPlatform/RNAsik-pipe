@@ -3,7 +3,7 @@ include "sikHisat2.bds"
 include "sikBWAaligner.bds"
 include "sikLog.bds"
 
-string{} getBams(string{} cmdExe, string aligner, string bamsDir, string{} samplesMap, string pairIds, bool paired, string userExtraOpts, string genomeIdx, int threads, int memory, string logsDir) {
+string{} getBams(string{} cmdExe, string aligner, string bamsDir, string{} samplesMap, string pairIds, bool paired, string userExtraOpts, string genomeIdx, string fastaRef, int threads, int memory, string logsDir) {
     string{} bamsMap
     // STAR default options
     string{} starOpts = { "--outSAMtype" => "BAM Unsorted", \
@@ -28,7 +28,7 @@ string{} getBams(string{} cmdExe, string aligner, string bamsDir, string{} sampl
     if(aligner.indexOf("bwa") != -1) {
         string allBWAopts = getOpts(getOptsMap("bwa mem", bwaMemOpts, userExtraOpts))
         mkLog("bwaMem", allBWAopts, "refFiles", logsDir)
-        bamsMap = mapBWA(cmdExe, bamsDir, samplesMap, pairIds, paired, allBWAopts, genomeIdx, threads)
+        bamsMap = mapBWA(cmdExe, bamsDir, samplesMap, pairIds, paired, allBWAopts, genomeIdx, fastaRef, threads)
     }
 
     return bamsMap

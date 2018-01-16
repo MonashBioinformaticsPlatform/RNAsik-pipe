@@ -4,12 +4,16 @@ include "sikBWAaligner.bds"
 include "sikExtraOptions.bds"
 include "sikLog.bds"
 
-string getIdx(string{} cmdExe, string aligner, bool gff, string refFiles, string localFastaRef, string localGTF, string userExtraOpts, int threads, string logsDir) {
+string getIdx(string{} cmdExe, string aligner, string modelType, string refFiles, string localFastaRef, string localGTF, string userExtraOpts, int threads, string logsDir) {
     string genomeIdx
     // STAR index cmd options
     string{} starIdxOpts
-    if(align == "starWithAnn") starIdxOpts = {"--sjdbGTFfile" => localGTF, "--sjdbOverhang" => 100 }
-    if(gff) starIdxOpts{"--sjdbGTFtagExonParentTranscript"} = "Parent" 
+    if(align == "starWithAnn") {
+        starIdxOpts = {"--sjdbGTFfile" => localGTF, "--sjdbOverhang" => 100 }
+    }
+    if(modelType == "gff") {
+        starIdxOpts{"--sjdbGTFtagExonParentTranscript"} = "Parent" 
+    }
     // Hisat2 index cmd options
     string{} hisat2IdxOpts = {}
     string{} bwaIdxOpts = {}

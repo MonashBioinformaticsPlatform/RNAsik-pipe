@@ -10,26 +10,42 @@ string makeBWAidx(string{} cmdExe, string refFiles, string fastaRef, string bwaO
 
     string[] idxExts = [".amb", ".ann", ".bwt", ".pac", ".sa"]
     string[] bwaIdxFiles
-    for(string idxExt : idxExts) bwaIdxFiles.add(bwaIdx+idxExt)
+    for(string idxExt : idxExts) {
+        bwaIdxFiles.add(bwaIdx+idxExt)
+    }
 
     task(!fastaRef.isEmpty(), bwaIdxFiles  <- fastaRef, taskName := "Making bwa index") {
         sys $bwaExe index $bwaOpts \
                           -p $bwaIdx \
                           $fastaRef
     }
-    return bwaIdx
+    return bwaIdxDir
 }
 
-string{} mapBWA(string{} cmdExe, string bamFiles, string{} samplesMap, string pairIds, bool paired, string bwaOpts, string genomeIdx, int threads) {
+string{} mapBWA(string{} cmdExe, string bamFiles, string{} samplesMap, string pairIds, bool paired, string bwaOpts, string genomeIdx, string fastaRef, int threads) {
     if(!cmdExe.hasKey("bwaExe")) error "Can't get bwa mem executable, check your config file $configFile"
     string bwaExe = cmdExe{"bwaExe"}
 
     string[] bamsList
     string{} bamsMap
+    
+    string bwaIdx
+
+    string[] idxs = genomeIdx.dirPath()
+
+    if(!fastaRef.isEmpty() && idxs.isEmpty()) {
+    	bwaIdx = genomeIdx+"/"+fastaRef.baseName()
+    }
+    else if(!idxs.isEmpty()) {
+        string bwaIdxBase = idxs[0].removeExt()
+        bwaIdx = genomeIdx+"/"+bwaIdxBase.baseName()
+    }
 
     string[] idxExts = [".amb", ".ann", ".bwt", ".pac", ".sa"]
     string[] bwaIdxFiles
-    for(string idxExt : idxExts) bwaIdxFiles.add(genomeIdx+idxExt)
+    for(string idxExt : idxExts) {
+        bwaIdxFiles.add(bwaIdx+idxExt)
+    }
 
     for(string rootName : samplesMap.keys()) {
         string[] readsList = alignerReads(samplesMap{rootName}, pairIds)
@@ -63,11 +79,11 @@ string{} mapBWA(string{} cmdExe, string bamFiles, string{} samplesMap, string pa
         dep(!fqDir.isEmpty(), bamOut <- deps, cpus := threads, mem := memory, taskName := "bwa mem aligning "+rootBase) {
             sys $bwaExe mem -t $threads \
                             $bwaOpts \
-                            $genomeIdx \
+                            $bwaIdx \
                             $reads | samtools view -S -b - > $bamOut
-                     
         }
         bamsList.add(bamOut)
+
         if(bamsMap.hasKey(rootBase)) {
             error "This should happened, please report this issue, sikBWAalinger.bds file"
         }

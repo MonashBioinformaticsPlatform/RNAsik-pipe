@@ -10,13 +10,19 @@ string getStrandInfo(string{} cmdExe, string[] readCounts) {
     string pyScript = getProgPath+"/../scripts/strand_guessing.py"
     string countsDir = readCounts[0].dirName()
     string strandInfo = countsDir+"/"+"strandInfo.txt"
-    task(counts, strandInfo <- readCounts, taskName := "getting strand info") {
+
+    tidStrand := task(counts, strandInfo <- readCounts, taskName := "getting strand info") {
         sys $pythonExe $pyScript --logsDir $countsDir > $strandInfo
     }
+    //// True if the task finished without errors
+    //int chk = tidStrand.exitCode()
+    //if(chk > 0) {
+    //    error "Strand guessing task didn't finish, check that counts files, also check that your FASTA and annotations files corresponds"
+    //}
     // this is temp hack to stop mask function evaluation before above python script had run
     // because mask function has .read() on a file that doesn't exist yet.
     // I have to think about better solution for this OR "fix" multiqc to be able to handle multiple featureCounts files
-    wait
+    wait tidStrand
     return mask(countsDir, strandInfo)
 }
 // once the strand had been guessed, mask two other .summary files
@@ -75,21 +81,19 @@ string[] getReadsCount(string{} cmdExe, string countFiles, string[] bamsList, st
     return featureOut
 }
 //
-string getGeneIds(string pythonExe, string countFilesDir, string gtfFile, bool setGFF){
-    string getProgPath = programPath.pathName()
-    string pyFlag = '--gtfFile'
-    if(setGFF){
-        pyFlag = '--gffFile'
-    }
-    string pyScript = getProgPath+"/../scripts/get_geneids.py"
+string getGeneIds(string pythonExe, string countFilesDir, string gtfFile, string modelType){
+
+    string pyScript = programPath.pathName()+"/../scripts/get_geneids.py"
+    string opts = "--file_type $modelType --in_file $gtfFile"
     string geneIds = countFilesDir+"/"+"geneIds.txt"
+
     task(counts, geneIds <- gtfFile, taskName := "getting geneIds.txt file") {
-        sys $pythonExe $pyScript $pyFlag $gtfFile > $geneIds
+        sys $pythonExe $pyScript $opts > $geneIds
     }
     return geneIds
 }
 //TODO make mkCntsFile to accept args from extraOpts file, in particular --biotype, not every annotation file will have that info
-string getDegustFile(string{} cmdExe, string cntsDir, string strandInfo, string samplesSheet, string gtfFile, bool gff) {
+string[] getDegustFile(string{} cmdExe, string cntsDir, string strandInfo, string samplesSheet, string gtfFile, string modelType) {
     // sanity check
     if(!cmdExe.hasKey("pythonExe")) {
         error "Can't get python executable, check your config file $configFile"
@@ -105,19 +109,27 @@ string getDegustFile(string{} cmdExe, string cntsDir, string strandInfo, string 
     }
 
     string pythonExe = cmdExe{"pythonExe"}
-    string geneIdsFile = getGeneIds(pythonExe, cntsDir, gtfFile, gff)
+    string geneIdsFile = getGeneIds(pythonExe, cntsDir, gtfFile, modelType)
     
     string cntsFile = cntsDir+"/"+strandType+".txt"
-    string degustFile = cntsFile.swapExt(".txt", "-withNames-proteinCoding.txt")
+
+    string degustFileAll = cntsFile.swapExt(".txt", "-withNames.txt")
+    string degustFileProteinCoding = cntsFile.swapExt(".txt", "-withNames-proteinCoding.txt")
     
     string mkCntsFile = programPath.pathName()+"/../scripts/mk_cnts_file.py"
 
-    task(counts, degustFile <- [cntsFile, geneIdsFile, samplesSheet], taskName := "making degust file") {
+    task(counts, degustFileAll <- [cntsFile, geneIdsFile, samplesSheet], taskName := "making degust file with all features") {
         sys $pythonExe $mkCntsFile --counts_file $cntsFile \
                                    --gene_ids $geneIdsFile \
                                    --samples_sheet $samplesSheet \
-                                   --biotype "protein_coding" > $degustFile
+                                   --biotype "all" > $degustFileAll
+    }
+    task(counts, degustFileProteinCoding <- [cntsFile, geneIdsFile, samplesSheet], taskName := "making degust file with protein coding features") {
+        sys $pythonExe $mkCntsFile --counts_file $cntsFile \
+                                   --gene_ids $geneIdsFile \
+                                   --samples_sheet $samplesSheet \
+                                   --biotype "protein_coding" > $degustFileProteinCoding
     }
 
-    return degustFile
+    return [degustFileAll, degustFileProteinCoding]
 }
