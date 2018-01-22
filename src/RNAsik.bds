@@ -77,9 +77,18 @@ string localGTF
 if(!refFiles.isEmpty()) localGTF = totRefFiles{"gtf"}
 else localGTF = makeLocalRef(gtfFile, refFilesDir, "gtf")
 mkLog("gtfFile", localGTF, "refFiles", logsDir)
-// checking if annoation file is gff
-if(localGTF.extName() == "gff" || localGTF.extName() == "gff3") setGFF = true
-mkLog("gffBool", setGFF, "other", logsDir)
+// checking annoation file type
+string modelType
+if(localGTF.extName() == "gff" || localGTF.extName() == "gff3") {
+    modelType = "gff"
+}
+else if(localGTF.extName() == "saf") {
+    modelType = "saf"
+}
+else {
+    modelType = "gtf"
+}
+mkLog("annotation type", modelType, "other", logsDir)
 // get .dict file 
 string fastaDictFile
 if(totRefFiles) fastaDictFile = totRefFiles{"dict"}
@@ -96,22 +105,18 @@ else faIdx = makeFaiFile(cmdExe, localFastaRef)
 mkLog("fai", faIdx, "refFiles", logsDir)
 // get genomeIdx 
 if(!align.isEmpty()) {
-    if(totRefFiles) {
+    //if(totRefFiles) {
+    if(!totRefFiles && genomeIdx.isEmpty()) {
+        genomeIdx = getIdx(cmdExe, align, modelType, refFilesDir, localFastaRef, localGTF, extraOpts, threads, logsDir)
+    }
+    if(totRefFiles && genomeIdx.isEmpty()) {
         genomeIdx = totRefFiles{"idx"}
         string chkExtn = genomeIdx.extName()
         if(!chkExtn.startsWith(align)) {
             error "Index ($genomeIdx) doesn't seem to correspond to aligner ($align) of choice"
         }
     } 
-    if(align.startsWith("bwa")) {
-        string[] idxs = genomeIdx.dirPath()
-        string bwaIdxBase = idxs[0].removeExt()
-        genomeIdx = genomeIdx+"/"+bwaIdxBase.baseName()
-    }
 }
-if(!align.isEmpty() && genomeIdx.isEmpty()) {
-    genomeIdx = getIdx(cmdExe, align, setGFF, refFilesDir, localFastaRef, localGTF, extraOpts, threads, logsDir)
-} 
 mkLog(align, genomeIdx, "refFiles", logsDir)
 
 // map of FASTQ to unique name i.e gathering FASTQ that are split across different lanes
@@ -119,7 +124,7 @@ string{} samplesMap
 if(!fqDir.isEmpty()) samplesMap = getSamplesMap(fqFiles, samplesSheet)
 mkLog("fqMap", parseFqMap(samplesMap), "samples", logsDir)
 // BAM files
-string{} bamsMap = getBams(cmdExe, align, bamFiles, samplesMap, pairIds, paired, extraOpts, genomeIdx, threads, memory, logsDir)
+string{} bamsMap = getBams(cmdExe, align, bamFiles, samplesMap, pairIds, paired, extraOpts, genomeIdx, localFastaRef, threads, memory, logsDir)
 mkLog("bams", parseMap(bamsMap), "data", logsDir)
 // If user wants to use other parts of the pipeline without generating BAM files
 if(!bamsDir.isEmpty()) {
@@ -141,9 +146,12 @@ mkLog("covFiles", parseList(covFiles), "data", logsDir)
 // featureCounts cmd options
 string{} countsOpts = { "-a" => localGTF }
 if(paired) countsOpts{"-p"} = ""
-if(setGFF) {
+if(modelType == "gff") {
     countsOpts{"-t"} = "CDS"
     countsOpts{"-g"} = "Parent"
+}
+else if(modelType == "saf") {
+    countsOpts{"-F"} = "SAF"
 }
 string allCountOpts = getOpts(getOptsMap("featureCounts", countsOpts, extraOpts))
 mkLog("featureCounts", allCountOpts, "toolsOpts", logsDir)
@@ -161,8 +169,9 @@ if(exonicRate) {
     if(!counts && strand.isEmpty()) error "No strand information found. Use -counts flag to get it. Alternatively use -strand flag with appropriate strand type."
     if(!counts && !strand.isEmpty()) strandInfo = strand
 }
-string degustFile = getDegustFile(cmdExe, countFiles, strandInfo, samplesSheet, localGTF, setGFF)
-mkLog("degust", degustFile, "data", logsDir)
+string[] degustFiles = getDegustFile(cmdExe, countFiles, strandInfo, samplesSheet, localGTF, modelType)
+mkLog("degust", degustFiles[0], "data", logsDir)
+mkLog("degust", degustFiles[1], "data", logsDir)
 string{} exonicOpts = { "-gtf" => localGTF }
 if(paired) {
     // flag for paired end data
@@ -196,7 +205,7 @@ if(cleanUp) {
 string[] multiqcDeps
 if(!align.isEmpty()) multiqcDeps += bamsMap.values()
 if(prePro) multiqcDeps += markedBamsMap.values()
-if(counts) multiqcDeps += degustFile
+if(counts) multiqcDeps += degustFiles
 if(fastqc) multiqcDeps += fqQcReport
 if(exonicRate) multiqcDeps += exonicRates
 //logit(logFile, "MultiQC dependency files", parseList(multiqcDeps))

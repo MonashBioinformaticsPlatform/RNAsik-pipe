@@ -146,15 +146,22 @@ string[] getFqPrefix(string fqRead, string[] fqRgxs, string pairIds, string extn
 }
 string makeSamplesSheet(string[] fqReads, string[] fqRgxs, string pairIds, string extn, string sikDir) {
     string{} autoGen
+    //NOTE figured out that I'm putting an empty key = value pair into autoGen
+    // this is because everytime there _R2 an empty list returned by getFqPrefix
+    // which then gets converted to an empty key = value pair
     // get uniq prefix 
     for(string fq : fqReads ) {
         string[] prefix = getFqPrefix(fq, fqRgxs, pairIds, extn)
         autoGen{prefix[0]} = prefix[1]
     }
-    // convert hash into a string
-    string samplesConfig
+    // convert hash into a string  
+    string samplesConfig = "oldPrefix\tnewPrefix\n"
     for(string k : autoGen.keys()) {
-        samplesConfig += "$k\t" + autoGen{k} + "\n"
+	//NOTE here is work around for the statement above about an empty key = value pair
+        // not particular happy with it, but should do for now
+        if(!k.isEmpty()) {
+            samplesConfig += "$k\t" + autoGen{k} + "\n"
+        }
     }
     // write samples sheet out to a file
     string samplesSheet = sikDir+"/samplesSheet.txt"

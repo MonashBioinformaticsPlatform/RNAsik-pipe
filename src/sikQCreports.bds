@@ -15,9 +15,16 @@ string[] getFastqcReport(string{} cmdExe, string fastqcReport, string[] fqFiles,
     for(string fq : fqFiles) {
         string rootName = fq.baseName().removeExt(extn)
         string fqHtml = fastqcReport+"/"+rootName+preFix
-
-        dep(fastqc, fqHtml <- fq, cpus := threads, taskName := "Running FASTQC") { 
-            sys $fastqcExe $fqQcOpts --outdir $fastqcReport $fq
+        //NOTE this is a bit of hack where I assign 4 cpus for each task regardless of 
+        // threads values passed in. Also note that I'm setting --threads to 8. I don't fully
+        // understand this, but by doing so fastqc gets Xmx2000m i.e 2G of heap memory for every task
+        // and this flag -XX:ParallelGCThreads=1, which I get doesn't use any of the extra cpus
+        // this is to speed up processing. 
+        // Basically on 16 core machines I'm allowing 4 parallel task to runs, each taking 2G of heap memory
+        // and I think this is ok.. However in parallel there probably be also running another (multiple?) java process
+        // that will also take up heap memory unknown amount. 
+        dep(fastqc, fqHtml <- fq, cpus := 4, taskName := "Running FASTQC") { 
+            sys $fastqcExe $fqQcOpts --threads 8 --outdir $fastqcReport $fq
         }
         fqHtmls.add(fqHtml)
     }
