@@ -1,3 +1,6 @@
+
+![mbp-banner](images/mbp_banner.png)
+
 # RNAsik for RNAseq
 
 > **N.B** This workflow assumes model organism has a reference genome. If the reference genome isn't applicable, different workflow is required.

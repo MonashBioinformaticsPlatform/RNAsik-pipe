@@ -4,4 +4,5 @@ pages:
   - About: about.md
   - Changelog: changelog.md
 
-
+extra_css:
+  - css/style.css

@@ -1,3 +1,6 @@
+
+![mbp-banner](images/mbp_banner.png)
+
 # New in version 1.4.6
 
 - generalised aligner's call, this will make it easier to add new aligners into RNAsik
