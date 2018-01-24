@@ -46,7 +46,10 @@ This publicly available data from [NCBI](https://www.ncbi.nlm.nih.gov/geo/query/
 
 ## Introduction
 
-`RNAsik` does alignment AND read counting, which makes [Degust](degust.erc.monash.edu) analysis one upload away AND BAM file pre-processed for IGV AND diagnostic QC metrics. `RNAsik` wraps [these tools](#prerequisites) making your RNAseq analysis more streamline. `RNAsik` has also "sanity checks" inbuilt, checking command line options, checking if options are valid files/directories and it will talk to you so don't sweat :) but do read the error messages.
+`RNAsik` does alignment AND read counting, which makes [Degust](degust.erc.monash.edu) analysis one upload away AND BAM file pre-processed for IGV AND 
+diagnostic QC metrics. `RNAsik` wraps [these tools](#prerequisites) making your RNAseq analysis more streamline. `RNAsik` has also "sanity checks" 
+inbuilt, checking command line options, checking if options are valid files/directories and it will talk to you so don't sweat :) but do read the error 
+messages. Upon completion a report capturing all logs and messages is generated and can be viewed for troubleshooting or, future reproducibility.
 
 ## Prerequisites
 
@@ -64,7 +67,7 @@ This publicly available data from [NCBI](https://www.ncbi.nlm.nih.gov/geo/query/
 
 ### Preferred method
 
-Follow [ansible installation guid](http://docs.ansible.com/ansible/intro_installation.html) to get ansible then:
+Follow [ansible installation guide](http://docs.ansible.com/ansible/intro_installation.html) to get ansible then:
 
 ```BASH
 git clone https://github.com/MonashBioinformaticsPlatform/bio-ansible
@@ -77,7 +80,7 @@ ansible-playbook -i host bio.yml --tags bds,rnasik,star,subread,samtools,htslib,
 
 If you have all of the tools installed and you just need `RNAsik` you can simply `git clone` it. It doesn't require any
 other installations/compilations. BUT you do need to have [BigDataScript](https://github.com/pcingola/BigDataScript) installed
-and in your `PATH` for `RNAsik` to run
+, the tools used installed and all in your `PATH` for `RNAsik` to run.
 
 ```BASH
 git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe
@@ -94,7 +97,8 @@ path/to/RNAsik-pipe/bin/RNAsik
 <tr><td class="left_col">GTF/GFF/SAF file</td><td> This is your gene annotation file (i.e coordinates of your genes, exons and other genomic features). This should be linked and associated with your genomic reference file. SAF (simple annotation format) is something that featureCounts use and it supported by the pipeline</td></tr>
 </table>
 
-> It is highly recommended that both of those files come from the same distributor. Most common distributors are [Ensembl](http://www.ensembl.org/index.html), [UCSC](http://genome.ucsc.edu/) and [NCBI](ftp://ftp.ncbi.nih.gov/genomes/).
+> It is highly recommended that both of those files come from the same distributor. Most common distributors are [Ensembl](http://www.ensembl.org/index.html), 
+[UCSC](http://genome.ucsc.edu/) and [NCBI](ftp://ftp.ncbi.nih.gov/genomes/). This will ensure chromosome designations and coordinates are concordant.
 
 ### Raw data
 
@@ -103,7 +107,7 @@ path/to/RNAsik-pipe/bin/RNAsik
 <tr><td class="left_col">FASTQ file</td><td>These are your raw files that are provided by the sequencing facility to you, they can be gzipped (.fq, .fastq, .fq.gz, .fastq.gz) </td></tr>
 </table>
 
-> `RNAsik` can handle nested directories as long as your data is homogeneous i.e all data belongs to the same library type e.g paired-end(if paired end, RNASik looks for 'R1' and 'R2' in the filenames to distinguish read pairs. 
+> `RNAsik` can handle nested directories as long as your data is homogeneous i.e all data belongs to the same library type e.g paired-end(if paired end, RNASik looks for 'R1' and 'R2' in the filenames to distinguish read pairs. If your sequencing provider did not use R1 and R2 the file names should be changed to reflect this.  
 
 ## RNASik Output files and directories
 
@@ -127,7 +131,7 @@ path/to/RNAsik-pipe/bin/RNAsik
 <table>
 <tr><th>Files</th><th>Description</th></tr>
 <tr><td class="left_col">geneIds.txt</td><td> Three additonal columns for read counts. Gene Id, Gene Name, Gene Biotype. Count files with "-withNames" postfix have those columns included </td></tr>
-<tr><td class="left_col">strandInfo.txt</td><td> Contains guesses, based on `featureCounts` `.summary` files, strand informataion</td></tr>
+<tr><td class="left_col">strandInfo.txt</td><td> Contains guesses, based on `featureCounts` `.summary` files, the library preparation method used, stranded or not</td></tr>
 <tr><td class="left_col">multiqc_report.html</td><td>This is the report file produced by MultiQC tool. A stand alone html file and can be viewed in any browser</td></tr>
 </table>
 
@@ -137,7 +141,7 @@ path/to/RNAsik-pipe/bin/RNAsik
 
 <table>
 <tr><th>Options</th><th>Usage</th></tr>
-<tr><td class="left_col">-align</td><td>specify your aligner of choice [star|starWithAnn|hisat|bwa]</td></tr>
+<tr><td class="left_col">-align</td><td>specify your aligner of choice [star|starWithAnn|hisat|bwa]   - default star</td></tr>
 <tr><td class="left_col">-fqDir</td><td>specify path to your raw data directory. `RNAsik` will search that path recursively, so don't worry about nested directores</td></tr>
 <tr><td class="left_col">-fastaRef</td><td>specify path to your reference FASTA file, i.e file that holds your refrence genome</td></tr>
 <tr><td class="left_col">-paired</td><td>specify if data is paired end (RNASik looks for R1 and R2 in the FASTQ filename representing Read 1 and Read 2 </td></tr>
@@ -173,7 +177,7 @@ path/to/RNAsik-pipe/bin/RNAsik
 <tr><td class="left_col">-pairIds</td> <td> provide type identification, default is [`_R1,_R2`]</td></tr>
 <tr><td class="left_col">-threads</td> <td> provide number of threads to use. [4]  </td></tr>
 <tr><td class="left_col">-memory</td> <td> provide amount of memory to use. [40000000000]  </td></tr>
-<tr><td class="left_col">-extraOpts</td> <td> provide key=value pairs, one per line, with key being tool name and value is a string of options e.g `star="--outWigType bedGraph"` </td></tr>
+<tr><td class="left_col">-extraOpts</td> <td> provide key=value pairs, one per line, with key being tool name and value is a string of options in quotes e.g `star="--outWigType bedGraph"` </td></tr>
 <tr><td class="left_col">-configFile</td><td>specify your own config file with key=value pairs, one per line, for all tools</td></tr>
 </table>
 
