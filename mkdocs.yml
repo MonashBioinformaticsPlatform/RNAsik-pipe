@@ -1,8 +1,16 @@
+site_author: serine
 site_name: RNAsik Docs
+repo_name: GitHub
+repo_url: https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe
+edit_uri: ""
+
 pages:
-  - Home: index.md
+  - Home: home.md
+  - Docs: docs.md
   - About: about.md
   - Changelog: changelog.md
 
 extra_css:
   - css/style.css
+
+copyright: Copyright &copy; 2014 <a href="https://twitter.com/kizza_a">Kirill Tsyganov</a> <a href="https://monash.edu"> Monash University </a>, Maintained by the <a href="http://bioinformatics.erc.monash.edu">Monash Bioinformatics Platform</a> team.

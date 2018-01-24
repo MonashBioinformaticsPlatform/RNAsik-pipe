@@ -1,7 +1,7 @@
 
 ![mbp-banner](images/mbp_banner.png)
 
-# [RNAsik pipeline docs](http://github.com/monashbioinformaticsplatform/RNAsik-pipe.git)
+# RNAsik pipeline docs
 
 ## Quick start
 
@@ -62,6 +62,8 @@ This publicly available data from [NCBI](https://www.ncbi.nlm.nih.gov/geo/query/
 
 ## Installation
 
+### Preferred method
+
 Follow [ansible installation guid](http://docs.ansible.com/ansible/intro_installation.html) to get ansible then:
 
 ```BASH
@@ -70,6 +72,17 @@ cd bio-ansible/
 ansible-playbook -i host bio.yml --tags bds,rnasik,star,subread,samtools,htslib,bedtools,picard,qualimap,fastqc,multiqc
 ```
 [Need more help?](https://github.com/MonashBioinformaticsPlatform/bio-ansible)
+
+### Alternative method
+
+If you have all of the tools installed and you just need `RNAsik` you can simply `git clone` it. It doesn't require any
+other installations/compilations. BUT you do need to have [BigDataScript](https://github.com/pcingola/BigDataScript) installed
+and in your `PATH` for `RNAsik` to run
+
+```BASH
+git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe
+path/to/RNAsik-pipe/bin/RNAsik
+```
 
 ## User input
 
@@ -170,9 +183,7 @@ ansible-playbook -i host bio.yml --tags bds,rnasik,star,subread,samtools,htslib,
 <tr><td class="left_col">-bamsDir</td> <td> specify path to BAMs directory. Use if bams were generated outside of the pipeline </td></tr>
 </table>
 
-![team_photo_2017](images/team_photo_2017.jpg)
 
-<footer> <p><a href="http://github.com/serine">Created by Kirill Tsyganov with support from Monash Bioinformatics Platform</a></p> </footer>
 <p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p>
 
 <p class="twitter-btn">
