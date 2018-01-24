@@ -4,28 +4,28 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="None">
         
+        <meta name="author" content="serine">
         
-        <link rel="shortcut icon" href="./img/favicon.ico">
-        <title>RNAsik Docs</title>
-        <link href="./css/bootstrap-custom.min.css" rel="stylesheet">
-        <link href="./css/font-awesome-4.5.0.css" rel="stylesheet">
-        <link href="./css/base.css" rel="stylesheet">
-        <link rel="stylesheet" href="./css/highlight.css">
-        <link href="./css/style.css" rel="stylesheet">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Docs - RNAsik Docs</title>
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.5.0.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="../css/highlight.css">
+        <link href="../css/style.css" rel="stylesheet">
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
             <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
             <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
         <![endif]-->
 
-        <script src="./js/jquery-1.10.2.min.js"></script>
-        <script src="./js/bootstrap-3.0.3.min.js"></script>
-        <script src="./js/highlight.pack.js"></script> 
+        <script src="../js/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/highlight.pack.js"></script> 
     </head>
 
-    <body class="homepage">
+    <body>
 
         <div class="navbar navbar-default navbar-fixed-top" role="navigation">
     <div class="container">
@@ -39,21 +39,24 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href=".">RNAsik Docs</a>
+            <a class="navbar-brand" href="../home/">RNAsik Docs</a>
         </div>
 
         <!-- Expanded navigation -->
         <div class="navbar-collapse collapse">
                 <!-- Main navigation -->
                 <ul class="nav navbar-nav">
+                    <li >
+                        <a href="../home/">Home</a>
+                    </li>
                     <li class="active">
-                        <a href=".">Home</a>
+                        <a href="./">Docs</a>
                     </li>
                     <li >
-                        <a href="about/">About</a>
+                        <a href="../about/">About</a>
                     </li>
                     <li >
-                        <a href="changelog/">Changelog</a>
+                        <a href="../changelog/">Changelog</a>
                     </li>
                 </ul>
 
@@ -63,15 +66,18 @@
                         <i class="fa fa-search"></i> Search
                     </a>
                 </li>
-                    <li class="disabled">
-                        <a rel="next" >
+                    <li >
+                        <a rel="next" href="../home/">
                             <i class="fa fa-arrow-left"></i> Previous
                         </a>
                     </li>
                     <li >
-                        <a rel="prev" href="about/">
+                        <a rel="prev" href="../about/">
                             Next <i class="fa fa-arrow-right"></i>
                         </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe"><i class="fa fa-github"></i> GitHub</a>
                     </li>
             </ul>
         </div>
@@ -93,8 +99,8 @@
 </div></div>
                 <div class="col-md-9" role="main">
 
-<p><img alt="mbp-banner" src="./images/mbp_banner.png" /></p>
-<h1 id="rnasik-pipeline-docs"><a href="http://github.com/monashbioinformaticsplatform/RNAsik-pipe.git">RNAsik pipeline docs</a></h1>
+<p><img alt="mbp-banner" src="../images/mbp_banner.png" /></p>
+<h1 id="rnasik-pipeline-docs">RNAsik pipeline docs</h1>
 <h2 id="quick-start">Quick start</h2>
 <h3 id="align-raw-reads">Align raw reads</h3>
 <pre><code class="BASH">RNAsik -align star \
@@ -128,7 +134,7 @@
 
 <p>This publicly available data from <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE69937">NCBI</a>. </p>
 <h2 id="introduction">Introduction</h2>
-<p><code>RNAsik</code> does alignment AND read counting, which makes <a href="./degust.erc.monash.edu">Degust</a> analysis one upload away AND BAM file pre-processed for IGV AND diagnostic QC metrics. <code>RNAsik</code> wraps <a href="#prerequisites">these tools</a> making your RNAseq analysis more streamline. <code>RNAsik</code> has also "sanity checks" inbuilt, checking command line options, checking if options are valid files/directories and it will talk to you so don't sweat :) but do read the error messages.</p>
+<p><code>RNAsik</code> does alignment AND read counting, which makes <a href="../degust.erc.monash.edu">Degust</a> analysis one upload away AND BAM file pre-processed for IGV AND diagnostic QC metrics. <code>RNAsik</code> wraps <a href="#prerequisites">these tools</a> making your RNAseq analysis more streamline. <code>RNAsik</code> has also "sanity checks" inbuilt, checking command line options, checking if options are valid files/directories and it will talk to you so don't sweat :) but do read the error messages.</p>
 <h2 id="prerequisites">Prerequisites</h2>
 <ul>
 <li><a href="http://pcingola.github.io/BigDataScript/download.html">BigDataScript</a></li>
@@ -142,6 +148,7 @@
 <li><a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/">FastQC</a></li>
 </ul>
 <h2 id="installation">Installation</h2>
+<h3 id="preferred-method">Preferred method</h3>
 <p>Follow <a href="http://docs.ansible.com/ansible/intro_installation.html">ansible installation guid</a> to get ansible then:</p>
 <pre><code class="BASH">git clone https://github.com/MonashBioinformaticsPlatform/bio-ansible
 cd bio-ansible/
@@ -149,6 +156,14 @@ ansible-playbook -i host bio.yml --tags bds,rnasik,star,subread,samtools,htslib,
 </code></pre>
 
 <p><a href="https://github.com/MonashBioinformaticsPlatform/bio-ansible">Need more help?</a></p>
+<h3 id="alternative-method">Alternative method</h3>
+<p>If you have all of the tools installed and you just need <code>RNAsik</code> you can simply <code>git clone</code> it. It doesn't require any
+other installations/compilations. BUT you do need to have <a href="https://github.com/pcingola/BigDataScript">BigDataScript</a> installed
+and in your <code>PATH</code> for <code>RNAsik</code> to run</p>
+<pre><code class="BASH">git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe
+path/to/RNAsik-pipe/bin/RNAsik
+</code></pre>
+
 <h2 id="user-input">User input</h2>
 <h3 id="reference-files">Reference files</h3>
 <table>
@@ -238,9 +253,6 @@ ansible-playbook -i host bio.yml --tags bds,rnasik,star,subread,samtools,htslib,
 <tr><td class="left_col">-bamsDir</td> <td> specify path to BAMs directory. Use if bams were generated outside of the pipeline </td></tr>
 </table>
 
-<p><img alt="team_photo_2017" src="./images/team_photo_2017.jpg" /></p>
-<footer> <p><a href="http://github.com/serine">Created by Kirill Tsyganov with support from Monash Bioinformatics Platform</a></p> </footer>
-
 <p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p>
 
 <p class="twitter-btn">
@@ -252,12 +264,13 @@ Share</a>
 
         <footer class="col-md-12">
             <hr>
+                <p>Copyright &copy; 2014 <a href="https://twitter.com/kizza_a">Kirill Tsyganov</a> <a href="https://monash.edu"> Monash University </a>, Maintained by the <a href="http://bioinformatics.erc.monash.edu">Monash Bioinformatics Platform</a> team.</p>
             <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
         </footer>
-        <script>var base_url = '.';</script>
-        <script src="./js/base.js"></script>
-        <script src="./search/require.js"></script>
-        <script src="./search/search.js"></script>
+        <script>var base_url = '..';</script>
+        <script src="../js/base.js"></script>
+        <script src="../search/require.js"></script>
+        <script src="../search/search.js"></script>
 
         <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
     <div class="modal-dialog">
@@ -326,8 +339,3 @@ Share</a>
 
     </body>
 </html>
-
-<!--
-MkDocs version : 0.17.0
-Build Date UTC : 2018-01-23 05:17:05
--->

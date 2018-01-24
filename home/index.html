@@ -8,7 +8,7 @@
         <meta name="author" content="serine">
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Changelog - RNAsik Docs</title>
+        <title>Home - RNAsik Docs</title>
         <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../css/font-awesome-4.5.0.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -39,15 +39,15 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="../home/">RNAsik Docs</a>
+            <a class="navbar-brand" href="./">RNAsik Docs</a>
         </div>
 
         <!-- Expanded navigation -->
         <div class="navbar-collapse collapse">
                 <!-- Main navigation -->
                 <ul class="nav navbar-nav">
-                    <li >
-                        <a href="../home/">Home</a>
+                    <li class="active">
+                        <a href="./">Home</a>
                     </li>
                     <li >
                         <a href="../docs/">Docs</a>
@@ -55,8 +55,8 @@
                     <li >
                         <a href="../about/">About</a>
                     </li>
-                    <li class="active">
-                        <a href="./">Changelog</a>
+                    <li >
+                        <a href="../changelog/">Changelog</a>
                     </li>
                 </ul>
 
@@ -66,13 +66,13 @@
                         <i class="fa fa-search"></i> Search
                     </a>
                 </li>
-                    <li >
-                        <a rel="next" href="../about/">
+                    <li class="disabled">
+                        <a rel="next" >
                             <i class="fa fa-arrow-left"></i> Previous
                         </a>
                     </li>
-                    <li class="disabled">
-                        <a rel="prev" >
+                    <li >
+                        <a rel="prev" href="../docs/">
                             Next <i class="fa fa-arrow-right"></i>
                         </a>
                     </li>
@@ -87,42 +87,56 @@
         <div class="container">
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="main active"><a href="#new-in-version-146">New in version 1.4.6</a></li>
-        <li class="main "><a href="#new-in-version-147">New in version 1.4.7</a></li>
-        <li class="main "><a href="#new-in-version-148">New in version 1.4.8</a></li>
+        <li class="main active"><a href="#rnasik-yep">RNAsik? yep!</a></li>
+            <li><a href="#getting-help">Getting help</a></li>
+            <li><a href="#bug-reports">Bug reports</a></li>
+            <li><a href="#contributing">Contributing</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
 <p><img alt="mbp-banner" src="../images/mbp_banner.png" /></p>
-<h1 id="new-in-version-146">New in version 1.4.6</h1>
+<h1 id="rnasik-yep">RNAsik? yep!</h1>
+<h2 id="getting-help">Getting help</h2>
+<p>There is an open <a href="https://groups.google.com/forum/#!forum/rnasik">RNAsik user's google group</a> any can ask and answer
+questions there. I will try my best to respond to any questions there, but bear in mind that I could get saturated with work
+and might not be able to respond straight away.</p>
+<p>Also couple of house keeping thins:</p>
 <ul>
-<li>generalised aligner's call, this will make it easier to add new aligners into RNAsik</li>
-<li>included support for <code>hista2</code>aligner</li>
-<li>added samplesSheep logging</li>
-<li>fixed few minor bugs and improved code quality</li>
-<li>added <code>canFail</code> option to several non crucial tasks, allowing pipeline to continue if some task failed of fastqc and qualimap to allow them to fail as those are non essential tasks.</li>
+<li>be polite (in general) and considerate of others.</li>
+<li>Include as much information about your problem as you can.
+The problem needs to be reproducible, otherwise I might not be able to help you.</li>
 </ul>
-<h1 id="new-in-version-147">New in version 1.4.7</h1>
+<p>p.s any feedback and suggestions are also welcomed there</p>
+<h2 id="bug-reports">Bug reports</h2>
+<p>Best place to submit bugs is with <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/issues">GitHub issues</a>
+Try to include as much information as you can and again problem needs to be reproducible. Sometimes problem could be 
+BigDataScript specific so also try looking at <a href="https://groups.google.com/forum/#!forum/bigdatascript-users">BigDataScrip user's group</a></p>
+<h2 id="contributing">Contributing</h2>
+<p>There are many places for contribution the most obvious ones are help with documentations, help in the <a href="https://groups.google.com/forum/#!forum/rnasik">user's group</a>
+and of course with the source itself.</p>
+<h3 id="documentations">Documentations</h3>
+<p>I'm using <a href="https://github.com/mkdocs/mkdocs">mkdocs</a> to generate this site, which has been very easy to use.
+All documentations are written in plain markdown and located in main repo <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/tree/master/docs"><code>docs/</code> directory</a>. You can simply fork <code>RNAsik</code> repository, do appropriate changes to the docs and send me a pull request (PR). Any small changes are super welcomed, even one letter spell correction (there'll be more than one), but all changes need to come through PR, which will not only acknowledge you as contributor, but also enable me to review changes quickly and incorporate them in (pull them in) easily.</p>
+<p>Quick notes on <a href="https://github.com/mkdocs/mkdocs">mkdocs</a>, it is pretty easy to install with <code>pip</code> in <code>virtualenv</code> if you prefer (you should).</p>
+<pre><code>git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe
+cd RNAsik-pipe
+mkdocs serve
+</code></pre>
+
+<p>This will give you live updates to you copy of the docs, default URL should be <a href="../localhost:8000">localhost:8000</a>, but it will tell you that once you've started the server. Then simply use your favourite text editor to edit markdown documents. Commit your changes, don't be afraid to be verbose, say what you've added/changed/removed in your commit message. And send me PR</p>
+<h3 id="users-group">User's group</h3>
+<p><a href="https://groups.google.com/forum/#!forum/rnasik">Just jump in and do it!</a></p>
+<h3 id="developing-pipeline-further">Developing pipeline further</h3>
+<p>I need to write a more comprehensive developer guide at sometime soon. Any contributions are again extremely welcomed and again as I've mentioned in the <a href="#documentations">documentations</a> section above, any contributions need to come through pull request (PR). </p>
+<p>To summarise briefly layouts of the <code>src/</code>:</p>
 <ul>
-<li>fixed STAR memory allocation issue, now user can run with fewer cpus without a worry for STAR spawning multiple tasks causing out of memory issue.</li>
-<li>made BASH wrapper (not ideal) for <code>RNAsik</code> this is capture <code>bds</code> logs including report.html which is rather valuable piece of information about the run</li>
-<li>introduced another new aligner - <code>bwa mem</code> to do bacterial RNAseq.</li>
-<li>introduced multiqc config file in <code>configs</code> directory now</li>
-<li>completely removed <code>-fqRegex</code> and added sanity check for paired end data. If R2 is found and -paired isn't set or vice verse then error message sent</li>
-<li>several general bug fixes</li>
-<li>simplified help menu</li>
+<li><code>RNAsik.bds</code> is main "executable" file that sources and runs the pipeline. </li>
+<li><code>sikHeader.bds</code> defines help menu and all user inputs options. I do have a couple of command line 
+arguments hidden from main help menu, but if you take a pick at this file you'll see them all</li>
+<li>All other <code>*.bds</code> files contain functions to specific tasks those functions get called in <code>RNAsik.bds</code></li>
 </ul>
-<h1 id="new-in-version-148">New in version 1.4.8</h1>
-<ul>
-<li>added new feature: coverage plots generation</li>
-<li>added new feature: ability to pass previously generated references directory, saves spaces and time</li>
-<li>fixed strand guessing script, should be better at guessing now</li>
-<li>moved to <a href="http://www.mkdocs.org/">mkdocs</a> for documents compilation and deployment to gh_pages</li>
-<li>added new python script to make degust file, this simplifies and strengthens the code</li>
-<li>improved readability of the code</li>
-<li>improved and fixed bugs in handling fastq files and assignment of fastq to sample names</li>
-</ul>
+<p><img alt="team_photo_2017" src="../images/team_photo_2017.jpg" /></p>
 <p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p>
 
 <p class="twitter-btn">
