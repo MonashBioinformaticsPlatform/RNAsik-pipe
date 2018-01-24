@@ -1,42 +1,42 @@
 {
     "docs": [
         {
-            "location": "/home/", 
+            "location": "/", 
             "text": "RNAsik? yep!\n\n\nGetting help\n\n\nThere is an open \nRNAsik user's google group\n any can ask and answer\nquestions there. I will try my best to respond to any questions there, but bear in mind that I could get saturated with work\nand might not be able to respond straight away.\n\n\nAlso couple of house keeping thins:\n\n\n\n\nbe polite (in general) and considerate of others.\n\n\nInclude as much information about your problem as you can.\nThe problem needs to be reproducible, otherwise I might not be able to help you.\n\n\n\n\np.s any feedback and suggestions are also welcomed there\n\n\nBug reports\n\n\nBest place to submit bugs is with \nGitHub issues\n\nTry to include as much information as you can and again problem needs to be reproducible. Sometimes problem could be \nBigDataScript specific so also try looking at \nBigDataScrip user's group\n\n\nContributing\n\n\nThere are many places for contribution the most obvious ones are help with documentations, help in the \nuser's group\n\nand of course with the source itself.\n\n\nDocumentations\n\n\nI'm using \nmkdocs\n to generate this site, which has been very easy to use.\nAll documentations are written in plain markdown and located in main repo \ndocs/\n directory\n. You can simply fork \nRNAsik\n repository, do appropriate changes to the docs and send me a pull request (PR). Any small changes are super welcomed, even one letter spell correction (there'll be more than one), but all changes need to come through PR, which will not only acknowledge you as contributor, but also enable me to review changes quickly and incorporate them in (pull them in) easily.\n\n\nQuick notes on \nmkdocs\n, it is pretty easy to install with \npip\n in \nvirtualenv\n if you prefer (you should).\n\n\ngit clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe\ncd RNAsik-pipe\nmkdocs serve\n\n\n\n\nThis will give you live updates to you copy of the docs, default URL should be \nlocalhost:8000\n, but it will tell you that once you've started the server. Then simply use your favourite text editor to edit markdown documents. Commit your changes, don't be afraid to be verbose, say what you've added/changed/removed in your commit message. And send me PR\n\n\nUser's group\n\n\nJust jump in and do it!\n\n\nDeveloping pipeline further\n\n\nI need to write a more comprehensive developer guide at sometime soon. Any contributions are again extremely welcomed and again as I've mentioned in the \ndocumentations\n section above, any contributions need to come through pull request (PR). \n\n\nTo summarise briefly layouts of the \nsrc/\n:\n\n\n\n\nRNAsik.bds\n is main \"executable\" file that sources and runs the pipeline. \n\n\nsikHeader.bds\n defines help menu and all user inputs options. I do have a couple of command line \narguments hidden from main help menu, but if you take a pick at this file you'll see them all\n\n\nAll other \n*.bds\n files contain functions to specific tasks those functions get called in \nRNAsik.bds\n\n\n\n\n\n\nTweet to @kizza_a\n \n\n\n\n\n\n\nShare", 
             "title": "Home"
         }, 
         {
-            "location": "/home/#rnasik-yep", 
+            "location": "/#rnasik-yep", 
             "text": "", 
             "title": "RNAsik? yep!"
         }, 
         {
-            "location": "/home/#getting-help", 
+            "location": "/#getting-help", 
             "text": "There is an open  RNAsik user's google group  any can ask and answer\nquestions there. I will try my best to respond to any questions there, but bear in mind that I could get saturated with work\nand might not be able to respond straight away.  Also couple of house keeping thins:   be polite (in general) and considerate of others.  Include as much information about your problem as you can.\nThe problem needs to be reproducible, otherwise I might not be able to help you.   p.s any feedback and suggestions are also welcomed there", 
             "title": "Getting help"
         }, 
         {
-            "location": "/home/#bug-reports", 
+            "location": "/#bug-reports", 
             "text": "Best place to submit bugs is with  GitHub issues \nTry to include as much information as you can and again problem needs to be reproducible. Sometimes problem could be \nBigDataScript specific so also try looking at  BigDataScrip user's group", 
             "title": "Bug reports"
         }, 
         {
-            "location": "/home/#contributing", 
+            "location": "/#contributing", 
             "text": "There are many places for contribution the most obvious ones are help with documentations, help in the  user's group \nand of course with the source itself.", 
             "title": "Contributing"
         }, 
         {
-            "location": "/home/#documentations", 
+            "location": "/#documentations", 
             "text": "I'm using  mkdocs  to generate this site, which has been very easy to use.\nAll documentations are written in plain markdown and located in main repo  docs/  directory . You can simply fork  RNAsik  repository, do appropriate changes to the docs and send me a pull request (PR). Any small changes are super welcomed, even one letter spell correction (there'll be more than one), but all changes need to come through PR, which will not only acknowledge you as contributor, but also enable me to review changes quickly and incorporate them in (pull them in) easily.  Quick notes on  mkdocs , it is pretty easy to install with  pip  in  virtualenv  if you prefer (you should).  git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe\ncd RNAsik-pipe\nmkdocs serve  This will give you live updates to you copy of the docs, default URL should be  localhost:8000 , but it will tell you that once you've started the server. Then simply use your favourite text editor to edit markdown documents. Commit your changes, don't be afraid to be verbose, say what you've added/changed/removed in your commit message. And send me PR", 
             "title": "Documentations"
         }, 
         {
-            "location": "/home/#users-group", 
+            "location": "/#users-group", 
             "text": "Just jump in and do it!", 
             "title": "User's group"
         }, 
         {
-            "location": "/home/#developing-pipeline-further", 
+            "location": "/#developing-pipeline-further", 
             "text": "I need to write a more comprehensive developer guide at sometime soon. Any contributions are again extremely welcomed and again as I've mentioned in the  documentations  section above, any contributions need to come through pull request (PR).   To summarise briefly layouts of the  src/ :   RNAsik.bds  is main \"executable\" file that sources and runs the pipeline.   sikHeader.bds  defines help menu and all user inputs options. I do have a couple of command line \narguments hidden from main help menu, but if you take a pick at this file you'll see them all  All other  *.bds  files contain functions to specific tasks those functions get called in  RNAsik.bds    Tweet to @kizza_a     \nShare", 
             "title": "Developing pipeline further"
         }, 
