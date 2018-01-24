@@ -5,7 +5,7 @@ repo_url: https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe
 edit_uri: ""
 
 pages:
-  - Home: home.md
+  - Home: index.md
   - Docs: docs.md
   - About: about.md
   - Changelog: changelog.md
