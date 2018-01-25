@@ -34,6 +34,18 @@ However there is so many other questions you can ask including:
 
 As mentioned above [multiqc](http://multiqc.info) report is a great first step in the attempt to answer those questions. A lot of the time everything looks fairly good and consistent allowing downstream analysis. Sometimes user can tweak certain individual parameters which can improve results, other times it comes down to experimental design and/or library preparation and sequencing issues. Either way one need to make this "first iteration" in order to see room for improvement. 
 
+## How to cite
+
+At the moment the only way to cite is point to github repository. I'm in the process of obtaining `doi` reference.
+
+-----
+
+> Tsyganov, K. Perry, A. Archer, S. Powell, D. (2018, January 25). _RNAsik pipeline for RNA sequencing analysis_. https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe
+
+-----
+
+_It can be hard to give full acknowlegment to all contributors. The nature of the open source projects such that contributors can come and go, however they leave behind valuable contributions and need to get full credit for that. Please look at [RNAsik GitHub](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe) repository to get a full sense of who is contributing. In particular one can look at [number of commits](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/graphs/contributors), [issues triaging and handling](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/issues) and [pull requests (PRs)](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pulls). Please also remember that every contribution matters, nothing is too small!_
+
 ## MBP team photo
 
 ![team_photo_2017](images/team_photo_2017.jpg)
