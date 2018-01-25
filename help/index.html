@@ -7,22 +7,22 @@
         
         <meta name="author" content="serine">
         
-        <link rel="shortcut icon" href="/img/favicon.ico">
-        <title>RNAsik pipeline</title>
-        <link href="/css/bootstrap-custom.min.css" rel="stylesheet">
-        <link href="/css/font-awesome-4.5.0.css" rel="stylesheet">
-        <link href="/css/base.css" rel="stylesheet">
-        <link rel="stylesheet" href="/css/highlight.css">
-        <link href="/css/style.css" rel="stylesheet">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Help - RNAsik pipeline</title>
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.5.0.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="../css/highlight.css">
+        <link href="../css/style.css" rel="stylesheet">
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
             <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
             <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
         <![endif]-->
 
-        <script src="/js/jquery-1.10.2.min.js"></script>
-        <script src="/js/bootstrap-3.0.3.min.js"></script>
-        <script src="/js/highlight.pack.js"></script> 
+        <script src="../js/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/highlight.pack.js"></script> 
     </head>
 
     <body>
@@ -39,7 +39,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/">RNAsik pipeline</a>
+            <a class="navbar-brand" href="..">RNAsik pipeline</a>
         </div>
 
         <!-- Expanded navigation -->
@@ -47,19 +47,19 @@
                 <!-- Main navigation -->
                 <ul class="nav navbar-nav">
                     <li >
-                        <a href="/">About</a>
+                        <a href="..">About</a>
                     </li>
                     <li >
-                        <a href="/docs/">Docs</a>
+                        <a href="../docs/">Docs</a>
+                    </li>
+                    <li class="active">
+                        <a href="./">Help</a>
                     </li>
                     <li >
-                        <a href="/help/">Help</a>
+                        <a href="../contrib/">Contributing</a>
                     </li>
                     <li >
-                        <a href="/contrib/">Contributing</a>
-                    </li>
-                    <li >
-                        <a href="/changelog/">Changelog</a>
+                        <a href="../changelog/">Changelog</a>
                     </li>
                 </ul>
 
@@ -69,6 +69,16 @@
                         <i class="fa fa-search"></i> Search
                     </a>
                 </li>
+                    <li >
+                        <a rel="next" href="../docs/">
+                            <i class="fa fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../contrib/">
+                            Next <i class="fa fa-arrow-right"></i>
+                        </a>
+                    </li>
                     <li>
                         <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe"><i class="fa fa-github"></i> GitHub</a>
                     </li>
@@ -78,15 +88,32 @@
 </div>
 
         <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#rnasik-yep">RNAsik? yep!</a></li>
+            <li><a href="#getting-help">Getting help</a></li>
+            <li><a href="#bug-reports">Bug reports</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
 
-    <div class="row-fluid">
-      <div id="main-content" class="span12">
-        <h1 id="404-page-not-found" style="text-align: center">404</h1>
-        <p style="text-align: center"><strong>Page not found</strong></p>
-      </div>
-    </div>
-
-
+<p><img alt="mbp-banner" src="../images/mbp_banner.png" /></p>
+<h1 id="rnasik-yep">RNAsik? yep!</h1>
+<h2 id="getting-help">Getting help</h2>
+<p>There is an open <a href="https://groups.google.com/forum/#!forum/rnasik">RNAsik user's google group</a> any can ask and answer
+questions there. I will try my best to respond to any questions there, but bear in mind that I could get saturated with work
+and might not be able to respond straight away.</p>
+<p>Also couple of house keeping things:</p>
+<ul>
+<li>be polite (in general) and considerate of others.</li>
+<li>Include as much information about your problem as you can.
+The problem needs to be reproducible, otherwise I might not be able to help you.</li>
+</ul>
+<p>p.s any feedback and suggestions are also welcomed there</p>
+<h2 id="bug-reports">Bug reports</h2>
+<p>Best place to submit bugs is with <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/issues">GitHub issues</a>
+Try to include as much information as you can and again problem needs to be reproducible. Sometimes problem could be 
+BigDataScript specific so also try looking at <a href="https://groups.google.com/forum/#!forum/bigdatascript-users">BigDataScrip user's group</a></p></div>
         </div>
 
         <footer class="col-md-12">
@@ -94,10 +121,10 @@
                 <p>Created by <a href="https://twitter.com/kizza_a">Kirill Tsyganov</a> with help from the <a href="http://bioinformatics.erc.monash.edu">Monash Bioinformatics Platform</a> team. <br /><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</p>
             <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
         </footer>
-        <script>var base_url = '';</script>
-        <script src="/js/base.js"></script>
-        <script src="/search/require.js"></script>
-        <script src="/search/search.js"></script>
+        <script>var base_url = '..';</script>
+        <script src="../js/base.js"></script>
+        <script src="../search/require.js"></script>
+        <script src="../search/search.js"></script>
 
         <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
     <div class="modal-dialog">

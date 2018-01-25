@@ -8,7 +8,7 @@
         <meta name="author" content="serine">
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>About - RNAsik Docs</title>
+        <title>Contributing - RNAsik pipeline</title>
         <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../css/font-awesome-4.5.0.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -39,7 +39,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="..">RNAsik Docs</a>
+            <a class="navbar-brand" href="..">RNAsik pipeline</a>
         </div>
 
         <!-- Expanded navigation -->
@@ -47,13 +47,16 @@
                 <!-- Main navigation -->
                 <ul class="nav navbar-nav">
                     <li >
-                        <a href="..">Home</a>
+                        <a href="..">About</a>
                     </li>
                     <li >
                         <a href="../docs/">Docs</a>
                     </li>
+                    <li >
+                        <a href="../help/">Help</a>
+                    </li>
                     <li class="active">
-                        <a href="./">About</a>
+                        <a href="./">Contributing</a>
                     </li>
                     <li >
                         <a href="../changelog/">Changelog</a>
@@ -67,7 +70,7 @@
                     </a>
                 </li>
                     <li >
-                        <a rel="next" href="../docs/">
+                        <a rel="next" href="../help/">
                             <i class="fa fa-arrow-left"></i> Previous
                         </a>
                     </li>
@@ -87,56 +90,39 @@
         <div class="container">
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="main active"><a href="#rnasik-for-rnaseq">RNAsik for RNAseq</a></li>
-            <li><a href="#introduction">Introduction</a></li>
-            <li><a href="#rnasik-pipeline">RNAsik pipeline</a></li>
-            <li><a href="#quality-metrics">Quality metrics</a></li>
+        <li class="main active"><a href="#contributing">Contributing</a></li>
+            <li><a href="#documentations">Documentations</a></li>
+            <li><a href="#users-group">User's group</a></li>
+            <li><a href="#developing-pipeline-further">Developing pipeline further</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
 <p><img alt="mbp-banner" src="../images/mbp_banner.png" /></p>
-<h1 id="rnasik-for-rnaseq">RNAsik for RNAseq</h1>
-<blockquote>
-<p><strong>N.B</strong> This workflow assumes model organism has a reference genome. If the reference genome isn't applicable, different workflow is required.</p>
-</blockquote>
-<h2 id="introduction">Introduction</h2>
-<p><a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik</a> pipeline was build in house for processing <a href="https://rnaseq.uoregon.edu/">RNA-seq(uencing)</a> data.
-It is written in <a href="http://pcingola.github.io/BigDataScript/download.html">BigDataScript (bds)</a>, which is <a href="https://en.wikipedia.org/wiki/Domain-specific_language">domain specific language (DSL)</a>, that makes writing pipelines easy as well as making them robust. To get a bit more technical bds runs on <a href="https://en.wikipedia.org/wiki/Java_virtual_machine">java virtual machine (JVM)</a> and therefore requires <a href="https://www.java.com/en/">Java</a>. In simple terms any pipeline is a wrapper of several tools that makes it easier and arguably faster to get to the end goal. The three core parts to any <a href="https://rnaseq.uoregon.edu/">RNA-seq analysis</a> are: </p>
+<h1 id="contributing">Contributing</h1>
+<p>There are many places for contribution the most obvious ones are help with documentations, help in the <a href="https://groups.google.com/forum/#!forum/rnasik">user's group</a>
+and of course with the source itself.</p>
+<h2 id="documentations">Documentations</h2>
+<p>I'm using <a href="https://github.com/mkdocs/mkdocs">mkdocs</a> to generate this site, which has been very easy to use.
+All documentations are written in plain markdown and located in main repo <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/tree/master/docs"><code>docs/</code> directory</a>. You can simply fork <code>RNAsik</code> repository, do appropriate changes to the docs and send me a pull request (PR). Any small changes are super welcomed, even one letter spell correction (there'll be more than one), but all changes need to come through PR, which will not only acknowledge you as contributor, but also enable me to review changes quickly and incorporate them in (pull them in) easily.</p>
+<p>Quick notes on <a href="https://github.com/mkdocs/mkdocs">mkdocs</a>, it is pretty easy to install with <code>pip</code> in <code>virtualenv</code> if you prefer (you should).</p>
+<pre><code>git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe
+cd RNAsik-pipe
+mkdocs serve
+</code></pre>
+
+<p>This will give you live updates to you copy of the docs, default URL should be <a href="../localhost:8000">localhost:8000</a>, but it will tell you that once you've started the server. Then simply use your favourite text editor to edit markdown documents. Commit your changes, don't be afraid to be verbose, say what you've added/changed/removed in your commit message. And send me PR</p>
+<h2 id="users-group">User's group</h2>
+<p><a href="https://groups.google.com/forum/#!forum/rnasik">Just jump in and do it!</a></p>
+<h2 id="developing-pipeline-further">Developing pipeline further</h2>
+<p>I need to write a more comprehensive developer guide at sometime soon. Any contributions are again extremely welcomed and again as I've mentioned in the <a href="#documentations">documentations</a> section above, any contributions need to come through pull request (PR). </p>
+<p>To summarise briefly layouts of the <code>src/</code>:</p>
 <ul>
-<li>mapping to the reference genome</li>
-<li>counting reads mapped into features e.g genes</li>
-<li>doing differential expression (DE) statistics</li>
+<li><code>RNAsik.bds</code> is main "executable" file that sources and runs the pipeline. </li>
+<li><code>sikHeader.bds</code> defines help menu and all user inputs options. I do have a couple of command line 
+arguments hidden from main help menu, but if you take a pick at this file you'll see them all</li>
+<li>All other <code>*.bds</code> files contain functions to specific tasks those functions get called in <code>RNAsik.bds</code></li>
 </ul>
-<p>The pipeline does the first two parts and <a href="../degust.erc.monash.edu">Degust</a> does the third part. Degust itself, in simple terms, a wrapper around <a href="http://bioconductor.org/packages/release/bioc/html/limma.html">limma</a> and <a href="http://bioconductor.org/packages/release/bioc/html/edgeR.html">edgeR</a> R packages. In theory and practice one can take output from <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik</a> pipeline, which is a table of counts where every gene is a row and every column is a sample and use those or other R packages to do your own DE analysis.</p>
-<p>In actual terms both <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik</a> and <a href="../degust.erc.monash.edu">Degust</a> provide much more than just those few simple steps and both tools are very powerful for RNA-seq analysis. <a href="../degust.erc.monash.edu">Degust</a> is exceptionally good for exploratory data visualisation and analysis. Both tools can also server as a nice proxy for learning bioinformatics as they provide command line and R code for doing the analysis.</p>
-<h2 id="rnasik-pipeline">RNAsik pipeline</h2>
-<p>As mentioned above very first step in <a href="https://rnaseq.uoregon.edu/">RNA-seq analysis</a> is to map your raw reads (<a href="https://en.wikipedia.org/wiki/FASTQ_format">FASTQ</a>) to the reference genome following by counting of reads that map onto a feature. But there is always more you could do with your data, in fact almost always only by doing more you can get deeper inside into your biological experiment and the system you are studying. And so <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik</a> uses these tools to get as much out of your data as possible in an streamline run:</p>
-<ul>
-<li><a href="https://github.com/alexdobin/STAR/releases">STAR aligner for mapping</a></li>
-<li><a href="http://subread.sourceforge.net/">featureCounts from subread package for read counting</a></li>
-<li><a href="http://www.htslib.org/download/">samtools for coverage calculation and general bam files filtering</a></li>
-<li><a href="http://broadinstitute.github.io/picard/">picard tools also for general bam fiels filtering</a></li>
-<li><a href="http://qualimap.bioinfo.cipf.es/">QualiMap for intragenic and interegenic rates</a></li>
-<li><a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/">FastQC for QC metrics on yor fastq files</a></li>
-<li><a href="http://multiqc.info/">MultiQC for wraping everying into nice, single page report</a> </li>
-</ul>
-<p>As one can imagine every one of those tools has several number of options and by running <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik-pipeline</a> you get predefined - subjective run. Obviously it all comes from years of experience and continues development and improvement. Use can always pass his/her own options through <code>-extraOptions</code> flag for more fine turning. 
-Alternatively as, hinted above, user can leverage of <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik</a> to run everything separately with fine control over the individual run. <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik</a> produces <a href="https://en.wikipedia.org/wiki/HTML">.html report</a> with all commands options specified.</p>
-<h2 id="quality-metrics">Quality metrics</h2>
-<p><a href="http://multiqc.info/">MultiQC</a> is an aggregate tool that pulls different metrics into one place - multiqc report. This is a good place to start understanding your data. The central bits of information are:</p>
-<ul>
-<li>Are there differences in library sizes?</li>
-<li>Is there any issues with mapping rates?</li>
-<li>Is there any issues with reads assignment rates?</li>
-</ul>
-<p>However there is so many other questions you can ask including:</p>
-<ul>
-<li>What is duplication rate?</li>
-<li>What is multi-mapping rate?</li>
-<li>What is intragenic and interagenic rates?</li>
-</ul>
-<p>As mentioned above <a href="http://multiqc.info">multiqc</a> report is a great first step in the attempt to answer those questions. A lot of the time everything looks fairly good and consistent allowing downstream analysis. Sometimes user can tweak certain individual parameters which can improve results, other times it comes down to experimental design and/or library preparation and sequencing issues. Either way one need to make this "first iteration" in order to see room for improvement. </p>
 <p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p>
 
 <p class="twitter-btn">
@@ -148,7 +134,7 @@ Share</a>
 
         <footer class="col-md-12">
             <hr>
-                <p>Copyright &copy; 2014 <a href="https://twitter.com/kizza_a">Kirill Tsyganov</a> <a href="https://monash.edu"> Monash University </a>, Maintained by the <a href="http://bioinformatics.erc.monash.edu">Monash Bioinformatics Platform</a> team.</p>
+                <p>Created by <a href="https://twitter.com/kizza_a">Kirill Tsyganov</a> with help from the <a href="http://bioinformatics.erc.monash.edu">Monash Bioinformatics Platform</a> team. <br /><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</p>
             <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
         </footer>
         <script>var base_url = '..';</script>

@@ -8,7 +8,7 @@
         <meta name="author" content="serine">
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Docs - RNAsik Docs</title>
+        <title>Docs - RNAsik pipeline</title>
         <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../css/font-awesome-4.5.0.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -39,7 +39,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="..">RNAsik Docs</a>
+            <a class="navbar-brand" href="..">RNAsik pipeline</a>
         </div>
 
         <!-- Expanded navigation -->
@@ -47,13 +47,16 @@
                 <!-- Main navigation -->
                 <ul class="nav navbar-nav">
                     <li >
-                        <a href="..">Home</a>
+                        <a href="..">About</a>
                     </li>
                     <li class="active">
                         <a href="./">Docs</a>
                     </li>
                     <li >
-                        <a href="../about/">About</a>
+                        <a href="../help/">Help</a>
+                    </li>
+                    <li >
+                        <a href="../contrib/">Contributing</a>
                     </li>
                     <li >
                         <a href="../changelog/">Changelog</a>
@@ -72,7 +75,7 @@
                         </a>
                     </li>
                     <li >
-                        <a rel="prev" href="../about/">
+                        <a rel="prev" href="../help/">
                             Next <i class="fa fa-arrow-right"></i>
                         </a>
                     </li>
@@ -87,20 +90,22 @@
         <div class="container">
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="main active"><a href="#rnasik-pipeline-docs">RNAsik pipeline docs</a></li>
+        <li class="main active"><a href="#documentation">Documentation</a></li>
             <li><a href="#quick-start">Quick start</a></li>
             <li><a href="#introduction">Introduction</a></li>
             <li><a href="#prerequisites">Prerequisites</a></li>
             <li><a href="#installation">Installation</a></li>
             <li><a href="#user-input">User input</a></li>
-            <li><a href="#rnasik-output-files-and-directories">RNASik Output files and directories</a></li>
+            <li><a href="#user-input-explained">User input explained</a></li>
+            <li><a href="#rnasik-output">RNAsik output</a></li>
+            <li><a href="#rnasik-output-explained">RNAsik output explained</a></li>
             <li><a href="#command-line-options">Command line options</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
 <p><img alt="mbp-banner" src="../images/mbp_banner.png" /></p>
-<h1 id="rnasik-pipeline-docs">RNAsik pipeline docs</h1>
+<h1 id="documentation">Documentation</h1>
 <h2 id="quick-start">Quick start</h2>
 <h3 id="align-raw-reads">Align raw reads</h3>
 <pre><code class="BASH">RNAsik -align star \
@@ -134,7 +139,18 @@
 
 <p>This publicly available data from <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE69937">NCBI</a>. </p>
 <h2 id="introduction">Introduction</h2>
-<p><code>RNAsik</code> does alignment AND read counting, which makes <a href="../degust.erc.monash.edu">Degust</a> analysis one upload away AND BAM file pre-processed for IGV AND diagnostic QC metrics. <code>RNAsik</code> wraps <a href="#prerequisites">these tools</a> making your RNAseq analysis more streamline. <code>RNAsik</code> has also "sanity checks" inbuilt, checking command line options, checking if options are valid files/directories and it will talk to you so don't sweat :) but do read the error messages.</p>
+<p>As mentioned previously in <a href="..#about">about section</a> very first step in <a href="https://rnaseq.uoregon.edu/">RNA-seq analysis</a> is to map your raw reads (<a href="https://en.wikipedia.org/wiki/FASTQ_format">FASTQ</a>) to the reference genome following by counting of reads that map onto a feature. But there is always more you could do with your data, in fact almost always only by doing more you can get deeper inside into your biological experiment and the system you are studying. And so <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik</a> uses these tools to get as much out of your data as possible in an streamline run:</p>
+<ul>
+<li><a href="https://github.com/alexdobin/STAR/releases">STAR aligner for mapping</a></li>
+<li><a href="http://subread.sourceforge.net/">featureCounts from subread package for read counting</a></li>
+<li><a href="http://www.htslib.org/download/">samtools for coverage calculation and general bam files filtering</a></li>
+<li><a href="http://broadinstitute.github.io/picard/">picard tools also for general bam fiels filtering</a></li>
+<li><a href="http://qualimap.bioinfo.cipf.es/">QualiMap for intragenic and interegenic rates</a></li>
+<li><a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/">FastQC for QC metrics on yor fastq files</a></li>
+<li><a href="http://multiqc.info/">MultiQC for wraping everying into nice, single page report</a> </li>
+</ul>
+<p>As one can imagine every one of those tools has several number of options and by running <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik-pipeline</a> you get predefined - subjective run. Obviously it all comes from years of experience and continues development and improvement. Use can always pass his/her own options through <code>-extraOptions</code> flag for more fine turning. 
+Alternatively as, hinted above, user can leverage of <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik</a> to run everything separately with fine control over the individual run. <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik</a> produces <a href="https://en.wikipedia.org/wiki/HTML">.html report</a> with all commands options specified.</p>
 <h2 id="prerequisites">Prerequisites</h2>
 <ul>
 <li><a href="http://pcingola.github.io/BigDataScript/download.html">BigDataScript</a></li>
@@ -159,7 +175,7 @@ ansible-playbook -i host bio.yml --tags bds,rnasik,star,subread,samtools,htslib,
 <h3 id="alternative-method">Alternative method</h3>
 <p>If you have all of the tools installed and you just need <code>RNAsik</code> you can simply <code>git clone</code> it. It doesn't require any
 other installations/compilations. BUT you do need to have <a href="https://github.com/pcingola/BigDataScript">BigDataScript</a> installed
-and in your <code>PATH</code> for <code>RNAsik</code> to run</p>
+and have it in your <code>PATH</code> for <code>RNAsik</code> to run</p>
 <pre><code class="BASH">git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe
 path/to/RNAsik-pipe/bin/RNAsik
 </code></pre>
@@ -172,20 +188,38 @@ path/to/RNAsik-pipe/bin/RNAsik
 <tr><td class="left_col">GTF/GFF/SAF file</td><td> This is your gene annotation file (i.e coordinates of your genes, exons and other genomic features). This should be linked and associated with your genomic reference file. SAF (simple annotation format) is something that featureCounts use and it supported by the pipeline</td></tr>
 </table>
 
-<blockquote>
-<p>It is highly recommended that both of those files come from the same distributor. Most common distributors are <a href="http://www.ensembl.org/index.html">Ensembl</a>, <a href="http://genome.ucsc.edu/">UCSC</a> and <a href="ftp://ftp.ncbi.nih.gov/genomes/">NCBI</a>.</p>
-</blockquote>
 <h3 id="raw-data">Raw data</h3>
 <table>
 <tr><th>Input File</th><th>Description</th></tr>
 <tr><td class="left_col">FASTQ file</td><td>These are your raw files that are provided by the sequencing facility to you, they can be gzipped (.fq, .fastq, .fq.gz, .fastq.gz) </td></tr>
 </table>
 
-<blockquote>
-<p><code>RNAsik</code> can handle nested directories as long as your data is homogeneous i.e all data belongs to the same library type e.g paired-end(if paired end, RNASik looks for 'R1' and 'R2' in the filenames to distinguish read pairs. </p>
-</blockquote>
-<h2 id="rnasik-output-files-and-directories">RNASik Output files and directories</h2>
-<h3 id="description-of-output-directories">Description of output directories</h3>
+<h2 id="user-input-explained">User input explained</h2>
+<h3 id="annotation-files">Annotation files</h3>
+<p>Annotation file would central for differential expression (DE) analysis without one you won't be able to do one. You could have very well assembled genome with very good mapping rate, but unless you know where your genes are on that genome i.e start and end coordinates for your features e.g genes you won't be able to deduce any information about those features and therefore compare between conditions. Below is an example of bear minimum information you need for feature counting. </p>
+<pre><code>GeneID  Chr Start   End Strand
+497097  chr1    3204563 3207049 -
+497097  chr1    3411783 3411982 -
+497097  chr1    3660633 3661579 -
+</code></pre>
+
+<p>There few entities that provide genome annotation, some cover more species than other. There will be of course individuals that simply provide annotation for one particular species, perhaps for more rare model organisms.</p>
+<p>There are also different annotation file formats out there, which makes a little hard to provide <code>RNAsik</code> support for all of them. Currently <code>RNAsik</code> can only work with <code>GFF</code>, <code>GTF</code> or <code>SAF</code> file formats. There are many compatibilities issues between formats, but more importantly certain bits of information are only found in some of the files. The example above show <code>SAF</code> file format and as you can see that includes not human redable gene names nor biotype. <code>GFF</code> also often doesn't have biotype information, but on the other hand has product tag, which has short description, for protein coding at least, of resulting protein product, <code>GTF</code> lacks that information. Because of all these little nuances it can be hard to capture all of the desirable information.</p>
+<p>Most tools in the pipeline prefer <code>GTF</code>, some can only work with <code>GTF</code>. I guess main reason for this is that every line is self contained and the format has been fairly predictable/stable.</p>
+<p>If for whatever reason you can't get hold of <code>GFF/GTF</code> files and your annotation comes in <code>GenBank</code> (very common for bacterial genomes) or <code>Bed</code> files, don't panic and try to parse those files into <code>SAF</code> format. There are plans to include <code>gb_parse.py</code> script that should help most people with <code>GenBank</code> files.</p>
+<p>Irrespective of which reference file distributor and which annotation file you are going to use, it is highly recommended that both of those files come from the same distributor. Most common distributors are <a href="http://www.ensembl.org/index.html">Ensembl</a>, <a href="http://genome.ucsc.edu/">UCSC</a> and <a href="ftp://ftp.ncbi.nih.gov/genomes/">NCBI</a>.</p>
+<h3 id="raw-data-files">Raw data files</h3>
+<p>Raw data is something that you should take good care of. You can regenerate all other data files, but you can't really regenerate you raw data, not unless you have lots of money and time. So be sure to back your <code>fastq</code> files up and never mess/do (i.e modify) your original fastq files. If you want to try something out, make a copy and do whatever you are doing on a copy. Also there will never be a need to unzip your fastq file. All of you fastq file should be gziped and have file extension <code>.fastq.gz</code> or <code>fq.gz</code> or something similar. </p>
+<p><code>RNAsik</code> will search recursively your <code>-fqDir</code> and find all fastq files. <code>RNAsik</code> can handle nested directories as long as your data is homogeneous i.e all data belongs to the same library type single-end or paired-end. If data is paired end, <code>RNAsik</code> uses <code>-pairIds</code> value to figure out read pairs. You can check that all of your fastq files had been found by looking into <code>sikRun/logs/samples/fqFiles</code>. </p>
+<p>After obtaining a list of all fastq files <code>RNAsik</code> tries to be smart and attempts to group fastq files into samples, that is R1 and R2 reads are grouped, but also any fastq files that had been split across lanes should also be grouped. You should end up, after the run, with the same number of bam files as you have samples. Again you can check grouping in <code>sikRun/logs/samples/fqMap</code></p>
+<p><code>RNAsik</code> fastq grouping works in two modes:</p>
+<ul>
+<li>smart guessing it is a little involved but essentially it uses regular expression to check if fastq files have common suffix and therefore belong to the same sample. It heavily relies on clear labeling of R1 and R2 reads for paired-end data. </li>
+<li>a more straight forward mode is simply to use samples sheet file, which is any text file with two columns separated by a tab character, <code>old_prefix\tnew_prefix</code>. Prefix in this case is your sample name, unique bit of the file. </li>
+</ul>
+<p>Samples sheet in a bit more details; If you have four samples, two wild-type and two controls, you should have four bam files after the analysis. However you number of fastq files is rather variable, depending on your sequencing. For paired-end sequencing you are going to end up with 2 fastq files per sample and 8 fastq files all up. If your sequencing was also split across lanes, say two lanes, then you are going to have 4 fastq file per each samples and 16 fastq files in total. <code>RNAsik</code> tries to simplify this for you.</p>
+<h2 id="rnasik-output">RNAsik output</h2>
+<h3 id="directories-breakdown">Directories breakdown</h3>
 <table>
 <tr><th>Directories</th><th>Description</th></tr>
 <tr><td class="left_col">refFiles/</td><td> Contains the reference files (FASTA and GTF) and indices (aligner index) used in the analysis run </td></tr>
@@ -196,17 +230,34 @@ path/to/RNAsik-pipe/bin/RNAsik
 <tr><td class="left_col">qualiMapResults/</td><td> Contains int(ra|er)genic rates from each BAM file. Each BAM has its own directory with metric files. These results generated using `QualiMap rnaseq` command</td></tr>
 <tr><td class="left_col">fastqDir/</td><td> If you are going to pull your FASTQ file over http in tarball, then tarball will be unarchived here</td></tr>
 <tr><td class="left_col">multiqc_data/</td><td>Directory created by MultiQC holding a parsed text file, it doesn't serve any purpose for html file</td></tr>
-<tr><td class="left_col">logs</td><td>Directory that holds subdirectories, self explanatory, with logs files</td></tr>
+<tr><td class="left_col">logs/</td><td>Directory that holds subdirectories, self explanatory, with logs files</td></tr>
 </table>
 
-<h3 id="description-of-output-files">Description of output files</h3>
+<h3 id="files-breakdown">Files breakdown</h3>
 <table>
 <tr><th>Files</th><th>Description</th></tr>
-<tr><td class="left_col">geneIds.txt</td><td> Three additonal columns for read counts. Gene Id, Gene Name, Gene Biotype. Count files with "-withNames" postfix have those columns included </td></tr>
+<tr><td class="left_col">geneIds.txt</td><td> Hold four additional columns that get added into read counts file, that has postfix "-withNames. Gene.id, Chrom, Gene.Name, Biotype.</td></tr>
 <tr><td class="left_col">strandInfo.txt</td><td> Contains guesses, based on `featureCounts` `.summary` files, strand informataion</td></tr>
 <tr><td class="left_col">multiqc_report.html</td><td>This is the report file produced by MultiQC tool. A stand alone html file and can be viewed in any browser</td></tr>
 </table>
 
+<h2 id="rnasik-output-explained">RNAsik output explained</h2>
+<blockquote>
+<p>I hope that the directories and files naming is some what self explanatory, but here is a bit more detailed explanation of those.</p>
+</blockquote>
+<h3 id="bam-files">Bam files</h3>
+<p>First thing you most certainly going to get out of the pipeline is your bam files, those will be placed into <code>bamFiles/</code> directory. I don't really understand why, but <code>featureCounts</code> works best (fastest) with name sorted BAM files a.k.a unsorted. There is really two types of sorting, sorted by coordinates, often preferred as you can index those bam files and then have quick access to random parts of the file, second type is sorted by name, which insures that in paired-end experiment R1 and R2 pairs are interleaved, one after another, but you can't index those). <code>STAR</code> aligner can output either of those files. I'm however outputting "unsorted" bam file and then in the second step sorting it with <code>picard SamSort</code> tool. There are a couple of reasons for that:</p>
+<ul>
+<li>other aligners don't sort e.g bwa and therefore assuming sorted bam file won't work well</li>
+<li>even though <code>STAR</code> is pretty amazing (honestly), but I still rather prefer one tool for one job,
+hence why I also don't count reads with <code>STAR</code></li>
+</ul>
+<p>The bam files from <code>bamFiles/</code> are only used with <code>featureCounts</code> and then <code>picard</code> suite converts them into sorted and marked duplicate bam files, which are now placed into <code>mdupsFiles/</code> directory. The rest of the analysis based on these bam files. I'm still deciding what to do with "raw" bam files in <code>bamFiles/</code> directory. They should be removed after run have finished, but if you have to re-run the pipeline to get additional things (which you can, it will resolve all dependencies and only run new tasks) those bams are now gone and will get regenerated, which will trigger the rest of pipeline to re-run, which is unwanted result. This is why I'm not auto-removing those bam files, rather doing manually after I'm sure.  </p>
+<h3 id="count-files">Count files</h3>
+<p>Probably the second most important thing in the pipeline is getting read counts. That is given some genome annotation count how many of mapped reads actually ended up mapping into know annotation. For classical differential expression analysis we are interested in protein coding genes only, which pipeline attempts to filter for, but there are other biotypes that we can differentially compare.</p>
+<p>The pipeline attempts to guess the strand (directionality) of your library. In theory sequencing provider that had made your libraries should be able to tell you that, but sometimes they get it wrong or simply that information never reaches us (bioinformaticians) hence the guessing.</p>
+<p>Pipelines runs <code>featureCounts</code> three times forcing reads to forward strand only, forcing to reverse strand only and allowing counting on both strand (non stranded library). <code>featureCounts</code> is very nice and it provides summary table that has number of assigned to feature reads. One can simply compare forward and reverse stranded counts and deduce the strand of the library. In essence this formula is used <code>forward-reverse/forward+reverse</code> to obtain the ration, if ration is about 0.9 then library is stranded and sign indicates the strand type, if however ration is about 0.1 then library is non stranded, anything else will indication undetermined and <code>strandInfo.txt</code> file with default to <code>NonStranded,1</code> note the number one after the comment indicating status code, meaning exit with error. If you see that in your <code>strandInfo.txt</code> file you'll need to manually inspect your <code>*.summary</code> files from <code>featureCounts</code> and make decision about which library type to go with. Actual implementation of strand guessing can be found in this script <code>scripts/strand_guessing.py</code>.</p>
+<p><code>featureCounts</code> by default for any given run outputs two files, counts (e.g <code>NonStrandedCounts.txt</code>) and summary (e.g <code>NonStrandedCounts.txt.summary</code>). <code>RNAsik</code> attempts to "clean up" counts file, which includes removing and addition of certain columns to make counts files more informative. The columns that are added can be found in <code>geneIds.txt</code>. If for what ever reason your <code>geneIds.txt</code> is empty then all the other files with postfix <code>-withNames</code> going to be empty too. You could try to regenerate <code>geneIds.txt</code> file using <code>scripts/get_gene_ids.py</code> script and then <code>scripts/mk_counts_file.py</code> to obtain "clean" table of counts. Doing so isn't strictly needed however additional information such as human understandable gene name and biotypy often come very handy in understanding differential expression. Having a biotype in counts file also allows you to filter for specific biotype e.g <code>protein_coding</code> or <code>snRNA</code> provided your annotation file has that information.</p>
 <h2 id="command-line-options">Command line options</h2>
 <h3 id="read-alignment">Read alignment</h3>
 <table>
@@ -264,7 +315,7 @@ Share</a>
 
         <footer class="col-md-12">
             <hr>
-                <p>Copyright &copy; 2014 <a href="https://twitter.com/kizza_a">Kirill Tsyganov</a> <a href="https://monash.edu"> Monash University </a>, Maintained by the <a href="http://bioinformatics.erc.monash.edu">Monash Bioinformatics Platform</a> team.</p>
+                <p>Created by <a href="https://twitter.com/kizza_a">Kirill Tsyganov</a> with help from the <a href="http://bioinformatics.erc.monash.edu">Monash Bioinformatics Platform</a> team. <br /><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</p>
             <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
         </footer>
         <script>var base_url = '..';</script>
