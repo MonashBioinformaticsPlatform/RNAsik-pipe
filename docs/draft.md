@@ -1,0 +1,47 @@
+
+### Log files
+
+- `data/`
+    - `addMetrics`
+    - `bams`
+    - `covFiles`
+    - `degust`
+    - `fastqc`
+    - `featureCounts`
+    - `mdupsBams`
+    - `qualiMap`
+    - `strandInfo`
+- `other/`
+    - `annotation`
+    - `pairedBool`
+- `refFiles/`
+    - `bwa`
+    - `bwaMem`
+    - `chromSizes`
+    - `fai`
+    - `fastaRef`
+    - `fastqc`
+    - `gtfFile`
+    - `picardDictFile`
+    - `qualiMap`
+- `samples/`
+    - `fqFiles`
+    - `fqMap`
+    - `samplesSheet`
+- `toolsOpts/`
+    - `featureCounts`
+    - `multiqc`
+- `versions/`
+    - `bedtools2`
+    - `bwa`
+    - `fastqc`
+    - `featureCounts`
+    - `MarkDuplicates`
+    - `multiqc`
+    - `python`
+    - `qualimap`
+    - `ReorderSam`
+    - `RNAsik`
+    - `samtools`
+    - `SortSam`
+    - `star`

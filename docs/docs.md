@@ -1,7 +1,7 @@
 
 ![mbp-banner](images/mbp_banner.png)
 
-# RNAsik pipeline docs
+# Documentation
 
 ## Quick start
 
@@ -46,7 +46,18 @@ This publicly available data from [NCBI](https://www.ncbi.nlm.nih.gov/geo/query/
 
 ## Introduction
 
-`RNAsik` does alignment AND read counting, which makes [Degust](degust.erc.monash.edu) analysis one upload away AND BAM file pre-processed for IGV AND diagnostic QC metrics. `RNAsik` wraps [these tools](#prerequisites) making your RNAseq analysis more streamline. `RNAsik` has also "sanity checks" inbuilt, checking command line options, checking if options are valid files/directories and it will talk to you so don't sweat :) but do read the error messages.
+As mentioned previously in [about section](index.md#about) very first step in [RNA-seq analysis](https://rnaseq.uoregon.edu/) is to map your raw reads ([FASTQ](https://en.wikipedia.org/wiki/FASTQ_format)) to the reference genome following by counting of reads that map onto a feature. But there is always more you could do with your data, in fact almost always only by doing more you can get deeper inside into your biological experiment and the system you are studying. And so [RNAsik](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe) uses these tools to get as much out of your data as possible in an streamline run:
+
+- [STAR aligner for mapping](https://github.com/alexdobin/STAR/releases)
+- [featureCounts from subread package for read counting](http://subread.sourceforge.net/)
+- [samtools for coverage calculation and general bam files filtering](http://www.htslib.org/download/)
+- [picard tools also for general bam fiels filtering](http://broadinstitute.github.io/picard/)
+- [QualiMap for intragenic and interegenic rates](http://qualimap.bioinfo.cipf.es/)
+- [FastQC for QC metrics on yor fastq files](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
+- [MultiQC for wraping everying into nice, single page report](http://multiqc.info/) 
+
+As one can imagine every one of those tools has several number of options and by running [RNAsik-pipeline](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe) you get predefined - subjective run. Obviously it all comes from years of experience and continues development and improvement. Use can always pass his/her own options through `-extraOptions` flag for more fine turning. 
+Alternatively as, hinted above, user can leverage of [RNAsik](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe) to run everything separately with fine control over the individual run. [RNAsik](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe) produces [.html report](https://en.wikipedia.org/wiki/HTML) with all commands options specified.
 
 ## Prerequisites
 
@@ -77,7 +88,7 @@ ansible-playbook -i host bio.yml --tags bds,rnasik,star,subread,samtools,htslib,
 
 If you have all of the tools installed and you just need `RNAsik` you can simply `git clone` it. It doesn't require any
 other installations/compilations. BUT you do need to have [BigDataScript](https://github.com/pcingola/BigDataScript) installed
-and in your `PATH` for `RNAsik` to run
+and have it in your `PATH` for `RNAsik` to run
 
 ```BASH
 git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe
@@ -94,8 +105,6 @@ path/to/RNAsik-pipe/bin/RNAsik
 <tr><td class="left_col">GTF/GFF/SAF file</td><td> This is your gene annotation file (i.e coordinates of your genes, exons and other genomic features). This should be linked and associated with your genomic reference file. SAF (simple annotation format) is something that featureCounts use and it supported by the pipeline</td></tr>
 </table>
 
-> It is highly recommended that both of those files come from the same distributor. Most common distributors are [Ensembl](http://www.ensembl.org/index.html), [UCSC](http://genome.ucsc.edu/) and [NCBI](ftp://ftp.ncbi.nih.gov/genomes/).
-
 ### Raw data
 
 <table>
@@ -103,11 +112,47 @@ path/to/RNAsik-pipe/bin/RNAsik
 <tr><td class="left_col">FASTQ file</td><td>These are your raw files that are provided by the sequencing facility to you, they can be gzipped (.fq, .fastq, .fq.gz, .fastq.gz) </td></tr>
 </table>
 
-> `RNAsik` can handle nested directories as long as your data is homogeneous i.e all data belongs to the same library type e.g paired-end(if paired end, RNASik looks for 'R1' and 'R2' in the filenames to distinguish read pairs. 
+## User input explained
 
-## RNASik Output files and directories
+### Annotation files
 
-### Description of output directories
+Annotation file would central for differential expression (DE) analysis without one you won't be able to do one. You could have very well assembled genome with very good mapping rate, but unless you know where your genes are on that genome i.e start and end coordinates for your features e.g genes you won't be able to deduce any information about those features and therefore compare between conditions. Below is an example of bear minimum information you need for feature counting. 
+
+```
+GeneID	Chr	Start	End	Strand
+497097	chr1	3204563	3207049	-
+497097	chr1	3411783	3411982	-
+497097	chr1	3660633	3661579	-
+```
+
+There few entities that provide genome annotation, some cover more species than other. There will be of course individuals that simply provide annotation for one particular species, perhaps for more rare model organisms.
+
+There are also different annotation file formats out there, which makes a little hard to provide `RNAsik` support for all of them. Currently `RNAsik` can only work with `GFF`, `GTF` or `SAF` file formats. There are many compatibilities issues between formats, but more importantly certain bits of information are only found in some of the files. The example above show `SAF` file format and as you can see that includes not human redable gene names nor biotype. `GFF` also often doesn't have biotype information, but on the other hand has product tag, which has short description, for protein coding at least, of resulting protein product, `GTF` lacks that information. Because of all these little nuances it can be hard to capture all of the desirable information.
+
+Most tools in the pipeline prefer `GTF`, some can only work with `GTF`. I guess main reason for this is that every line is self contained and the format has been fairly predictable/stable.
+
+If for whatever reason you can't get hold of `GFF/GTF` files and your annotation comes in `GenBank` (very common for bacterial genomes) or `Bed` files, don't panic and try to parse those files into `SAF` format. There are plans to include `gb_parse.py` script that should help most people with `GenBank` files.
+
+Irrespective of which reference file distributor and which annotation file you are going to use, it is highly recommended that both of those files come from the same distributor. Most common distributors are [Ensembl](http://www.ensembl.org/index.html), [UCSC](http://genome.ucsc.edu/) and [NCBI](ftp://ftp.ncbi.nih.gov/genomes/).
+
+### Raw data files
+
+Raw data is something that you should take good care of. You can regenerate all other data files, but you can't really regenerate you raw data, not unless you have lots of money and time. So be sure to back your `fastq` files up and never mess/do (i.e modify) your original fastq files. If you want to try something out, make a copy and do whatever you are doing on a copy. Also there will never be a need to unzip your fastq file. All of you fastq file should be gziped and have file extension `.fastq.gz` or `fq.gz` or something similar. 
+
+`RNAsik` will search recursively your `-fqDir` and find all fastq files. `RNAsik` can handle nested directories as long as your data is homogeneous i.e all data belongs to the same library type single-end or paired-end. If data is paired end, `RNAsik` uses `-pairIds` value to figure out read pairs. You can check that all of your fastq files had been found by looking into `sikRun/logs/samples/fqFiles`. 
+
+After obtaining a list of all fastq files `RNAsik` tries to be smart and attempts to group fastq files into samples, that is R1 and R2 reads are grouped, but also any fastq files that had been split across lanes should also be grouped. You should end up, after the run, with the same number of bam files as you have samples. Again you can check grouping in `sikRun/logs/samples/fqMap`
+
+`RNAsik` fastq grouping works in two modes:
+
+- smart guessing it is a little involved but essentially it uses regular expression to check if fastq files have common suffix and therefore belong to the same sample. It heavily relies on clear labeling of R1 and R2 reads for paired-end data. 
+- a more straight forward mode is simply to use samples sheet file, which is any text file with two columns separated by a tab character, `old_prefix\tnew_prefix`. Prefix in this case is your sample name, unique bit of the file. 
+
+Samples sheet in a bit more details; If you have four samples, two wild-type and two controls, you should have four bam files after the analysis. However you number of fastq files is rather variable, depending on your sequencing. For paired-end sequencing you are going to end up with 2 fastq files per sample and 8 fastq files all up. If your sequencing was also split across lanes, say two lanes, then you are going to have 4 fastq file per each samples and 16 fastq files in total. `RNAsik` tries to simplify this for you.
+
+## RNAsik output
+
+### Directories breakdown
 
 <table>
 <tr><th>Directories</th><th>Description</th></tr>
@@ -119,17 +164,41 @@ path/to/RNAsik-pipe/bin/RNAsik
 <tr><td class="left_col">qualiMapResults/</td><td> Contains int(ra|er)genic rates from each BAM file. Each BAM has its own directory with metric files. These results generated using `QualiMap rnaseq` command</td></tr>
 <tr><td class="left_col">fastqDir/</td><td> If you are going to pull your FASTQ file over http in tarball, then tarball will be unarchived here</td></tr>
 <tr><td class="left_col">multiqc_data/</td><td>Directory created by MultiQC holding a parsed text file, it doesn't serve any purpose for html file</td></tr>
-<tr><td class="left_col">logs</td><td>Directory that holds subdirectories, self explanatory, with logs files</td></tr>
+<tr><td class="left_col">logs/</td><td>Directory that holds subdirectories, self explanatory, with logs files</td></tr>
 </table>
 
-### Description of output files
+### Files breakdown
 
 <table>
 <tr><th>Files</th><th>Description</th></tr>
-<tr><td class="left_col">geneIds.txt</td><td> Three additonal columns for read counts. Gene Id, Gene Name, Gene Biotype. Count files with "-withNames" postfix have those columns included </td></tr>
+<tr><td class="left_col">geneIds.txt</td><td> Hold four additional columns that get added into read counts file, that has postfix "-withNames. Gene.id, Chrom, Gene.Name, Biotype.</td></tr>
 <tr><td class="left_col">strandInfo.txt</td><td> Contains guesses, based on `featureCounts` `.summary` files, strand informataion</td></tr>
 <tr><td class="left_col">multiqc_report.html</td><td>This is the report file produced by MultiQC tool. A stand alone html file and can be viewed in any browser</td></tr>
 </table>
+
+## RNAsik output explained
+
+> I hope that the directories and files naming is some what self explanatory, but here is a bit more detailed explanation of those.
+
+### Bam files
+
+First thing you most certainly going to get out of the pipeline is your bam files, those will be placed into `bamFiles/` directory. I don't really understand why, but `featureCounts` works best (fastest) with name sorted BAM files a.k.a unsorted. There is really two types of sorting, sorted by coordinates, often preferred as you can index those bam files and then have quick access to random parts of the file, second type is sorted by name, which insures that in paired-end experiment R1 and R2 pairs are interleaved, one after another, but you can't index those). `STAR` aligner can output either of those files. I'm however outputting "unsorted" bam file and then in the second step sorting it with `picard SamSort` tool. There are a couple of reasons for that:
+
+- other aligners don't sort e.g bwa and therefore assuming sorted bam file won't work well
+- even though `STAR` is pretty amazing (honestly), but I still rather prefer one tool for one job,
+hence why I also don't count reads with `STAR`
+
+The bam files from `bamFiles/` are only used with `featureCounts` and then `picard` suite converts them into sorted and marked duplicate bam files, which are now placed into `mdupsFiles/` directory. The rest of the analysis based on these bam files. I'm still deciding what to do with "raw" bam files in `bamFiles/` directory. They should be removed after run have finished, but if you have to re-run the pipeline to get additional things (which you can, it will resolve all dependencies and only run new tasks) those bams are now gone and will get regenerated, which will trigger the rest of pipeline to re-run, which is unwanted result. This is why I'm not auto-removing those bam files, rather doing manually after I'm sure.  
+
+### Count files
+
+Probably the second most important thing in the pipeline is getting read counts. That is given some genome annotation count how many of mapped reads actually ended up mapping into know annotation. For classical differential expression analysis we are interested in protein coding genes only, which pipeline attempts to filter for, but there are other biotypes that we can differentially compare.
+
+The pipeline attempts to guess the strand (directionality) of your library. In theory sequencing provider that had made your libraries should be able to tell you that, but sometimes they get it wrong or simply that information never reaches us (bioinformaticians) hence the guessing.
+
+Pipelines runs `featureCounts` three times forcing reads to forward strand only, forcing to reverse strand only and allowing counting on both strand (non stranded library). `featureCounts` is very nice and it provides summary table that has number of assigned to feature reads. One can simply compare forward and reverse stranded counts and deduce the strand of the library. In essence this formula is used `forward-reverse/forward+reverse` to obtain the ration, if ration is about 0.9 then library is stranded and sign indicates the strand type, if however ration is about 0.1 then library is non stranded, anything else will indication undetermined and `strandInfo.txt` file with default to `NonStranded,1` note the number one after the comment indicating status code, meaning exit with error. If you see that in your `strandInfo.txt` file you'll need to manually inspect your `*.summary` files from `featureCounts` and make decision about which library type to go with. Actual implementation of strand guessing can be found in this script `scripts/strand_guessing.py`.
+
+`featureCounts` by default for any given run outputs two files, counts (e.g `NonStrandedCounts.txt`) and summary (e.g `NonStrandedCounts.txt.summary`). `RNAsik` attempts to "clean up" counts file, which includes removing and addition of certain columns to make counts files more informative. The columns that are added can be found in `geneIds.txt`. If for what ever reason your `geneIds.txt` is empty then all the other files with postfix `-withNames` going to be empty too. You could try to regenerate `geneIds.txt` file using `scripts/get_gene_ids.py` script and then `scripts/mk_counts_file.py` to obtain "clean" table of counts. Doing so isn't strictly needed however additional information such as human understandable gene name and biotypy often come very handy in understanding differential expression. Having a biotype in counts file also allows you to filter for specific biotype e.g `protein_coding` or `snRNA` provided your annotation file has that information.
 
 ## Command line options
 

@@ -1,65 +1,42 @@
 
 ![mbp-banner](images/mbp_banner.png)
 
-# RNAsik? yep!
+# RNAsik for RNAseq
 
-## Getting help
+> **N.B** This workflow assumes model organism has a reference genome. If the reference genome isn't applicable, different workflow is required.
 
-There is an open [RNAsik user's google group](https://groups.google.com/forum/#!forum/rnasik) any can ask and answer
-questions there. I will try my best to respond to any questions there, but bear in mind that I could get saturated with work
-and might not be able to respond straight away.
+## About
 
-Also couple of house keeping thins:
+[RNAsik](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe) pipeline was build in house for processing [RNA-seq(uencing)](https://rnaseq.uoregon.edu/) data.
+It is written in [BigDataScript (bds)](http://pcingola.github.io/BigDataScript/download.html), which is [domain specific language (DSL)](https://en.wikipedia.org/wiki/Domain-specific_language), that makes writing pipelines easy as well as making them robust. To get a bit more technical, bds runs on [java virtual machine (JVM)](https://en.wikipedia.org/wiki/Java_virtual_machine) and therefore requires [Java](https://www.java.com/en/).
 
-- be polite (in general) and considerate of others.
-- Include as much information about your problem as you can.
-The problem needs to be reproducible, otherwise I might not be able to help you.
+In simple terms any pipeline is a wrapper of several tools that makes it easier and arguably faster to get to the end goal. The three core parts to any [RNA-seq analysis](https://rnaseq.uoregon.edu/) are: 
 
-p.s any feedback and suggestions are also welcomed there
+- mapping to the reference genome
+- counting reads mapped into features e.g genes
+- doing differential expression (DE) statistics
 
-## Bug reports
+The pipeline does the first two parts and [Degust](degust.erc.monash.edu) does the third part. Degust itself, in simple terms, a wrapper around [limma](http://bioconductor.org/packages/release/bioc/html/limma.html) and [edgeR](http://bioconductor.org/packages/release/bioc/html/edgeR.html) R packages. In theory and practice one can take output from [RNAsik](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe) pipeline, which is a table of counts where every gene is a row and every column is a sample and use those with any other R packages that do DE analysis.
 
-Best place to submit bugs is with [GitHub issues](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/issues)
-Try to include as much information as you can and again problem needs to be reproducible. Sometimes problem could be 
-BigDataScript specific so also try looking at [BigDataScrip user's group](https://groups.google.com/forum/#!forum/bigdatascript-users)
+In actual terms both [RNAsik](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe) and [Degust](degust.erc.monash.edu) provide complete experience, not only you'll get your list of DE genes and QC metrics, but will be able to get full inside into your experimental design and the outcome of that. `RNAsik` does read alignment and read counting and cleaning and improvements of your table of counts, which makes [Degust](degust.erc.monash.edu) analysis one upload away. `RNAsik` wraps [these tools](docs.md#prerequisites) making your RNAseq analysis more streamline. It also has "sanity checks" inbuilt, checking command line options, checking if options are valid files/directories and it will talk to you so don't sweat :) but do read the error messages. [Degust](degust.erc.monash.edu) is exceptionally good for exploratory data visualisation and analysis. Both tools can also server as a nice proxy for learning bioinformatics as they provide command line and R code for doing the analysis. Last but not least thanks to [MultiQC](http://multiqc.info/) `RNAsik` provides an aggregate of different metrics in one place - multiqc report. This is a good place to start understanding your data.
 
-## Contributing
+The central bits of information are:
 
-There are many places for contribution the most obvious ones are help with documentations, help in the [user's group](https://groups.google.com/forum/#!forum/rnasik)
-and of course with the source itself.
+- Are there differences in library sizes?
+- Is there any issues with mapping rates?
+- Is there any issues with reads assignment rates?
 
-### Documentations
+However there is so many other questions you can ask including:
 
-I'm using [mkdocs](https://github.com/mkdocs/mkdocs) to generate this site, which has been very easy to use.
-All documentations are written in plain markdown and located in main repo [`docs/` directory](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/tree/master/docs). You can simply fork `RNAsik` repository, do appropriate changes to the docs and send me a pull request (PR). Any small changes are super welcomed, even one letter spell correction (there'll be more than one), but all changes need to come through PR, which will not only acknowledge you as contributor, but also enable me to review changes quickly and incorporate them in (pull them in) easily.
+- What is duplication rate?
+- What is multi-mapping rate?
+- What is intragenic and interagenic rates?
 
-Quick notes on [mkdocs](https://github.com/mkdocs/mkdocs), it is pretty easy to install with `pip` in `virtualenv` if you prefer (you should).
+As mentioned above [multiqc](http://multiqc.info) report is a great first step in the attempt to answer those questions. A lot of the time everything looks fairly good and consistent allowing downstream analysis. Sometimes user can tweak certain individual parameters which can improve results, other times it comes down to experimental design and/or library preparation and sequencing issues. Either way one need to make this "first iteration" in order to see room for improvement. 
 
-```
-git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe
-cd RNAsik-pipe
-mkdocs serve
-```
-
-This will give you live updates to you copy of the docs, default URL should be [localhost:8000](localhost:8000), but it will tell you that once you've started the server. Then simply use your favourite text editor to edit markdown documents. Commit your changes, don't be afraid to be verbose, say what you've added/changed/removed in your commit message. And send me PR
-
-### User's group
-
-[Just jump in and do it!](https://groups.google.com/forum/#!forum/rnasik)
-
-### Developing pipeline further
-
-I need to write a more comprehensive developer guide at sometime soon. Any contributions are again extremely welcomed and again as I've mentioned in the [documentations](#documentations) section above, any contributions need to come through pull request (PR). 
-
-To summarise briefly layouts of the `src/`:
-
-- `RNAsik.bds` is main "executable" file that sources and runs the pipeline. 
-- `sikHeader.bds` defines help menu and all user inputs options. I do have a couple of command line 
-arguments hidden from main help menu, but if you take a pick at this file you'll see them all
-- All other `*.bds` files contain functions to specific tasks those functions get called in `RNAsik.bds`
+## MBP team photo
 
 ![team_photo_2017](images/team_photo_2017.jpg)
-
 
 <p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p>
 
