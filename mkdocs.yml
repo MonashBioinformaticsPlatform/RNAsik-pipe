@@ -9,7 +9,7 @@ pages:
   - Docs: docs.md
   - Help: help.md
   - Contributing: contrib.md
-  - Changelog: changelog.md
+  - Roadmap: roadmap.md
 
 extra_css:
   - css/style.css

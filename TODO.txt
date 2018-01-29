@@ -1,7 +1,0 @@
-- check rnasik stransType.txt file and associated python script. You don't want the highest number of reads, rather most number of reads. It appears if data is stranded and get slightly more reads for Non staranded type, but you really want to go with the strand that has the most reads
-- include IGVlink into RNAsik-pipe output...object store? rnasik
-- read_distribution.py from RSeQC needs to be added OR revaluate exonic rate counter (qualiMap) rnasik
-
-- circular RNA???
-- variants calling and variantView
-- salmon and kalisto
