@@ -92,7 +92,7 @@
     <ul class="nav bs-sidenav">
         <li class="main active"><a href="#roadmap">Roadmap</a></li>
             <li><a href="#going-forward">Going forward</a></li>
-            <li><a href="#todos">ToDo's</a></li>
+            <li><a href="#ideas-for-future-releases">Ideas for future releases</a></li>
             <li><a href="#changelog">Changelog</a></li>
     </ul>
 </div></div>
@@ -101,7 +101,14 @@
 <p><img alt="mbp-banner" src="../images/mbp_banner.png" /></p>
 <h1 id="roadmap">Roadmap</h1>
 <h2 id="going-forward">Going forward</h2>
-<h3 id="150">1.5.0</h3>
+<blockquote>
+<p>Note that </p>
+</blockquote>
+<h3 id="149-q1-2018">1.4.9 Q1 2018</h3>
+<ul>
+<li>general bug fixes and maintenance</li>
+</ul>
+<h3 id="150-q1-2018">1.5.0 Q1 2018</h3>
 <p>New feature(s) described below:</p>
 <ul>
 <li>implement new flag <code>-fqFiles</code> that can take either a file or a directory.<ul>
@@ -110,13 +117,9 @@
 </ul>
 </li>
 </ul>
-<p>Because this will "break"/change <code>RNAsik</code> as <code>-fqDir</code> flag will be removed, needs a minor version bump. I can make it backwards compatible, 
-probably should do that.</p>
-<h3 id="149">1.4.9</h3>
-<ul>
-<li>general bug fixes and maintenance</li>
-</ul>
-<h2 id="todos">ToDo's</h2>
+<p>Will keep <code>-fqDir</code> flag, as a backward compatibility with a warning that flag had been deprecated. Will also schedule to remove <code>-fqDir</code> completely in future releases
+Because of changes in arg's options will do a minor version bump.</p>
+<h2 id="ideas-for-future-releases">Ideas for future releases</h2>
 <ul>
 <li>include IGVlink into RNAsik-pipe output, can only do that if data outputted into something that is hostable i.e object store?</li>
 <li>Need better support for exonic/intronic rates estimation. Is <code>read_distribution.py</code> from RSeQC good idea? Right now qualiMap is ok</li>
