@@ -8,7 +8,7 @@
         <meta name="author" content="serine">
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Changelog - RNAsik pipeline</title>
+        <title>Roadmap - RNAsik pipeline</title>
         <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../css/font-awesome-4.5.0.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -59,7 +59,7 @@
                         <a href="../contrib/">Contributing</a>
                     </li>
                     <li class="active">
-                        <a href="./">Changelog</a>
+                        <a href="./">Roadmap</a>
                     </li>
                 </ul>
 
@@ -90,23 +90,54 @@
         <div class="container">
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="main active"><a href="#new-in-version-146">New in version 1.4.6</a></li>
-        <li class="main "><a href="#new-in-version-147">New in version 1.4.7</a></li>
-        <li class="main "><a href="#new-in-version-148">New in version 1.4.8</a></li>
+        <li class="main active"><a href="#roadmap">Roadmap</a></li>
+            <li><a href="#going-forward">Going forward</a></li>
+            <li><a href="#todos">ToDo's</a></li>
+            <li><a href="#changelog">Changelog</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
 <p><img alt="mbp-banner" src="../images/mbp_banner.png" /></p>
-<h1 id="new-in-version-146">New in version 1.4.6</h1>
+<h1 id="roadmap">Roadmap</h1>
+<h2 id="going-forward">Going forward</h2>
+<h3 id="150">1.5.0</h3>
+<p>New feature(s) described below:</p>
 <ul>
-<li>generalised aligner's call, this will make it easier to add new aligners into RNAsik</li>
-<li>included support for <code>hista2</code>aligner</li>
-<li>added samplesSheep logging</li>
-<li>fixed few minor bugs and improved code quality</li>
-<li>added <code>canFail</code> option to several non crucial tasks, allowing pipeline to continue if some task failed of fastqc and qualimap to allow them to fail as those are non essential tasks.</li>
+<li>implement new flag <code>-fqFiles</code> that can take either a file or a directory.<ul>
+<li>if a directory is given, do what <code>-fqDir</code> does now and traverse down retuning list of fastq files. </li>
+<li>if a file is given, use those locations getting fastq files. Location can be local file path or URLs, assume one location per line</li>
 </ul>
-<h1 id="new-in-version-147">New in version 1.4.7</h1>
+</li>
+</ul>
+<p>Because this will "break"/change <code>RNAsik</code> as <code>-fqDir</code> flag will be removed, needs a minor version bump. I can make it backwards compatible, 
+probably should do that.</p>
+<h3 id="149">1.4.9</h3>
+<ul>
+<li>general bug fixes and maintenance</li>
+</ul>
+<h2 id="todos">ToDo's</h2>
+<ul>
+<li>include IGVlink into RNAsik-pipe output, can only do that if data outputted into something that is hostable i.e object store?</li>
+<li>Need better support for exonic/intronic rates estimation. Is <code>read_distribution.py</code> from RSeQC good idea? Right now qualiMap is ok</li>
+<li>add variants calling, already have a prototype, but still not sure if this is a good idea given different
+experimental designs. For example if samples were pooled then variant calling isn't valid anymore. Can make it a 
+flag to opt in.</li>
+<li>add alignment free support for RNAseq analysis e.g salmon/kalisto</li>
+<li>is there need for circular RNA support?</li>
+</ul>
+<h2 id="changelog">Changelog</h2>
+<h3 id="148">1.4.8</h3>
+<ul>
+<li>added new feature: coverage plots generation</li>
+<li>added new feature: ability to pass previously generated references directory, saves spaces and time</li>
+<li>fixed strand guessing script, should be better at guessing now</li>
+<li>moved to <a href="http://www.mkdocs.org/">mkdocs</a> for documents compilation and deployment to gh_pages</li>
+<li>added new python script to make degust file, this simplifies and strengthens the code</li>
+<li>improved readability of the code</li>
+<li>improved and fixed bugs in handling fastq files and assignment of fastq to sample names</li>
+</ul>
+<h3 id="147">1.4.7</h3>
 <ul>
 <li>fixed STAR memory allocation issue, now user can run with fewer cpus without a worry for STAR spawning multiple tasks causing out of memory issue.</li>
 <li>made BASH wrapper (not ideal) for <code>RNAsik</code> this is capture <code>bds</code> logs including report.html which is rather valuable piece of information about the run</li>
@@ -116,15 +147,13 @@
 <li>several general bug fixes</li>
 <li>simplified help menu</li>
 </ul>
-<h1 id="new-in-version-148">New in version 1.4.8</h1>
+<h3 id="146">1.4.6</h3>
 <ul>
-<li>added new feature: coverage plots generation</li>
-<li>added new feature: ability to pass previously generated references directory, saves spaces and time</li>
-<li>fixed strand guessing script, should be better at guessing now</li>
-<li>moved to <a href="http://www.mkdocs.org/">mkdocs</a> for documents compilation and deployment to gh_pages</li>
-<li>added new python script to make degust file, this simplifies and strengthens the code</li>
-<li>improved readability of the code</li>
-<li>improved and fixed bugs in handling fastq files and assignment of fastq to sample names</li>
+<li>generalised aligner's call, this will make it easier to add new aligners into RNAsik</li>
+<li>included support for <code>hista2</code>aligner</li>
+<li>added samplesSheep logging</li>
+<li>fixed few minor bugs and improved code quality</li>
+<li>added <code>canFail</code> option to several non crucial tasks, allowing pipeline to continue if some task failed of fastqc and qualimap to allow them to fail as those are non essential tasks.</li>
 </ul>
 <p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p>
 

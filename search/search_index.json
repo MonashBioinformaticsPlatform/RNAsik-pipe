@@ -221,24 +221,54 @@
             "title": "Developing pipeline further"
         }, 
         {
-            "location": "/changelog/", 
-            "text": "New in version 1.4.6\n\n\n\n\ngeneralised aligner's call, this will make it easier to add new aligners into RNAsik\n\n\nincluded support for \nhista2\naligner\n\n\nadded samplesSheep logging\n\n\nfixed few minor bugs and improved code quality\n\n\nadded \ncanFail\n option to several non crucial tasks, allowing pipeline to continue if some task failed of fastqc and qualimap to allow them to fail as those are non essential tasks.\n\n\n\n\nNew in version 1.4.7\n\n\n\n\nfixed STAR memory allocation issue, now user can run with fewer cpus without a worry for STAR spawning multiple tasks causing out of memory issue.\n\n\nmade BASH wrapper (not ideal) for \nRNAsik\n this is capture \nbds\n logs including report.html which is rather valuable piece of information about the run\n\n\nintroduced another new aligner - \nbwa mem\n to do bacterial RNAseq.\n\n\nintroduced multiqc config file in \nconfigs\n directory now\n\n\ncompletely removed \n-fqRegex\n and added sanity check for paired end data. If R2 is found and -paired isn't set or vice verse then error message sent\n\n\nseveral general bug fixes\n\n\nsimplified help menu\n\n\n\n\nNew in version 1.4.8\n\n\n\n\nadded new feature: coverage plots generation\n\n\nadded new feature: ability to pass previously generated references directory, saves spaces and time\n\n\nfixed strand guessing script, should be better at guessing now\n\n\nmoved to \nmkdocs\n for documents compilation and deployment to gh_pages\n\n\nadded new python script to make degust file, this simplifies and strengthens the code\n\n\nimproved readability of the code\n\n\nimproved and fixed bugs in handling fastq files and assignment of fastq to sample names\n\n\n\n\nTweet to @kizza_a\n \n\n\n\n\n\n\nShare", 
+            "location": "/roadmap/", 
+            "text": "Roadmap\n\n\nGoing forward\n\n\n1.5.0\n\n\nNew feature(s) described below:\n\n\n\n\nimplement new flag \n-fqFiles\n that can take either a file or a directory.\n\n\nif a directory is given, do what \n-fqDir\n does now and traverse down retuning list of fastq files. \n\n\nif a file is given, use those locations getting fastq files. Location can be local file path or URLs, assume one location per line\n\n\n\n\n\n\n\n\nBecause this will \"break\"/change \nRNAsik\n as \n-fqDir\n flag will be removed, needs a minor version bump. I can make it backwards compatible, \nprobably should do that.\n\n\n1.4.9\n\n\n\n\ngeneral bug fixes and maintenance\n\n\n\n\nToDo's\n\n\n\n\ninclude IGVlink into RNAsik-pipe output, can only do that if data outputted into something that is hostable i.e object store?\n\n\nNeed better support for exonic/intronic rates estimation. Is \nread_distribution.py\n from RSeQC good idea? Right now qualiMap is ok\n\n\nadd variants calling, already have a prototype, but still not sure if this is a good idea given different\nexperimental designs. For example if samples were pooled then variant calling isn't valid anymore. Can make it a \nflag to opt in.\n\n\nadd alignment free support for RNAseq analysis e.g salmon/kalisto\n\n\nis there need for circular RNA support?\n\n\n\n\nChangelog\n\n\n1.4.8\n\n\n\n\nadded new feature: coverage plots generation\n\n\nadded new feature: ability to pass previously generated references directory, saves spaces and time\n\n\nfixed strand guessing script, should be better at guessing now\n\n\nmoved to \nmkdocs\n for documents compilation and deployment to gh_pages\n\n\nadded new python script to make degust file, this simplifies and strengthens the code\n\n\nimproved readability of the code\n\n\nimproved and fixed bugs in handling fastq files and assignment of fastq to sample names\n\n\n\n\n1.4.7\n\n\n\n\nfixed STAR memory allocation issue, now user can run with fewer cpus without a worry for STAR spawning multiple tasks causing out of memory issue.\n\n\nmade BASH wrapper (not ideal) for \nRNAsik\n this is capture \nbds\n logs including report.html which is rather valuable piece of information about the run\n\n\nintroduced another new aligner - \nbwa mem\n to do bacterial RNAseq.\n\n\nintroduced multiqc config file in \nconfigs\n directory now\n\n\ncompletely removed \n-fqRegex\n and added sanity check for paired end data. If R2 is found and -paired isn't set or vice verse then error message sent\n\n\nseveral general bug fixes\n\n\nsimplified help menu\n\n\n\n\n1.4.6\n\n\n\n\ngeneralised aligner's call, this will make it easier to add new aligners into RNAsik\n\n\nincluded support for \nhista2\naligner\n\n\nadded samplesSheep logging\n\n\nfixed few minor bugs and improved code quality\n\n\nadded \ncanFail\n option to several non crucial tasks, allowing pipeline to continue if some task failed of fastqc and qualimap to allow them to fail as those are non essential tasks.\n\n\n\n\nTweet to @kizza_a\n \n\n\n\n\n\n\nShare", 
+            "title": "Roadmap"
+        }, 
+        {
+            "location": "/roadmap/#roadmap", 
+            "text": "", 
+            "title": "Roadmap"
+        }, 
+        {
+            "location": "/roadmap/#going-forward", 
+            "text": "", 
+            "title": "Going forward"
+        }, 
+        {
+            "location": "/roadmap/#150", 
+            "text": "New feature(s) described below:   implement new flag  -fqFiles  that can take either a file or a directory.  if a directory is given, do what  -fqDir  does now and traverse down retuning list of fastq files.   if a file is given, use those locations getting fastq files. Location can be local file path or URLs, assume one location per line     Because this will \"break\"/change  RNAsik  as  -fqDir  flag will be removed, needs a minor version bump. I can make it backwards compatible, \nprobably should do that.", 
+            "title": "1.5.0"
+        }, 
+        {
+            "location": "/roadmap/#149", 
+            "text": "general bug fixes and maintenance", 
+            "title": "1.4.9"
+        }, 
+        {
+            "location": "/roadmap/#todos", 
+            "text": "include IGVlink into RNAsik-pipe output, can only do that if data outputted into something that is hostable i.e object store?  Need better support for exonic/intronic rates estimation. Is  read_distribution.py  from RSeQC good idea? Right now qualiMap is ok  add variants calling, already have a prototype, but still not sure if this is a good idea given different\nexperimental designs. For example if samples were pooled then variant calling isn't valid anymore. Can make it a \nflag to opt in.  add alignment free support for RNAseq analysis e.g salmon/kalisto  is there need for circular RNA support?", 
+            "title": "ToDo's"
+        }, 
+        {
+            "location": "/roadmap/#changelog", 
+            "text": "", 
             "title": "Changelog"
         }, 
         {
-            "location": "/changelog/#new-in-version-146", 
-            "text": "generalised aligner's call, this will make it easier to add new aligners into RNAsik  included support for  hista2 aligner  added samplesSheep logging  fixed few minor bugs and improved code quality  added  canFail  option to several non crucial tasks, allowing pipeline to continue if some task failed of fastqc and qualimap to allow them to fail as those are non essential tasks.", 
-            "title": "New in version 1.4.6"
+            "location": "/roadmap/#148", 
+            "text": "added new feature: coverage plots generation  added new feature: ability to pass previously generated references directory, saves spaces and time  fixed strand guessing script, should be better at guessing now  moved to  mkdocs  for documents compilation and deployment to gh_pages  added new python script to make degust file, this simplifies and strengthens the code  improved readability of the code  improved and fixed bugs in handling fastq files and assignment of fastq to sample names", 
+            "title": "1.4.8"
         }, 
         {
-            "location": "/changelog/#new-in-version-147", 
+            "location": "/roadmap/#147", 
             "text": "fixed STAR memory allocation issue, now user can run with fewer cpus without a worry for STAR spawning multiple tasks causing out of memory issue.  made BASH wrapper (not ideal) for  RNAsik  this is capture  bds  logs including report.html which is rather valuable piece of information about the run  introduced another new aligner -  bwa mem  to do bacterial RNAseq.  introduced multiqc config file in  configs  directory now  completely removed  -fqRegex  and added sanity check for paired end data. If R2 is found and -paired isn't set or vice verse then error message sent  several general bug fixes  simplified help menu", 
-            "title": "New in version 1.4.7"
+            "title": "1.4.7"
         }, 
         {
-            "location": "/changelog/#new-in-version-148", 
-            "text": "added new feature: coverage plots generation  added new feature: ability to pass previously generated references directory, saves spaces and time  fixed strand guessing script, should be better at guessing now  moved to  mkdocs  for documents compilation and deployment to gh_pages  added new python script to make degust file, this simplifies and strengthens the code  improved readability of the code  improved and fixed bugs in handling fastq files and assignment of fastq to sample names   Tweet to @kizza_a     \nShare", 
-            "title": "New in version 1.4.8"
+            "location": "/roadmap/#146", 
+            "text": "generalised aligner's call, this will make it easier to add new aligners into RNAsik  included support for  hista2 aligner  added samplesSheep logging  fixed few minor bugs and improved code quality  added  canFail  option to several non crucial tasks, allowing pipeline to continue if some task failed of fastqc and qualimap to allow them to fail as those are non essential tasks.   Tweet to @kizza_a     \nShare", 
+            "title": "1.4.6"
         }
     ]
 }
