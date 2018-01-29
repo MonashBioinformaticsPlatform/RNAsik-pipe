@@ -5,7 +5,11 @@
 
 ## Going forward
 
-### 1.5.0 
+### 1.4.9 Q1 2018
+
+- general bug fixes and maintenance
+
+### 1.5.0 Q1 2018
 
 New feature(s) described below:
 
@@ -13,14 +17,10 @@ New feature(s) described below:
     - if a directory is given, do what `-fqDir` does now and traverse down retuning list of fastq files. 
     - if a file is given, use those locations getting fastq files. Location can be local file path or URLs, assume one location per line
 
-Because this will "break"/change `RNAsik` as `-fqDir` flag will be removed, needs a minor version bump. I can make it backwards compatible, 
-probably should do that.
+Will keep `-fqDir` flag, as a backward compatibility with a warning that flag had been deprecated. Will also schedule to remove `-fqDir` completely in future releases
+Because of changes in arg's options will do a minor version bump.
 
-### 1.4.9
-
-- general bug fixes and maintenance
-
-## ToDo's 
+## Ideas for future releases 
 
 - include IGVlink into RNAsik-pipe output, can only do that if data outputted into something that is hostable i.e object store?
 - Need better support for exonic/intronic rates estimation. Is `read_distribution.py` from RSeQC good idea? Right now qualiMap is ok
