@@ -75,37 +75,50 @@ string{} getSamplesMap(string[] fqFiles,  string samplesSheet) {
 }
 
 string[] alignerReads(string fqString, string pairIds) {
-    string[] pairIdsList = pairIds.split(",")
-
     // remove trailing comma (,)
     string fqClean = fqString.substr(0, (fqString.length())-1)
-    
-    string[] readOne
-    string[] readTwo
-    //DOCS: fqString holds all fastq files from a single sample, that includes R1 and R2 reads
-    // step through individual fastq files check if it is R1 or R2 and 
-    for(string fq : fqClean.split(",")) {
-        if(fq.lastIndexOf(pairIdsList[0]) != -1 || !paired) {
-            readOne.add(fq)
-        }
-        else {
-            if(fq.lastIndexOf(pairIdsList[1]) != -1 ) {
-                readTwo.add(fq)
+    // if no command foung in the pairIds string assume 
+    // single-end data with _R1 or similar suffix
+    // and therefore return fqString straight away
+    if(pairIds.indexOf(",") == -1) {
+        return [fqClean]
+    }
+    else if(pairIds.indexOf(",") != -1) {
+
+        string[] pairIdsList = pairIds.split(",")
+        
+        string[] readOne
+        string[] readTwo
+        //DOCS: fqString holds all fastq files from a single sample, that includes R1 and R2 reads
+        // step through individual fastq files check if it is R1 or R2 and 
+        for(string fq : fqClean.split(",")) {
+            string fqBase = fq.baseName()
+            
+            if(fqBase.lastIndexOf(pairIdsList[0]) != -1) {
+                readOne.add(fq)
             }
             else {
-                error "check your pairIds value $pairIds, make sure it corresponds to your fastq files $fq"
+                if(fqBase.lastIndexOf(pairIdsList[1]) != -1 ) {
+                    readTwo.add(fq)
+                }
+                else {
+                    error "check your pairIds value $pairIds, make sure it corresponds to your fastq files $fq OR set to none for single-end data"
+                }
             }
         }
+
+        string readOneStr = readOne.join(",")
+
+        if(readTwo.isEmpty()) {
+            return [readOneStr]
+        } 
+        else {
+            string readTwoStr = readTwo.join(",")
+            return [readOneStr, readTwoStr]
+        }
     }
-
-    string readOneStr = readOne.join(",")
-
-    if(readTwo.isEmpty()) {
-        return [readOneStr]
-    } 
     else {
-        string readTwoStr = readTwo.join(",")
-        return [readOneStr, readTwoStr]
+        error "This shouldn't happened full stop!"
     }
 }
 // retuns two items list [old_prefix, new_prefix]
