@@ -5,11 +5,11 @@
 
 ## Going forward
 
-### 1.4.9 Q1 2018
+### 1.4.9 Q1 (January) 2018
 
 - general bug fixes and maintenance
 
-### 1.5.0 Q1 2018
+### 1.5.0 Q1 (February/March) 2018
 
 New feature(s) described below:
 
@@ -20,13 +20,31 @@ New feature(s) described below:
 Will keep `-fqDir` flag, as a backward compatibility with a warning that flag had been deprecated. Will also schedule to remove `-fqDir` completely in future releases
 Because of changes in arg's options will do a minor version bump.
 
+- add `samtools flagstat` qc run. Definitely need this for bacterial RNAseq i.e when running [bwa aligner](https://github.com/lh3/bwa), but this metric
+wouldn't hurt in general. It does overlap overall with [STAR aligner](https://github.com/alexdobin/STAR) qc output, but going forward other aligners will be
+added/used but `samtools flagstat` will remain
+
+### 1.5.1 Q2 (April) 2018
+
+- general maintenance and bug fixes
+- start including unit testing in your master branch, once I'm happy with with `unit_test` branch
+
+### 1.6.0 Q3 (October/November) 2018
+
+- Plans to add variants calling to `RNAsik`. It'll be opt in flag,  `-varsCall`. Suggestions are welcomed about different name for a flag.
+I already have a prototype in bds, just need to plug it in.
+
+    - Not sure which caller to use `GATK` or `freebayes` will need to do more reading on that. 
+    - Also need to document common pitfalls for using RNAseq for variant calling e.g can only can variances in coding regions that are expressed. 
+    - Not a good idea to use pulled samples as you won't be able to get allele frequency
+    - will also need to find out where to get known SNP's (snpDB? for known germ line mutations) and a list of blacklisted regions
+
+- [an example of someone else variant calling pipeline](https://github.com/CRG-CNAG/CalliNGS-NF)
+
 ## Ideas for future releases 
 
 - include IGVlink into RNAsik-pipe output, can only do that if data outputted into something that is hostable i.e object store?
-- Need better support for exonic/intronic rates estimation. Is `read_distribution.py` from RSeQC good idea? Right now qualiMap is ok
-- add variants calling, already have a prototype, but still not sure if this is a good idea given different
-experimental designs. For example if samples were pooled then variant calling isn't valid anymore. Can make it a 
-flag to opt in.
+- Need better support for exonic/intronic rates estimation. Is `read_distribution.py` from RSeQC good idea? Right now qualiMap is ok flag to opt in.
 - add alignment free support for RNAseq analysis e.g salmon/kalisto
 - is there need for circular RNA support?
 
