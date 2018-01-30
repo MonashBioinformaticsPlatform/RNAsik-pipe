@@ -101,11 +101,11 @@
 <p><img alt="mbp-banner" src="../images/mbp_banner.png" /></p>
 <h1 id="roadmap">Roadmap</h1>
 <h2 id="going-forward">Going forward</h2>
-<h3 id="149-q1-2018">1.4.9 Q1 2018</h3>
+<h3 id="149-q1-january-2018">1.4.9 Q1 (January) 2018</h3>
 <ul>
 <li>general bug fixes and maintenance</li>
 </ul>
-<h3 id="150-q1-2018">1.5.0 Q1 2018</h3>
+<h3 id="150-q1-februarymarch-2018">1.5.0 Q1 (February/March) 2018</h3>
 <p>New feature(s) described below:</p>
 <ul>
 <li>implement new flag <code>-fqFiles</code> that can take either a file or a directory.<ul>
@@ -116,13 +116,36 @@
 </ul>
 <p>Will keep <code>-fqDir</code> flag, as a backward compatibility with a warning that flag had been deprecated. Will also schedule to remove <code>-fqDir</code> completely in future releases
 Because of changes in arg's options will do a minor version bump.</p>
+<ul>
+<li>add <code>samtools flagstat</code> qc run. Definitely need this for bacterial RNAseq i.e when running <a href="https://github.com/lh3/bwa">bwa aligner</a>, but this metric
+wouldn't hurt in general. It does overlap overall with <a href="https://github.com/alexdobin/STAR">STAR aligner</a> qc output, but going forward other aligners will be
+added/used but <code>samtools flagstat</code> will remain</li>
+</ul>
+<h3 id="151-q2-april-2018">1.5.1 Q2 (April) 2018</h3>
+<ul>
+<li>general maintenance and bug fixes</li>
+<li>start including unit testing in your master branch, once I'm happy with with <code>unit_test</code> branch</li>
+</ul>
+<h3 id="160-q3-octobernovember-2018">1.6.0 Q3 (October/November) 2018</h3>
+<ul>
+<li>
+<p>Plans to add variants calling to <code>RNAsik</code>. It'll be opt in flag,  <code>-varsCall</code>. Suggestions are welcomed about different name for a flag.
+I already have a prototype in bds, just need to plug it in.</p>
+<ul>
+<li>Not sure which caller to use <code>GATK</code> or <code>freebayes</code> will need to do more reading on that. </li>
+<li>Also need to document common pitfalls for using RNAseq for variant calling e.g can only can variances in coding regions that are expressed. </li>
+<li>Not a good idea to use pulled samples as you won't be able to get allele frequency</li>
+<li>will also need to find out where to get known SNP's (snpDB? for known germ line mutations) and a list of blacklisted regions</li>
+</ul>
+</li>
+<li>
+<p><a href="https://github.com/CRG-CNAG/CalliNGS-NF">an example of someone else variant calling pipeline</a></p>
+</li>
+</ul>
 <h2 id="ideas-for-future-releases">Ideas for future releases</h2>
 <ul>
 <li>include IGVlink into RNAsik-pipe output, can only do that if data outputted into something that is hostable i.e object store?</li>
-<li>Need better support for exonic/intronic rates estimation. Is <code>read_distribution.py</code> from RSeQC good idea? Right now qualiMap is ok</li>
-<li>add variants calling, already have a prototype, but still not sure if this is a good idea given different
-experimental designs. For example if samples were pooled then variant calling isn't valid anymore. Can make it a 
-flag to opt in.</li>
+<li>Need better support for exonic/intronic rates estimation. Is <code>read_distribution.py</code> from RSeQC good idea? Right now qualiMap is ok flag to opt in.</li>
 <li>add alignment free support for RNAseq analysis e.g salmon/kalisto</li>
 <li>is there need for circular RNA support?</li>
 </ul>
