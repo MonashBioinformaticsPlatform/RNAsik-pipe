@@ -30,19 +30,42 @@ RNAsik -fqDir /path/to/raw-data/directory \
        -threads 10
 ```
 
+## Data set for testing
+
+> N.B `RNAsik` pipeline is some what resource hungry. This isn't `RNAsik` fault per say, because it "simply" wraps other tools. STAR aligner required fair amount of RAM and cpus. For a large genome like mouse it required around 30 Gb of RAM and the more cpus you have the quicker you'll map. I would advise not run the pipeline with less than 4 cores, which is default. This testing data set is of yeast and requires about 14 Gb of RAM.
+
+I figured that for testing you need smallish data set as well as species with a smalling genome, as indexing of genome takes a while for larger genome e.g mouse
+I found this study [GSE103004](https://www.ncbi.nlm.nih.gov//geo/query/acc.cgi?acc=GSE103004) which looks like an open access. If you follow [that link](https://www.ncbi.nlm.nih.gov//geo/query/acc.cgi?acc=GSE103004) you should hit front GEO page for that study. You can find your way to actual data (SRA files) files, but I always find it's a bit convoluted, so hit [here is a link to data files](https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SRP116034). 
+
+I've already prepared raw-data (fastq) files for you. I also reduced number of samples and sub-sampled reads to speed up your test run. Firstly though let me explain to you how to get full data set.
+
+- [download sratoolkit](https://www.ncbi.nlm.nih.gov/sra/docs/toolkitsoft/) which is set of tools from [NCBI](https://www.ncbi.nlm.nih.gov/) that you'll need to download [sra files](https://www.ncbi.nlm.nih.gov/sra/docs/sradownload/) and then extract/convert those to fastq files.
+
+- `fastq-dump --gzip --split-files SRR3407195` this is a command that you'll want to run to get one particular sra file, not `--split-files` options, you need to use that if you data is paired end. If you don't use that flag, then you are going to end up with a single fastq file that has reads interleaved or truncated/merged in a funny way (had some issues like that in the past)
+
+However you don't want run that command several times, so use a loop
+
+```
+while read s; do fastq-dump --gzip --split-files $s > $s.log 2>&1 &done < SRR_Acc_List.txt
+```
+
+You can download [SRR_Acc_List.txt file at this page](https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SRP116034) (mentioned that page before). That list has 9 sra files corresponding to 9 samples, where each samples was paired end and therefore total number of files is double - 18. 
+
+Also note that default marking when extracting from sra for R1 and R2 is `_1` and `_2` respectively and so if you are running `RNAsik` on that full data set you'll need to pass `-pairIds "_1,_2"` flag, default is `-pairIds "_R1,_R2"` 
+
+If you want nicely labeled bam and then counts you can pass `-samplesSheet samplesSheet.txt`. I haven't implemented url based samples sheets, so you'll need to download one before hand from [here](http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/samplesSheet.txt). I'll include handling of url based samples sheets into roadmap, so watch that space !
+
 ### Try it out
 
 ```BASH
 RNAsik -align star \
-       -fastaRef http://bioinformatics.erc.monash.edu/home/kirill/ref-files/Mus_musculus/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa.gz \
-       -fqDir http://bioinformatics.erc.monash.edu/home/kirill/RNAsikSampleData/rawData/Dicer-fl.fl-iCre75-RNAseq.tar \
+       -fastaRef ftp://ftp.ensembl.org/pub/release-91/fasta/saccharomyces_cerevisiae/dna/Saccharomyces_cerevisiae.R64-1-1.dna_sm.toplevel.fa.gz \
+       -fqDir http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/rawData/IndustrialAntifoamAgentsYeastRNAseqData.tar \
        -counts \
-       -gtfFile http://bioinformatics.erc.monash.edu/home/kirill/ref-files/Mus_musculus/Mus_musculus.GRCm38.84.gtf.gz \
+       -gtfFile ftp://ftp.ensembl.org/pub/release-91/gtf/saccharomyces_cerevisiae/Saccharomyces_cerevisiae.R64-1-1.91.gtf.gz \
        -metrics \
        -threads 10
 ```
-
-This publicly available data from [NCBI](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE69937). 
 
 ## Introduction
 
