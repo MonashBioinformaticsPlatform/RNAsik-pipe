@@ -33,8 +33,8 @@ def get_gtf(handler):
             line = i.split('\t')
             ninthField = line[8]
 
-            chk_gene_id = re.search('gene_id\s.([A-z0-9_-]+)', ninthField)
-            chk_gene_name = re.search('gene_name\s.([A-z0-9_.:-]+)', ninthField)
+            chk_gene_id = re.search('gene_id\s.([A-z0-9_ \- \(\)]+)', ninthField)
+            chk_gene_name = re.search('gene_name\s.([A-z0-9_ \. \: \- \(\)]+)', ninthField)
     
             gene_name = 'NA'
             gene_biotype = 'NA'
@@ -86,8 +86,8 @@ def get_gff(handler):
             if feature[2] == 'gene':
                 ninthField = feature[8]
     
-                gene_id = re.search('ID=([A-z0-9]+)', ninthField)
-                chk_gene_name = re.search('Name=([A-z0-9_.:-]+)', ninthField)
+                gene_id = re.search('ID=([A-z0-9_ \- \(\)]+)', ninthField)
+                chk_gene_name = re.search('Name=([A-z0-9_ \. \: \- \(\)]+)', ninthField)
     
                 gene_name = 'NA'
                 gene_biotype = 'NA'

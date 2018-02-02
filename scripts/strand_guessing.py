@@ -103,13 +103,13 @@ def which_strand(d):
     elif abs(strnd_val) < non_strnd_test:
         #print "Data is non stranded %s" % sign(strnd_val)
         return "NonStrandedCounts,0"
-    #NOTE default to non stranded counts, should do be ok to get through RNAsik run
+    #NOTE default to non stranded counts, should be ok to get through RNAsik run
     elif non_strnd_test < abs(strnd_val) < strnd_test:
         #print "It is hard to guess what strand the data is %s" % sign(strnd_val)
         return "NonStrandedCounts,1"
     else:
-        #print "ERROR: This should not happend"
-        return "NonStrandedCounts,1"
+        sys.exit("ERROR: This should not happend")
+        #return "NonStrandedCounts,1"
 
 for text_file in list_of_files:
     if text_file.endswith(pattern):
