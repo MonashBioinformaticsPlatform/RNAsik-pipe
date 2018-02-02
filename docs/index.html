@@ -92,6 +92,7 @@
     <ul class="nav bs-sidenav">
         <li class="main active"><a href="#documentation">Documentation</a></li>
             <li><a href="#quick-start">Quick start</a></li>
+            <li><a href="#data-set-for-testing">Data set for testing</a></li>
             <li><a href="#introduction">Introduction</a></li>
             <li><a href="#prerequisites">Prerequisites</a></li>
             <li><a href="#installation">Installation</a></li>
@@ -127,17 +128,38 @@
        -threads 10
 </code></pre>
 
+<h2 id="data-set-for-testing">Data set for testing</h2>
+<blockquote>
+<p>N.B <code>RNAsik</code> pipeline is some what resource hungry. This isn't <code>RNAsik</code> fault per say, because it "simply" wraps other tools. STAR aligner required fair amount of RAM and cpus. For a large genome like mouse it required around 30 Gb of RAM and the more cpus you have the quicker you'll map. I would advise not run the pipeline with less than 4 cores, which is default. This testing data set is of yeast and requires about 14 Gb of RAM.</p>
+</blockquote>
+<p>I figured that for testing you need smallish data set as well as species with a smalling genome, as indexing of genome takes a while for larger genome e.g mouse
+I found this study <a href="https://www.ncbi.nlm.nih.gov//geo/query/acc.cgi?acc=GSE103004">GSE103004</a> which looks like an open access. If you follow <a href="https://www.ncbi.nlm.nih.gov//geo/query/acc.cgi?acc=GSE103004">that link</a> you should hit front GEO page for that study. You can find your way to actual data (SRA files) files, but I always find it's a bit convoluted, so hit <a href="https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SRP116034">here is a link to data files</a>. </p>
+<p>I've already prepared raw-data (fastq) files for you. I also reduced number of samples and sub-sampled reads to speed up your test run. Firstly though let me explain to you how to get full data set.</p>
+<ul>
+<li>
+<p><a href="https://www.ncbi.nlm.nih.gov/sra/docs/toolkitsoft/">download sratoolkit</a> which is set of tools from <a href="https://www.ncbi.nlm.nih.gov/">NCBI</a> that you'll need to download <a href="https://www.ncbi.nlm.nih.gov/sra/docs/sradownload/">sra files</a> and then extract/convert those to fastq files.</p>
+</li>
+<li>
+<p><code>fastq-dump --gzip --split-files SRR3407195</code> this is a command that you'll want to run to get one particular sra file, not <code>--split-files</code> options, you need to use that if you data is paired end. If you don't use that flag, then you are going to end up with a single fastq file that has reads interleaved or truncated/merged in a funny way (had some issues like that in the past)</p>
+</li>
+</ul>
+<p>However you don't want run that command several times, so use a loop</p>
+<pre><code>while read s; do fastq-dump --gzip --split-files $s &gt; $s.log 2&gt;&amp;1 &amp;done &lt; SRR_Acc_List.txt
+</code></pre>
+
+<p>You can download <a href="https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SRP116034">SRR_Acc_List.txt file at this page</a> (mentioned that page before). That list has 9 sra files corresponding to 9 samples, where each samples was paired end and therefore total number of files is double - 18. </p>
+<p>Also note that default marking when extracting from sra for R1 and R2 is <code>_1</code> and <code>_2</code> respectively and so if you are running <code>RNAsik</code> on that full data set you'll need to pass <code>-pairIds "_1,_2"</code> flag, default is <code>-pairIds "_R1,_R2"</code> </p>
+<p>If you want nicely labeled bam and then counts you can pass <code>-samplesSheet samplesSheet.txt</code>. I haven't implemented url based samples sheets, so you'll need to download one before hand from <a href="http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/samplesSheet.txt">here</a>. I'll include handling of url based samples sheets into roadmap, so watch that space !</p>
 <h3 id="try-it-out">Try it out</h3>
 <pre><code class="BASH">RNAsik -align star \
-       -fastaRef http://bioinformatics.erc.monash.edu/home/kirill/ref-files/Mus_musculus/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa.gz \
-       -fqDir http://bioinformatics.erc.monash.edu/home/kirill/RNAsikSampleData/rawData/Dicer-fl.fl-iCre75-RNAseq.tar \
+       -fastaRef ftp://ftp.ensembl.org/pub/release-91/fasta/saccharomyces_cerevisiae/dna/Saccharomyces_cerevisiae.R64-1-1.dna_sm.toplevel.fa.gz \
+       -fqDir http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/rawData/IndustrialAntifoamAgentsYeastRNAseqData.tar \
        -counts \
-       -gtfFile http://bioinformatics.erc.monash.edu/home/kirill/ref-files/Mus_musculus/Mus_musculus.GRCm38.84.gtf.gz \
+       -gtfFile ftp://ftp.ensembl.org/pub/release-91/gtf/saccharomyces_cerevisiae/Saccharomyces_cerevisiae.R64-1-1.91.gtf.gz \
        -metrics \
        -threads 10
 </code></pre>
 
-<p>This publicly available data from <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE69937">NCBI</a>. </p>
 <h2 id="introduction">Introduction</h2>
 <p>As mentioned previously in <a href="..#about">about section</a> very first step in <a href="https://rnaseq.uoregon.edu/">RNA-seq analysis</a> is to map your raw reads (<a href="https://en.wikipedia.org/wiki/FASTQ_format">FASTQ</a>) to the reference genome following by counting of reads that map onto a feature. But there is always more you could do with your data, in fact almost always only by doing more you can get deeper inside into your biological experiment and the system you are studying. And so <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik</a> uses these tools to get as much out of your data as possible in an streamline run:</p>
 <ul>
