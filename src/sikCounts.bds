@@ -87,7 +87,7 @@ string getGeneIds(string pythonExe, string countFilesDir, string gtfFile, string
     string opts = "--file_type $modelType --in_file $gtfFile"
     string geneIds = countFilesDir+"/"+"geneIds.txt"
 
-    task(counts, geneIds <- gtfFile, taskName := "getting geneIds.txt file") {
+    task(counts, geneIds <- gtfFile, canFail := true, taskName := "getting geneIds.txt file") {
         sys $pythonExe $pyScript $opts > $geneIds
     }
     return geneIds
@@ -118,13 +118,13 @@ string[] getDegustFile(string{} cmdExe, string cntsDir, string strandInfo, strin
     
     string mkCntsFile = programPath.pathName()+"/../scripts/mk_cnts_file.py"
 
-    task(counts, degustFileAll <- [cntsFile, geneIdsFile, samplesSheet], taskName := "making degust file with all features") {
+    task(counts, degustFileAll <- [cntsFile, geneIdsFile, samplesSheet], canFail := true, taskName := "making degust file with all features") {
         sys $pythonExe $mkCntsFile --counts_file $cntsFile \
                                    --gene_ids $geneIdsFile \
                                    --samples_sheet $samplesSheet \
                                    --biotype "all" > $degustFileAll
     }
-    task(counts, degustFileProteinCoding <- [cntsFile, geneIdsFile, samplesSheet], taskName := "making degust file with protein coding features") {
+    task(counts, degustFileProteinCoding <- [cntsFile, geneIdsFile, samplesSheet], canFail := true, taskName := "making degust file with protein coding features") {
         sys $pythonExe $mkCntsFile --counts_file $cntsFile \
                                    --gene_ids $geneIdsFile \
                                    --samples_sheet $samplesSheet \

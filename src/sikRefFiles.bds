@@ -3,9 +3,10 @@
 #-----------------------------------------
 
 string getUnziped(string refFile) {
-    string getExtn = refFile.extName()
     string refUnziped = refFile.removeExt(".gz")
-    task(refFile.extName() == "gz", refUnziped <- refFile, taskName := "gzip $refFile file") sys gunzip -c $refFile > $refUnziped
+    task(refFile.extName() == "gz", refUnziped <- refFile, taskName := "gzip $refFile file") {
+        sys gunzip -c $refFile > $refUnziped
+    }
     return refUnziped
 }
 
@@ -40,25 +41,54 @@ string chkFileExtn(string fileName, string fileType) {
 string copyFile(string refFile, string refDir, string fileType) {
     string fileName = refFile.baseName()
     string localRef = refDir+"/"+fileName
-    task(refFile.isFile(), localRef <- refFile, taskName := "Copying $refFile to $refDir") sys cp -v $refFile $refDir
+    task(refFile.isFile(), localRef <- refFile, taskName := "Copying $refFile to $refDir") {
+        sys cp -v $refFile $refDir
+    }
     return chkFileExtn(getUnziped(localRef), fileType)
 }
 
 string downloadFile(string refFile, string refDir, string fileType) {
     string fileName = refFile.baseName()
-    string downLocus = refFile.download()
     string localRef = refDir+"/"+fileName
-    task(localRef <- downLocus, taskName := "downloading $refFile to $refDir") sys cp -v $downLocus $refDir
-    return chkFileExtn(getUnziped(localRef), fileType)
+
+    bool chkDownload = refFile.download(localRef)
+    if(chkDownload) {
+        return chkFileExtn(getUnziped(localRef), fileType)
+    }
+    else {
+        error "There was an error with downloading your reference file -> $refFile, check your url"
+    }
 }
 
 string makeLocalRef(string refFile, string refDir, string fileType) { 
 
-    int chkHttp = refFile.toLower().indexOf("http:")
-    string localRef
-    //NOTE if/else block assumes that user can only pass in url with http, BDS also supports s3
-    if(chkHttp != -1) localRef = downloadFile(refFile, refDir, fileType)
-    else localRef = copyFile(refFile, refDir, fileType)
+    string[] extns = ["http", \
+                      "https", \
+                      "ftp", \
+                      "s3"]
+
+    int extnChk = -1
+
+    string[] urlList = refFile.split("://")
+    string urlType = urlList[0]
+
+    string localRef = refDir+"/"+refFile.baseName()
+    //NOTE this is prevent from consequtive downloads when re-running RNAsik
+    // if you re-run the pipeline when urls are give then each re-run changes 
+    // time stamp and thereby whole dependency thing, trigering new run
+    if(extns.has(urlType) && !localRef.exists() && !localRef.isFile()) {
+        localRef = downloadFile(refFile, refDir, fileType)
+    }
+    else if(!localRef.exists() && !localRef.isFile()) { 
+        localRef = copyFile(refFile, refDir, fileType)
+    }
+    else if(localRef.exists() && localRef.isFile()) {
+        string refExtn = localRef.extName()
+        if(refExtn == "gz") {
+	    localRef = localRef.removeExt(".gz")
+        }
+        //error "This shouldn't happened, check makeLocalRef function"
+    }
     return localRef
 }
 // make dictionary for picard pre-processing
@@ -67,7 +97,6 @@ string makeDictFile(string{} cmdExe, string fastaRef) {
     string picardExe = cmdExe{"picardExe"}
     // make .dict string
     string fastaDictFile = fastaRef.removeExt()+".dict"
-    //task(prePro, fastaDictFile <- fastaRef, taskName := "Making dictionary File") {
     task(prePro, fastaDictFile <- fastaRef, taskName := "Making dictionary File") {
         sys $picardExe CreateSequenceDictionary REFERENCE=$fastaRef \
                                                 OUTPUT=$fastaDictFile
