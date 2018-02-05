@@ -71,6 +71,17 @@ I already have a prototype in bds, just need to plug it in.
 
 ## Changelog
 
+### 1.4.9
+
+- Fixed BWA indexing problem. Problem around STAR and Hisat2 aligners pass index as directory whereas bwa as a file, had to fight to make all different options i.e `-refFiles` and `-genomeIdx` to work
+- Included proper support for SAF file format handled through -gtfFile flag i.e user can pass GTF, GFF or SAF through that flag and will still get counts
+- Imporved handling of urls for refrence files `-fastaRef`, `-gtfFile` now works with all bds supported url types. Also fixed tarball url handling through `-fqDir`
+- Improved code readability in several places and included `canFail` flag for making degust reads counts files.
+- Fixed a bug in `exonicRates` function was passing "wrong" gtf file path
+- Updated docs, added more explanation on how RNAsik ticks. Included a roadmap to allow better time and features management
+- fixed `-pairIds` bug, courtesy @stu2 (PR #6) and samples sheet file making
+- Improved python script, including several small bug fixing
+
 ### 1.4.8
 
 - added new feature: coverage plots generation
