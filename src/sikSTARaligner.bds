@@ -55,7 +55,19 @@ string{} mapSTAR(string{} cmdExe, string bamFiles, string{} samplesMap, string p
 
     for(string rootName : samplesMap.keys()) {
         string[] readsList = alignerReads(samplesMap{rootName}, pairIds)
-        string[] deps = readsList
+        string[] deps
+        //TODO this is temp fix, don't particular like it, but due to time constrains fixing it here
+        // what would be much prefered readsList was proper readsList and contained fqFiles instead. 
+        // It is some what problematic to know where R1 and R2 reads are, which was whole idea of alignerReads function
+        // alignerReads should return "ready to go" fastq files
+        for(string fq : readsList) {
+            int chk = fq.indexOf(",")
+            if(chk != -1) {
+                string[] reads = fq.split(",")
+                deps += reads
+            }
+        }
+
         deps += genomeIdxFiles
 
         int chkLen = readsList.size()

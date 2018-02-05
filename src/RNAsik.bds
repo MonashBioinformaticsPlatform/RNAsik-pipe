@@ -212,7 +212,18 @@ if(!align.isEmpty()) {
 }
 if(prePro) {
     multiqcDeps += markedBamsMap.values()
-    multiqcDeps += addMetrics
+    //TODO is another hacky fix. basically certain tasks in addMetrics allowed to fail
+    // and one particular task always fails for single-end data, but addMetrics list still
+    // has that file entry - hence the removeIdx(). a better solution would be inside getAddMetrics()
+    // that would not add paired specific metrics into addMetrics list. Due to time constrain living this one out for later
+    if(paired) {
+        multiqcDeps += addMetrics
+    }
+    else {
+        string tmp = addMetrics.removeIdx(0)
+        string tmp2 = addMetrics.removeIdx(0)
+        multiqcDeps += addMetrics
+    }
 }
 if(counts) {
     multiqcDeps += featureCounts

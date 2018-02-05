@@ -5,17 +5,28 @@ string getTarDir(string tarFile, string sikDir) {
 
     string getExtn = tarFile.extName()
     string tarDir = sikDir+"/"+"fastqDir"
-    if(!tarDir.exists()) tarDir.mkdir()
-    //string tarName = sikDir+"/"+tarFile.baseName()
-    //bool tarOk = tarFile.download(tarName)
-    string tarRef = tarFile.download()
-    string[] argsList = ["-x", "-f"]
-    if(getExtn == "gz") argsList.add("-z")
-    string tarArgs = argsList.join(" ")
-    //NOTE need to think about smartter dependencies, maybe there is a way to get rid of wait statement 
-    task(tarDir <- tarRef, taskName := "unarchiving $tarRef to $tarDir") {
-        sys tar $tarArgs $tarRef -C $tarDir
+    if(!tarDir.exists()) {
+        tarDir.mkdir()
     }
+    string tarName = sikDir+"/fastqDir/"+tarFile.baseName()
+    bool tarOk = tarFile.download(tarName)
+    if(!tarOk) {
+        error "Check your URL -> $tarFile, looks like RNAsik can't get that resource"
+    }
+    string[] argsList = ["-x", "-f"]
+    if(getExtn == "gz") {
+        argsList.add("-z")
+    }
+    string tarArgs = argsList.join(" ")
+    //NOTE that tarOk inside task isn't needed as it will error before that if takOk = false, but doesn't really heart to have it here
+    //task(tarOk, tarName <- tarFile, taskName := "unarchiving $tarName to $tarDir") {
+    task(tarOk, taskName := "unarchiving $tarName to $tarDir") {
+        sys tar $tarArgs $tarName -C $tarDir
+    }
+    //TODO this wait is annoying here, couldn't not remove directory structure from tar
+    // I can use --strip-components flag, but don't know what directory structure will be inside tarball
+    // might have drop tar support in future, really liked idea from @pansapiens to implement -fqFiles with paths to
+    // local or remote locations. Already scheduled -fqFiles for later releases, will thing about dropping tar module than
     wait
     return tarDir
 }
