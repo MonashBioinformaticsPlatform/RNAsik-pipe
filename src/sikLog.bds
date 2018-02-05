@@ -77,6 +77,57 @@ string mkLog(string fileName, string strToLog, string logType, string logsDir) {
     return strToLog
 }
 
+string getAlignerVersion(string{} cmdExe, string aligner, string logsDir) {
+
+    string versionsDir = logsDir+"/versions"
+    if(!versionsDir.exists()) {
+        versionsDir.mkdir()
+    }
+
+    string alignerStr = aligner+"Exe"
+
+    string alignerVersion = versionsDir+"/"+alinger
+
+    if(!cmdExe.hasKey(alignerStr)) {
+        error "Can't get $alignerStr executable, check your config file $configFile"
+    }
+
+    string alignerExe = cmdExe{alingerStr}
+
+    string alignerArgs 
+
+    if(aligner.startsWith("star")) {
+        alignerArgs = "--version"
+    }
+    else if(aligner.startsWith("bwa")) {
+        alignerArgs = "|& grep Version"
+    }
+
+    task(!align.isEmpty(), taskName := "Getting $aligner version" ) {
+        sys $alignerExe $alignerArgs > $alignerVersion
+    }
+
+    return aligner
+}
+
+string getSamtoolsVersion(string{} cmdExe, string logsDir) {
+
+    string versionsDir = logsDir+"/versions"
+    if(!versionsDir.exists()) {
+        versionsDir.mkdir()
+    }
+
+    if(!cmdExe.hasKey("samtoolsExe")) {
+        error "Can't get samtools executable, check your config file $configFile"
+    }
+    string samtoolsExe = cmdExe{"samtoolsExe"}
+    string samtoolsVersion = versionsDir+"/samtools"
+    task(taskName := "Getting samtools version") {
+        sys $samtoolsExe |& grep Version > $samtoolsVersion 
+    }
+    return "all good!"
+}
+
 string getToolsVersions(string{} cmdExe, string logsDir) {
     //NOTE I think it would be better to make these versions calls embeded into individual function
     // e.g star version check can be inside star align task.
