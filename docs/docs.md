@@ -55,6 +55,10 @@ Also note that default marking when extracting from sra for R1 and R2 is `_1` an
 
 If you want nicely labeled bam and then counts you can pass `-samplesSheet samplesSheet.txt`. I haven't implemented url based samples sheets, so you'll need to download one before hand from [here](http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/samplesSheet.txt). I'll include handling of url based samples sheets into roadmap, so watch that space !
 
+If you ran `RNAsik` on a full data set and then used [Degust](degust.erc.monash.edu) for DGE analysis you should get [these results](http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/).
+
+*Note that report was generated using `pandoc` with custome template and `igv_links` were created using `mk_igv_links` script located in [`scripts/`](../scripts) directory*
+
 ### Try it out
 
 ```BASH
@@ -103,7 +107,7 @@ Follow [ansible installation guid](http://docs.ansible.com/ansible/intro_install
 ```BASH
 git clone https://github.com/MonashBioinformaticsPlatform/bio-ansible
 cd bio-ansible/
-ansible-playbook -i host bio.yml --tags bds,rnasik,star,subread,samtools,htslib,bedtools,picard,qualimap,fastqc,multiqc
+ansible-playbook -i host bio.yml --tags bds,rnasik,star,bwa,hisat2,subread,samtools,htslib,bedtools,picard,qualimap,fastqc,multiqc
 ```
 [Need more help?](https://github.com/MonashBioinformaticsPlatform/bio-ansible)
 
