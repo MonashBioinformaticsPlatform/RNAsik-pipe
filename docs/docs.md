@@ -114,10 +114,8 @@ RNAsik
 
 ### Tools prerequisites
 
-I tried to account for every sub-dependency in [bio-ansible](https://github.com/MonashBioinformaticsPlatform/bio-ansible), definitely checked against vanilla ubuntu 16.04 linux distro, but other systems/linux distros might have slightly deviation from this. If you run into trouble please double check dependencies for the tool that is failing.
-There is quite a spectrum of languages there in the pipeline, C/C++, java and python so far. One can image the difficulty to accommodate every distro and/or system.
-
-p.s doing my best here !
+I tried to account for every sub-dependency in [bio-ansible](https://github.com/MonashBioinformaticsPlatform/bio-ansible), definitely checked against vanilla ubuntu 16.04 linux distro, however other systems/linux distros might have slight deviation from this. If you run into trouble please double check dependencies for the tool that is failing.
+There is quite a spectrum of languages there in the pipeline, C/C++, java and python so far. One can image the difficulty to accommodate every distro and/or system. I'm doing my best !
 
 - [BigDataScript](http://pcingola.github.io/BigDataScript/download.html)
 - [STAR aligner](https://github.com/alexdobin/STAR/releases)
@@ -133,7 +131,7 @@ p.s doing my best here !
 
 In order to install system dependencies you'll need admin privilege i.e `sudo`
 
-general, these are you "stock" utils, that most running system will/should have
+**General**, these are you "stock" utils, that most running system will/should have
 
 - `unzip`
 - `make`
@@ -145,7 +143,7 @@ general, these are you "stock" utils, that most running system will/should have
 sudo apt-get install unzip make gcc git python-virtualenv
 ```
 
-samtools, htslib and bwa deps, these are some what specific libraries
+**samtools, htslib and bwa deps**, these are some what specific libraries
 
 - `zlib1g-dev` 
 - `libbz2-dev` 
@@ -156,8 +154,8 @@ samtools, htslib and bwa deps, these are some what specific libraries
 sudo apt-get install zlib1g-dev libbz2-dev liblzma-dev libncurses5-dev
 ```
 
-Java and BigDataScript, these again rather generic packages, except golang. 
-Note that golang is pretty easy to install, comes as a pre-compiiled binary [here](https://golang.org/dl/) if you need to
+**Java and BigDataScript**, these again rather generic packages, except golang. 
+Note that golang is pretty easy to install, comes as a pre-compiled binary [here](https://golang.org/dl/) if you don't want to get it through system package mamanger
 
 - `openjdk-8-jdk` 
 - `ant`
@@ -167,8 +165,8 @@ Note that golang is pretty easy to install, comes as a pre-compiiled binary [her
 sudo apt-get install openjdk-8-jdk ant golang-go
 ```
 
-extras, these are optional dependencies, but `tmux` especially recommended as pipeline run could take some time to complete
-_provided you are going to run on remote machine (server), which is also recommended_
+**Extras**, these are optional dependencies, but `tmux` especially recommended as pipeline run could take some time to complete
+_provided you are doing this on remote machine (server), which is also recommended_
 
 - `htop`
 - `tmux`
@@ -201,8 +199,12 @@ path/to/RNAsik-pipe/bin/RNAsik
 
 ### Make RNAsik analysis ready
 
-[bio-ansible](https://github.com/MonashBioinformaticsPlatform/bio-ansible) is complete bioinformatics server (heavy genomics focused at this stage) deployment ansible script, which depending type might require admin privilege i.e `sudo`. Given that [system prerequisites](#system-prerequisites) are satisfied one don't need `sudo` to install [bio_tools stack](https://github.com/MonashBioinformaticsPlatform/bio-ansible/blob/master/roles/bio_tools/tasks/main.yml). In this docs there is an assumption that user either has `sudo` rights and/or able to install [system prerequisites](#system-prerequisites) OR already has those dependencies installed and therefore can simply use [bio-ansible](https://github.com/MonashBioinformaticsPlatform/bio-ansible) as per installing `RNAsik` section above.
-Also right now [bio-ansible](https://github.com/MonashBioinformaticsPlatform/bio-ansible) is focused on a particular tools/enviroment management type, which is [lmod](https://lmod.readthedocs.io/en/latest/), where one can `module load samtools` into their environment for use, by default `samtools` isn't available in the current (shell) enviroment. This is rather common system on HPC clusters. Because of that type of installation type if user doesn't have `lmod` installed they will needs to either `export PATH` for every tool (sounds a bit annoying to do so), OR `export` `RNAsik` into your `PATH` and them simply let `RNAsik` know where tools are through `-configFile` option.
+[bio-ansible](https://github.com/MonashBioinformaticsPlatform/bio-ansible) is complete bioinformatics stack (with heavily genomics focus at this stage) deployment written in ansible script, which depending on a type of deployment might require admin privilege i.e `sudo`.
+Given that [system prerequisites](#system-prerequisites) are satisfied one **don't** need `sudo` to install bioinformatics stack, primarily [bio_tools](https://github.com/MonashBioinformaticsPlatform/bio-ansible/blob/master/roles/bio_tools/tasks/main.yml).
+
+In this docs there is an assumption that user either has `sudo` rights and/or able to install [system prerequisites](#system-prerequisites) OR already has those dependencies installed and therefore can simply use [bio-ansible](https://github.com/MonashBioinformaticsPlatform/bio-ansible) as per installing `RNAsik` section above to get all required tools dependencies.
+
+Also right now [bio-ansible](https://github.com/MonashBioinformaticsPlatform/bio-ansible) is focused on a particular tools/enviroment management type, which is [lmod](https://lmod.readthedocs.io/en/latest/), where one can `module load samtools` into their environment for use, by default `samtools` isn't available in the current (shell) environment. This is rather common approach on HPC clusters. Because of that type of installation, if user doesn't have pre-installed `lmod` they will needs to either `export PATH` for every tool (sounds a bit annoying), OR `export` `RNAsik` into your `PATH` and them simply let `RNAsik` know where tools are through `-configFile` option.
 
 ```
 export PATH=$HOME/bioansible/software/apps/BigDataScript-0.99999g:$PATH
@@ -224,6 +226,8 @@ picardExe = java -Xmx6g -jar $HOME/bioansible/software/apps/picard-2.17.10/picar
 qualimapExe = $HOME/bioansible/software/apps/qualimap_v2.2.1/qualimap
 multiqcExe = $HOME/bioansible/software/apps/multiqc-1.4/bin/multiqc
 ```
+
+If the user happens to have `lmod` installed, simply `module use $HOME/bioansible/software/modules/bio` to let `lmod` know about new modules and then simply `module load RNAsik-pipe`, which will automatically "pull" other dependencies into your environment. You can check that by `module list` to see what is in your environment
 
 ## User input
 
