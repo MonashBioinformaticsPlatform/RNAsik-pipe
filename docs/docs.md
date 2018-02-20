@@ -86,7 +86,38 @@ As mentioned previously in [about section](index.md#about) very first step in [R
 As one can imagine every one of those tools has several number of options and by running [RNAsik-pipeline](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe) you get predefined - subjective run. Obviously it all comes from years of experience and continues development and improvement. Use can always pass his/her own options through `-extraOptions` flag for more fine turning. 
 Alternatively as, hinted above, user can leverage of [RNAsik](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe) to run everything separately with fine control over the individual run. [RNAsik](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe) produces [.html report](https://en.wikipedia.org/wiki/HTML) with all commands options specified.
 
-## Prerequisites
+## Installation
+
+### Quick start
+
+```
+sudo apt-get install unzip make gcc git python-virtualenv
+sudo apt-get install zlib1g-dev libbz2-dev liblzma-dev libncurses5-dev
+sudo apt-get install openjdk-8-jdk ant golang-go
+sudo apt-get install git htop tmux vim
+
+virtualenv ~/ansible_env
+source ~/ansible_env/bin/activate
+
+pip install --upgrade pip
+pip install ansible
+
+git clone https://github.com/MonashBioinformaticsPlatform/bio-ansible
+cd bio-ansible/
+ansible-playbook -i hosts bio.yml --tags dirs,bds,rnasik,star,bwa,hisat2,subread,samtools,htslib,bedtools,picard,qualimap,fastqc,multiqc
+
+export PATH=$HOME/bioansible/software/apps/BigDataScript-0.99999g:$PATH
+export PATH=$HOME/bioansible/software/apps/RNAsik-pipe-1.4.9/bin:$PATH
+
+RNAsik
+```
+
+### Tools prerequisites
+
+I tried to account for every sub-dependency in [bio-ansible](https://github.com/MonashBioinformaticsPlatform/bio-ansible), definitely checked against vanilla ubuntu 16.04 linux distro, but other systems/linux distros might have slightly deviation from this. If you run into trouble please double check dependencies for the tool that is failing.
+There is quite a spectrum of languages there in the pipeline, C/C++, java and python so far. One can image the difficulty to accommodate every distro and/or system.
+
+p.s doing my best here !
 
 - [BigDataScript](http://pcingola.github.io/BigDataScript/download.html)
 - [STAR aligner](https://github.com/alexdobin/STAR/releases)
@@ -98,20 +129,66 @@ Alternatively as, hinted above, user can leverage of [RNAsik](https://github.com
 - [MultiQC](http://multiqc.info/) 
 - [FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 
-## Installation
+### System prerequisites
 
-### Preferred method
+In order to install system dependencies you'll need admin privilege i.e `sudo`
+
+general, these are you "stock" utils, that most running system will/should have
+
+- `unzip`
+- `make`
+- `gcc`
+- `git`
+- `python-virtualenv`
+
+```
+sudo apt-get install unzip make gcc git python-virtualenv
+```
+
+samtools, htslib and bwa deps, these are some what specific libraries
+
+- `zlib1g-dev` 
+- `libbz2-dev` 
+- `liblzma-dev`
+- `libncurses5-dev`
+
+```
+sudo apt-get install zlib1g-dev libbz2-dev liblzma-dev libncurses5-dev
+```
+
+Java and BigDataScript, these again rather generic packages, except golang. 
+Note that golang is pretty easy to install, comes as a pre-compiiled binary [here](https://golang.org/dl/) if you need to
+
+- `openjdk-8-jdk` 
+- `ant`
+- `golang-go`
+
+```
+sudo apt-get install openjdk-8-jdk ant golang-go
+```
+
+extras, these are optional dependencies, but `tmux` especially recommended as pipeline run could take some time to complete
+_provided you are going to run on remote machine (server), which is also recommended_
+
+- `htop`
+- `tmux`
+- `vim`
+
+```
+sudo apt-get install git htop tmux vim
+```
+
+### Preferred installation method for RNAsik
 
 Follow [ansible installation guid](http://docs.ansible.com/ansible/intro_installation.html) to get ansible then:
 
 ```BASH
 git clone https://github.com/MonashBioinformaticsPlatform/bio-ansible
 cd bio-ansible/
-ansible-playbook -i hosts bio.yml --tags bds,rnasik,star,bwa,hisat2,subread,samtools,htslib,bedtools,picard,qualimap,fastqc,multiqc
+ansible-playbook -i hosts bio.yml --tags dirs,bds,rnasik,star,bwa,hisat2,subread,samtools,htslib,bedtools,picard,qualimap,fastqc,multiqc
 ```
-[Need more help?](https://github.com/MonashBioinformaticsPlatform/bio-ansible)
 
-### Alternative method
+### Alternative installation method for RNAsik
 
 If you have all of the tools installed and you just need `RNAsik` you can simply `git clone` it. It doesn't require any
 other installations/compilations. BUT you do need to have [BigDataScript](https://github.com/pcingola/BigDataScript) installed
@@ -120,6 +197,32 @@ and have it in your `PATH` for `RNAsik` to run
 ```BASH
 git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe
 path/to/RNAsik-pipe/bin/RNAsik
+```
+
+### Make RNAsik analysis ready
+
+[bio-ansible](https://github.com/MonashBioinformaticsPlatform/bio-ansible) is complete bioinformatics server (heavy genomics focused at this stage) deployment ansible script, which depending type might require admin privilege i.e `sudo`. Given that [system prerequisites](#system-prerequisites) are satisfied one don't need `sudo` to install [bio_tools stack](https://github.com/MonashBioinformaticsPlatform/bio-ansible/blob/master/roles/bio_tools/tasks/main.yml). In this docs there is an assumption that user either has `sudo` rights and/or able to install [system prerequisites](#system-prerequisites) OR already has those dependencies installed and therefore can simply use [bio-ansible](https://github.com/MonashBioinformaticsPlatform/bio-ansible) as per installing `RNAsik` section above.
+Also right now [bio-ansible](https://github.com/MonashBioinformaticsPlatform/bio-ansible) is focused on a particular tools/enviroment management type, which is [lmod](https://lmod.readthedocs.io/en/latest/), where one can `module load samtools` into their environment for use, by default `samtools` isn't available in the current (shell) enviroment. This is rather common system on HPC clusters. Because of that type of installation type if user doesn't have `lmod` installed they will needs to either `export PATH` for every tool (sounds a bit annoying to do so), OR `export` `RNAsik` into your `PATH` and them simply let `RNAsik` know where tools are through `-configFile` option.
+
+```
+export PATH=$HOME/bioansible/software/apps/BigDataScript-0.99999g:$PATH
+export PATH=$HOME/bioansible/software/apps/RNAsik-pipe-1.4.9/bin:$PATH
+```
+
+copy these lines into file e.g sik.config and add `-configFile path/to/sik.config` to `RNAsik`
+
+```
+starExe = $HOME/bioansible/software/apps/STAR-2.5.2b/STAR
+hisat2Exe = $HOME/bioansible/software/apps/hisat2-2.1.0/bin/hisat2
+bwaExe = $HOME/bioansible/software/apps/bwa-v0.7.15/bwa
+samtoolsExe = $HOME/bioansible/software/apps/samtools-1.4.1/bin/samtools
+bedtoolsExe = $HOME/bioansible/software/apps/bedtools2-2.25.0/bedtools2
+countsExe = $HOME/bioansible/software/apps/subread-1.5.2/bin/featureCounts
+fastqcExe = $HOME/bioansible/software/apps/fastqc-0.11.5/fastqc
+pythonExe = python
+picardExe = java -Xmx6g -jar $HOME/bioansible/software/apps/picard-2.17.10/picard.jar
+qualimapExe = $HOME/bioansible/software/apps/qualimap_v2.2.1/qualimap
+multiqcExe = $HOME/bioansible/software/apps/multiqc-1.4/bin/multiqc
 ```
 
 ## User input
