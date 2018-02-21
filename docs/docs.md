@@ -89,6 +89,8 @@ Alternatively as, hinted above, user can leverage of [RNAsik](https://github.com
 
 ## Installation
 
+[watch it on youtube](https://www.youtube.com/watch?v=oHRa9iniy3o)
+
 ### Quick start
 
 ```
