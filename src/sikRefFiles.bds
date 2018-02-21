@@ -68,9 +68,12 @@ string makeLocalRef(string refFile, string refDir, string fileType) {
                       "s3"]
 
     int extnChk = -1
+    string urlType = "none"
 
     string[] urlList = refFile.split("://")
-    string urlType = urlList[0]
+    if(!urlList.isEmpty()) {
+        urlType = urlList[0]
+    }
 
     string localRef = refDir+"/"+refFile.baseName()
     //NOTE this is prevent from consequtive downloads when re-running RNAsik
