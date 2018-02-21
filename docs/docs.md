@@ -32,9 +32,9 @@ RNAsik -fqDir /path/to/raw-data/directory \
 
 ## Data set for testing
 
-> N.B `RNAsik` pipeline is some what resource hungry. This isn't `RNAsik` fault per say, because it "simply" wraps other tools. STAR aligner required fair amount of RAM and cpus. For a large genome like mouse it required around 30 Gb of RAM and the more cpus you have the quicker you'll map. I would advise not run the pipeline with less than 4 cores, which is default. This testing data set is of yeast and requires about 14 Gb of RAM.
+> N.B `RNAsik` pipeline is some what resource hungry. This isn't `RNAsik` fault per say, because it "simply" wraps other tools. STAR aligner required fair amount of RAM and cpus. For a large genome like mouse it required around 30 Gb of RAM and the more cpus you have the quicker you'll map. I would advise not run the pipeline with less than 4 cores, which is default. This testing data set is of yeast and requires about 14 Gb of RAM. Also read [this comment](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/issues/7#issuecomment-367172511), in summary you might have `RNAsik` failing on system that are under minimum system resources, this is work in progess and should be fixed in the future.
 
-I figured that for testing you need smallish data set as well as species with a smalling genome, as indexing of genome takes a while for larger genome e.g mouse
+I figured that for testing you need smallish data set as well as species with a small genome, as indexing of genome takes a while for larger genome e.g mouse
 I found this study [GSE103004](https://www.ncbi.nlm.nih.gov//geo/query/acc.cgi?acc=GSE103004) which looks like an open access. If you follow [that link](https://www.ncbi.nlm.nih.gov//geo/query/acc.cgi?acc=GSE103004) you should hit front GEO page for that study. You can find your way to actual data (SRA files) files, but I always find it's a bit convoluted, so hit [here is a link to data files](https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SRP116034). 
 
 I've already prepared raw-data (fastq) files for you. I also reduced number of samples and sub-sampled reads to speed up your test run. Firstly though let me explain to you how to get full data set.
@@ -68,6 +68,7 @@ RNAsik -align star \
        -counts \
        -gtfFile ftp://ftp.ensembl.org/pub/release-91/gtf/saccharomyces_cerevisiae/Saccharomyces_cerevisiae.R64-1-1.91.gtf.gz \
        -metrics \
+       -paired \
        -threads 10
 ```
 
@@ -218,7 +219,7 @@ starExe = $HOME/bioansible/software/apps/STAR-2.5.2b/STAR
 hisat2Exe = $HOME/bioansible/software/apps/hisat2-2.1.0/bin/hisat2
 bwaExe = $HOME/bioansible/software/apps/bwa-v0.7.15/bwa
 samtoolsExe = $HOME/bioansible/software/apps/samtools-1.4.1/bin/samtools
-bedtoolsExe = $HOME/bioansible/software/apps/bedtools2-2.25.0/bedtools2
+bedtoolsExe = $HOME/bioansible/software/apps/bedtools2-2.25.0/bin/bedtools
 countsExe = $HOME/bioansible/software/apps/subread-1.5.2/bin/featureCounts
 fastqcExe = $HOME/bioansible/software/apps/fastqc-0.11.5/fastqc
 pythonExe = python
