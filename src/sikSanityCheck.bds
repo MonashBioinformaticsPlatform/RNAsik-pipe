@@ -84,7 +84,11 @@ if( !align.isEmpty() && genomeIdx.isEmpty() ) {
         if(fastaRef.isEmpty()) error "You need to either specify -genomeIdx or -fastaRef or -refFiles"
     }
 }
-if(align == "starWithAnn" && (refFiles.isEmpty() || gtfFile.isEmpty())) error "Usage: -gtfFile /path/to/GTFfile"
+if(align == "starWithAnn") {
+    if(refFiles.isEmpty() && gtfFile.isEmpty()) {
+        error "Usage: -refFiles /path/to/refFiles/directory OR -gtfFile /path/to/GTFfile"
+    }
+}
 if(fastqc && fqDir.isEmpty()) error "Usage: -fqDir /path/to/FASTQ/files"
 
 if(counts) {
