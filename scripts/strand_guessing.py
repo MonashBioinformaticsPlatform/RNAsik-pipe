@@ -4,43 +4,48 @@
 # Author: serine
 # Date: 10/11/2016
 
+from __future__ import print_function
 import os
 import sys
 import math
 import argparse
 
-parser = argparse.ArgumentParser(usage='%(prog)s --logsDir <path/to/logFiles/directory>',
-                                 description="This script summarises log files information into html table",
-                                 add_help=True
-                                )
-parser.add_argument('--logsDir',
-                     required=True,
-                     help="specify directory with your BAM files, which should also hold `*Log.final.out` files"
-                    )
+parser = argparse.ArgumentParser(
+    usage='%(prog)s --logsDir <path/to/logFiles/directory>',
+    description="This script summarises log files information into html table",
+    add_help=True
+)
+parser.add_argument(
+    '--logsDir',
+    required=True,
+    help="specify directory with your BAM files, which should also hold "
+         "`*Log.final.out` files"
+)
 
-parser.add_argument('--pattern',
-                     default=".summary",
-                     help="specify ending of your log files, e.g featureCounts is .summary"
-                    )
+parser.add_argument(
+    '--pattern',
+    default=".summary",
+    help="specify ending of your log files, e.g featureCounts is .summary"
+)
 
 args = parser.parse_args()
 logsDir = args.logsDir
 pattern = args.pattern
 
-#s_name = "Status"
-#assign = "Assigned"
-#ambig = "Unassigned_Ambiguity"
-#multi_map = "Unassigned_MultiMapping"
-#no_feat = "Unassigned_NoFeatures"
-#unmaped = "Unassigned_Unmapped"
-#un_map_qual = "Unassigned_MappingQuality"
-#un_frag_len = "Unassigned_FragmentLength"
-#chimer = "Unassigned_Chimera"
-#secondary = "Unassigned_Secondary"
-#non_junc = "Unassigned_Nonjunction"
-#dups = "Unassigned_Duplicate"
+# s_name = "Status"
+# assign = "Assigned"
+# ambig = "Unassigned_Ambiguity"
+# multi_map = "Unassigned_MultiMapping"
+# no_feat = "Unassigned_NoFeatures"
+# unmaped = "Unassigned_Unmapped"
+# un_map_qual = "Unassigned_MappingQuality"
+# un_frag_len = "Unassigned_FragmentLength"
+# chimer = "Unassigned_Chimera"
+# secondary = "Unassigned_Secondary"
+# non_junc = "Unassigned_Nonjunction"
+# dups = "Unassigned_Duplicate"
 #
-#keys = [s_name,
+# keys = [s_name,
 #        assign,
 #        ambig,
 #        multi_map,
@@ -54,62 +59,66 @@ pattern = args.pattern
 #        dups
 #        ]
 
-list_of_files = os.listdir(logsDir) 
+list_of_files = os.listdir(logsDir)
 data_dict = {}
-    
-#def sign(x):
+
+
+# def sign(x):
 #    if x >= 0:
 #        return 1
 #    return -1
 
 def which_strand(d):
-
     assigned_reads = {}
-    
-    for k,v in data_dict.items():
-        counts = map(int, v['Assigned'])
+
+    for k, v in list(data_dict.items()):
+        counts = list(map(int, v['Assigned']))
         s = sum(counts)
         assigned_reads[k] = s
-    
+
     forward = int(assigned_reads['ForwardStrandedCounts'])
     reverse = int(assigned_reads['ReverseStrandedCounts'])
-    #nonstranded = int(assigned_reads['NonStrandedCounts'])
-    
-    #TODO account for when assignment has zero counts in all of the conditions
+    # nonstranded = int(assigned_reads['NonStrandedCounts'])
+
+    # TODO account for when assignment has zero counts in all of the conditions
     # then this becomes division by zero with error
     #    strnd_val = float(forward-reverse)/float(forward+reverse)
     #  ZeroDivisionError: float division by zero
     try:
-        strnd_val = float(forward-reverse)/float(forward+reverse)
+        strnd_val = float(forward - reverse) / float(forward + reverse)
     except ZeroDivisionError:
-            sys.exit("ERROR: Looks like you've got zero read counts against features, check that your FASTA and annotation files corresponds")
-    #TODO not particular happy with this work around / fixture
+        sys.exit("ERROR: Looks like you've got zero read counts against "
+                 "features, check that your FASTA and annotation files "
+                 "corresponds")
+    # TODO not particular happy with this work around / fixture
     # I want getStrandInfo task to stop pipeline run since fair few steps
-    # depend on strand information, but was having tech difficulties with bds so leave it as is for now
+    # depend on strand information, but was having tech difficulties with bds
+    # so leave it as is for now
 
     # confidence test
-    #non_strnd_test = (20-1)/float(20+1) #0.904
-    #strnd_test = (55-45)/float(55+45)   #0.1
-    strnd_test = (20-1)/float(20+1) #0.904
-    non_strnd_test = (55-45)/float(55+45)   #0.1
+    # non_strnd_test = (20-1)/float(20+1) #0.904
+    # strnd_test = (55-45)/float(55+45)   #0.1
+    strnd_test = float(20 - 1) / float(20 + 1)  # 0.904
+    non_strnd_test = float(55 - 45) / float(55 + 45)  # 0.1
 
     if abs(strnd_val) > strnd_test:
-        #print "Data is stranded %s" % sign(strnd_val)
+        # print("Data is stranded %s" % sign(strnd_val))
         if strnd_val >= 0:
             return "ForwardStrandedCounts,0"
 
         return "ReverseStrandedCounts,0"
 
     elif abs(strnd_val) < non_strnd_test:
-        #print "Data is non stranded %s" % sign(strnd_val)
+        # print("Data is non stranded %s" % sign(strnd_val))
         return "NonStrandedCounts,0"
-    #NOTE default to non stranded counts, should be ok to get through RNAsik run
+    # NOTE default to non stranded counts, should be ok to get through RNAsik run
     elif non_strnd_test < abs(strnd_val) < strnd_test:
-        #print "It is hard to guess what strand the data is %s" % sign(strnd_val)
+        # print("It is hard to guess what strand the data is %s" % sign(strnd_val))
         return "NonStrandedCounts,1"
     else:
         sys.exit("ERROR: This should not happend")
-        #return "NonStrandedCounts,1"
+        # return "NonStrandedCounts,1"
+
 
 for text_file in list_of_files:
     if text_file.endswith(pattern):
@@ -129,4 +138,4 @@ for text_file in list_of_files:
                 else:
                     data_dict[name][key] = line
 
-print which_strand(data_dict)
+print(which_strand(data_dict))
