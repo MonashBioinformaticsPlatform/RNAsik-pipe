@@ -19,17 +19,17 @@ string getIdx(string{} cmdExe, string aligner, string modelType, string refFiles
     string{} bwaIdxOpts = {}
     // Run the right indexing
     if(aligner.indexOf("star") != -1) {
-        string allStarIdxOpts = getOpts(getOptsMap("starIndex", starIdxOpts, userExtraOpts))
+        string allStarIdxOpts = getOpts("starIndex", starIdxOpts, userExtraOpts)
         mkLog("STAR", allStarIdxOpts, "refFiles", logsDir)
         genomeIdx = makeSTARindex(cmdExe, refFiles, localFastaRef, localGTF, allStarIdxOpts, threads)
     }
     if(aligner.indexOf("hisat2") != -1) {
-        string allHisat2IdxOpts = getOpts(getOptsMap("hisat2Index", hisat2IdxOpts, userExtraOpts))
+        string allHisat2IdxOpts = getOpts("hisat2Index", hisat2IdxOpts, userExtraOpts)
         mkLog("Hisat2", allHisat2IdxOpts, "refFiles", logsDir)
         genomeIdx = makeHisat2Idx(cmdExe, refFiles, localFastaRef, localGTF, allHisat2IdxOpts, threads)
     }
     if(aligner.indexOf("bwa") != -1) {
-        string allBWAidxOpts = getOpts(getOptsMap("bwaIdx", bwaIdxOpts, userExtraOpts))
+        string allBWAidxOpts = getOpts("bwaIdx", bwaIdxOpts, userExtraOpts)
         mkLog("bwaMem", allBWAidxOpts, "refFiles", logsDir)
         genomeIdx = makeBWAidx(cmdExe, refFiles, localFastaRef, allBWAidxOpts, threads)
     }

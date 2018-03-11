@@ -5,7 +5,7 @@
 //  starIndex => "--sjdbGTFfile /home/kirillt/ilustre/ref-files/Homo_sapiens/82/Homo_sapiens.GRCh38.82.gtf, --sjdbOverhang 99"
 // }
 
-string getOpts(string{} optsMap) {
+string mkOptsStr(string{} optsMap) {
     string[] allOpts
     for(string key : optsMap.keys()) {
         allOpts.add(key)
@@ -14,17 +14,32 @@ string getOpts(string{} optsMap) {
     return allOpts.join(" ")
 }
 
-string{} getOptsMap(string toolName, string{} currentOpts, string args) {
+string getOpts(string toolName, string{} currentOpts, string args) {
     string[] items
+
     if(!args.isEmpty()) {
 	// read config into map
         string{} extraOpts = config(args)
-        if(extraOpts.hasKey(toolName)) {
-            // get a particular tool options string from the map
-            string toolsOpts = extraOpts{toolName}
-            // split all options into list
-            // each option has key=value pair separated by space
-            items = toolsOpts.split(",")
+        // assert that we have some elements in the map
+        //if(extraOpts.size() != 0) {
+        if(!extraOpts) {
+            if(extraOpts.hasKey(toolName)) {
+                // get a particular tool options string from the map
+                string toolsOpts = extraOpts{toolName}
+                // split all options into list
+                // each option has key=value pair separated by space
+                items = toolsOpts.split(",")
+                //TODO fear that this could be a bug, if user didn't use commans to separate args
+                // docs do say to use commands though ...
+            }
+            else {
+		if(!configFile.isEmpty()) {
+	            error "Invalid tool name $toolName, please check your -configFile options"
+                }
+                else {
+	            error "This should not happened ! check getOpts function, please report on gitissues"
+                }
+            }
         }
     } 
     // set new map to currnet options map
@@ -40,13 +55,18 @@ string{} getOptsMap(string toolName, string{} currentOpts, string args) {
         if(currentOpts) {
             for(string key : currentOpts.keys()){
 		// if the key already exist update its value from the user input
-                if(optKey.startsWith(key)) optsMap{key} = optValue
-                else optsMap{optKey} = optValue
+                if(optKey.startsWith(key)) {
+                    optsMap{key} = optValue
+                }
+                else {
+                    optsMap{optKey} = optValue
+                }
             }
         }
         // if no current options found simply append all key=pair values into new map
-        else optsMap{optKey} = optValue
+        else {
+            optsMap{optKey} = optValue
+        }
     }
-
-    return optsMap
+    return mkOptsStr(optsMap)
 }

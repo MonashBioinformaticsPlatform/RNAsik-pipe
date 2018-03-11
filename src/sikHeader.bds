@@ -2,14 +2,15 @@
 # The Header File 
 #---------------------------------
 
-string versionFile = programPath.pathName()+"/sikVersion.bds"
+string progPath = programPath.pathName()
+string versionFile = progPath+"/sikVersion.bds"
 string versionNumber = versionFile.read()
 print("RNAsik version $versionNumber") 
 
 helpUnsorted := true
 help Usage: RNAsik -fqDir </path/to/your/fastqs> [options]
 
-help main
+help main options
 
 string fqDir        help path to fastqs directory, can be nested
 string align        help pick your aligner [star|hisat|bwa]
@@ -18,9 +19,8 @@ bool paired         help paired end data [false]
 bool counts         help do read counts [featureCounts]
 bool metrics        help short hand for prePro, exonicRate, fastqc and multiqc
 
-help other
+help more options 
 
-string samplesSheet help tab delimited file [old_prefix \t new_prefix]
 string gtfFile      help path to refFile.gtf
 string fastaRef     help path to refFile.fa
 string genomeIdx    help genome index
@@ -28,19 +28,23 @@ bool fastqc         help do FastQC reports [fastqc]
 bool exonicRate     help do Int(ra|er)genic rates [qualiMap]
 bool multiqc        help do MultiQC report [multiqc]
 bool prePro         help sort and mark duplicates [picard]
-string outDir       help output directory [sikRun]
-int threads = 4     help number of threads [4]
-int memory = 40000000000 help amount of memory in bytes [40000000000]
-
-string extn = ".fastq.gz"        #help specify FASTQ files extension [.fastq.gz]
-string pairIds = "_R1,_R2"
+bool trim           help do FASTQ trimming [skewer]
 bool cov 
 
-string extraOpts #help You can add extra option to any of the tools using args.txt file, where name of your tool and options you are passing in separated by "=" sign. Make new line for each tool  sign. \
-                 #  e.g STAR = --outSAMtype BAM Unsorted, --outReadsUnmapped Fastx \
-                 #      starIndex = --sjdbGTFfile /path/to/GTF/file, --sjdbOverhang 99 \
-                 #      featureCounts = -t gene 
-string configFile   #help You can specify configuration file
+help extra configs 
+
+string samplesSheet              help tab delimited file [old_prefix \t new_prefix]
+string outDir                    help output directory [sikRun]
+string extn = ".fastq.gz"        help specify FASTQ files extension [.fastq.gz]
+string pairIds = "_R1,_R2"       help specify read pairs, ["_R1,_R2"]
+int threads = 4                  help number of threads [4]
+int memory = 40000000000         help amount of memory in bytes [40000000000]
+string extraOpts                 help add extra options through a file, each line: toolName = options
+                                 #  e.g STAR = --outSAMtype BAM Unsorted, --outReadsUnmapped Fastx
+                                 #      starIndex = --sjdbGTFfile /path/to/GTF/file, --sjdbOverhang 99
+                                 #      featureCounts = -t gene 
+string configFile                help specify custome configuration file
+
 // can use this string to pass in marked bams
 string proBams
 string bamsDir
@@ -52,3 +56,8 @@ string[] fqRgxs = ["_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$", \
                     "_L[0-9]{3}_R[0-9].fastq.gz$", \
                     "_R[0-9]_[0-9]{3}.fastq.gz$", \
                     "_R[0-9].fastq.gz$"]
+
+//single-end
+string adapterFileSe = progPath+"/../supplementary/TruSeqAdapters.fa"
+//paired-end
+string adapterFilePe = progPath+"/../supplementary/TruSeqAdapters.fa"

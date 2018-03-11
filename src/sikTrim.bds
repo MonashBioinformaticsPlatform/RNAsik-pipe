@@ -1,0 +1,37 @@
+
+string[] getTrimedFqs(string{} cmdExe, string[] fqFiles, string sikDir, string extraOpts, string extn, int threads) {
+    // a couple of sanity checks
+    if( (fqFiles.isEmpty()) && (trim) ) {
+        error "No FASTQ files found, use -fqDir /path/to/fastq/dir."
+    }
+
+    if(!cmdExe.hasKey("skewerExe")) {
+        error "Can't get skewer executable, check your config file $configFile"
+    }
+    string skewerExe = cmdExe{"skewerExe"}
+
+    string trimedDir = sikDir+"/"+"fastqDir/trimed"
+    if(!trimedDir.exists() && trim) {
+        trimedDir.mkdir()
+    }
+
+    string[] trimedFqs
+
+    for(string fq : fqFiles) {
+
+        string preFix = trimedDir+"/"+fq.baseName(extn)
+        string trimedFq = preFix+"-trimmed.fastq.gz"
+
+        trimedFqs.add(trimedFq)
+        dep(trim, trimedFq <- fq, cpus := threads, taskName := "Trimming adapters and quality from FASTQ") { 
+            sys $skewerExe --threads $threads \
+                           --output $preFix \
+                           $extraOpts \
+                           $fq
+
+        }
+    }
+    goal trimedFqs
+    return trimedFqs
+}
+

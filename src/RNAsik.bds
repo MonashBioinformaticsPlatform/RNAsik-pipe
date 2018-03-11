@@ -15,6 +15,7 @@ include "sikQCreports.bds"
 include "sikExonicRate.bds"
 include "sikCoverage.bds"
 include "sikCleanUp.bds"
+include "sikTrim.bds"
 // Check cmd args first up
 string checkCmdInput = checkCmdArgs()
 // set main directory
@@ -62,8 +63,33 @@ string{} cmdExe = config(configFile)
 string toolsVersions = getToolsVersions(cmdExe, logsDir)
 
 string[] fqFiles
-if(!fqDir.isEmpty()) fqFiles = getFqFiles(fqDir, extn, sikDir)
-mkLog("fqFiles", parseList(fqFiles), "samples", logsDir)
+if(!fqDir.isEmpty()) {
+    fqFiles = getFqFiles(fqDir, extn, sikDir)
+    mkLog("fqFiles", parseList(fqFiles), "samples", logsDir)
+
+    if(trim) {
+        string{} trimedOpts = { "--mode" => "any",  \
+                                "--min" => 20, \
+                                "--mean-quality" => 23, \
+                                "--compress" => ""}
+        
+        if(paired) {
+            trimedOpts{"-y"} = adapterFilePe
+        }
+        else {
+            trimedOpts{"-x"} = adapterFileSe
+        }
+        
+        string allTrimedOpts = getOpts("skewer", trimedOpts, extraOpts)
+        mkLog("skewer", allTrimedOpts, "toolsOpts", logsDir)
+        
+        string[] trimedFqs = getTrimedFqs(cmdExe, fqFiles, sikDir, allTrimedOpts, extn, threads)
+        mkLog("fqTrimed", parseList(trimedFqs), "samples", logsDir)
+        //TODO I should be able to assign to fqFiles straight away, but just to be safe..
+        // clean up once you are sure
+        fqFiles = trimedFqs
+    }
+}
 //
 if(samplesSheet.isEmpty()) samplesSheet = makeSamplesSheet(fqFiles, fqRgxs, pairIds, extn, sikDir)
 mkLog("samplesSheet", parseMap(config(samplesSheet)), "samples", logsDir)
@@ -123,6 +149,7 @@ if(!align.isEmpty()) {
 }
 mkLog(align, genomeIdx, "refFiles", logsDir)
 
+
 // map of FASTQ to unique name i.e gathering FASTQ that are split across different lanes
 string{} samplesMap
 if(!fqDir.isEmpty()) samplesMap = getSamplesMap(fqFiles, samplesSheet)
@@ -157,7 +184,7 @@ if(modelType == "gff") {
 else if(modelType == "saf") {
     countsOpts{"-F"} = "SAF"
 }
-string allCountOpts = getOpts(getOptsMap("featureCounts", countsOpts, extraOpts))
+string allCountOpts = getOpts("featureCounts", countsOpts, extraOpts)
 mkLog("featureCounts", allCountOpts, "toolsOpts", logsDir)
 // get counts
 string[] featureCounts = getReadsCount(cmdExe, countFiles, bamsMap.values(), allCountOpts, localGTF, threads)
@@ -185,7 +212,7 @@ if(paired) {
     // then this will no longer be true
     exonicOpts{"--sorted"} = ""
 }
-string allExonicOpts = getOpts(getOptsMap("qualimap", exonicOpts, extraOpts))
+string allExonicOpts = getOpts("qualimap", exonicOpts, extraOpts)
 mkLog("qualiMap", allExonicOpts, "refFiles", logsDir)
 
 // get Int(ra|er)genic rates
@@ -195,7 +222,7 @@ mkLog("qualiMap", parseList(exonicRates), "data", logsDir)
 string{} fastqcOpts = { "--format" => "fastq", \
                         "--quiet" => ""}
 
-string fqQcOpts = getOpts(getOptsMap("fastqc", fastqcOpts, extraOpts))
+string fqQcOpts = getOpts("fastqc", fastqcOpts, extraOpts)
 mkLog("fastqc", fqQcOpts, "refFiles", logsDir)
 
 string[] fqQcReport = getFastqcReport(cmdExe, fastqcReport, fqFiles, fqQcOpts, extn, threads)
@@ -239,7 +266,7 @@ if(exonicRate) {
 
 string{} multiqcOpts = {"--config" => sikProgPath+"/../configs/multiqc_conf.yml"}
 
-string allMultiqcOpts = getOpts(getOptsMap("multiqc", multiqcOpts, extraOpts))
+string allMultiqcOpts = getOpts("multiqc", multiqcOpts, extraOpts)
 mkLog("multiqc", allMultiqcOpts, "toolsOpts", logsDir)
 string qcReport = getMultiqc(cmdExe, sikDir, multiqcDeps, allMultiqcOpts)
 #----------------------------------------------------------------------------------------------------
