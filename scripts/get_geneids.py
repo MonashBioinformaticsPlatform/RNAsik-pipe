@@ -18,6 +18,10 @@ parser.add_argument('--file_type',
                     required = True,
                     help="speficy file type [gff|gtf|saf]"
                     )
+parser.add_argument('--feature_type',
+                    default="gene",
+                    help="specify feature type, this is for GFF file only, feature type comes from third column in GFF file and is case sensitive, default [gene]"
+                    )
 
 def get_gtf(handler):
 
@@ -83,10 +87,10 @@ def get_gff(handler):
         line = i.strip()
         if not line.startswith('#'):
             feature = line.split('\t')
-            if feature[2] == 'gene':
+            if feature[2] == feat_type:
                 ninthField = feature[8]
     
-                gene_id = re.search('ID=([A-z0-9_ \- \(\)]+)', ninthField)
+                chk_gene_id = re.search('ID=([A-z0-9_ \- \(\)]+)', ninthField)
                 chk_gene_name = re.search('Name=([A-z0-9_ \. \: \- \(\)]+)', ninthField)
     
                 gene_name = 'NA'
@@ -143,6 +147,7 @@ def get_saf(handler):
 args = parser.parse_args()
 file_type = args.file_type
 in_file = args.in_file
+feat_type = args.feature_type
 
 biotypes = {
     "gb": 'gene_biotype',
