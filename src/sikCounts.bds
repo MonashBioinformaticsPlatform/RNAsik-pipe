@@ -14,37 +14,10 @@ string getStrandInfo(string{} cmdExe, string[] readCounts) {
     tidStrand := task(counts, strandInfo <- readCounts, taskName := "getting strand info") {
         sys $pythonExe $pyScript --logsDir $countsDir > $strandInfo
     }
-    //// True if the task finished without errors
-    //int chk = tidStrand.exitCode()
-    //if(chk > 0) {
-    //    error "Strand guessing task didn't finish, check that counts files, also check that your FASTA and annotations files corresponds"
-    //}
-    // this is temp hack to stop mask function evaluation before above python script had run
-    // because mask function has .read() on a file that doesn't exist yet.
-    // I have to think about better solution for this OR "fix" multiqc to be able to handle multiple featureCounts files
+    // need to wait here, because later on some other tasks will try to read from that file
+    // so it really need to be made
     wait tidStrand
-    return mask(countsDir, strandInfo)
-}
-// once the strand had been guessed, mask two other .summary files
-string mask(string countsDir, string strandInfo) {
-
-    if(strandInfo.exists()) {
-        string strandExitCode
-        string strandType
-        (strandType, strandExitCode) = strandInfo.read().split(",")
-
-        strandType = strandType.trim() + ".txt.summary"
-
-        for(string f : countsDir.dirPath("*.summary")){
-            if(f.baseName() != strandType) {
-                string masked = f.replace(".summary", ".summary.masked")
-                task(counts, masked <- [f, strandInfo], taskName := "masking unwanted counts files") sys mv $f $masked 
-            }
-        }
-        return strandInfo
-    }
-    //NOTE that this function if it drops into else block will return a bool false, BUT
-    // because function is set to return "string" type you need to check it as though it is a string or use parseBool()
+    return strandInfo
 }
 
 string[] getReadsCount(string{} cmdExe, string countFiles, string{} bamsMap, string extraOpts, string localGTF, int threads) {

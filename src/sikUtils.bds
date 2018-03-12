@@ -1,0 +1,65 @@
+
+string mkMultiqcFile(string[] multiqcFiles, string strandInfo, string sikDir) {
+
+    string strandExitCode
+    string strandType
+    if(counts && strandInfo.exists()) {
+        (strandType, strandExitCode) = strandInfo.read().split(",")
+    }
+    else if(!counts) {
+        strandType = ""
+        strandExitCode = 0
+    }
+    else if(counts && !strandInfo.exists()) {
+        error "This shouldn't happened, check getMultiqcFiles function"
+    }
+
+    string cntsFile
+    if(strandType) {
+        cntsFile = strandType+".txt.summary"
+    }
+    if(counts && !cntsFile) {
+        error "This shouldn't happend, check mkMultiqcFile"
+    }
+
+    string searchFileStr
+    for(string multiqcFile : multiqcFiles) {
+        // this is rather complicated looking for loop is a "workaround"
+        // this is to make sure the "right" counts .summary file gets into multiqc
+        if(multiqcFile.endsWith(".txt.summary")) {
+            if(multiqcFile.baseName() == cntsFile) {
+                searchFileStr += multiqcFile
+                searchFileStr += "\n"
+            }
+        }
+        else {
+            searchFileStr += multiqcFile
+            searchFileStr += "\n"
+        }
+    }
+
+    string searchFile = sikDir+"/multiqc_search_files.txt"
+    if(!searchFile.exists() && !searchFile.isFile()) {
+        searchFile.write(searchFileStr)
+    }
+    return searchFile
+}
+
+string[] getMultiqcFiles(string sikDir) {
+
+    string[] allowedFiles = ["out", "metrics", "txt", "summary" ]
+
+    string[] multiqcFiles 
+
+    for(string dir : sikDir.dirPath()) {
+        if(dir.isDir()) {
+            multiqcFiles += getMultiqcFiles(dir)
+        }
+        else if( dir.isFile() && allowedFiles.has(dir.extName()) ) {
+                multiqcFiles.add(dir)
+        }
+    }
+
+    return multiqcFiles
+}
+

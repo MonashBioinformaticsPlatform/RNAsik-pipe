@@ -43,14 +43,19 @@ string[] getFastqcReport(string{} cmdExe, string sikDir, string[] fqFiles, strin
     return fqHtmls
 }
 //
-string getMultiqc(string{} cmdExe, string sikDir, string[] allDeps, string multiqcOpts) {
-    if(!cmdExe.hasKey("multiqcExe")) error "Can't get multiqc executable, check your config file $configFile"
+string getMultiqc(string{} cmdExe, string sikDir, string multiqcFile, string[] allDeps, string multiqcOpts) {
+
+    if(!cmdExe.hasKey("multiqcExe")) {
+        error "Can't get multiqc executable, check your config file $configFile"
+    }
     string multiqcExe = cmdExe{"multiqcExe"}
+
+    allDeps += multiqcFile
 
     string outdep = sikDir+"/"+"multiqc_report.html"
     task(multiqc, outdep <- allDeps, canFail := true, taskName := "Generating MultiQC report") {
-        sys $multiqcExe $sikDir \
-                        --outdir $sikDir \
+        sys $multiqcExe --outdir $sikDir \
+                        --file-list $multiqcFile \
                         $multiqcOpts \
                         -f
     }

@@ -15,6 +15,7 @@ include "sikQC.bds"
 include "sikExonicRate.bds"
 include "sikCoverage.bds"
 include "sikTrim.bds"
+include "sikUtils.bds"
 // Check cmd args first up
 string checkCmdInput = checkCmdArgs()
 // set main directory
@@ -261,7 +262,8 @@ string{} multiqcOpts = {"--config" => sikProgPath+"/../configs/multiqc_conf.yml"
 
 string allMultiqcOpts = getOpts("multiqc", multiqcOpts, extraOpts)
 mkLog("multiqc", allMultiqcOpts, "toolsOpts", logsDir)
-string qcReport = getMultiqc(cmdExe, sikDir, multiqcDeps, allMultiqcOpts)
+string multiqcFile = mkMultiqcFile(getMultiqcFiles(sikDir), strandInfo, sikDir)
+string qcReport = getMultiqc(cmdExe, sikDir, multiqcFile, multiqcDeps, allMultiqcOpts)
 #----------------------------------------------------------------------------------------------------
 # End
 #----------------------------------------------------------------------------------------------------
