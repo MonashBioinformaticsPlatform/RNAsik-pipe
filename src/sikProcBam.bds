@@ -46,7 +46,8 @@ string{} getSortedBams(string{} cmdExe, string sikDir, string{} bamsMap) {
         sortedBamsMap{bamKey} = sortedBam
        
     }
-    goal sortedBams
+    // for more infor refer to sikSTARaligner.bds line 129 comment
+    //goal sortedBams
     return sortedBamsMap
 }
 

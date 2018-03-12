@@ -126,6 +126,8 @@ string{} mapSTAR(string{} cmdExe, string bamFiles, string{} samplesMap, string p
         }
         bamsMap{rootBase} = bamOut
     }
-    goal bamsList
+    //NOTE turns out that if I don't have a goal here then these BAM files aren't tracked
+    // meaning they can be deleted. Main goal is to get markedBams
+    //goal bamsList
     return bamsMap
 }
