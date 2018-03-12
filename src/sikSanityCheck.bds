@@ -28,7 +28,7 @@ string checkCmdArgs() {
                         "-gtfFile", \
                         "-fastaRef", \
                         "-genomeIdx", \
-                        "-procBam", \
+                        "-mdups", \
                         "-qc", \
                         "-exonicRate", \
                         "-multiqc", \
@@ -58,7 +58,7 @@ string checkCmdArgs() {
     return "thumbs up"
 }
 if(all) {
-    procBam = true
+    mdups = true
     qc = true
     exonicRate = true
     cov = true

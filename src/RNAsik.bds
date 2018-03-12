@@ -42,8 +42,6 @@ string bamFiles = sikDir+"/"+"alignerFiles"
 if( (!bamFiles.exists()) && (!fqDir.isEmpty()) ) bamFiles.mkdir()
 string countFiles = sikDir+"/"+"countFiles"
 if((!countFiles.exists()) && (counts)) countFiles.mkdir()
-string coverageFilesDir = sikDir+"/"+"coverageFiles"
-if((!coverageFilesDir.exists()) && (procBam)) coverageFilesDir.mkdir()
 
 // Start loging
 //string date = sys date
@@ -157,19 +155,30 @@ mkLog("bams", parseMap(bamsMap), "data", logsDir)
 if(!bamsDir.isEmpty()) {
     bamsMap = mkBamsMap(bamsDir, samplesSheet)
 }
+string{} theBams
 // sorted, reorted and marking duplicates in BAM files
 string{} sortedBamsMap = getSortedBams(cmdExe, sikDir, bamsMap)
 mkLog("mdupsBams", parseMap(sortedBamsMap), "data", logsDir)
 string{} markedBamsMap = getMarkedBams(cmdExe, sortedBamsMap)
 mkLog("mdupsBams", parseMap(markedBamsMap), "data", logsDir)
+
+// should also be able to pass in any other bam files here for mdups processing
+// that is from command line
+if(mdups) {
+    theBams = markedBamsMap
+}
+else if(sortedBamsMap) {
+    theBams = sortedBamsMap
+}
+mkLog("theBams", parseMap(theBams), "data", logsDir)
 // get additional RNAseq metrics 
-string[] addMetrics = getAddMetrics(cmdExe, markedBamsMap, localFastaRef, fastaDictFile)
+string[] addMetrics = getAddMetrics(cmdExe, theBams, localFastaRef, fastaDictFile)
 mkLog("addMetrics", parseList(addMetrics), "data", logsDir)
 // coverage files
 //NOTE this is for future implementation of strand specific coverage
 //string[] strands = ["for", "rev"]
 //for(string strand : strands) {
-string[] covFiles = getCovFiles(cmdExe, markedBamsMap, coverageFilesDir, localFastaRef, chromSizes)
+string[] covFiles = getCovFiles(cmdExe, theBams, sikDir, localFastaRef, chromSizes)
 mkLog("covFiles", parseList(covFiles), "data", logsDir)
 //}
 // featureCounts cmd options
@@ -185,7 +194,7 @@ else if(modelType == "saf") {
 string allCountOpts = getOpts("featureCounts", countsOpts, extraOpts)
 mkLog("featureCounts", allCountOpts, "toolsOpts", logsDir)
 // get counts
-string[] featureCounts = getReadsCount(cmdExe, countFiles, markedBamsMap, allCountOpts, localGTF, threads)
+string[] featureCounts = getReadsCount(cmdExe, countFiles, theBams, allCountOpts, localGTF, threads)
 mkLog("featureCounts", parseList(featureCounts), "data", logsDir)
 // get strand info
 string strandInfo = getStrandInfo(cmdExe, featureCounts)
@@ -214,7 +223,7 @@ string allExonicOpts = getOpts("qualimap", exonicOpts, extraOpts)
 mkLog("qualiMap", allExonicOpts, "refFiles", logsDir)
 
 // get Int(ra|er)genic rates
-string[] exonicRates = getExonicRates(cmdExe, sikDir, markedBamsMap, allExonicOpts, strandInfo, localGTF)
+string[] exonicRates = getExonicRates(cmdExe, sikDir, theBams, allExonicOpts, strandInfo, localGTF)
 mkLog("qualiMap", parseList(exonicRates), "data", logsDir)
 // FastQC report
 string{} fastqcOpts = { "--format" => "fastq", \
@@ -231,8 +240,8 @@ string[] multiqcDeps
 if(!align.isEmpty()) {
     multiqcDeps += bamsMap.values()
 }
-if(procBam) {
-    multiqcDeps += markedBamsMap.values()
+if(mdups) {
+    multiqcDeps += theBams.values()
     //TODO is another hacky fix. basically certain tasks in addMetrics allowed to fail
     // and one particular task always fails for single-end data, but addMetrics list still
     // has that file entry - hence the removeIdx(). a better solution would be inside getAddMetrics()

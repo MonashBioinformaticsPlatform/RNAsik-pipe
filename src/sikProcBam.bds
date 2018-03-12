@@ -2,7 +2,7 @@
 string{} getSortedBams(string{} cmdExe, string sikDir, string{} bamsMap) {
 
     string bamFiles = sikDir+"/"+"bamFiles"
-    if(!bamFiles.exists() && -procBam) {
+    if( !bamFiles.exists() && (mdups || !align.isEmpty()) ) {
         bamFiles.mkdir()
     }
 
@@ -31,12 +31,12 @@ string{} getSortedBams(string{} cmdExe, string sikDir, string{} bamsMap) {
         string tmpPrefix = bamFiles+"/"+bamKey+"_"+randInt(10000000)
         //-T $tmpPrefix \
         string sortedBam = bamFiles+"/"+bamKey+"_sorted.bam"
-
-        dep(procBam, sortedBam <- bamFile, cpus := sortCpu, mem := sortMem, taskName := "sorting with samtools "+bamFile) {
+        dep(mdups || !align.isEmpty(), sortedBam <- bamFile, cpus := sortCpu, mem := sortMem, taskName := "sorting with samtools "+bamFile) {
             sys $samtoolsExe sort --threads $sortCpu \
                                   -m $sortMem"K" \
                                   -o $sortedBam \
                                   $bamFile
+            sys $samtoolsExe index $sortedBam
             sys rm $bamFile
         }
         sortedBams.add(sortedBam)
@@ -47,7 +47,9 @@ string{} getSortedBams(string{} cmdExe, string sikDir, string{} bamsMap) {
        
     }
     // for more infor refer to sikSTARaligner.bds line 129 comment
-    //goal sortedBams
+    if(!mdups) {
+        goal sortedBams
+    }
     return sortedBamsMap
 }
 
@@ -74,17 +76,18 @@ string{} getDeDupedBams(string{} cmdExe, string{} bamsMap) {
     for(string bamKey : bamsMap.keys()) {
 
         string bamFile = bamsMap{bamKey}
+        string bamFileIdx = bamFile+".bai"
         string mdupsName = bamFile.swapExt(".bam", "_mdups.bam")
         string metricsName = bamFile.swapExt(".bam", "_mdups.metrics")
 
-        dep(procBam && !umi, [mdupsName, metricsName] <- bamFile, cpus := picardMarkDupsCpu, mem := picardMarkDupsMem, taskName := "markiing duplicates with picard MarkDuplicates "+bamFile) {
+        dep(mdups && !umi, [mdupsName, metricsName] <- bamFile, cpus := picardMarkDupsCpu, mem := picardMarkDupsMem, taskName := "markiing duplicates with picard MarkDuplicates "+bamFile) {
             sys $picardExe MarkDuplicates TMP_DIR=tmp/ \
                                           VALIDATION_STRINGENCY=LENIENT \
                                           CREATE_INDEX=true \
                                           INPUT=$bamFile \
                                           OUTPUT=$mdupsName \
                                           METRICS_FILE=$metricsName
-            sys rm $bamFile
+            sys rm $bamFile $bamFileIdx
         }
         markedBams.add(mdupsName)
         if(markedBamsMap.hasKey(bamKey)) {
@@ -119,10 +122,11 @@ string{} getDeDupedBamsUmi(string{} cmdExe, string{} bamsMap) {
     for(string bamKey : bamsMap.keys()) {
 
         string bamFile = bamsMap{bamKey}
+        string bamFileIdx = bamFile+".bai"
         string mdupsName = bamFile.swapExt(".bam", "_umi_mdups.bam")
         string metricsName = bamFile.swapExt(".bam", "_umi_mdups.metrics")
 
-        dep(procBam && umi, [mdupsName, metricsName] <- bamFile, cpus := picardMarkDupsCpu, mem := picardMarkDupsMem, taskName := "marking duplicates with je "+bamFile) {
+        dep(mdups && umi, [mdupsName, metricsName] <- bamFile, cpus := picardMarkDupsCpu, mem := picardMarkDupsMem, taskName := "marking duplicates with je "+bamFile) {
             sys jeExe markdupes \
                       INPUT=$bamFile \
                       OUTPUT=$mdupsName \
@@ -131,7 +135,7 @@ string{} getDeDupedBamsUmi(string{} cmdExe, string{} bamsMap) {
                       REMOVE_DUPLICATES=true \
                       ASSUME_SORTED=true
 
-            sys rm $bamFile
+            sys rm $bamFile $bamFileIdx
         }
         markedBams.add(mdupsName)
         if(markedBamsMap.hasKey(bamKey)) {

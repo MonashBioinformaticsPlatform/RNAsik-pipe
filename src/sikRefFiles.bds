@@ -100,7 +100,7 @@ string makeDictFile(string{} cmdExe, string fastaRef) {
     string picardExe = cmdExe{"picardExe"}
     // make .dict string
     string fastaDictFile = fastaRef.removeExt()+".dict"
-    task(procBam, fastaDictFile <- fastaRef, taskName := "Making dictionary File") {
+    task(mdups, fastaDictFile <- fastaRef, taskName := "Making dictionary File") {
         sys $picardExe CreateSequenceDictionary REFERENCE=$fastaRef \
                                                 OUTPUT=$fastaDictFile
     }

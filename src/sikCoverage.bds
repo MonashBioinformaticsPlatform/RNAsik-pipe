@@ -1,9 +1,16 @@
 //NOTE made new flag -cov, undocumented at this stage
 // it gets sets by -prePro in sanit check
 // this is mainly for senarios when user manually passes in marked bam files with -proBams and then he/she can flag -cov
-string[] getCovFiles(string{} cmdExe, string{} sortedBamsMap, string coverageFiles, string fastaRef, string chromSizes) {
+string[] getCovFiles(string{} cmdExe, string{} sortedBamsMap, string sikDir, string fastaRef, string chromSizes) {
 
-    if(!cmdExe.hasKey("bedtoolsExe")) error "Can't get bedtools executable, check your config file $configFile"
+    string coverageFilesDir = sikDir+"/"+"coverageFiles"
+    if((!coverageFilesDir.exists()) && (cov)) {
+        coverageFilesDir.mkdir()
+    }
+
+    if(!cmdExe.hasKey("bedtoolsExe")) {
+        error "Can't get bedtools executable, check your config file $configFile"
+    }
     string bedtoolsExe = cmdExe{"bedtoolsExe"}
 
     string bedGraphToBigWig = programPath.pathName()+"/../scripts/ucsc_bin/bedGraphToBigWig"
@@ -11,10 +18,14 @@ string[] getCovFiles(string{} cmdExe, string{} sortedBamsMap, string coverageFil
     string[] bigWigFiles
 
     for(string bamKey : sortedBamsMap.keys()) {
-
+        
 	string bamFile = sortedBamsMap{bamKey}
 
-        string bedGraphFile = coverageFiles+"/"+bamKey+".bedGraph"
+        if(bamFile.lastIndexOf("_sorted") < 0) {
+            warning "You might be passing unsorted BAM file, $bamFile. Ignore the the warning if you are sure that BAM files are sorted"
+        }
+
+        string bedGraphFile = coverageFilesDir+"/"+bamKey+".bedGraph"
         string bigWigFile = bedGraphFile.swapExt(".bedGraph", ".bw")
 
         dep(cov, bigWigFile <- [bamFile, chromSizes, fastaRef], canFail := true, taskName := "Getting coverage files in bigWig for $bamFile", tmp := "$bedGraphFile.tmp") {

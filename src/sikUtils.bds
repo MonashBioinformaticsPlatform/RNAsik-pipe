@@ -47,7 +47,7 @@ string mkMultiqcFile(string[] multiqcFiles, string strandInfo, string sikDir) {
 
 string[] getMultiqcFiles(string sikDir) {
 
-    string[] allowedFiles = ["out", "metrics", "txt", "summary" ]
+    string[] allowedFiles = ["out", "metrics", "txt", "summary", "log"]
 
     string[] multiqcFiles 
 
