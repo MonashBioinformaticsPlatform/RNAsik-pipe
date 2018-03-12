@@ -9,6 +9,16 @@ string[] getTrimedFqs(string{} cmdExe, string[] fqFiles, string sikDir, string e
         error "Can't get skewer executable, check your config file $configFile"
     }
     string skewerExe = cmdExe{"skewerExe"}
+    //NOTE this is place holder code for future needs
+    //if(!cmdExe.hasKey("skewerMem")) {
+    //    error "Can't get memory settings for skewer, check your config file $configFile"
+    //}
+    //int skewerMem = cmdExe{"skewerMem"}.parseInt()
+
+    if(!cmdExe.hasKey("skewerCpu")) {
+        error "Can't get cpu settings for skewer alignment, check your config file $configFile"
+    }
+    int skewerCpu = cmdExe{"skewerCpu"}.parseInt()
 
     string trimedDir = sikDir+"/"+"fastqDir/trimed"
     if(!trimedDir.exists() && trim) {
@@ -23,8 +33,8 @@ string[] getTrimedFqs(string{} cmdExe, string[] fqFiles, string sikDir, string e
         string trimedFq = preFix+"-trimmed.fastq.gz"
 
         trimedFqs.add(trimedFq)
-        dep(trim, trimedFq <- fq, cpus := threads, taskName := "Trimming adapters and quality from FASTQ") { 
-            sys $skewerExe --threads $threads \
+        dep(trim, trimedFq <- fq, cpus := skewerCpu, taskName := "Trimming adapters and quality from FASTQ") { 
+            sys $skewerExe --threads $skewerCpu \
                            --output $preFix \
                            $extraOpts \
                            $fq
