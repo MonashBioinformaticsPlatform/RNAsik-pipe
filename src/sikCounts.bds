@@ -47,7 +47,9 @@ string mask(string countsDir, string strandInfo) {
     // because function is set to return "string" type you need to check it as though it is a string or use parseBool()
 }
 
-string[] getReadsCount(string{} cmdExe, string countFiles, string[] bamsList, string extraOpts, string localGTF, int threads) {
+string[] getReadsCount(string{} cmdExe, string countFiles, string{} bamsMap, string extraOpts, string localGTF, int threads) {
+
+    string[] bamsList = bamsMap.values()
 
     if(!cmdExe.hasKey("countsExe")) error "Can't get featureCounts executable, check your config file $configFile"
     string countsExe = cmdExe{"countsExe"}

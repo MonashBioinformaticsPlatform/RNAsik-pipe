@@ -1,0 +1,154 @@
+
+string{} getSortedBams(string{} cmdExe, string sikDir, string{} bamsMap) {
+
+    string bamFiles = sikDir+"/"+"bamFiles"
+    if(!bamFiles.exists() && -procBam) {
+        bamFiles.mkdir()
+    }
+
+    if(!cmdExe.hasKey("samtoolsExe")) {
+        error "Can't get samtools executable, check your config file $configFile"
+    }
+    string samtoolsExe = cmdExe{"samtoolsExe"}
+
+    if(!cmdExe.hasKey("samtoolsSortMem")) {
+        error "Can't get memory settings for samtools, check your config file $configFile"
+    }
+    int sortMem = cmdExe{"samtoolsSortMem"}.parseInt()
+
+    if(!cmdExe.hasKey("samtoolsSortCpu")) {
+        error "Can't get cpu settings for samtools, check your config file $configFile"
+    }
+    int sortCpu = cmdExe{"samtoolsSortCpu"}.parseInt()
+
+    string[] sortedBams
+    string{} sortedBamsMap
+
+    for(string bamKey : bamsMap.keys()) {
+
+        string bamFile = bamsMap{bamKey}
+        //TODO not sure if I'm passing _T correctly, need to test before including into main line
+        string tmpPrefix = bamFiles+"/"+bamKey+"_"+randInt(10000000)
+        //-T $tmpPrefix \
+        string sortedBam = bamFiles+"/"+bamKey+"_sorted.bam"
+
+        dep(procBam, sortedBam <- bamFile, cpus := sortCpu, mem := sortMem, taskName := "sorting with samtools "+bamFile) {
+            sys $samtoolsExe sort --threads $sortCpu \
+                                  -m $sortMem"K" \
+                                  -o $sortedBam \
+                                  $bamFile
+            sys rm $bamFile
+        }
+        sortedBams.add(sortedBam)
+        if(sortedBamsMap.hasKey(bamKey)) {
+            error "This should happened, please report this issue, sikPrePro.bds function"
+        }
+        sortedBamsMap{bamKey} = sortedBam
+       
+    }
+    goal sortedBams
+    return sortedBamsMap
+}
+
+string{} getDeDupedBams(string{} cmdExe, string{} bamsMap) {
+
+    if(!cmdExe.hasKey("picardExe")) {
+        error "Can't get picard executable, check your config file $configFile"
+    }
+    string picardExe = cmdExe{"picardExe"}
+
+    if(!cmdExe.hasKey("picardMarkDupsMem")) {
+        error "Can't get memory settings for picard MarkDuplicates, check your config file $configFile"
+    }
+    int picardMarkDupsMem = cmdExe{"picardMarkDupsMem"}.parseInt()
+
+    if(!cmdExe.hasKey("picardMarkDupsCpu")) {
+        error "Can't get cpu settings for picard MarkDuplicates, check your config file $configFile"
+    }
+    int picardMarkDupsCpu = cmdExe{"picardMarkDupsCpu"}.parseInt()
+
+    string[] markedBams
+    string{} markedBamsMap
+
+    for(string bamKey : bamsMap.keys()) {
+
+        string bamFile = bamsMap{bamKey}
+        string mdupsName = bamFile.swapExt(".bam", "_mdups.bam")
+        string metricsName = bamFile.swapExt(".bam", "_mdups.metrics")
+
+        dep(procBam && !umi, [mdupsName, metricsName] <- bamFile, cpus := picardMarkDupsCpu, mem := picardMarkDupsMem, taskName := "markiing duplicates with picard MarkDuplicates "+bamFile) {
+            sys $picardExe MarkDuplicates TMP_DIR=tmp/ \
+                                          VALIDATION_STRINGENCY=LENIENT \
+                                          CREATE_INDEX=true \
+                                          INPUT=$bamFile \
+                                          OUTPUT=$mdupsName \
+                                          METRICS_FILE=$metricsName
+            sys rm $bamFile
+        }
+        markedBams.add(mdupsName)
+        if(markedBamsMap.hasKey(bamKey)) {
+            error "This should happened, please report this issue, sikPrePro.bds function"
+        }
+        markedBamsMap{bamKey} = mdupsName
+    }
+    goal markedBams
+    return markedBamsMap
+}
+
+string{} getDeDupedBamsUmi(string{} cmdExe, string{} bamsMap) {
+
+    if(!cmdExe.hasKey("picardExe")) {
+        error "Can't get picard executable, check your config file $configFile"
+    }
+    string picardExe = cmdExe{"picardExe"}
+
+    if(!cmdExe.hasKey("picardMarkDupsMem")) {
+        error "Can't get memory settings for picard MarkDuplicates, check your config file $configFile"
+    }
+    int picardMarkDupsMem = cmdExe{"picardMarkDupsMem"}.parseInt()
+
+    if(!cmdExe.hasKey("picardMarkDupsCpu")) {
+        error "Can't get cpu settings for picard MarkDuplicates, check your config file $configFile"
+    }
+    int picardMarkDupsCpu = cmdExe{"picardMarkDupsCpu"}.parseInt()
+
+    string[] markedBams
+    string{} markedBamsMap
+
+    for(string bamKey : bamsMap.keys()) {
+
+        string bamFile = bamsMap{bamKey}
+        string mdupsName = bamFile.swapExt(".bam", "_umi_mdups.bam")
+        string metricsName = bamFile.swapExt(".bam", "_umi_mdups.metrics")
+
+        dep(procBam && umi, [mdupsName, metricsName] <- bamFile, cpus := picardMarkDupsCpu, mem := picardMarkDupsMem, taskName := "marking duplicates with je "+bamFile) {
+            sys jeExe markdupes \
+                      INPUT=$bamFile \
+                      OUTPUT=$mdupsName \
+                      MISMATCHES=0 \
+                      METRICS_FILE=$metricsName \
+                      REMOVE_DUPLICATES=true \
+                      ASSUME_SORTED=true
+
+            sys rm $bamFile
+        }
+        markedBams.add(mdupsName)
+        if(markedBamsMap.hasKey(bamKey)) {
+            error "This should happened, please report this issue, sikProcBam.bds function"
+        }
+        markedBamsMap{bamKey} = mdupsName
+       
+    }
+    goal markedBams
+    return markedBamsMap
+}
+
+string{} getMarkedBams(string{} cmdExe, string{} bamsMap) {
+    if(umi) {
+        return getDeDupedBamsUmi(cmdExe, bamsMap)
+    }
+    else {
+        return getDeDupedBams(cmdExe, bamsMap)
+    }
+}
+

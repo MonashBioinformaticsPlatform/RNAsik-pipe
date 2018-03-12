@@ -3,10 +3,21 @@ include "sikHeader.bds"
 # Functions to get different QC reports
 #---------------------------------------
 
-string[] getFastqcReport(string{} cmdExe, string fastqcReport, string[] fqFiles, string fqQcOpts, string extn, int threads){
-    if(!cmdExe.hasKey("fastqcExe")) error "Can't get fastqc executable, check your config file $configFile"
+string[] getFastqcReport(string{} cmdExe, string sikDir, string[] fqFiles, string fqQcOpts, string extn, int threads){
+
+    string fastqcReport = sikDir+"/"+"fastqcReport"
+    if((!fastqcReport.exists()) && (qc)) {
+        fastqcReport.mkdir()
+    }
+
+    if(!cmdExe.hasKey("fastqcExe")) {
+        error "Can't get fastqc executable, check your config file $configFile"
+    }
     string fastqcExe = cmdExe{"fastqcExe"}
-    if( (fqFiles.isEmpty()) && (fastqc) ) error "No FASTQ files found, use -fqDir /path/to/fastq/dir."
+
+    if( (fqFiles.isEmpty()) && (qc) ) {
+        error "No FASTQ files found, use -fqDir /path/to/fastq/dir."
+    }
 
     string[] fqHtmls
 
@@ -23,7 +34,7 @@ string[] getFastqcReport(string{} cmdExe, string fastqcReport, string[] fqFiles,
         // Basically on 16 core machines I'm allowing 4 parallel task to runs, each taking 2G of heap memory
         // and I think this is ok.. However in parallel there probably be also running another (multiple?) java process
         // that will also take up heap memory unknown amount. 
-        dep(fastqc, fqHtml <- fq, cpus := 4, taskName := "Running FASTQC") { 
+        dep(qc, fqHtml <- fq, cpus := 4, taskName := "Running FASTQC") { 
             sys $fastqcExe $fqQcOpts --threads 8 --outdir $fastqcReport $fq
         }
         fqHtmls.add(fqHtml)
@@ -67,20 +78,20 @@ string[] getAddMetrics(string{} cmdExe, string{} bamsMap, string fastaRef, strin
 
         addMetrics += [insertMetrics, hist, alignMetrics, gcMetrics, gcMetricsPdf, gcMetricsSummary, libComplex]
 
-        task(prePro && paired, [insertMetrics, hist] <- bamFile, cpus := 2, taskName := "gathering metrics "+bamFile, canFail := true) {
+        task(qc && paired, [insertMetrics, hist] <- bamFile, cpus := 2, taskName := "gathering metrics "+bamFile, canFail := true) {
             sys $picardExe CollectInsertSizeMetrics VALIDATION_STRINGENCY=LENIENT \
                                                     INPUT=$bamFile \
                                                     OUTPUT=$insertMetrics \
                                                     HISTOGRAM_FILE=$hist \
                                                     M=0.5 
         }
-        task(prePro, alignMetrics <- [bamFile, fastaRef, fastaDictFile], cpus := 2, taskName := "gathering metrics "+bamFile, canFail := true) {
+        task(qc, alignMetrics <- [bamFile, fastaRef, fastaDictFile], cpus := 2, taskName := "gathering metrics "+bamFile, canFail := true) {
             sys $picardExe CollectAlignmentSummaryMetrics VALIDATION_STRINGENCY=LENIENT \
                                                           REFERENCE_SEQUENCE=$fastaRef \
                                                           INPUT=$bamFile \
                                                           OUTPUT=$alignMetrics
         }
-        task(prePro, [gcMetrics, gcMetricsPdf, gcMetricsSummary] <- [bamFile, fastaRef, fastaDictFile], cpus := 2, taskName := "gathering metrics "+bamFile, canFail := true) {
+        task(qc, [gcMetrics, gcMetricsPdf, gcMetricsSummary] <- [bamFile, fastaRef, fastaDictFile], cpus := 2, taskName := "gathering metrics "+bamFile, canFail := true) {
             sys $picardExe CollectGcBiasMetrics VALIDATION_STRINGENCY=LENIENT \
                                                 INPUT=$bamFile \
                                                 OUTPUT=$gcMetrics \
@@ -88,7 +99,7 @@ string[] getAddMetrics(string{} cmdExe, string{} bamsMap, string fastaRef, strin
                                                 SUMMARY_OUTPUT=$gcMetricsSummary \
                                                 R=$fastaRef
         }
-        task(prePro, libComplex <- bamFile, cpus := 2, taskName := "gathering metrics "+bamFile, canFail := true) {
+        task(qc, libComplex <- bamFile, cpus := 2, taskName := "gathering metrics "+bamFile, canFail := true) {
             sys $picardExe EstimateLibraryComplexity VALIDATION_STRINGENCY=LENIENT \
                                                      INPUT=$bamFile \
                                                      OUTPUT=$libComplex

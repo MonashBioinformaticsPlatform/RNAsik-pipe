@@ -21,31 +21,28 @@ string checkCmdArgs() {
     // list of allowed command line options
     string[] sikArgs = ["-align", \
                         "-fqDir", \
-                        "-genomeIdx", \
                         "-refFiles", \
-                        "-metrics", \
-                        "-counts", \
-                        "-gtfFile", \
-                        "-prePro", \
-                        "-fastaRef", \
-                        "-fastqc", \
-                        "-exonicRate", \
-                        "-strand", \
-                        "-threads", \
-                        "-memory", \
-                        "-extn", \
-                        "-samplesSheet", \
-                        "-extraOpts", \
                         "-paired", \
-                        "-pairIds", \
-                        "-bamsDir", \
-                        "-proBams", \
-                        "-configFile", \
+                        "-counts", \
+                        "-all", \
+                        "-gtfFile", \
+                        "-fastaRef", \
+                        "-genomeIdx", \
+                        "-procBam", \
+                        "-qc", \
+                        "-exonicRate", \
                         "-multiqc", \
-                        "-cleanUp", \
-                        "-pairIds", \
                         "-trim", \
-                        "-outDir" \
+                        "-cov", \
+                        "-umi", \
+                        "-samplesSheet", \
+                        "-outDir", \
+                        "-extn", \
+                        "-pairIds", \
+                        "-extraOpts", \
+                        "-configFile", \
+                        "-strand", \
+                        "-bamsDir" \
                        ]
     // list of options specified by user
     string[] getCmdArgs = args 
@@ -60,10 +57,11 @@ string checkCmdArgs() {
     }
     return "thumbs up"
 }
-if(metrics) {
-    prePro = true
-    fastqc = true
+if(all) {
+    procBam = true
+    qc = true
     exonicRate = true
+    cov = true
     multiqc = true
 }
 // assign strand
@@ -78,7 +76,7 @@ if(!samplesSheet.isEmpty()) if(!samplesSheet.isFile()) error "-samplesSheet does
 if(!fqDir.isEmpty()) {
     int chkHttp = fqDir.toLower().indexOf("http:")
     if(!fqDir.isDir() && chkHttp == -1) error "-fqDir doesn't point to valid directory, check your path $fqDir"
-    if(align.isEmpty() && !fastqc) error "-align and -fastqc are empty, not sure why -fqDir $fqDir was specified, add more options"
+    if(align.isEmpty()) error "-align is empty, not sure why -fqDir $fqDir was specified, add more options"
 } 
 if( !align.isEmpty() && genomeIdx.isEmpty() ) {
     if(refFiles.isEmpty()) {
@@ -90,17 +88,10 @@ if(align == "starWithAnn") {
         error "Usage: -refFiles /path/to/refFiles/directory OR -gtfFile /path/to/GTFfile"
     }
 }
-if(fastqc && fqDir.isEmpty()) error "Usage: -fqDir /path/to/FASTQ/files"
 
 if(counts) {
     if(refFiles.isEmpty()) {
         if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
-    }
-}
-if(prePro) {
-    cov = true 
-    if(refFiles.isEmpty()) {
-        if(fastaRef.isEmpty()) error "Usage: -fastaRef /path/to/referenceFastaFile"
     }
 }
 if(exonicRate) {
@@ -118,7 +109,6 @@ if(!genomeIdx.isEmpty()) {
 
 if( (!fastaRef.isEmpty()) && (!fastaRef.isFile()) ) error "Check your path to fasta file. It dosen't point to a file. $fastaRef"
 if( (!gtfFile.isEmpty()) && (!gtfFile.isFile()) ) error "Check your path to gtf file. It dosen't point to a file. $gtfFile"
-if(memory < 32000000000) error "Don't set memory less then 32 Gb since STAR requires at least that amount"
 
 if(!bamsDir.isEmpty() && !fqDir.isEmpty()) {
     error "Can't have both -fqDir and -bamsDir set, choose one or another"

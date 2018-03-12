@@ -17,28 +17,29 @@ string align        help pick your aligner [star|hisat|bwa]
 string refFiles     help directory with reference files
 bool paired         help paired end data [false]
 bool counts         help do read counts [featureCounts]
-bool metrics        help short hand for prePro, exonicRate, fastqc and multiqc
+bool all            help short hand for procBam, exonicRate, qc, cov and multiqc
 
 help more options 
 
 string gtfFile      help path to refFile.gtf
 string fastaRef     help path to refFile.fa
 string genomeIdx    help genome index
-bool fastqc         help do FastQC reports [fastqc]
+bool procBam        help process bam files, sort and mark dups [picard]
+bool qc             help do bunch of QCs, fastqc, picard QCs and samtools
 bool exonicRate     help do Int(ra|er)genic rates [qualiMap]
 bool multiqc        help do MultiQC report [multiqc]
-bool prePro         help sort and mark duplicates [picard]
 bool trim           help do FASTQ trimming [skewer]
-bool cov 
+bool cov            help make coverage plots, bigWig files
+bool umi            help deduplicates using UMIs
+int threads = 4 // need to be removed, this information is now passed through sik.config
+int memory = 4 // need to be removed, this information is now passed through sik.config
 
 help extra configs 
 
-string samplesSheet              help tab delimited file [old_prefix \t new_prefix]
+string samplesSheet              help tab delimited file, each line: old_prefix \t new_prefix
 string outDir                    help output directory [sikRun]
 string extn = ".fastq.gz"        help specify FASTQ files extension [.fastq.gz]
 string pairIds = "_R1,_R2"       help specify read pairs, ["_R1,_R2"]
-int threads = 4                  help number of threads [4]
-int memory = 40000000000         help amount of memory in bytes [40000000000]
 string extraOpts                 help add extra options through a file, each line: toolName = options
                                  #  e.g STAR = --outSAMtype BAM Unsorted, --outReadsUnmapped Fastx
                                  #      starIndex = --sjdbGTFfile /path/to/GTF/file, --sjdbOverhang 99
@@ -46,7 +47,6 @@ string extraOpts                 help add extra options through a file, each lin
 string configFile                help specify custome configuration file
 
 // can use this string to pass in marked bams
-string proBams
 string bamsDir
 bool cleanUp
 // strand information

@@ -10,11 +10,10 @@ include "sikFqFiles.bds"
 include "sikMapping.bds"
 include "sikIndexing.bds"
 include "sikCounts.bds"
-include "sikPrePro.bds"
-include "sikQCreports.bds"
+include "sikProcBam.bds"
+include "sikQC.bds"
 include "sikExonicRate.bds"
 include "sikCoverage.bds"
-include "sikCleanUp.bds"
 include "sikTrim.bds"
 // Check cmd args first up
 string checkCmdInput = checkCmdArgs()
@@ -38,16 +37,12 @@ string refFilesDir = sikDir+"/"+"refFiles"
 if(!refFilesDir.exists() && refFiles.isEmpty()) refFilesDir.mkdir()
 string logsDir = sikDir+"/logs"
 if(!logsDir.exists()) logsDir.mkdir()
-string bamFiles = sikDir+"/"+"bamFiles"
+string bamFiles = sikDir+"/"+"alignerFiles"
 if( (!bamFiles.exists()) && (!fqDir.isEmpty()) ) bamFiles.mkdir()
 string countFiles = sikDir+"/"+"countFiles"
 if((!countFiles.exists()) && (counts)) countFiles.mkdir()
-string markedDupsBams = sikDir+"/"+"markedDupsBams"
-if((!markedDupsBams.exists()) && (prePro)) markedDupsBams.mkdir()
 string coverageFilesDir = sikDir+"/"+"coverageFiles"
-if((!coverageFilesDir.exists()) && (prePro)) coverageFilesDir.mkdir()
-string fastqcReport = sikDir+"/"+"fastqcReport"
-if((!fastqcReport.exists()) && (fastqc)) fastqcReport.mkdir()
+if((!coverageFilesDir.exists()) && (procBam)) coverageFilesDir.mkdir()
 
 // Start loging
 //string date = sys date
@@ -162,7 +157,9 @@ if(!bamsDir.isEmpty()) {
     bamsMap = mkBamsMap(bamsDir, samplesSheet)
 }
 // sorted, reorted and marking duplicates in BAM files
-string{} markedBamsMap = getMarkedBams(cmdExe, markedDupsBams, bamsMap, localFastaRef, fastaDictFile)
+string{} sortedBamsMap = getSortedBams(cmdExe, sikDir, bamsMap)
+mkLog("mdupsBams", parseMap(sortedBamsMap), "data", logsDir)
+string{} markedBamsMap = getMarkedBams(cmdExe, sortedBamsMap)
 mkLog("mdupsBams", parseMap(markedBamsMap), "data", logsDir)
 // get additional RNAseq metrics 
 string[] addMetrics = getAddMetrics(cmdExe, markedBamsMap, localFastaRef, fastaDictFile)
@@ -187,7 +184,7 @@ else if(modelType == "saf") {
 string allCountOpts = getOpts("featureCounts", countsOpts, extraOpts)
 mkLog("featureCounts", allCountOpts, "toolsOpts", logsDir)
 // get counts
-string[] featureCounts = getReadsCount(cmdExe, countFiles, bamsMap.values(), allCountOpts, localGTF, threads)
+string[] featureCounts = getReadsCount(cmdExe, countFiles, markedBamsMap, allCountOpts, localGTF, threads)
 mkLog("featureCounts", parseList(featureCounts), "data", logsDir)
 // get strand info
 string strandInfo = getStrandInfo(cmdExe, featureCounts)
@@ -225,19 +222,15 @@ string{} fastqcOpts = { "--format" => "fastq", \
 string fqQcOpts = getOpts("fastqc", fastqcOpts, extraOpts)
 mkLog("fastqc", fqQcOpts, "refFiles", logsDir)
 
-string[] fqQcReport = getFastqcReport(cmdExe, fastqcReport, fqFiles, fqQcOpts, extn, threads)
+string[] fqQcReport = getFastqcReport(cmdExe, sikDir, fqFiles, fqQcOpts, extn, threads)
 mkLog("fastqc", parseList(fqQcReport), "data", logsDir)
 
-if(cleanUp) {
-    //NOTE doing this step breaks the dependencies tree and you won't be able to rerun the same script
-    string cleaned = cleanBamsUp(bamsMap.values(), bamFiles, featureCounts, markedBamsMap.values())
-}
 // gather all files up for multiqc 
 string[] multiqcDeps
 if(!align.isEmpty()) {
     multiqcDeps += bamsMap.values()
 }
-if(prePro) {
+if(procBam) {
     multiqcDeps += markedBamsMap.values()
     //TODO is another hacky fix. basically certain tasks in addMetrics allowed to fail
     // and one particular task always fails for single-end data, but addMetrics list still
@@ -256,7 +249,7 @@ if(counts) {
     multiqcDeps += featureCounts
     multiqcDeps += degustFiles
 }
-if(fastqc) {
+if(qc) {
     multiqcDeps += fqQcReport
 }
 if(exonicRate) {

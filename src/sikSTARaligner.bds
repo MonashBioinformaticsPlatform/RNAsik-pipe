@@ -6,8 +6,20 @@ include "sikFqFiles.bds"
 
 string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string gtfFile, string starOpts, int threads) {
     // get STAR executable 
-    if(!cmdExe.hasKey("starExe")) error "Can't get STAR executable, check your config file $configFile"
+    if(!cmdExe.hasKey("starExe")) {
+        error "Can't get STAR executable, check your config file $configFile"
+    }
     string starExe = cmdExe{"starExe"}
+
+    if(!cmdExe.hasKey("starIdxMem")) {
+        error "Can't get memory settings for STAR indexing, check your config file $configFile"
+    }
+    int starMem = cmdExe{"starIdxMem"}.parseInt()
+
+    if(!cmdExe.hasKey("starIdxCpu")) {
+        error "Can't get cpu settings for STAR alignment, check your config file $configFile"
+    }
+    int starCpu = cmdExe{"starIdxCpu"}.parseInt()
 
     string genomeIdxDir = fastaRef.removeExt()+".starIdx"
     if(!genomeIdxDir.exists()) genomeIdxDir.mkdir()
@@ -25,8 +37,8 @@ string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string g
     //if(chkGTF != -1) refFilesIn += gtfFile
 
     //task(genomeIdxDir <- refFilesIn, cpus := threads, taskName := "Making STAR index") {
-    task(!fastaRef.isEmpty(), genomeIdxFiles <- fastaRef, cpus := threads, taskName := "Making STAR index") {
-        sys $starExe --runThreadN $threads \
+    task(!fastaRef.isEmpty(), genomeIdxFiles <- fastaRef, cpus := starCpu, mem := starMem, taskName := "Making STAR index") {
+        sys $starExe --runThreadN $starCpu \
                      --runMode genomeGenerate \
                      --outFileNamePrefix $refFiles/ \
                      --genomeDir $genomeIdxDir \
@@ -40,8 +52,20 @@ string{} mapSTAR(string{} cmdExe, string bamFiles, string{} samplesMap, string p
     // double check
     //if(!samplesMap) error "This error shouldn't occur. It should be caught earlier. Either way samplesMap is empty $samplesMap"
     // get STAR executable 
-    if(!cmdExe.hasKey("starExe")) error "Can't get STAR executable, check your config file $configFile"
+    if(!cmdExe.hasKey("starExe")) {
+        error "Can't get STAR executable, check your config file $configFile"
+    }
     string starExe = cmdExe{"starExe"}
+
+    if(!cmdExe.hasKey("starAlignMem")) {
+        error "Can't get memory settings for STAR alignment, check your config file $configFile"
+    }
+    int starMem = cmdExe{"starAlignMem"}.parseInt()
+
+    if(!cmdExe.hasKey("starAlignCpu")) {
+        error "Can't get cpu settings for STAR alignment, check your config file $configFile"
+    }
+    int starCpu = cmdExe{"starAlignCpu"}.parseInt()
     // BAMs
     string[] bamsList
     string{} bamsMap
@@ -86,8 +110,8 @@ string{} mapSTAR(string{} cmdExe, string bamFiles, string{} samplesMap, string p
         if(checkSorted != -1) bamOut = preFix+"Aligned.sortedByCoord.out.bam"
 
         string reads = readsList.join(" ")
-        dep(!fqDir.isEmpty(), bamOut <- deps, cpus := threads, mem := memory, taskName := "STAR aligning "+rootBase) {
-            sys $starExe --runThreadN $threads \
+        dep(!fqDir.isEmpty(), bamOut <- deps, cpus := starCpu, mem := starMem, taskName := "STAR aligning "+rootBase) {
+            sys $starExe --runThreadN $starCpu \
                          --runMode alignReads \
                          --genomeDir $genomeIdx \
                          --outSAMattrRGline ID:001 CN:Unknown DS:RNA-seq PL:ILLUMINA PM:MiSeq SM:$rootBase \
