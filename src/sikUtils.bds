@@ -36,6 +36,7 @@ string mkMultiqcFile(string[] multiqcFiles, string strandInfo, string sikDir) {
             filePaths += multiqcFile
         }
     }
+    filePaths += ""
     return writeMultiqcFile(filePaths)
 }
 
@@ -47,11 +48,10 @@ string writeMultiqcFile(string[] filePaths) {
     string multiqcFile = sikDir+"/multiqc_search_files.txt"
 
     if(!multiqcFile.exists()) {
-	filePaths += ""
         multiqcFile.write(filePaths.join("\n"))
     }
     else if(multiqcFile.exists() && multiqcFile.isFile()) {
-        prevFilePaths = multiqcFile.read().split("\n")
+        prevFilePaths = multiqcFile.read().split("\n").reverse()
         prevLen = prevFilePaths.size()
         for(string filePath : filePaths) {
 	    if(!prevFilePaths.has(filePath)) {
@@ -59,7 +59,7 @@ string writeMultiqcFile(string[] filePaths) {
             }
         }
         if(prevLen < prevFilePaths.size()) {
-	    prevFilePaths += ""
+	    prevFilePaths = prevFilePaths.reverse()
             multiqcFile.write(prevFilePaths.join("\n"))
         }
     }
@@ -82,7 +82,9 @@ string[] getMultiqcFiles(string sikDir) {
             }
         }
         else if( dir.isFile() && allowedFiles.has(dir.extName()) ) {
-                multiqcFiles.add(dir)
+		if(dir.baseName() != "multiqc_search_files.txt") {
+                    multiqcFiles.add(dir)
+                }
         }
     }
     return multiqcFiles
