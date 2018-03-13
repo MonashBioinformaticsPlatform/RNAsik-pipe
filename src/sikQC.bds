@@ -3,7 +3,7 @@ include "sikHeader.bds"
 # Functions to get different QC reports
 #---------------------------------------
 
-string[] getFastqcReport(string{} cmdExe, string sikDir, string[] fqFiles, string fqQcOpts, string extn, int threads){
+string[] getFastqcReport(string{} cmdExe, string sikDir, string[] fqFiles, string fqQcOpts, string extn) {
 
     string fastqcReport = sikDir+"/"+"fastqcReport"
     if((!fastqcReport.exists()) && (qc)) {
@@ -14,6 +14,16 @@ string[] getFastqcReport(string{} cmdExe, string sikDir, string[] fqFiles, strin
         error "Can't get fastqc executable, check your config file $configFile"
     }
     string fastqcExe = cmdExe{"fastqcExe"}
+
+    if(!cmdExe.hasKey("fastqcMem")) {
+        error "Can't get memory settings for FastQC, check your config file $configFile"
+    }
+    int fastqcMem = cmdExe{"fastqcMem"}.parseInt()
+
+    if(!cmdExe.hasKey("fastqcCpu")) {
+        error "Can't get cpu settings for FastQC, check your config file $configFile"
+    }
+    int fastqcCpu = cmdExe{"fastqcCpu"}.parseInt()
 
     if( (fqFiles.isEmpty()) && (qc) ) {
         error "No FASTQ files found, use -fqDir /path/to/fastq/dir."
@@ -34,8 +44,8 @@ string[] getFastqcReport(string{} cmdExe, string sikDir, string[] fqFiles, strin
         // Basically on 16 core machines I'm allowing 4 parallel task to runs, each taking 2G of heap memory
         // and I think this is ok.. However in parallel there probably be also running another (multiple?) java process
         // that will also take up heap memory unknown amount. 
-        dep(qc, fqHtml <- fq, cpus := 4, taskName := "Running FASTQC") { 
-            sys $fastqcExe $fqQcOpts --threads 8 --outdir $fastqcReport $fq
+        dep(qc, fqHtml <- fq, cpus := fastqcCpu, taskName := "Running FASTQC") { 
+            sys $fastqcExe $fqQcOpts --threads $fastqcCpu --outdir $fastqcReport $fq
         }
         fqHtmls.add(fqHtml)
     }

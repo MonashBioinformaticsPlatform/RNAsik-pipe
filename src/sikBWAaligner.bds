@@ -1,7 +1,19 @@
-string makeBWAidx(string{} cmdExe, string refFiles, string fastaRef, string bwaOpts, int threads) {
+string makeBWAidx(string{} cmdExe, string refFiles, string fastaRef, string bwaOpts) {
     // get bwa mem executable 
-    if(!cmdExe.hasKey("bwaExe")) error "Can't get bwa mem executable, check your config file $configFile"
+    if(!cmdExe.hasKey("bwaExe")) {
+        error "Can't get bwa mem executable, check your config file $configFile"
+    }
     string bwaExe = cmdExe{"bwaExe"}
+
+    if(!cmdExe.hasKey("bwaIdxMem")) {
+        error "Can't get memory settings for BWA indexing, check your config file $configFile"
+    }
+    int bwaIdxMem = cmdExe{"bwaIdxMem"}.parseInt()
+
+    if(!cmdExe.hasKey("bwaIdxCpu")) {
+        error "Can't get cpu settings for BWA indexing, check your config file $configFile"
+    }
+    int bwaIdxCpu = cmdExe{"bwaIdxCpu"}.parseInt()
 
     string bwaIdxDir = fastaRef.removeExt()+".bwaIdx"
     if(!bwaIdxDir.exists()) bwaIdxDir.mkdir()
@@ -22,9 +34,22 @@ string makeBWAidx(string{} cmdExe, string refFiles, string fastaRef, string bwaO
     return bwaIdxDir
 }
 
-string{} mapBWA(string{} cmdExe, string bamFiles, string{} samplesMap, string pairIds, bool paired, string bwaOpts, string genomeIdx, string fastaRef, int threads) {
-    if(!cmdExe.hasKey("bwaExe")) error "Can't get bwa mem executable, check your config file $configFile"
+string{} mapBWA(string{} cmdExe, string bamFiles, string{} samplesMap, string pairIds, bool paired, string bwaOpts, string genomeIdx, string fastaRef) {
+
+    if(!cmdExe.hasKey("bwaExe")) {
+        error "Can't get bwa mem executable, check your config file $configFile"
+    }
     string bwaExe = cmdExe{"bwaExe"}
+
+    if(!cmdExe.hasKey("bwaAlignMem")) {
+        error "Can't get memory settings for BWA indexing, check your config file $configFile"
+    }
+    int bwaAlignMem = cmdExe{"bwaAlignMem"}.parseInt()
+
+    if(!cmdExe.hasKey("bwaAlignCpu")) {
+        error "Can't get cpu settings for BWA MEM alignment, check your config file $configFile"
+    }
+    int bwaAlignCpu = cmdExe{"bwaAlignCpu"}.parseInt()
 
     string[] bamsList
     string{} bamsMap
@@ -76,8 +101,8 @@ string{} mapBWA(string{} cmdExe, string bamFiles, string{} samplesMap, string pa
             reads = "<(zcat "+readOne+")"
         }
 
-        dep(!fqDir.isEmpty(), bamOut <- deps, cpus := threads, mem := memory, taskName := "bwa mem aligning "+rootBase) {
-            sys $bwaExe mem -t $threads \
+        dep(!fqDir.isEmpty(), bamOut <- deps, cpus := bwaAlignCpu, mem := bwaAlignMem, taskName := "bwa mem aligning "+rootBase) {
+            sys $bwaExe mem -t $bwaAlignMem \
                             $bwaOpts \
                             $bwaIdx \
                             $reads | samtools view -S -b - > $bamOut

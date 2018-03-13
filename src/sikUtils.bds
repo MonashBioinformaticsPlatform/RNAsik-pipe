@@ -39,9 +39,7 @@ string mkMultiqcFile(string[] multiqcFiles, string strandInfo, string sikDir) {
     }
 
     string searchFile = sikDir+"/multiqc_search_files.txt"
-    if(!searchFile.exists() && !searchFile.isFile()) {
-        searchFile.write(searchFileStr)
-    }
+    searchFile.write(searchFileStr)
     return searchFile
 }
 

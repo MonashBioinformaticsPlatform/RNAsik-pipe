@@ -4,7 +4,7 @@
 
 include "sikFqFiles.bds"
 
-string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string gtfFile, string starOpts, int threads) {
+string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string gtfFile, string starOpts) {
     // get STAR executable 
     if(!cmdExe.hasKey("starExe")) {
         error "Can't get STAR executable, check your config file $configFile"
@@ -36,7 +36,6 @@ string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string g
     //int chkGTF = starOpts.indexOf("--sjdbGTFfile")
     //if(chkGTF != -1) refFilesIn += gtfFile
 
-    //task(genomeIdxDir <- refFilesIn, cpus := threads, taskName := "Making STAR index") {
     task(!fastaRef.isEmpty(), genomeIdxFiles <- fastaRef, cpus := starCpu, mem := starMem, taskName := "Making STAR index") {
         sys $starExe --runThreadN $starCpu \
                      --runMode genomeGenerate \
@@ -48,7 +47,7 @@ string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string g
     return genomeIdxDir
 }
 
-string{} mapSTAR(string{} cmdExe, string bamFiles, string{} samplesMap, string pairIds, bool paired, string starOpts, string genomeIdx, int threads, int memory) {
+string{} mapSTAR(string{} cmdExe, string bamFiles, string{} samplesMap, string pairIds, bool paired, string starOpts, string genomeIdx) {
     // double check
     //if(!samplesMap) error "This error shouldn't occur. It should be caught earlier. Either way samplesMap is empty $samplesMap"
     // get STAR executable 
