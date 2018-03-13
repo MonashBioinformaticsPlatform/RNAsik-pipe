@@ -170,6 +170,7 @@ if(mdups) {
 else if(sortedBamsMap) {
     theBams = sortedBamsMap
 }
+goal theBams.values()
 mkLog("theBams", parseMap(theBams), "data", logsDir)
 // get additional RNAseq metrics 
 string[] addMetrics = getAddMetrics(cmdExe, theBams, localFastaRef, fastaDictFile)
@@ -237,8 +238,13 @@ mkLog("fastqc", parseList(fqQcReport), "data", logsDir)
 
 // gather all files up for multiqc 
 string[] multiqcDeps
-if(!align.isEmpty()) {
-    multiqcDeps += bamsMap.values()
+if(align.startsWith("star")) {
+    for(string bamName : bamsMap.keys() ) {
+        string postFix = "_Log.final.out"
+	string baseDir = bamsMap{bamName}.dirName()
+        string bamDep = baseDir+"/"+bamName+postFix
+        multiqcDeps += bamDep
+    }
 }
 if(mdups) {
     multiqcDeps += theBams.values()

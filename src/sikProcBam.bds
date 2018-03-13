@@ -47,9 +47,9 @@ string{} getSortedBams(string{} cmdExe, string sikDir, string{} bamsMap) {
        
     }
     // for more infor refer to sikSTARaligner.bds line 129 comment
-    if(!mdups) {
-        goal sortedBams
-    }
+    //if(!mdups) {
+    //    goal sortedBams
+    //}
     return sortedBamsMap
 }
 
@@ -95,7 +95,7 @@ string{} getDeDupedBams(string{} cmdExe, string{} bamsMap) {
         }
         markedBamsMap{bamKey} = mdupsName
     }
-    goal markedBams
+    //goal markedBams
     return markedBamsMap
 }
 
@@ -144,7 +144,7 @@ string{} getDeDupedBamsUmi(string{} cmdExe, string{} bamsMap) {
         markedBamsMap{bamKey} = mdupsName
        
     }
-    goal markedBams
+    //goal markedBams
     return markedBamsMap
 }
 

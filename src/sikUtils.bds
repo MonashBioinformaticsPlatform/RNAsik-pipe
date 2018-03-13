@@ -22,25 +22,51 @@ string mkMultiqcFile(string[] multiqcFiles, string strandInfo, string sikDir) {
         error "This shouldn't happend, check mkMultiqcFile"
     }
 
-    string searchFileStr
+    string[] filePaths
+
     for(string multiqcFile : multiqcFiles) {
         // this is rather complicated looking for loop is a "workaround"
         // this is to make sure the "right" counts .summary file gets into multiqc
         if(multiqcFile.endsWith(".txt.summary")) {
             if(multiqcFile.baseName() == cntsFile) {
-                searchFileStr += multiqcFile
-                searchFileStr += "\n"
+                filePaths += multiqcFile
             }
         }
         else {
-            searchFileStr += multiqcFile
-            searchFileStr += "\n"
+            filePaths += multiqcFile
         }
     }
+    return writeMultiqcFile(filePaths)
+}
 
-    string searchFile = sikDir+"/multiqc_search_files.txt"
-    searchFile.write(searchFileStr)
-    return searchFile
+string writeMultiqcFile(string[] filePaths) {
+
+    string[] prevFilePaths
+    int prevLen
+
+    string multiqcFile = sikDir+"/multiqc_search_files.txt"
+
+    if(!multiqcFile.exists()) {
+	filePaths += ""
+        multiqcFile.write(filePaths.join("\n"))
+    }
+    else if(multiqcFile.exists() && multiqcFile.isFile()) {
+        prevFilePaths = multiqcFile.read().split("\n")
+        prevLen = prevFilePaths.size()
+        for(string filePath : filePaths) {
+	    if(!prevFilePaths.has(filePath)) {
+                prevFilePaths.add(filePath)
+            }
+        }
+        if(prevLen < prevFilePaths.size()) {
+	    prevFilePaths += ""
+            multiqcFile.write(prevFilePaths.join("\n"))
+        }
+    }
+    else if(!multiqcFile.isFile()) {
+        error "This shouldn't happend!"
+    }
+    return multiqcFile
 }
 
 string[] getMultiqcFiles(string sikDir) {
@@ -51,13 +77,14 @@ string[] getMultiqcFiles(string sikDir) {
 
     for(string dir : sikDir.dirPath()) {
         if(dir.isDir()) {
-            multiqcFiles += getMultiqcFiles(dir)
+	    if(dir.baseName() != "multiqc_data") {
+                multiqcFiles += getMultiqcFiles(dir)
+            }
         }
         else if( dir.isFile() && allowedFiles.has(dir.extName()) ) {
                 multiqcFiles.add(dir)
         }
     }
-
     return multiqcFiles
 }
 

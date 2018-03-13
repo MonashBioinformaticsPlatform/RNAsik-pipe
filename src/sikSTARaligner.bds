@@ -109,7 +109,7 @@ string{} mapSTAR(string{} cmdExe, string bamFiles, string{} samplesMap, string p
         if(checkSorted != -1) bamOut = preFix+"Aligned.sortedByCoord.out.bam"
 
         string reads = readsList.join(" ")
-        dep(!fqDir.isEmpty() && !align.isEmpty(), bamOut <- deps, cpus := starCpu, mem := starMem, taskName := "STAR aligning "+rootBase) {
+        dep(!fqDir.isEmpty() && align.startsWith("star"), bamOut <- deps, cpus := starCpu, mem := starMem, taskName := "STAR aligning "+rootBase) {
             sys $starExe --runThreadN $starCpu \
                          --runMode alignReads \
                          --genomeDir $genomeIdx \
