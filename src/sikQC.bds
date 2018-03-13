@@ -53,12 +53,13 @@ string getMultiqc(string{} cmdExe, string sikDir, string multiqcFile, string[] a
     allDeps += multiqcFile
 
     string outdep = sikDir+"/"+"multiqc_report.html"
-    task(multiqc, outdep <- allDeps, canFail := true, taskName := "Generating MultiQC report") {
+    dep(multiqc, outdep <- allDeps, canFail := true, taskName := "Generating MultiQC report") {
         sys $multiqcExe --outdir $sikDir \
                         --file-list $multiqcFile \
                         $multiqcOpts \
                         -f
     }
+    goal outdep
     return outdep
 }
 

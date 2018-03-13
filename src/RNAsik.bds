@@ -242,6 +242,13 @@ if(!align.isEmpty()) {
 }
 if(mdups) {
     multiqcDeps += theBams.values()
+}
+if(counts) {
+    multiqcDeps += featureCounts
+    multiqcDeps += degustFiles
+}
+if(qc) {
+    multiqcDeps += fqQcReport
     //TODO is another hacky fix. basically certain tasks in addMetrics allowed to fail
     // and one particular task always fails for single-end data, but addMetrics list still
     // has that file entry - hence the removeIdx(). a better solution would be inside getAddMetrics()
@@ -254,13 +261,6 @@ if(mdups) {
         string tmp2 = addMetrics.removeIdx(0)
         multiqcDeps += addMetrics
     }
-}
-if(counts) {
-    multiqcDeps += featureCounts
-    multiqcDeps += degustFiles
-}
-if(qc) {
-    multiqcDeps += fqQcReport
 }
 if(exonicRate) {
     multiqcDeps += exonicRates
