@@ -16,23 +16,21 @@ string fqDir        help path to fastqs directory, can be nested
 string align        help pick your aligner [star|hisat|bwa]
 string refFiles     help directory with reference files
 bool paired         help paired end data [false]
-bool counts         help do read counts [featureCounts]
-bool all            help short hand for mdups, exonicRate, qc, cov and multiqc
+bool all            help short hand for counts, mdups, exonicRate, qc, cov and multiqc
 
 help more options 
 
 string gtfFile      help path to refFile.gtf
 string fastaRef     help path to refFile.fa
 string genomeIdx    help genome index
-bool mdups        help process bam files, sort and mark dups [picard]
+bool counts         help do read counts [featureCounts]
+bool mdups          help process bam files, sort and mark dups [picard]
 bool qc             help do bunch of QCs, fastqc, picard QCs and samtools
 bool exonicRate     help do Int(ra|er)genic rates [qualiMap]
 bool multiqc        help do MultiQC report [multiqc]
 bool trim           help do FASTQ trimming [skewer]
 bool cov            help make coverage plots, bigWig files
 bool umi            help deduplicates using UMIs
-int threads = 4 // need to be removed, this information is now passed through sik.config
-int memory = 4 // need to be removed, this information is now passed through sik.config
 
 help extra configs 
 

@@ -1,5 +1,5 @@
 
-string[] getTrimedFqs(string{} cmdExe, string[] fqFiles, string sikDir, string extraOpts, string extn, int threads) {
+string[] getTrimedFqs(string{} cmdExe, string[] fqFiles, string sikDir, string extraOpts, string extn) {
     // a couple of sanity checks
     if( (fqFiles.isEmpty()) && (trim) ) {
         error "No FASTQ files found, use -fqDir /path/to/fastq/dir."

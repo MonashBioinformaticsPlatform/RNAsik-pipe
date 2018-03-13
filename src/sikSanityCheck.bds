@@ -58,6 +58,7 @@ string checkCmdArgs() {
     return "thumbs up"
 }
 if(all) {
+    counts = true
     mdups = true
     qc = true
     exonicRate = true
