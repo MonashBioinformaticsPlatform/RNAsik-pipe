@@ -36,38 +36,46 @@ string mkMultiqcFile(string[] multiqcFiles, string strandInfo, string sikDir) {
             filePaths += multiqcFile
         }
     }
-    filePaths += ""
-    return writeMultiqcFile(filePaths)
-}
-
-string writeMultiqcFile(string[] filePaths) {
-
-    string[] prevFilePaths
-    int prevLen
 
     string multiqcFile = sikDir+"/multiqc_search_files.txt"
-
     if(!multiqcFile.exists()) {
+        filePaths += ""
         multiqcFile.write(filePaths.join("\n"))
     }
-    else if(multiqcFile.exists() && multiqcFile.isFile()) {
-        prevFilePaths = multiqcFile.read().split("\n").reverse()
-        prevLen = prevFilePaths.size()
-        for(string filePath : filePaths) {
-	    if(!prevFilePaths.has(filePath)) {
-                prevFilePaths.add(filePath)
-            }
-        }
-        if(prevLen < prevFilePaths.size()) {
-	    prevFilePaths = prevFilePaths.reverse()
-            multiqcFile.write(prevFilePaths.join("\n"))
-        }
-    }
-    else if(!multiqcFile.isFile()) {
-        error "This shouldn't happend!"
-    }
     return multiqcFile
+
+    //filePaths += ""
+    //return writeMultiqcFile(filePaths)
 }
+
+//string writeMultiqcFile(string[] filePaths) {
+//
+//    string[] prevFilePaths
+//    int prevLen
+//
+//    string multiqcFile = sikDir+"/multiqc_search_files.txt"
+//
+//    if(!multiqcFile.exists()) {
+//        multiqcFile.write(filePaths.join("\n"))
+//    }
+//    else if(multiqcFile.exists() && multiqcFile.isFile()) {
+//        prevFilePaths = multiqcFile.read().split("\n").reverse()
+//        prevLen = prevFilePaths.size()
+//        for(string filePath : filePaths) {
+//	    if(!prevFilePaths.has(filePath)) {
+//                prevFilePaths.add(filePath)
+//            }
+//        }
+//        if(prevLen < prevFilePaths.size()) {
+//	    prevFilePaths = prevFilePaths.reverse()
+//            multiqcFile.write(prevFilePaths.join("\n"))
+//        }
+//    }
+//    else if(!multiqcFile.isFile()) {
+//        error "This shouldn't happend!"
+//    }
+//    return multiqcFile
+//}
 
 string[] getMultiqcFiles(string sikDir) {
 
