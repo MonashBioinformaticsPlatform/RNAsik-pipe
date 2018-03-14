@@ -45,13 +45,14 @@ string[] getFastqcReport(string{} cmdExe, string sikDir, string[] fqFiles, strin
 //
 string getMultiqc(string{} cmdExe, string sikDir, string multiqcFile, string[] allDeps, string multiqcOpts) {
 
-    string{} resource = getResource(cmdExe, "mulitqc", "")
+    string{} resource = getResource(cmdExe, "multiqc", "")
     string multiqcExe = resource{"toolsExe"}
+    int multiqcCpu = resource{"toolsCpu"}.parseInt()
 
     allDeps += multiqcFile
 
     string outdep = sikDir+"/"+"multiqc_report.html"
-    dep(multiqc, outdep <- allDeps, canFail := true, taskName := "Generating MultiQC report") {
+    dep(multiqc, outdep <- allDeps, canFail := true, cpus := multiqcCpu, taskName := "Generating MultiQC report") {
         sys $multiqcExe --outdir $sikDir \
                         --file-list $multiqcFile \
                         $multiqcOpts \
