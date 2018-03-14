@@ -10,24 +10,14 @@ string[] getFastqcReport(string{} cmdExe, string sikDir, string[] fqFiles, strin
         fastqcReport.mkdir()
     }
 
-    if(!cmdExe.hasKey("fastqcExe")) {
-        error "Can't get fastqc executable, check your config file $configFile"
-    }
-    string fastqcExe = cmdExe{"fastqcExe"}
-
-    if(!cmdExe.hasKey("fastqcMem")) {
-        error "Can't get memory settings for FastQC, check your config file $configFile"
-    }
-    int fastqcMem = cmdExe{"fastqcMem"}.parseInt()
-
-    if(!cmdExe.hasKey("fastqcCpu")) {
-        error "Can't get cpu settings for FastQC, check your config file $configFile"
-    }
-    int fastqcCpu = cmdExe{"fastqcCpu"}.parseInt()
-
-    if( (fqFiles.isEmpty()) && (qc) ) {
+    if( fqFiles.isEmpty() && qc ) {
         error "No FASTQ files found, use -fqDir /path/to/fastq/dir."
     }
+
+    string{} resource = getResource(cmdExe, "fastqc", "")
+    string fastqcExe = resource{"toolsExe"}
+    int fastqcMem = resource{"toolsMem"}.parseInt()
+    int fastqcCpu = resource{"toolsCpu"}.parseInt()
 
     string[] fqHtmls
 
@@ -55,10 +45,8 @@ string[] getFastqcReport(string{} cmdExe, string sikDir, string[] fqFiles, strin
 //
 string getMultiqc(string{} cmdExe, string sikDir, string multiqcFile, string[] allDeps, string multiqcOpts) {
 
-    if(!cmdExe.hasKey("multiqcExe")) {
-        error "Can't get multiqc executable, check your config file $configFile"
-    }
-    string multiqcExe = cmdExe{"multiqcExe"}
+    string{} resource = getResource(cmdExe, "mulitqc", "")
+    string multiqcExe = resource{"toolsExe"}
 
     allDeps += multiqcFile
 
@@ -74,8 +62,11 @@ string getMultiqc(string{} cmdExe, string sikDir, string multiqcFile, string[] a
 }
 
 string[] getAddMetrics(string{} cmdExe, string{} bamsMap, string fastaRef, string fastaDictFile) {
-    if(!cmdExe.hasKey("picardExe")) error "Can't get picard executable, check your config file $configFile"
-    string picardExe = cmdExe{"picardExe"}
+
+    string{} resource = getResource(cmdExe, "picard", "Qc")
+    string picardExe = resource{"toolsExe"}
+    int qcMem = resource{"toolsMem"}.parseInt()
+    int qcCpu = resource{"toolsCpu"}.parseInt()
 
     string[] addMetrics
 
@@ -100,20 +91,20 @@ string[] getAddMetrics(string{} cmdExe, string{} bamsMap, string fastaRef, strin
         addMetrics += gcMetricsSummary
         addMetrics += libComplex
 
-        task(qc && paired, [insertMetrics, hist] <- bamFile, cpus := 2, taskName := "gathering metrics "+bamFile, canFail := true) {
+        task(qc && paired, [insertMetrics, hist] <- bamFile, cpus := qcCpu, taskName := "gathering metrics "+bamFile, canFail := true) {
             sys $picardExe CollectInsertSizeMetrics VALIDATION_STRINGENCY=LENIENT \
                                                     INPUT=$bamFile \
                                                     OUTPUT=$insertMetrics \
                                                     HISTOGRAM_FILE=$hist \
                                                     M=0.5 
         }
-        task(qc && !alignMetrics.exists(), alignMetrics <- [bamFile, fastaRef, fastaDictFile], cpus := 2, taskName := "gathering metrics "+bamFile, canFail := true) {
+        task(qc && !alignMetrics.exists(), alignMetrics <- [bamFile, fastaRef, fastaDictFile], cpus := qcCpu, taskName := "gathering metrics "+bamFile, canFail := true) {
             sys $picardExe CollectAlignmentSummaryMetrics VALIDATION_STRINGENCY=LENIENT \
                                                           REFERENCE_SEQUENCE=$fastaRef \
                                                           INPUT=$bamFile \
                                                           OUTPUT=$alignMetrics
         }
-        task(qc && !gcMetrics.exists(), [gcMetrics, gcMetricsPdf, gcMetricsSummary] <- [bamFile, fastaRef, fastaDictFile], cpus := 2, taskName := "gathering metrics "+bamFile, canFail := true) {
+        task(qc && !gcMetrics.exists(), [gcMetrics, gcMetricsPdf, gcMetricsSummary] <- [bamFile, fastaRef, fastaDictFile], cpus := qcCpu, taskName := "gathering metrics "+bamFile, canFail := true) {
             sys $picardExe CollectGcBiasMetrics VALIDATION_STRINGENCY=LENIENT \
                                                 INPUT=$bamFile \
                                                 OUTPUT=$gcMetrics \
@@ -121,11 +112,41 @@ string[] getAddMetrics(string{} cmdExe, string{} bamsMap, string fastaRef, strin
                                                 SUMMARY_OUTPUT=$gcMetricsSummary \
                                                 R=$fastaRef
         }
-        task(qc && !libComplex.exists(), libComplex <- bamFile, cpus := 2, taskName := "gathering metrics "+bamFile, canFail := true) {
+        task(qc && !libComplex.exists(), libComplex <- bamFile, cpus := qcCpu, taskName := "gathering metrics "+bamFile, canFail := true) {
             sys $picardExe EstimateLibraryComplexity VALIDATION_STRINGENCY=LENIENT \
                                                      INPUT=$bamFile \
                                                      OUTPUT=$libComplex
         }
     }
     return addMetrics
+}
+
+string[] getSamMetrics(string{} cmdExe, string{} bamsMap, string fastaRef) {
+    
+    string{} resource = getResource(cmdExe, "samtools", "Qc")
+    string samtoolsExe = resource{"toolsExe"}
+    int qcMem = resource{"toolsMem"}.parseInt()
+    int qcCpu = resource{"toolsCpu"}.parseInt()
+
+    string[] qcOut
+
+    for(string bamFile : bamsMap.values()) {
+
+        string flagstatOut = bamFile.swapExt("bam", "flagstat")
+        string idxstatsOut = bamFile.swapExt("bam", "idxstats")
+        string statsOut = bamFile.swapExt("bam", "stats")
+        
+        qcOut += flagstatOut 
+        qcOut += idxstatsOut 
+        qcOut += statsOut 
+
+        dep(qc, flagstatOut <- [bamFile, fastaRef], cpus := qcCpu, taskName := "samtools flagstat metrics "+bamFile) {
+            sys $samtoolsExe flagstat $bamFile > $flagstatOut
+            sys $samtoolsExe idxstats $bamFile > $idxstatsOut
+            sys $samtoolsExe stats --reference $fastaRef $bamFile > $statsOut
+        }
+    }
+
+    goal qcOut
+    return qcOut
 }

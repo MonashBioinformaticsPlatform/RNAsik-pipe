@@ -98,3 +98,36 @@ string[] getMultiqcFiles(string sikDir) {
     return multiqcFiles
 }
 
+string{} getResource(string{} cmdExe, string toolsName, string subName) {
+    //NOTE that toolsName and subName is case sensetive and is meant to be camelCased !
+    string toolsExe = toolsName+"Exe"
+    string toolsMem
+    string toolsCpu
+
+    if(!subName.isEmpty()) {
+        toolsMem = toolsName+subName+"Mem"
+        toolsCpu = toolsName+subName+"Cpu"
+    }
+    else {
+        toolsMem = toolsName+"Mem"
+        toolsCpu = toolsName+"Cpu"
+    }
+
+    if(!cmdExe.hasKey(toolsExe)) {
+        error "Can't get $toolsName executable, check your config file $configFile"
+    }
+    string exePath = cmdExe{toolsExe}
+
+    if(!cmdExe.hasKey(toolsMem)) {
+        error "Can't get memory settings for $toolsName, check your config file $configFile"
+    }
+    string qcMem = cmdExe{toolsMem}
+
+    if(!cmdExe.hasKey(toolsCpu)) {
+        error "Can't get cpu settings for $toolsName, check your config file $configFile"
+    }
+    string qcCpu = cmdExe{toolsCpu}
+
+    return {"toolsExe" => exePath, "toolsMem" => qcMem, "toolsCpu" => qcCpu}
+}
+
