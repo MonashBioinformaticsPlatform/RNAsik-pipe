@@ -19,39 +19,47 @@ include "sikUtils.bds"
 // Check cmd args first up
 string checkCmdInput = checkCmdArgs()
 // set main directory
-string sikDir
+string sikDir = "sikRun"
 if(!outDir.isEmpty()) {
-    if(!outDir.exists()) {
-        outDir.mkdir()
-        sikDir = outDir
-    }
-    else sikDir = outDir
+    sikDir = outDir
 }
-else sikDir = "sikRun"
+if(!sikDir.exists()) {
+    sikDir.mkdir()
+}
 
 string{} totRefFiles
-if(!refFiles.isEmpty()) totRefFiles = chkRefFiles(refFiles, align)
+if(!refFiles.isEmpty()) {
+    totRefFiles = chkRefFiles(refFiles, align)
+}
 
-// make directories as required
-if(!sikDir.exists()) sikDir.mkdir()
+//TODO these mkdir calls need to be moved inside
+// individual function 
 string refFilesDir = sikDir+"/"+"refFiles"
-if(!refFilesDir.exists() && refFiles.isEmpty()) refFilesDir.mkdir()
-string logsDir = sikDir+"/logs"
-if(!logsDir.exists()) logsDir.mkdir()
-string bamFiles = sikDir+"/"+"alignerFiles"
-if( (!bamFiles.exists()) && (!fqDir.isEmpty()) ) bamFiles.mkdir()
-string countFiles = sikDir+"/"+"countFiles"
-if((!countFiles.exists()) && (counts)) countFiles.mkdir()
+if(!refFilesDir.exists() && refFiles.isEmpty()) {
+    refFilesDir.mkdir()
+}
 
-// Start loging
-//string date = sys date
-//logit(logFile, ">Starting new RNAsik run", date.trim())
+string logsDir = sikDir+"/logs"
+if(!logsDir.exists()) {
+    logsDir.mkdir()
+}
+
+string bamFiles = sikDir+"/"+"alignerFiles"
+if(!bamFiles.exists() && !fqDir.isEmpty()) {
+    bamFiles.mkdir()
+}
+
+string countFiles = sikDir+"/"+"countFiles"
+if(!countFiles.exists() && counts) {
+    countFiles.mkdir()
+}
 
 // Parse config file
 string sikProgPath = programPath.pathName()
 if(configFile.isEmpty()) {
     configFile = sikProgPath+"/../configs/sik.config"
 }
+
 string{} cmdExe = config(configFile)
 // log versions of tools used
 string toolsVersions = getToolsVersions(cmdExe, logsDir)
@@ -85,8 +93,11 @@ if(!fqDir.isEmpty()) {
     }
 }
 //
-if(samplesSheet.isEmpty()) samplesSheet = makeSamplesSheet(fqFiles, fqRgxs, pairIds, extn, sikDir)
+if(samplesSheet.isEmpty()) {
+    samplesSheet = makeSamplesSheet(fqFiles, fqRgxs, pairIds, extn, sikDir)
+} 
 mkLog("samplesSheet", parseMap(config(samplesSheet)), "samples", logsDir)
+
 // set path to fasta file
 string localFastaRef
 if(!refFiles.isEmpty()) {
@@ -96,11 +107,17 @@ else {
     localFastaRef = makeLocalRef(fastaRef, refFilesDir, "fasta")
 }
 mkLog("fastaRef", localFastaRef, "refFiles", logsDir)
+
 // set path to gtf file string localGTF
 string localGTF
-if(!refFiles.isEmpty()) localGTF = totRefFiles{"gtf"}
-else localGTF = makeLocalRef(gtfFile, refFilesDir, "gtf")
+if(!refFiles.isEmpty()) {
+    localGTF = totRefFiles{"gtf"}
+}
+else {
+    localGTF = makeLocalRef(gtfFile, refFilesDir, "gtf")
+}
 mkLog("gtfFile", localGTF, "refFiles", logsDir)
+
 // checking annoation file type
 string modelType
 if(localGTF.extName() == "gff" || localGTF.extName() == "gff3") {
@@ -113,19 +130,32 @@ else {
     modelType = "gtf"
 }
 mkLog("annotation type", modelType, "other", logsDir)
-// get .dict file 
+
 string fastaDictFile
-if(totRefFiles) fastaDictFile = totRefFiles{"dict"}
-else fastaDictFile = makeDictFile(cmdExe, localFastaRef)
+if(totRefFiles) {
+    fastaDictFile = totRefFiles{"dict"}
+} 
+else {
+    fastaDictFile = makeDictFile(cmdExe, localFastaRef)
+}
 mkLog("picardDictFile", fastaDictFile, "refFiles", logsDir)
-// get .chrom.sizes file 
+
 string chromSizes
-if(totRefFiles) chromSizes = totRefFiles{"chromSizes"}
-else chromSizes = makeChromSizes(localFastaRef)
+if(totRefFiles) {
+    chromSizes = totRefFiles{"chromSizes"}
+}
+else {
+    chromSizes = makeChromSizes(localFastaRef)
+}
 mkLog("chromSizes", chromSizes, "refFiles", logsDir)
+
 string faIdx
-if(totRefFiles) faIdx = totRefFiles{"fai"}
-else faIdx = makeFaiFile(cmdExe, localFastaRef)
+if(totRefFiles) {
+    faIdx = totRefFiles{"fai"}
+}
+else {
+    faIdx = makeFaiFile(cmdExe, localFastaRef)
+}
 mkLog("fai", faIdx, "refFiles", logsDir)
 // get genomeIdx 
 if(!align.isEmpty()) {
@@ -146,15 +176,20 @@ mkLog(align, genomeIdx, "refFiles", logsDir)
 
 // map of FASTQ to unique name i.e gathering FASTQ that are split across different lanes
 string{} samplesMap
-if(!fqDir.isEmpty()) samplesMap = getSamplesMap(fqFiles, samplesSheet)
+if(!fqDir.isEmpty()) {
+    samplesMap = getSamplesMap(fqFiles, samplesSheet)
+}
 mkLog("fqMap", parseFqMap(samplesMap), "samples", logsDir)
+
 // BAM files
 string{} bamsMap = getBams(cmdExe, align, bamFiles, samplesMap, pairIds, paired, extraOpts, genomeIdx, localFastaRef, logsDir)
 mkLog("bams", parseMap(bamsMap), "data", logsDir)
+
 // If user wants to use other parts of the pipeline without generating BAM files
 if(!bamsDir.isEmpty()) {
     bamsMap = mkBamsMap(bamsDir, samplesSheet)
 }
+
 string{} theBams
 // sorted, reorted and marking duplicates in BAM files
 string{} sortedBamsMap = getSortedBams(cmdExe, sikDir, bamsMap)
