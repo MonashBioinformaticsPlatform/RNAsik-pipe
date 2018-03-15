@@ -188,8 +188,7 @@ with open(in_file) as handler:
                 header = False
 
             for gene_id, values in sorted(attr.items()):
-                print('\t'.join(
-                    (gene_id, chrom, values["gene_name"], values["biotype"])))
+                print('\t'.join((gene_id, chrom, values["gene_name"], values["biotype"])))
 
     else:
         sys.exit(
