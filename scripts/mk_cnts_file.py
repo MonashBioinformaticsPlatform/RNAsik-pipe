@@ -85,7 +85,8 @@ with open(counts_file) as handler:
             continue
         if line.startswith("Geneid"):
             sample_names = line.split("\t")[cnts_col:]
-            sample_names = [get_name(os.path.basename(n), ss) for n in sample_names]
+            sample_names = [get_name(os.path.basename(n), ss) for n in
+                            sample_names]
             s_names = '\t'.join(sample_names)
             continue
 

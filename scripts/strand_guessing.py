@@ -134,7 +134,8 @@ for text_file in list_of_files:
                     data_dict[name][key] = None
 
                 if key == "Status":
-                    data_dict[name][key] = [os.path.basename(b).split("_")[0] for b in line]
+                    data_dict[name][key] = [os.path.basename(b).split("_")[0]
+                                            for b in line]
                 else:
                     data_dict[name][key] = line
 
