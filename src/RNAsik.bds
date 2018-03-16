@@ -207,7 +207,11 @@ else if(sortedBamsMap) {
 }
 goal theBams.values()
 mkLog("theBams", parseMap(theBams), "data", logsDir)
+
 // get additional RNAseq metrics 
+string[] samMetrics = getSamMetrics(cmdExe, theBams, localFastaRef)
+mkLog("addMetrics", parseList(samMetrics), "data", logsDir)
+
 string[] addMetrics = getAddMetrics(cmdExe, theBams, localFastaRef, fastaDictFile)
 mkLog("addMetrics", parseList(addMetrics), "data", logsDir)
 // coverage files
@@ -289,6 +293,7 @@ if(counts) {
     multiqcDeps += degustFiles
 }
 if(qc) {
+    multiqcDeps += samMetrics
     multiqcDeps += fqQcReport
     //TODO is another hacky fix. basically certain tasks in addMetrics allowed to fail
     // and one particular task always fails for single-end data, but addMetrics list still
@@ -312,8 +317,8 @@ string{} multiqcOpts = {"--config" => sikProgPath+"/../configs/multiqc_conf.yml"
 
 string allMultiqcOpts = getOpts("multiqc", multiqcOpts, extraOpts)
 mkLog("multiqc", allMultiqcOpts, "toolsOpts", logsDir)
-string multiqcFile = mkMultiqcFile(getMultiqcFiles(sikDir), strandInfo, sikDir)
-string qcReport = getMultiqc(cmdExe, sikDir, multiqcFile, multiqcDeps, allMultiqcOpts)
+string multiqcIgnore = mkMultiqcIgnores(strandInfo, featureCounts)
+string qcReport = getMultiqc(cmdExe, sikDir, multiqcIgnore, multiqcDeps, allMultiqcOpts)
 #----------------------------------------------------------------------------------------------------
 # End
 #----------------------------------------------------------------------------------------------------

@@ -43,20 +43,19 @@ string[] getFastqcReport(string{} cmdExe, string sikDir, string[] fqFiles, strin
     return fqHtmls
 }
 //
-string getMultiqc(string{} cmdExe, string sikDir, string multiqcFile, string[] allDeps, string multiqcOpts) {
+string getMultiqc(string{} cmdExe, string sikDir, string multiqcIgnore, string[] allDeps, string multiqcOpts) {
 
     string{} resource = getResource(cmdExe, "multiqc", "")
     string multiqcExe = resource{"toolsExe"}
     int multiqcCpu = resource{"toolsCpu"}.parseInt()
 
-    allDeps += multiqcFile
-
     string outdep = sikDir+"/"+"multiqc_report.html"
     dep(multiqc, outdep <- allDeps, canFail := true, cpus := multiqcCpu, taskName := "Generating MultiQC report") {
-        sys $multiqcExe --outdir $sikDir \
-                        --file-list $multiqcFile \
+        sys $multiqcExe $sikDir \
+                        --outdir $sikDir \
                         $multiqcOpts \
-                        -f
+                        $multiqcIgnore \
+                        --force
     }
     goal outdep
     return outdep
@@ -92,7 +91,7 @@ string[] getAddMetrics(string{} cmdExe, string{} bamsMap, string fastaRef, strin
         addMetrics += gcMetricsSummary
         addMetrics += libComplex
 
-        task(qc && paired, [insertMetrics, hist] <- bamFile, cpus := qcCpu, taskName := "gathering metrics "+bamFile, canFail := true) {
+        task(qc && paired && !insertMetrics.exists(), [insertMetrics, hist] <- bamFile, cpus := qcCpu, taskName := "gathering metrics "+bamFile, canFail := true) {
             sys $picardExe CollectInsertSizeMetrics VALIDATION_STRINGENCY=LENIENT \
                                                     INPUT=$bamFile \
                                                     OUTPUT=$insertMetrics \

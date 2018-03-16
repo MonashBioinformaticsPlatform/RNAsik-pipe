@@ -1,101 +1,28 @@
 
-string mkMultiqcFile(string[] multiqcFiles, string strandInfo, string sikDir) {
+string mkMultiqcIgnores(string strandInfo, string[] cntsFiles) {
 
-    string strandExitCode
-    string strandType
+    string multiqcIgnore 
+
     if(counts && strandInfo.exists()) {
+        string strandExitCode
+        string strandType
         (strandType, strandExitCode) = strandInfo.read().split(",")
-    }
-    else if(!counts) {
-        strandType = ""
-        strandExitCode = 0
-    }
-    else if(counts && !strandInfo.exists()) {
-        error "This shouldn't happened, check getMultiqcFiles function"
-    }
+        string strandFile = strandType+".txt"
 
-    string cntsFile
-    if(strandType) {
-        cntsFile = strandType+".txt.summary"
-    }
-    if(counts && !cntsFile) {
-        error "This shouldn't happend, check mkMultiqcFile"
-    }
-
-    string[] filePaths
-
-    for(string multiqcFile : multiqcFiles) {
-        // this is rather complicated looking for loop is a "workaround"
-        // this is to make sure the "right" counts .summary file gets into multiqc
-        if(multiqcFile.endsWith(".txt.summary")) {
-            if(multiqcFile.baseName() == cntsFile) {
-                filePaths += multiqcFile
+        for(string cntsFile : cntsFiles) {
+	    print("Counts $cntsFile Strand $strandFile \n")
+            if(!cntsFile.baseName().startsWith(strandFile)) {
+		string ignore = cntsFile.baseName(".txt")
+                //NOTE cntsFiles are actual .txt files from featureCounts output
+                //however we want to ignore .summary files
+                multiqcIgnore += " --ignore $ignore* " 
             }
         }
-        else {
-            filePaths += multiqcFile
-        }
     }
-
-    string multiqcFile = sikDir+"/multiqc_search_files.txt"
-    if(!multiqcFile.exists()) {
-        filePaths += ""
-        multiqcFile.write(filePaths.join("\n"))
+    else {
+        multiqcIgnore = ""
     }
-    return multiqcFile
-
-    //filePaths += ""
-    //return writeMultiqcFile(filePaths)
-}
-
-//string writeMultiqcFile(string[] filePaths) {
-//
-//    string[] prevFilePaths
-//    int prevLen
-//
-//    string multiqcFile = sikDir+"/multiqc_search_files.txt"
-//
-//    if(!multiqcFile.exists()) {
-//        multiqcFile.write(filePaths.join("\n"))
-//    }
-//    else if(multiqcFile.exists() && multiqcFile.isFile()) {
-//        prevFilePaths = multiqcFile.read().split("\n").reverse()
-//        prevLen = prevFilePaths.size()
-//        for(string filePath : filePaths) {
-//	    if(!prevFilePaths.has(filePath)) {
-//                prevFilePaths.add(filePath)
-//            }
-//        }
-//        if(prevLen < prevFilePaths.size()) {
-//	    prevFilePaths = prevFilePaths.reverse()
-//            multiqcFile.write(prevFilePaths.join("\n"))
-//        }
-//    }
-//    else if(!multiqcFile.isFile()) {
-//        error "This shouldn't happend!"
-//    }
-//    return multiqcFile
-//}
-
-string[] getMultiqcFiles(string sikDir) {
-
-    string[] allowedFiles = ["out", "metrics", "txt", "summary", "log"]
-
-    string[] multiqcFiles 
-
-    for(string dir : sikDir.dirPath()) {
-        if(dir.isDir()) {
-	    if(dir.baseName() != "multiqc_data") {
-                multiqcFiles += getMultiqcFiles(dir)
-            }
-        }
-        else if( dir.isFile() && allowedFiles.has(dir.extName()) ) {
-		if(dir.baseName() != "multiqc_search_files.txt") {
-                    multiqcFiles.add(dir)
-                }
-        }
-    }
-    return multiqcFiles
+    return multiqcIgnore
 }
 
 string{} getResource(string{} cmdExe, string toolsName, string subName) {
