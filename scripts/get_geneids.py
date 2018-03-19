@@ -34,7 +34,7 @@ parser.add_argument(
 
 def get_gtf(handler):
     genes_attr = {}
-    typesRegex = "\s.([A-z0-9 _. \- /\(\)]+)"
+    typesRegex = "\s.([A-z0-9 _., \- /\(\)]+)"
 
     for key, value in list(biotypes.items()):
         tweak = value + typesRegex
@@ -88,7 +88,7 @@ def get_gtf(handler):
 def get_gff(handler):
     genes_attr = {}
 
-    typesRegex = "\s.([A-z0-9 _. \- /\(\)]+)"
+    typesRegex = "\s.([A-z0-9 _., \- /\(\)]+)"
 
     for key, value in list(biotypes.items()):
         tweak = value + typesRegex
