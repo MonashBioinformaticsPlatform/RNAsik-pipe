@@ -55,6 +55,7 @@ string[] fqRgxs = ["_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$", \
                     "_R[0-9]_[0-9]{3}.fastq.gz$", \
                     "_R[0-9].fastq.gz$"]
 
+
 //single-end
 string adapterFileSe = progPath+"/../supplementary/TruSeqAdapters.fa"
 //paired-end

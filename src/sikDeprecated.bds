@@ -1,0 +1,47 @@
+include "sikHeader.bds"
+
+//------------------------------
+// Backward compatability block
+bool count
+bool prePro
+bool metrics
+bool fastqc
+int threads
+int memory
+//------------------------------
+
+//------------------------------
+// Backward compatability block
+if(metrics) {
+    all = true
+    qc = true
+}
+if(count) {
+    counts = true
+}
+if(prePro) {
+    mdups = true
+}
+if(fastqc) {
+    qc = true
+}
+//------------------------------
+
+bool chkDeprecCmdArgs(string cmdArg) {
+    // list of allowed command line options
+    string{} sikDeprecArgs = {"-count" => "use -counts instead", \
+                              "-prePro" => "use -mdups instead, there was a change in logic, but also new flag is more reflective of the task", \
+                              "-metrics" => "use -qc instead, this new flag aggregates few different metrics into one flag, for ease of use", \
+                              "-fastqc" => "this flag has been aggregated into -qc, use that instead", \
+                              "-threads" => "now each task gets its own setting, all through -configFile sik.config", \
+                              "-memory" => "now each task gets its own setting, all through -configFile sik.config" \
+                             }
+    
+    if(sikDeprecArgs.hasKey(cmdArg)) {
+	string deprecMessag = sikDeprecArgs{cmdArg}
+        warning "This flag $cmdArg has been deprecated, $deprecMessag"
+    	return true
+    }
+    return false
+}
+

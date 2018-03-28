@@ -2,6 +2,7 @@
 # title: RNAsik is a fully sick way to get from FASTQ to list of counts and more. Degust ready !
 # author: kizza
 #-----------------------------------------------------------------------------------------------
+include "sikDeprecated.bds"
 include "sikHeader.bds"
 include "sikSanityCheck.bds"
 include "sikRefFiles.bds"
@@ -16,8 +17,6 @@ include "sikExonicRate.bds"
 include "sikCoverage.bds"
 include "sikTrim.bds"
 include "sikUtils.bds"
-// Check cmd args first up
-string checkCmdInput = checkCmdArgs()
 // set main directory
 string sikDir = "sikRun"
 if(!outDir.isEmpty()) {

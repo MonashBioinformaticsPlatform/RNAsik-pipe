@@ -1,8 +1,8 @@
 #------------------------------
 # Sanity check
 #------------------------------
-include "sikHeader.bds"
-include "sikRefFiles.bds"
+include "sikDeprecated.bds"
+include "sikUtils.bds"
 
 if(all) {
     counts = true
@@ -13,51 +13,7 @@ if(all) {
     multiqc = true
 }
 
-// this functions checks if all arguments on the cmd are right
-string checkCmdArgs() {
-    // list of allowed command line options
-    string[] sikArgs = ["-align", \
-                        "-fqDir", \
-                        "-refFiles", \
-                        "-paired", \
-                        "-counts", \
-                        "-all", \
-                        "-gtfFile", \
-                        "-fastaRef", \
-                        "-genomeIdx", \
-                        "-mdups", \
-                        "-qc", \
-                        "-exonicRate", \
-                        "-multiqc", \
-                        "-trim", \
-                        "-cov", \
-                        "-umi", \
-                        "-samplesSheet", \
-                        "-outDir", \
-                        "-extn", \
-                        "-pairIds", \
-                        "-extraOpts", \
-                        "-configFile", \
-                        "-strand", \
-                        "-bamsDir" \
-                       ]
-    // list of options specified by user
-    string[] getCmdArgs = args 
-    // check for duplicates
-    string[] suspects
-    for(string cmdItem : args) {
-        if(cmdItem.startsWith("-")) {
-            if(!sikArgs.has(cmdItem)) {
-                error "This flag $cmdItem isn't a valid options, check your spelling"
-            }
-            if(suspects.has(cmdItem)) {
-                error "This flag $cmdItem is duplicated in your command, remove duplicate"
-            }
-	    suspects.add(cmdItem)
-        }
-    }
-    return "thumbs up"
-}
+string cmdArgsChk = chkCmdArgs()
 
 if(!align.isEmpty()) {
     string[] alignArgs = ["star", \
