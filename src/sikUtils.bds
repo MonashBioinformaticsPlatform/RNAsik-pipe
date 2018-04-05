@@ -11,7 +11,6 @@ string mkMultiqcIgnores(string strandInfo, string[] cntsFiles) {
         string strandFile = strandType+".txt"
 
         for(string cntsFile : cntsFiles) {
-	    print("Counts $cntsFile Strand $strandFile \n")
             if(!cntsFile.baseName().startsWith(strandFile)) {
 		string ignore = cntsFile.baseName(".txt")
                 //NOTE cntsFiles are actual .txt files from featureCounts output
