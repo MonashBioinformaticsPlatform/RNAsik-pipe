@@ -53,13 +53,8 @@ if(!countFiles.exists() && counts) {
     countFiles.mkdir()
 }
 
-// Parse config file
 string sikProgPath = programPath.pathName()
-if(configFile.isEmpty()) {
-    configFile = sikProgPath+"/../configs/sik.config"
-}
-
-string{} cmdExe = config(configFile)
+string{} cmdExe = getConfigFile(configFile)
 // log versions of tools used
 string toolsVersions = getToolsVersions(cmdExe, logsDir)
 
@@ -103,7 +98,7 @@ if(!refFiles.isEmpty()) {
     localFastaRef = totRefFiles{"fa"}
 }
 else {
-    localFastaRef = makeLocalRef(fastaRef, refFilesDir, "fasta")
+    localFastaRef = makeLocalRef(cmdExe, fastaRef, refFilesDir, "fasta")
 }
 mkLog("fastaRef", localFastaRef, "refFiles", logsDir)
 
@@ -113,7 +108,7 @@ if(!refFiles.isEmpty()) {
     localGTF = totRefFiles{"gtf"}
 }
 else {
-    localGTF = makeLocalRef(gtfFile, refFilesDir, "gtf")
+    localGTF = makeLocalRef(cmdExe, gtfFile, refFilesDir, "gtf")
 }
 mkLog("gtfFile", localGTF, "refFiles", logsDir)
 

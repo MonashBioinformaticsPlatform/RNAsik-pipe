@@ -6,20 +6,13 @@ string{} getSortedBams(string{} cmdExe, string sikDir, string{} bamsMap) {
         bamFiles.mkdir()
     }
 
-    if(!cmdExe.hasKey("samtoolsExe")) {
-        error "Can't get samtools executable, check your config file $configFile"
-    }
-    string samtoolsExe = cmdExe{"samtoolsExe"}
+    string{} resource = getResource(cmdExe, "samtools", "Sort")
+    string samtoolsExe = resource{"toolsExe"}
+    int sortMem = resource{"toolsMem"}.parseInt()
+    int sortCpu = resource{"toolsCpu"}.parseInt()
 
-    if(!cmdExe.hasKey("samtoolsSortMem")) {
-        error "Can't get memory settings for samtools, check your config file $configFile"
-    }
-    int sortMem = cmdExe{"samtoolsSortMem"}.parseInt()
-
-    if(!cmdExe.hasKey("samtoolsSortCpu")) {
-        error "Can't get cpu settings for samtools, check your config file $configFile"
-    }
-    int sortCpu = cmdExe{"samtoolsSortCpu"}.parseInt()
+    int sortBdsMem = sortMem*sortCpu
+    string sortSamMem = sortBdsMem/1000+"K" // this is to covert to bytes
 
     string[] sortedBams
     string{} sortedBamsMap
@@ -28,12 +21,12 @@ string{} getSortedBams(string{} cmdExe, string sikDir, string{} bamsMap) {
 
         string bamFile = bamsMap{bamKey}
         //TODO not sure if I'm passing _T correctly, need to test before including into main line
-        string tmpPrefix = bamFiles+"/"+bamKey+"_"+randInt(10000000)
+        //string tmpPrefix = bamFiles+"/"+bamKey+"_"+randInt(10000000)
         //-T $tmpPrefix \
         string sortedBam = bamFiles+"/"+bamKey+"_sorted.bam"
-        dep(mdups || !align.isEmpty(), sortedBam <- bamFile, cpus := sortCpu, mem := sortMem, taskName := "sorting with samtools "+bamFile) {
+        dep(mdups || !align.isEmpty(), sortedBam <- bamFile, cpus := sortCpu, mem := sortBdsMem, taskName := "sorting with samtools "+bamFile) {
             sys $samtoolsExe sort --threads $sortCpu \
-                                  -m $sortMem"K" \
+                                  -m $sortSamMem \
                                   -o $sortedBam \
                                   $bamFile
             sys $samtoolsExe index $sortedBam
@@ -101,20 +94,10 @@ string{} getDeDupedBams(string{} cmdExe, string{} bamsMap) {
 
 string{} getDeDupedBamsUmi(string{} cmdExe, string{} bamsMap) {
 
-    if(!cmdExe.hasKey("picardExe")) {
-        error "Can't get picard executable, check your config file $configFile"
-    }
-    string picardExe = cmdExe{"picardExe"}
-
-    if(!cmdExe.hasKey("picardMarkDupsMem")) {
-        error "Can't get memory settings for picard MarkDuplicates, check your config file $configFile"
-    }
-    int picardMarkDupsMem = cmdExe{"picardMarkDupsMem"}.parseInt()
-
-    if(!cmdExe.hasKey("picardMarkDupsCpu")) {
-        error "Can't get cpu settings for picard MarkDuplicates, check your config file $configFile"
-    }
-    int picardMarkDupsCpu = cmdExe{"picardMarkDupsCpu"}.parseInt()
+    string{} resource = getResource(cmdExe, "je", "")
+    string jeExe = resource{"toolsExe"}
+    int jeMem = resource{"toolsMem"}.parseInt()
+    int jeCpu = resource{"toolsCpu"}.parseInt()
 
     string[] markedBams
     string{} markedBamsMap
@@ -126,14 +109,14 @@ string{} getDeDupedBamsUmi(string{} cmdExe, string{} bamsMap) {
         string mdupsName = bamFile.swapExt(".bam", "_umi_mdups.bam")
         string metricsName = bamFile.swapExt(".bam", "_umi_mdups.metrics")
 
-        dep(mdups && umi, [mdupsName, metricsName] <- bamFile, cpus := picardMarkDupsCpu, mem := picardMarkDupsMem, taskName := "marking duplicates with je "+bamFile) {
-            sys jeExe markdupes \
-                      INPUT=$bamFile \
-                      OUTPUT=$mdupsName \
-                      MISMATCHES=0 \
-                      METRICS_FILE=$metricsName \
-                      REMOVE_DUPLICATES=true \
-                      ASSUME_SORTED=true
+        dep(mdups && umi, [mdupsName, metricsName] <- bamFile, cpus := jeCpu, mem := jeMem, taskName := "marking duplicates with je "+bamFile) {
+            sys $jeExe markdupes \
+                       INPUT=$bamFile \
+                       OUTPUT=$mdupsName \
+                       MISMATCHES=0 \
+                       METRICS_FILE=$metricsName \
+                       REMOVE_DUPLICATES=true \
+                       ASSUME_SORTED=true
 
             sys rm $bamFile $bamFileIdx
         }

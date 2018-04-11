@@ -109,3 +109,23 @@ string chkCmdArgs() {
     }
     return "thumbs up"
 }
+
+string{} getConfigFile(string usrConfigFile) {
+
+    string sikProgPath = programPath.pathName()
+    string{} sikConfig = config(sikProgPath+"/../configs/sik.config")
+
+    if(!usrConfigFile.isEmpty()) {
+        string{} usrConfig = config(usrConfigFile)
+        for(string k : usrConfig.keys() ) {
+            if(!sikConfig.hasKey(k)) {
+                error "This shouldn't happened :-|"
+            }
+            sikConfig{k} = usrConfig{k}
+        }
+    }
+    if(sikConfig.size() < 0) {
+        error "This definitely shouldn't happend :o| $sikConfig" 
+    }
+    return sikConfig
+}
