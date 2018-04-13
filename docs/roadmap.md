@@ -5,17 +5,19 @@
 
 ## Going forward
 
-### 1.4.9 Q1 (January) 2018
-
-- general bug fixes and maintenance
-
-### 1.4.x
+### 1.x.x
 
 - need to have better way to check for index directory, want to know if starIdx includes or doesn't indexing with annotation. 
 - recheck [Stuart's PR](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pull/10/commits/9e64da57de6da066e94bf6fcc66e23c36adb3671), polish off refFiles detection
 - recheck [this whole PR](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pull/10)
+- Document python scripts existence, what they do, how to run them manually in the case of failure, and the output they give
 
-### 1.4.10 Q1 (February) 2018
+### 1.5.1 Q2 (April/May) 2018
+
+- general maintenance and bug fixes
+- start including unit testing in your master branch, once I'm happy with with `unit_test` branch
+
+### 1.5.2 Q3 (July/August) 2018
 
 - improve `RNAsik` logging, particular want to make individual tools version logging independent of each other, so that if one wants to run
 just counts, `RNAsik` shouldn't complain about `bwa` not found in the PATH. Also double check the behaviour of the logger when pipelines re-runs.
@@ -23,16 +25,7 @@ From memory it might not perform as it should. You really want a log of every ev
 - include logging of split lanes and R1 and R2. Want to be able to see from the log whether two reads were classified as split lanes or paired end. This is
 to do with recent bug that got fixed in [b924027](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/commit/b9240274fa7c964e953a767c254f31ba0d044547) 
 
-### 1.4.11 Q1 (February/March) 2018
-
-- add `samtools flagstat` qc run. Definitely need this for bacterial RNAseq i.e when running [bwa aligner](https://github.com/lh3/bwa), but this metric
-wouldn't hurt in general. It does overlap overall with [STAR aligner](https://github.com/alexdobin/STAR) qc output, but going forward other aligners will be
-added/used but `samtools flagstat` will remain
-- improve python scripts, make strand_guessing more pythonic, also consider making it python3 friendly as per [Andrews PR](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pull/8),
-also output ration value as a third value csv value. This is useful number, particular if exit code is 1.
-- Document python scripts existence, what they do, how to run them manually in the case of failure, and the output they give
-
-### 1.5.0 Q1 (March) 2018
+### 1.5.3 Q4 (October/November) 2018
 
 New feature(s) described below:
 
@@ -44,11 +37,6 @@ Will keep `-fqDir` flag, as a backward compatibility with a warning that flag ha
 Because of changes in arg's options will do a minor version bump.
 
 - include handling of url based samples sheets, i.e `-samplesSheet` flag should handle local based or remote files, just like `-fastaRef` option
-
-### 1.5.1 Q2 (April) 2018
-
-- general maintenance and bug fixes
-- start including unit testing in your master branch, once I'm happy with with `unit_test` branch
 
 ### 1.6.0 Q3 (October/November) 2018
 
@@ -70,6 +58,43 @@ I already have a prototype in bds, just need to plug it in.
 - is there need for circular RNA support?
 
 ## Changelog
+
+### 1.5.0
+
+- fixed bugs and improved python scripts, also migrated them to python3
+- fixed issues: #16, #15, #20, #21
+- fixed bug in handling remote reference files
+- added `mk_igv_links.py` script as general utility script
+- added FASTQ trimmer - `skewer`
+- internal code improvements, made code more readable and clean
+- Re-wrote bam files processing, i.e sorting and marking duplicates. Changed sorting from `picard SortSam` to `samtools sort`. Kept `picard MarkDuplicates` for conventional marking duplicates, but add [Je-suite](https://gbcs.embl.de/portal/tiki-index.php?page=Je) for UMI based de-duplication.
+- Made improvements in handling of featureCounts output for multiqc purposes.
+- completely removed threads and memory parameters, now each task's gets it's own cpu and mem setting all through sik.config. This makes it more cluster friendly as well
+- Added more metrics gathering; samtools qc metrics:
+
+    - `flagstat`
+    - `idxstats`
+    - `stats`
+
+- Improved many different task's dependencies flow.
+- changed few command lines options; new options:
+
+    - `-all`
+    - `-counts`
+    - `-mdups`
+    - `-qc`
+    - `-umi`
+    - `-trim`
+
+- removed command line options:
+
+    - `-metrics`
+    - `-fastqc`
+    - `-prePro`
+    - `-threads`
+    - `-memory`
+
+- all flags changes have some backward compatibility, i.e will set the closet new option. 
 
 ### 1.4.9
 
