@@ -101,17 +101,19 @@
 <p><img alt="mbp-banner" src="../images/mbp_banner.png" /></p>
 <h1 id="roadmap">Roadmap</h1>
 <h2 id="going-forward">Going forward</h2>
-<h3 id="149-q1-january-2018">1.4.9 Q1 (January) 2018</h3>
-<ul>
-<li>general bug fixes and maintenance</li>
-</ul>
-<h3 id="14x">1.4.x</h3>
+<h3 id="1xx">1.x.x</h3>
 <ul>
 <li>need to have better way to check for index directory, want to know if starIdx includes or doesn't indexing with annotation. </li>
 <li>recheck <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pull/10/commits/9e64da57de6da066e94bf6fcc66e23c36adb3671">Stuart's PR</a>, polish off refFiles detection</li>
 <li>recheck <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pull/10">this whole PR</a></li>
+<li>Document python scripts existence, what they do, how to run them manually in the case of failure, and the output they give</li>
 </ul>
-<h3 id="1410-q1-february-2018">1.4.10 Q1 (February) 2018</h3>
+<h3 id="151-q2-aprilmay-2018">1.5.1 Q2 (April/May) 2018</h3>
+<ul>
+<li>general maintenance and bug fixes</li>
+<li>start including unit testing in your master branch, once I'm happy with with <code>unit_test</code> branch</li>
+</ul>
+<h3 id="152-q3-julyaugust-2018">1.5.2 Q3 (July/August) 2018</h3>
 <ul>
 <li>improve <code>RNAsik</code> logging, particular want to make individual tools version logging independent of each other, so that if one wants to run
 just counts, <code>RNAsik</code> shouldn't complain about <code>bwa</code> not found in the PATH. Also double check the behaviour of the logger when pipelines re-runs.
@@ -119,16 +121,7 @@ From memory it might not perform as it should. You really want a log of every ev
 <li>include logging of split lanes and R1 and R2. Want to be able to see from the log whether two reads were classified as split lanes or paired end. This is
 to do with recent bug that got fixed in <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/commit/b9240274fa7c964e953a767c254f31ba0d044547">b924027</a> </li>
 </ul>
-<h3 id="1411-q1-februarymarch-2018">1.4.11 Q1 (February/March) 2018</h3>
-<ul>
-<li>add <code>samtools flagstat</code> qc run. Definitely need this for bacterial RNAseq i.e when running <a href="https://github.com/lh3/bwa">bwa aligner</a>, but this metric
-wouldn't hurt in general. It does overlap overall with <a href="https://github.com/alexdobin/STAR">STAR aligner</a> qc output, but going forward other aligners will be
-added/used but <code>samtools flagstat</code> will remain</li>
-<li>improve python scripts, make strand_guessing more pythonic, also consider making it python3 friendly as per <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pull/8">Andrews PR</a>,
-also output ration value as a third value csv value. This is useful number, particular if exit code is 1.</li>
-<li>Document python scripts existence, what they do, how to run them manually in the case of failure, and the output they give</li>
-</ul>
-<h3 id="150-q1-march-2018">1.5.0 Q1 (March) 2018</h3>
+<h3 id="153-q4-octobernovember-2018">1.5.3 Q4 (October/November) 2018</h3>
 <p>New feature(s) described below:</p>
 <ul>
 <li>implement new flag <code>-fqFiles</code> that can take either a file or a directory.<ul>
@@ -141,11 +134,6 @@ also output ration value as a third value csv value. This is useful number, part
 Because of changes in arg's options will do a minor version bump.</p>
 <ul>
 <li>include handling of url based samples sheets, i.e <code>-samplesSheet</code> flag should handle local based or remote files, just like <code>-fastaRef</code> option</li>
-</ul>
-<h3 id="151-q2-april-2018">1.5.1 Q2 (April) 2018</h3>
-<ul>
-<li>general maintenance and bug fixes</li>
-<li>start including unit testing in your master branch, once I'm happy with with <code>unit_test</code> branch</li>
 </ul>
 <h3 id="160-q3-octobernovember-2018">1.6.0 Q3 (October/November) 2018</h3>
 <ul>
@@ -171,6 +159,53 @@ I already have a prototype in bds, just need to plug it in.</p>
 <li>is there need for circular RNA support?</li>
 </ul>
 <h2 id="changelog">Changelog</h2>
+<h3 id="150">1.5.0</h3>
+<ul>
+<li>fixed bugs and improved python scripts, also migrated them to python3</li>
+<li>fixed issues: #16, #15, #20, #21</li>
+<li>fixed bug in handling remote reference files</li>
+<li>added <code>mk_igv_links.py</code> script as general utility script</li>
+<li>added FASTQ trimmer - <code>skewer</code></li>
+<li>internal code improvements, made code more readable and clean</li>
+<li>Re-wrote bam files processing, i.e sorting and marking duplicates. Changed sorting from <code>picard SortSam</code> to <code>samtools sort</code>. Kept <code>picard MarkDuplicates</code> for conventional marking duplicates, but add <a href="https://gbcs.embl.de/portal/tiki-index.php?page=Je">Je-suite</a> for UMI based de-duplication.</li>
+<li>Made improvements in handling of featureCounts output for multiqc purposes.</li>
+<li>completely removed threads and memory parameters, now each task's gets it's own cpu and mem setting all through sik.config. This makes it more cluster friendly as well</li>
+<li>
+<p>Added more metrics gathering; samtools qc metrics:</p>
+<ul>
+<li><code>flagstat</code></li>
+<li><code>idxstats</code></li>
+<li><code>stats</code></li>
+</ul>
+</li>
+<li>
+<p>Improved many different task's dependencies flow.</p>
+</li>
+<li>
+<p>changed few command lines options; new options:</p>
+<ul>
+<li><code>-all</code></li>
+<li><code>-counts</code></li>
+<li><code>-mdups</code></li>
+<li><code>-qc</code></li>
+<li><code>-umi</code></li>
+<li><code>-trim</code></li>
+</ul>
+</li>
+<li>
+<p>removed command line options:</p>
+<ul>
+<li><code>-metrics</code></li>
+<li><code>-fastqc</code></li>
+<li><code>-prePro</code></li>
+<li><code>-threads</code></li>
+<li><code>-memory</code></li>
+</ul>
+</li>
+<li>
+<p>all flags changes have some backward compatibility, i.e will set the closet new option. </p>
+</li>
+</ul>
 <h3 id="149">1.4.9</h3>
 <ul>
 <li>Fixed BWA indexing problem. Problem around STAR and Hisat2 aligners pass index as directory whereas bwa as a file, had to fight to make all different options i.e <code>-refFiles</code> and <code>-genomeIdx</code> to work</li>
