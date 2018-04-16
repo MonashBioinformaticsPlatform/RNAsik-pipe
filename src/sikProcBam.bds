@@ -11,8 +11,12 @@ string{} getSortedBams(string{} cmdExe, string sikDir, string{} bamsMap) {
     int sortMem = resource{"toolsMem"}.parseInt()
     int sortCpu = resource{"toolsCpu"}.parseInt()
 
+    //NOTE we want samtools sort to recieve sortMem memory from sik.cofig
+    //However this is per thread and therefore samtools sort task should be set
+    // at sortMem*sortCpu
     int sortBdsMem = sortMem*sortCpu
-    string sortSamMem = sortBdsMem/1000+"K" // this is to covert to bytes
+    // also need to covert to bytes as samtools sort needs that way
+    string sortSamMem = sortMem/1000+"K" 
 
     string[] sortedBams
     string{} sortedBamsMap
