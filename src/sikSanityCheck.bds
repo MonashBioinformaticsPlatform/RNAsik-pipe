@@ -46,8 +46,8 @@ if( !align.isEmpty() && genomeIdx.isEmpty() ) {
     }
 }
 if(align == "starWithAnn") {
-    if(refFiles.isEmpty() || gtfFile.isEmpty()) {
-        error "Usage: -refFiles /path/to/refFiles/directory OR -gtfFile /path/to/GTFfile"
+    if(refFiles.isEmpty()) {
+        if(gtfFile.isEmpty()) error "Usage: -gtfFile /path/to/GTFfile"
     }
 }
 
