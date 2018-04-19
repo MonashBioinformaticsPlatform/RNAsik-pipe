@@ -142,34 +142,3 @@ multiqcExe = $HOME/bioansible/software/apps/multiqc-1.4/bin/multiqc
 ```
 
 If the user happens to have `lmod` installed, simply `module use $HOME/bioansible/software/modules/bio` to let `lmod` know about new modules and then simply `module load RNAsik-pipe`, which will automatically "pull" other dependencies into your environment. You can check that by `module list` to see what is in your environment
-### Make RNAsik analysis ready
-
-[bio-ansible](https://github.com/MonashBioinformaticsPlatform/bio-ansible) is complete bioinformatics stack (with heavily genomics focus at this stage) deployment written in ansible script, which depending on a type of deployment might require admin privilege i.e `sudo`.
-Given that [system prerequisites](#system-prerequisites) are satisfied one **don't** need `sudo` to install bioinformatics stack, primarily [bio_tools](https://github.com/MonashBioinformaticsPlatform/bio-ansible/blob/master/roles/bio_tools/tasks/main.yml).
-
-In this docs there is an assumption that user either has `sudo` rights and/or able to install [system prerequisites](#system-prerequisites) OR already has those dependencies installed and therefore can simply use [bio-ansible](https://github.com/MonashBioinformaticsPlatform/bio-ansible) as per installing `RNAsik` section above to get all required tools dependencies.
-
-Also right now [bio-ansible](https://github.com/MonashBioinformaticsPlatform/bio-ansible) is focused on a particular tools/enviroment management type, which is [lmod](https://lmod.readthedocs.io/en/latest/), where one can `module load samtools` into their environment for use, by default `samtools` isn't available in the current (shell) environment. This is rather common approach on HPC clusters. Because of that type of installation, if user doesn't have pre-installed `lmod` they will needs to either `export PATH` for every tool (sounds a bit annoying), OR `export` `RNAsik` into your `PATH` and them simply let `RNAsik` know where tools are through `-configFile` option.
-
-```
-export PATH=$HOME/bioansible/software/apps/BigDataScript-0.99999g:$PATH
-export PATH=$HOME/bioansible/software/apps/RNAsik-pipe-1.4.9/bin:$PATH
-```
-
-copy these lines into file e.g sik.config and add `-configFile path/to/sik.config` to `RNAsik`
-
-```
-starExe = $HOME/bioansible/software/apps/STAR-2.5.2b/STAR
-hisat2Exe = $HOME/bioansible/software/apps/hisat2-2.1.0/bin/hisat2
-bwaExe = $HOME/bioansible/software/apps/bwa-v0.7.15/bwa
-samtoolsExe = $HOME/bioansible/software/apps/samtools-1.4.1/bin/samtools
-bedtoolsExe = $HOME/bioansible/software/apps/bedtools2-2.25.0/bin/bedtools
-countsExe = $HOME/bioansible/software/apps/subread-1.5.2/bin/featureCounts
-fastqcExe = $HOME/bioansible/software/apps/fastqc-0.11.5/fastqc
-pythonExe = python
-picardExe = java -Xmx6g -jar $HOME/bioansible/software/apps/picard-2.17.10/picard.jar
-qualimapExe = $HOME/bioansible/software/apps/qualimap_v2.2.1/qualimap
-multiqcExe = $HOME/bioansible/software/apps/multiqc-1.4/bin/multiqc
-```
-
-If the user happens to have `lmod` installed, simply `module use $HOME/bioansible/software/modules/bio` to let `lmod` know about new modules and then simply `module load RNAsik-pipe`, which will automatically "pull" other dependencies into your environment. You can check that by `module list` to see what is in your environment
