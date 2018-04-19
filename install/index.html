@@ -100,7 +100,6 @@
         <li class="main "><a href="#running-bio-ansible">Running bio-ansible</a></li>
         <li class="main "><a href="#alternative-installation-method-for-rnasik">Alternative installation method for RNAsik</a></li>
         <li class="main "><a href="#make-rnasik-analysis-ready">Make RNAsik analysis ready</a></li>
-            <li><a href="#make-rnasik-analysis-ready_1">Make RNAsik analysis ready</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
@@ -204,30 +203,6 @@ path/to/RNAsik-pipe/bin/RNAsik
 </code></pre>
 
 <h2 id="make-rnasik-analysis-ready">Make RNAsik analysis ready</h2>
-<p><a href="https://github.com/MonashBioinformaticsPlatform/bio-ansible">bio-ansible</a> is complete bioinformatics stack (with heavily genomics focus at this stage) deployment written in ansible script, which depending on a type of deployment might require admin privilege i.e <code>sudo</code>.
-Given that <a href="#system-prerequisites">system prerequisites</a> are satisfied one <strong>don't</strong> need <code>sudo</code> to install bioinformatics stack, primarily <a href="https://github.com/MonashBioinformaticsPlatform/bio-ansible/blob/master/roles/bio_tools/tasks/main.yml">bio_tools</a>.</p>
-<p>In this docs there is an assumption that user either has <code>sudo</code> rights and/or able to install <a href="#system-prerequisites">system prerequisites</a> OR already has those dependencies installed and therefore can simply use <a href="https://github.com/MonashBioinformaticsPlatform/bio-ansible">bio-ansible</a> as per installing <code>RNAsik</code> section above to get all required tools dependencies.</p>
-<p>Also right now <a href="https://github.com/MonashBioinformaticsPlatform/bio-ansible">bio-ansible</a> is focused on a particular tools/enviroment management type, which is <a href="https://lmod.readthedocs.io/en/latest/">lmod</a>, where one can <code>module load samtools</code> into their environment for use, by default <code>samtools</code> isn't available in the current (shell) environment. This is rather common approach on HPC clusters. Because of that type of installation, if user doesn't have pre-installed <code>lmod</code> they will needs to either <code>export PATH</code> for every tool (sounds a bit annoying), OR <code>export</code> <code>RNAsik</code> into your <code>PATH</code> and them simply let <code>RNAsik</code> know where tools are through <code>-configFile</code> option.</p>
-<pre><code>export PATH=$HOME/bioansible/software/apps/BigDataScript-0.99999g:$PATH
-export PATH=$HOME/bioansible/software/apps/RNAsik-pipe-1.4.9/bin:$PATH
-</code></pre>
-
-<p>copy these lines into file e.g sik.config and add <code>-configFile path/to/sik.config</code> to <code>RNAsik</code></p>
-<pre><code>starExe = $HOME/bioansible/software/apps/STAR-2.5.2b/STAR
-hisat2Exe = $HOME/bioansible/software/apps/hisat2-2.1.0/bin/hisat2
-bwaExe = $HOME/bioansible/software/apps/bwa-v0.7.15/bwa
-samtoolsExe = $HOME/bioansible/software/apps/samtools-1.4.1/bin/samtools
-bedtoolsExe = $HOME/bioansible/software/apps/bedtools2-2.25.0/bin/bedtools
-countsExe = $HOME/bioansible/software/apps/subread-1.5.2/bin/featureCounts
-fastqcExe = $HOME/bioansible/software/apps/fastqc-0.11.5/fastqc
-pythonExe = python
-picardExe = java -Xmx6g -jar $HOME/bioansible/software/apps/picard-2.17.10/picard.jar
-qualimapExe = $HOME/bioansible/software/apps/qualimap_v2.2.1/qualimap
-multiqcExe = $HOME/bioansible/software/apps/multiqc-1.4/bin/multiqc
-</code></pre>
-
-<p>If the user happens to have <code>lmod</code> installed, simply <code>module use $HOME/bioansible/software/modules/bio</code> to let <code>lmod</code> know about new modules and then simply <code>module load RNAsik-pipe</code>, which will automatically "pull" other dependencies into your environment. You can check that by <code>module list</code> to see what is in your environment</p>
-<h3 id="make-rnasik-analysis-ready_1">Make RNAsik analysis ready</h3>
 <p><a href="https://github.com/MonashBioinformaticsPlatform/bio-ansible">bio-ansible</a> is complete bioinformatics stack (with heavily genomics focus at this stage) deployment written in ansible script, which depending on a type of deployment might require admin privilege i.e <code>sudo</code>.
 Given that <a href="#system-prerequisites">system prerequisites</a> are satisfied one <strong>don't</strong> need <code>sudo</code> to install bioinformatics stack, primarily <a href="https://github.com/MonashBioinformaticsPlatform/bio-ansible/blob/master/roles/bio_tools/tasks/main.yml">bio_tools</a>.</p>
 <p>In this docs there is an assumption that user either has <code>sudo</code> rights and/or able to install <a href="#system-prerequisites">system prerequisites</a> OR already has those dependencies installed and therefore can simply use <a href="https://github.com/MonashBioinformaticsPlatform/bio-ansible">bio-ansible</a> as per installing <code>RNAsik</code> section above to get all required tools dependencies.</p>
