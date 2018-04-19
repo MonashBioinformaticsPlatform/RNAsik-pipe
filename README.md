@@ -11,8 +11,7 @@ RNAsik -fqDir /path/to/raw-data/directory \
        -align star \
        -refFiles /path/to/refDir \
        -counts \
-       -metrics \
-       -threads 10
+       -all
 ```
 
 ## }

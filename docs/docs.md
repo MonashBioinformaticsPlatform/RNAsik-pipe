@@ -5,6 +5,11 @@
 
 ## Quick start
 
+### Install
+
+conda install -c serine rnasik 
+conda install -c bioconda qualimap 
+
 ### Align raw reads
 
 ```BASH
@@ -26,8 +31,7 @@ RNAsik -fqDir /path/to/raw-data/directory \
        -align star \
        -refFiles /path/to/refDir \
        -counts \
-       -metrics \
-       -threads 10
+       -all
 ```
 
 ## Data set for testing
@@ -67,9 +71,8 @@ RNAsik -align star \
        -fqDir http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/rawData/IndustrialAntifoamAgentsYeastRNAseqData.tar \
        -counts \
        -gtfFile ftp://ftp.ensembl.org/pub/release-91/gtf/saccharomyces_cerevisiae/Saccharomyces_cerevisiae.R64-1-1.91.gtf.gz \
-       -metrics \
-       -paired \
-       -threads 10
+       -all \
+       -paired
 ```
 
 ## Introduction
@@ -89,148 +92,33 @@ Alternatively as, hinted above, user can leverage of [RNAsik](https://github.com
 
 ## Installation
 
-[watch it on youtube](https://www.youtube.com/watch?v=oHRa9iniy3o)
+### Using conda
 
-### Quick start
-
-```
-sudo apt-get install unzip make gcc git python-virtualenv
-sudo apt-get install zlib1g-dev libbz2-dev liblzma-dev libncurses5-dev
-sudo apt-get install openjdk-8-jdk ant golang-go
-sudo apt-get install git htop tmux vim
-
-virtualenv ~/ansible_env
-source ~/ansible_env/bin/activate
-
-pip install --upgrade pip
-pip install ansible
-
-git clone https://github.com/MonashBioinformaticsPlatform/bio-ansible
-cd bio-ansible/
-ansible-playbook -i hosts bio.yml --tags dirs,bds,rnasik,star,bwa,hisat2,subread,samtools,htslib,bedtools,picard,qualimap,fastqc,multiqc
-
-export PATH=$HOME/bioansible/software/apps/BigDataScript-0.99999g:$PATH
-export PATH=$HOME/bioansible/software/apps/RNAsik-pipe-1.4.9/bin:$PATH
-
-RNAsik
-```
-
-### Tools prerequisites
-
-I tried to account for every sub-dependency in [bio-ansible](https://github.com/MonashBioinformaticsPlatform/bio-ansible), definitely checked against vanilla ubuntu 16.04 linux distro, however other systems/linux distros might have slight deviation from this. If you run into trouble please double check dependencies for the tool that is failing.
-There is quite a spectrum of languages there in the pipeline, C/C++, java and python so far. One can image the difficulty to accommodate every distro and/or system. I'm doing my best !
-
-- [BigDataScript](http://pcingola.github.io/BigDataScript/download.html)
-- [STAR aligner](https://github.com/alexdobin/STAR/releases)
-- [subread](http://subread.sourceforge.net/)
-- [samtools](http://www.htslib.org/download/)
-- [bedtools2](http://bedtools.readthedocs.io/en/latest/index.html)
-- [Picard tools](http://broadinstitute.github.io/picard/)
-- [QualiMap](http://qualimap.bioinfo.cipf.es/)
-- [MultiQC](http://multiqc.info/) 
-- [FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
-
-### System prerequisites
-
-In order to install system dependencies you'll need admin privilege i.e `sudo`
-
-**General**, these are you "stock" utils, that most running system will/should have
-
-- `unzip`
-- `make`
-- `gcc`
-- `git`
-- `python-virtualenv`
+- download [miniconda](https://conda.io/miniconda.html) `.sh` installer 
+- run it and follow the prompts
 
 ```
-sudo apt-get install unzip make gcc git python-virtualenv
+bash Miniconda3-latest-Linux-x86_64.sh 
 ```
 
-**samtools, htslib and bwa deps**, these are some what specific libraries
-
-- `zlib1g-dev` 
-- `libbz2-dev` 
-- `liblzma-dev`
-- `libncurses5-dev`
+- install `RNAsik` pipeline
 
 ```
-sudo apt-get install zlib1g-dev libbz2-dev liblzma-dev libncurses5-dev
+conda install -c serine rnasik 
 ```
 
-**Java and BigDataScript**, these again rather generic packages, except golang. 
-Note that golang is pretty easy to install, comes as a pre-compiled binary [here](https://golang.org/dl/) if you don't want to get it through system package mamanger
-
-- `openjdk-8-jdk` 
-- `ant`
-- `golang-go`
+- additionally install `qualimap` separately (it was a tricky to include qualimap into RNAsik because large number of dependencies that qualimap has)
 
 ```
-sudo apt-get install openjdk-8-jdk ant golang-go
-```
-
-**Extras**, these are optional dependencies, but `tmux` especially recommended as pipeline run could take some time to complete
-_provided you are doing this on remote machine (server), which is also recommended_
-
-- `htop`
-- `tmux`
-- `vim`
+conda install -c bioconda qualimap 
 
 ```
-sudo apt-get install git htop tmux vim
-```
 
-### Preferred installation method for RNAsik
+Right now `RNAsik` hosted from my "channel" (conda terminology). There are plans to push it to official [bioconda channel](https://bioconda.github.io/)
 
-Follow [ansible installation guid](http://docs.ansible.com/ansible/intro_installation.html) to get ansible then:
+### Alternative installation methods
 
-```BASH
-git clone https://github.com/MonashBioinformaticsPlatform/bio-ansible
-cd bio-ansible/
-ansible-playbook -i hosts bio.yml --tags dirs,bds,rnasik,star,bwa,hisat2,subread,samtools,htslib,bedtools,picard,qualimap,fastqc,multiqc
-```
-
-### Alternative installation method for RNAsik
-
-If you have all of the tools installed and you just need `RNAsik` you can simply `git clone` it. It doesn't require any
-other installations/compilations. BUT you do need to have [BigDataScript](https://github.com/pcingola/BigDataScript) installed
-and have it in your `PATH` for `RNAsik` to run
-
-```BASH
-git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe
-path/to/RNAsik-pipe/bin/RNAsik
-```
-
-### Make RNAsik analysis ready
-
-[bio-ansible](https://github.com/MonashBioinformaticsPlatform/bio-ansible) is complete bioinformatics stack (with heavily genomics focus at this stage) deployment written in ansible script, which depending on a type of deployment might require admin privilege i.e `sudo`.
-Given that [system prerequisites](#system-prerequisites) are satisfied one **don't** need `sudo` to install bioinformatics stack, primarily [bio_tools](https://github.com/MonashBioinformaticsPlatform/bio-ansible/blob/master/roles/bio_tools/tasks/main.yml).
-
-In this docs there is an assumption that user either has `sudo` rights and/or able to install [system prerequisites](#system-prerequisites) OR already has those dependencies installed and therefore can simply use [bio-ansible](https://github.com/MonashBioinformaticsPlatform/bio-ansible) as per installing `RNAsik` section above to get all required tools dependencies.
-
-Also right now [bio-ansible](https://github.com/MonashBioinformaticsPlatform/bio-ansible) is focused on a particular tools/enviroment management type, which is [lmod](https://lmod.readthedocs.io/en/latest/), where one can `module load samtools` into their environment for use, by default `samtools` isn't available in the current (shell) environment. This is rather common approach on HPC clusters. Because of that type of installation, if user doesn't have pre-installed `lmod` they will needs to either `export PATH` for every tool (sounds a bit annoying), OR `export` `RNAsik` into your `PATH` and them simply let `RNAsik` know where tools are through `-configFile` option.
-
-```
-export PATH=$HOME/bioansible/software/apps/BigDataScript-0.99999g:$PATH
-export PATH=$HOME/bioansible/software/apps/RNAsik-pipe-1.4.9/bin:$PATH
-```
-
-copy these lines into file e.g sik.config and add `-configFile path/to/sik.config` to `RNAsik`
-
-```
-starExe = $HOME/bioansible/software/apps/STAR-2.5.2b/STAR
-hisat2Exe = $HOME/bioansible/software/apps/hisat2-2.1.0/bin/hisat2
-bwaExe = $HOME/bioansible/software/apps/bwa-v0.7.15/bwa
-samtoolsExe = $HOME/bioansible/software/apps/samtools-1.4.1/bin/samtools
-bedtoolsExe = $HOME/bioansible/software/apps/bedtools2-2.25.0/bin/bedtools
-countsExe = $HOME/bioansible/software/apps/subread-1.5.2/bin/featureCounts
-fastqcExe = $HOME/bioansible/software/apps/fastqc-0.11.5/fastqc
-pythonExe = python
-picardExe = java -Xmx6g -jar $HOME/bioansible/software/apps/picard-2.17.10/picard.jar
-qualimapExe = $HOME/bioansible/software/apps/qualimap_v2.2.1/qualimap
-multiqcExe = $HOME/bioansible/software/apps/multiqc-1.4/bin/multiqc
-```
-
-If the user happens to have `lmod` installed, simply `module use $HOME/bioansible/software/modules/bio` to let `lmod` know about new modules and then simply `module load RNAsik-pipe`, which will automatically "pull" other dependencies into your environment. You can check that by `module list` to see what is in your environment
+- [HERE](install.md)
 
 ## User input
 
@@ -294,10 +182,10 @@ Samples sheet in a bit more details; If you have four samples, two wild-type and
 <table>
 <tr><th>Directories</th><th>Description</th></tr>
 <tr><td class="left_col">refFiles/</td><td> Contains the reference files (FASTA and GTF) and indices (aligner index) used in the analysis run </td></tr>
-<tr><td class="left_col">bamFiles/</td><td> Contains "raw" BAM files, outputed from an aligner. Also may hold additional files from alignment run e.g aligner specific log files </td></tr>
+<tr><td class="left_col">alignerFiles/</td><td> Containts all other, additional files from alignment run, but the bam files. e.g aligner specific log files, splice junction files </td></tr>
+<tr><td class="left_col">bamFiles/</td><td> Contains pre-processed BAM files, i.e sorted and duplicates marked as well as indexed, all using samtools and picard tools. These BAMs can be used in [IGV](http://software.broadinstitute.org/software/igv/) to view read alignments </td></tr>
 <tr><td class="left_col">countFiles/</td><td> Contains read count files, "raw" - from `featureCounts`, degust ready counts and filtered for protein_coding features only</td></tr>
 <tr><td class="left_col">coverageFiles/</td><td> Contains bigWig files for every bam (sample) file - from `bedtools genomecov` and `bedGrapToBigWig` USCS binary. Can load those into IGV</td></tr>
-<tr><td class="left_col">markedBams/</td><td> Contains pre-processed BAM files, these BAMs are sorted, reordered and duplicates marked as well as indexed, all using picard tools. These BAMs can be used in [IGV](http://software.broadinstitute.org/software/igv/) to view read alignments </td></tr>
 <tr><td class="left_col">fastqReport/</td><td> Contains FastQC HTML reports for individual FASTQ files</td></tr>
 <tr><td class="left_col">qualiMapResults/</td><td> Contains int(ra|er)genic rates from each BAM file. Each BAM has its own directory with metric files. These results generated using `QualiMap rnaseq` command</td></tr>
 <tr><td class="left_col">fastqDir/</td><td> If you are going to pull your FASTQ file over http in tarball, then tarball will be unarchived here</td></tr>
@@ -362,8 +250,8 @@ Pipelines runs `featureCounts` three times forcing reads to forward strand only,
 
 <table>
 <tr><th>Options</th><th> Usage </th></tr>
-<tr><td class="left_col">-metrics</td> <td> This is an aggregate flag that is a short hand of writing out -prePro, -fastqc, -exonicRate and -multiqc</td></tr>
-<tr><td class="left_col">-fastqc</td> <td> flag if you'd like to get FastQC reports for your fastq files</td></tr>
+<tr><td class="left_col">-all</td> <td> This is an aggregate flag that is a short hand to get everything pipeline has to offer</td></tr>
+<tr><td class="left_col">-qc</td> <td>Flag to collect several different QC metrics on your BAM and counts data</td></tr>
 <tr><td class="left_col">-exonicRate</td> <td> flag if you'd like to get Int(ra|er)genic rates for your reads, using QualiMap tool</td></tr>
 <tr><td class="left_col">-multiqc</td> <td> flag if you'd like to get general report that summarises different log files including `STAR`, `featureCounts`, `FastQC` and `QualiMap`</td></tr>
 </table>
@@ -372,14 +260,15 @@ Pipelines runs `featureCounts` three times forcing reads to forward strand only,
 
 <table>
 <tr><th>Options</th><th> Usage </th></tr>
-<tr><td class="left_col">-prePro</td> <td> flag to get your BAM files pre-processed i.e get them sorted, duplicates marked and index</td></tr>
+<tr><td class="left_col">-mdups</td> <td> flag to mark duplicates</td></tr>
+<tr><td class="left_col">-trim</td> <td> perform FASTQ adapter and quality trimming</td></tr>
+<tr><td class="left_col">-cov</td> <td> get coverage plots, bigWig </td></tr>
+<tr><td class="left_col">-umi</td> <td> flag to deduplicate using UMI information</td></tr>
 <tr><td class="left_col">-samplesSheet</td> <td> specify name of a tab separated text file, two columns,the first with old prefixes to be removed by new prefixes in the second column</td></tr>
 <tr><td class="left_col">-genomeIdx</td> <td> specify path to pre-existing alignment index </td></tr>
 <tr><td class="left_col">-outDir</td><td>give a name to your analysis output directory [sikRun] </td></tr>
 <tr><td class="left_col">-extn</td> <td> provide your fastq files extntion. [".fastq.gz"]  </td></tr>
 <tr><td class="left_col">-pairIds</td> <td> provide type identification, default is [`_R1,_R2`]</td></tr>
-<tr><td class="left_col">-threads</td> <td> provide number of threads to use. [4]  </td></tr>
-<tr><td class="left_col">-memory</td> <td> provide amount of memory to use. [40000000000]  </td></tr>
 <tr><td class="left_col">-extraOpts</td> <td> provide key=value pairs, one per line, with key being tool name and value is a string of options e.g `star="--outWigType bedGraph"` </td></tr>
 <tr><td class="left_col">-configFile</td><td>specify your own config file with key=value pairs, one per line, for all tools</td></tr>
 </table>
