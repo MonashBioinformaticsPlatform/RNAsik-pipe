@@ -111,8 +111,13 @@
 <h1 id="documentation">Documentation</h1>
 <h2 id="quick-start">Quick start</h2>
 <h3 id="install">Install</h3>
-<p>conda install -c serine rnasik 
-conda install -c bioconda qualimap </p>
+<pre><code>conda config --add channels defaults
+conda config --add channels conda-forge
+conda config --add channels bioconda
+conda install -c serine rnasik 
+conda install -c bioconda qualimap 
+</code></pre>
+
 <h3 id="align-raw-reads">Align raw reads</h3>
 <pre><code class="BASH">RNAsik -align star \
        -fastaRef /path/to/reference.fasta \
@@ -186,6 +191,14 @@ Alternatively as, hinted above, user can leverage of <a href="https://github.com
 <li>run it and follow the prompts</li>
 </ul>
 <pre><code>bash Miniconda3-latest-Linux-x86_64.sh 
+</code></pre>
+
+<ul>
+<li>add a few <code>conda</code> "channels", this is so <code>conda</code> knows where to get things from</li>
+</ul>
+<pre><code>conda config --add channels defaults
+conda config --add channels conda-forge
+conda config --add channels bioconda
 </code></pre>
 
 <ul>
