@@ -101,7 +101,7 @@ def get_gff(handler):
             if feature[2] == feat_type:
                 ninthField = feature[8]
     
-                chk_gene_id = re.search('ID=([A-z0-9_ \- \(\)]+)', ninthField)
+                chk_gene_id = re.search('ID=([A-z0-9_ \. \- \(\)]+)', ninthField)
                 chk_gene_name = re.search('Name=([A-z0-9_ \. \: \- \(\)]+)', ninthField)
     
                 gene_name = 'NA'
