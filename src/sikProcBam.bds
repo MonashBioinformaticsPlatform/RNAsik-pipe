@@ -52,20 +52,10 @@ string{} getSortedBams(string{} cmdExe, string sikDir, string{} bamsMap) {
 
 string{} getDeDupedBams(string{} cmdExe, string{} bamsMap) {
 
-    if(!cmdExe.hasKey("picardExe")) {
-        error "Can't get picard executable, check your config file $configFile"
-    }
-    string picardExe = cmdExe{"picardExe"}
-
-    if(!cmdExe.hasKey("picardMarkDupsMem")) {
-        error "Can't get memory settings for picard MarkDuplicates, check your config file $configFile"
-    }
-    int picardMarkDupsMem = cmdExe{"picardMarkDupsMem"}.parseInt()
-
-    if(!cmdExe.hasKey("picardMarkDupsCpu")) {
-        error "Can't get cpu settings for picard MarkDuplicates, check your config file $configFile"
-    }
-    int picardMarkDupsCpu = cmdExe{"picardMarkDupsCpu"}.parseInt()
+    string{} resource = getResource(cmdExe, "picard", "MarkDups")
+    string picardExe = resource{"toolsExe"}
+    int picardMem = resource{"toolsMem"}.parseInt()
+    int picardCpu = resource{"toolsCpu"}.parseInt()
 
     string[] markedBams
     string{} markedBamsMap
@@ -77,7 +67,7 @@ string{} getDeDupedBams(string{} cmdExe, string{} bamsMap) {
         string mdupsName = bamFile.swapExt(".bam", "_mdups.bam")
         string metricsName = bamFile.swapExt(".bam", "_mdups.metrics")
 
-        dep(mdups && !umi, [mdupsName, metricsName] <- bamFile, cpus := picardMarkDupsCpu, mem := picardMarkDupsMem, taskName := "markiing duplicates with picard MarkDuplicates "+bamFile) {
+        dep(mdups && !umi, [mdupsName, metricsName] <- bamFile, cpus := picardCpu, mem := picardMem, taskName := "markiing duplicates with picard MarkDuplicates "+bamFile) {
             sys $picardExe MarkDuplicates TMP_DIR=tmp/ \
                                           VALIDATION_STRINGENCY=LENIENT \
                                           CREATE_INDEX=true \
@@ -103,6 +93,9 @@ string{} getDeDupedBamsUmi(string{} cmdExe, string{} bamsMap) {
     int jeMem = resource{"toolsMem"}.parseInt()
     int jeCpu = resource{"toolsCpu"}.parseInt()
 
+    string{} resource2 = getResource(cmdExe, "picard", "MarkDups")
+    string picardExe = resource2{"toolsExe"}
+
     string[] markedBams
     string{} markedBamsMap
 
@@ -121,6 +114,8 @@ string{} getDeDupedBamsUmi(string{} cmdExe, string{} bamsMap) {
                        METRICS_FILE=$metricsName \
                        REMOVE_DUPLICATES=true \
                        ASSUME_SORTED=true
+
+            sys $picardExe BuildBamIndex INPUT=$mdupsName
 
             sys rm $bamFile $bamFileIdx
         }
