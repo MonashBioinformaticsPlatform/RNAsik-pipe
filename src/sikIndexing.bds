@@ -26,7 +26,7 @@ string getIdx(string{} cmdExe, string aligner, string modelType, string refFiles
     if(aligner.indexOf("hisat2") != -1) {
         string allHisat2IdxOpts = getOpts("hisat2Index", hisat2IdxOpts, userExtraOpts)
         mkLog("Hisat2", allHisat2IdxOpts, "refFiles", logsDir)
-        genomeIdx = makeHisat2Idx(cmdExe, refFiles, localFastaRef, localGTF, allHisat2IdxOpts)
+        genomeIdx = makeHisat2Idx(cmdExe, localFastaRef, localGTF, allHisat2IdxOpts)
     }
     if(aligner.indexOf("bwa") != -1) {
         string allBWAidxOpts = getOpts("bwaIdx", bwaIdxOpts, userExtraOpts)

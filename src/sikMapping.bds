@@ -23,7 +23,7 @@ string{} getBams(string{} cmdExe, string aligner, string bamsDir, string{} sampl
     if(aligner.indexOf("hisat2") != -1) {
         string allHisat2Opts = getOpts("Hisat2", hisat2Opts, userExtraOpts)
         mkLog("Hisat2", allHisat2Opts, "refFiles", logsDir)
-        bamsMap = mapHisat2(cmdExe, bamsDir, samplesMap, pairIds, paired, allHisat2Opts, genomeIdx)
+        bamsMap = mapHisat2(cmdExe, bamsDir, samplesMap, pairIds, paired, allHisat2Opts, genomeIdx, fastaRef)
     }
     if(aligner.indexOf("bwa") != -1) {
         string allBWAopts = getOpts("bwa mem", bwaMemOpts, userExtraOpts)

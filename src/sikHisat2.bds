@@ -4,89 +4,108 @@
 
 include "sikFqFiles.bds"
 
-string makeHisat2Idx(string{} cmdExe, string refFiles, string fastaRef, string gtfFile, string hisat2Opts) {
-    // get Hisat2 executable 
-    if(!cmdExe.hasKey("hisat2Exe")) {
-        error "Can't get Hisat2 executable, check your config file $configFile"
+string makeHisat2Idx(string{} cmdExe, string fastaRef, string gtfFile, string hisat2Opts) {
+
+    string{} resource = getResource(cmdExe, "hisat2", "Idx")
+    string hisat2Exe = resource{"toolsExe"}+"-build"
+    int hisat2Mem = resource{"toolsMem"}.parseInt()
+    int hisat2Cpu = resource{"toolsCpu"}.parseInt()
+
+    string genomeIdxDir = fastaRef.removeExt()+".hisat2Idx"
+    if(!genomeIdxDir.exists()) {
+        genomeIdxDir.mkdir()
     }
-    string hisat2Exe = cmdExe{"hisat2Exe"}+"-build"
 
-    if(!cmdExe.hasKey("hisat2IdxMem")) {
-        error "Can't get memory settings for Hisat2 indexing, check your config file $configFile"
-    }
-    int hisat2IdxMem = cmdExe{"hisat2IdxMem"}.parseInt()
+    string refsDir = fastaRef.dirName()
+    string faBaseName = fastaRef.baseName()
+    string hisat2IdxBase = genomeIdxDir+"/"+faBaseName
 
-    if(!cmdExe.hasKey("hisat2IdxCpu")) {
-        error "Can't get cpu settings for Hisat2 indexing, check your config file $configFile"
-    }
-    int hisat2IdxCpu = cmdExe{"hisat2IdxCpu"}.parseInt()
-
-    string genomeIdxDir = fastaRef.removeExt()+"-hisat2Idx"
-    if(!genomeIdxDir.exists()) genomeIdxDir.mkdir()
-    string preFix = genomeIdxDir+"/"+fastaRef.baseName()
-    //string idxLog = preFix+".log"
-    string idxStderr = preFix+".stderr"
-    string idxStdout = preFix+".stdout"
-
-    string[] outs
+    string idxStderr = refsDir+"/"+faBaseName.removeExt()+".stderr"
+    string idxStdout = refsDir+"/"+faBaseName.removeExt()+".stdout"
 
     string[] genomeIdxFiles
-    for(int i : range(1, 8)) genomeIdxFiles += preFix+".$i.ht2"
+    for(int i : range(1, 8)) {
+        genomeIdxFiles += hisat2IdxBase+".$i.ht2"
+    }
 
+    string[] outs
     outs += genomeIdxFiles
-    //outs += idxLog
     outs += idxStdout
     outs += idxStderr
 
-    task(!fastaRef.isEmpty(), outs <- fastaRef, cpus := hisat2IdxCpu, taskName := "Making Hisat2 index") {
-        sys $hisat2Exe $fastaRef \
-                       $preFix 1> $idxStdout 2> $idxStderr
+    task(!fastaRef.isEmpty(), outs <- fastaRef, cpus := hisat2Cpu, taskName := "Making Hisat2 index") {
+        sys $hisat2Exe -p $hisat2Cpu \
+                       $fastaRef \
+                       $hisat2IdxBase 1> $idxStdout 2> $idxStderr
     }
-    return preFix
+    return genomeIdxDir
 }
-string{} mapHisat2(string{} cmdExe, string bamFiles, string{} samplesMap, string pairIds, bool paired, string hisat2Opts, string genomeIdx) {
+string{} mapHisat2(string{} cmdExe, string bamFiles, string{} samplesMap, string pairIds, bool paired, string hisat2Opts, string genomeIdx, string fastaRef) {
 
-    if(!cmdExe.hasKey("hisat2Exe")) {
-        error "Can't get Hisat2 executable, check your config file $configFile"
-    }
-    string hisat2Exe = cmdExe{"hisat2Exe"}+"-build"
+    string{} resource = getResource(cmdExe, "hisat2", "Align")
+    string hisat2Exe = resource{"toolsExe"}
+    int hisat2Mem = resource{"toolsMem"}.parseInt()
+    int hisat2Cpu = resource{"toolsCpu"}.parseInt()
 
-    if(!cmdExe.hasKey("hisat2AlignMem")) {
-        error "Can't get memory settings for Hisat2 alignment, check your config file $configFile"
-    }
-    int hisat2AlignMem = cmdExe{"hisat2AlignMem"}.parseInt()
-
-    if(!cmdExe.hasKey("hisat2AlignCpu")) {
-        error "Can't get cpu settings for Hisat2 alignment, check your config file $configFile"
-    }
-    int hisat2AlignCpu = cmdExe{"hisat2AlignCpu"}.parseInt()
-    // BAMs
     string[] bamsList
     string{} bamsMap
 
+    string hisat2Idx
+    string[] idxs = genomeIdx.dirPath()
+    if(!fastaRef.isEmpty() && idxs.isEmpty()) {
+        hisat2Idx = genomeIdx+"/"+fastaRef.baseName()
+    }
+    else if(!idxs.isEmpty()) {
+        // calling removeExt() twice because of .$i.ht2
+        // not sure if I can just removeExt(".*.ht2")
+        string hisat2IdxBase = idxs[0].removeExt().removeExt()
+        hisat2Idx = genomeIdx+"/"+hisat2IdxBase.baseName()
+    }
+
     string[] genomeIdxFiles
-    for(int i : range(1, 8)) genomeIdxFiles += genomeIdx+".$i.ht2"
+    for(int i : range(1, 8)) {
+        genomeIdxFiles += hisat2Idx+".$i.ht2"
+    }
 
     for(string rootName : samplesMap.keys()) {
         string[] readsList = alignerReads(samplesMap{rootName}, pairIds)
-        string[] deps = readsList
+        string[] deps
+
+        for(string fq : readsList) {
+            int chk = fq.indexOf(",")
+            if(chk != -1) {
+                string[] reads = fq.split(",")
+                deps += reads
+            }
+        }
+
         deps += genomeIdxFiles
+
+        string reads
+        if(paired) {
+           string r1 = "-1 " + readsList[0]
+           string r2 = "-2 " + readsList[1]
+           reads = [r1, r2].join(" ")
+        }
+        if(!paired) {
+           string r1 = "-1 "+ readsList[0]
+           reads = r1
+        }
 
         string rootBase = rootName.baseName()
         string bamOut = bamFiles+"/"+rootBase+"_aligned.bam"
         string bamLog = bamFiles+"/"+rootBase+"_aligned.log"
         //TODO need to add Read Group
-        dep(!fqDir.isEmpty(), [bamOut, bamLog] <- deps, cpus := hisat2AlignCpu, taskName := "Hisat2 aligning "+rootBase) {
-            sys $hisat2Exe -x $genomeIdx \
-                           -1 $readsList[0] \
-                           -2 $readsList[1] \
+        dep(!fqDir.isEmpty(), [bamOut, bamLog] <- deps, cpus := hisat2Cpu, taskName := "Hisat2 aligning "+rootBase) {
+            sys $hisat2Exe -x $hisat2Idx \
+                           $reads \
                            --rg-id ID:001 \
                            --rg CN:Unknown \
                            --rg DS:RNA-seq \
                            --rg PL:ILLUMINA \
                            --rg PM:MiSeq \
                            --rg SM:$rootBase \
-                           --threads $hisat2AlignCpu 2> $bamLog | samtools view -S -b - > $bamOut
+                           --threads $hisat2Cpu 2> $bamLog | samtools view -S -b - > $bamOut
         }
         bamsList.add(bamOut)
         if(bamsMap.hasKey(rootBase)) {
@@ -94,7 +113,6 @@ string{} mapHisat2(string{} cmdExe, string bamFiles, string{} samplesMap, string
         }
         bamsMap{rootBase} = bamOut
     }
-    goal bamsList
+    //goal bamsList
     return bamsMap
 }
-
