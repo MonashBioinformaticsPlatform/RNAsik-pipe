@@ -95,7 +95,7 @@ string makeLocalRef(string{} cmdExe, string refFile, string refDir, string fileT
     else if(localRef.exists() && localRef.isFile()) {
         string refExtn = localRef.extName()
         if(refExtn == "gz") {
-	    localRef = localRef.removeExt(".gz")
+            localRef = localRef.removeExt(".gz")
         }
         //error "This shouldn't happened, check makeLocalRef function"
     }
@@ -134,31 +134,31 @@ string makeChromSizes(string fastaRef) {
     return chromSizes
 }
 
-string{} chkRefFiles(string refDir, string aligner){
+string{} chkRefFiles(string refDir, string aligner) {
     string{} totRefFiles
     //NOTE can't have gziped files here even though RNAsik can handle gziped files as
     // input to -fastaRef and -gtfFile but it will unzip them localy and I can't have that
     // since I'm assuming no write permissions to refFiles directory
     for(string refFile : refDir.dirPath()) {
-	string extn = refFile.extName()
-	if(extn == "gtf" || extn == "gff" || extn == "gff3") {
-	    totRefFiles{"gtf"} = refFile
+    string extn = refFile.extName()
+    if(extn == "gtf" || extn == "gff" || extn == "gff3") {
+        totRefFiles{"gtf"} = refFile
         }
-	if(extn == "fa") {
-	    totRefFiles{"fa"} = refFile
+    if(extn == "fa") {
+        totRefFiles{"fa"} = refFile
         }
-	if(extn == "fai") {
-	    totRefFiles{"fai"} = refFile
+    if(extn == "fai") {
+        totRefFiles{"fai"} = refFile
         }
-	if(extn == "dict"){
-	    totRefFiles{"dict"} = refFile
-	}
-	if(extn == "chromSizes") {
-	    totRefFiles{"chromSizes"} = refFile
-	}
+    if(extn == "dict"){
+        totRefFiles{"dict"} = refFile
+    }
+    if(extn == "chromSizes") {
+        totRefFiles{"chromSizes"} = refFile
+    }
         if(extn.startsWith(aligner)) {
-	    totRefFiles{"idx"} = refFile
-	}
+        totRefFiles{"idx"} = refFile
+    }
     }
     //NOTE have to be strick here since we don't want to be geussing which one of multiple gtf/gff files to pick.
     string[] itemsChk = totRefFiles.values()
