@@ -21,7 +21,8 @@ string[] getExonicRates(string{} cmdExe, string sikDir, string{} bamsMap, string
             error "Something went wrong, this error should occur. Error is from sikExonicRate.bds"
         }
         else {
-            strandMap{strandType} strandType = strandMap{strandType}
+            //strandMap{strandType} strandType = strandMap{strandType}
+            strandType = strandMap{strandType}
         }
     }
     else {
