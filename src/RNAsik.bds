@@ -88,7 +88,7 @@ if(!fqDir.isEmpty()) {
 }
 //
 if(samplesSheet.isEmpty()) {
-    samplesSheet = makeSamplesSheet(fqFiles, fqRgxs, pairIds, extn, sikDir)
+    samplesSheet = makeSamplesSheet(fqFiles, fqRgxs, paired, pairIds, extn, sikDir)
 } 
 mkLog("samplesSheet", parseMap(config(samplesSheet)), "samples", logsDir)
 

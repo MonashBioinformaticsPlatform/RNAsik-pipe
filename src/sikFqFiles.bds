@@ -136,7 +136,7 @@ string[] alignerReads(string fqString, string pairIds) {
 }
 // retuns two items list [old_prefix, new_prefix]
 //TODO rename to getSampleName ?
-string[] getFqPrefix(string fqRead, string[] fqRgxs, string pairIds, string extn) {
+string[] getFqPrefix(string fqRead, string[] fqRgxs, string[] pairIdsList, string extn) {
     string localFqRead = fqRead.baseName()
     //attempt to guess fastq files extention that is including lane and _R prefix
     //if guessed, then 
@@ -153,8 +153,6 @@ string[] getFqPrefix(string fqRead, string[] fqRgxs, string pairIds, string extn
         }
     }
     //DOCS: if can't guess the suffix using fqRgxs fall back onto pairIdxs
-    string[] pairIdsList = pairIds.split(",")
-    // check if R1 is in the file name
     int oneIdx = localFqRead.lastIndexOf(pairIdsList[0])
     int twoIdx = localFqRead.lastIndexOf(pairIdsList[1])
     
@@ -164,26 +162,38 @@ string[] getFqPrefix(string fqRead, string[] fqRgxs, string pairIds, string extn
     //DOCS: if all of the above failed
     // simply remove extn from the file and use that as a rootName
     if( (oneIdx == -1) && (twoIdx == -1) ) {
-        return [fqRead.baseName(extn), fqRead.baseName(extn)]
+        return [fqRead.removeExt(extn), fqRead.removeExt(extn)]
     }
     else {
         error "No oldPrefix was found, although this shouldn't really happened"
     }
 }
-string makeSamplesSheet(string[] fqReads, string[] fqRgxs, string pairIds, string extn, string sikDir) {
+string makeSamplesSheet(string[] fqReads, string[] fqRgxs, bool paired, string pairIds, string extn, string sikDir) {
     string{} autoGen
+
+    string[] pairIdsList = pairIds.split(",")
+
     //NOTE figured out that I'm putting an empty key = value pair into autoGen
     // this is because everytime there _R2 an empty list returned by getFqPrefix
     // which then gets converted to an empty key = value pair
     // get uniq prefix 
-    for(string fq : fqReads ) {
-        string[] prefix = getFqPrefix(fq, fqRgxs, pairIds, extn)
+    for(string fq : fqReads) {
+
+        string chkR2 = fq.replace(pairIdsList[0], pairIdsList[1])
+        if(!paired && chkR2.exists()) {
+            error "-paired set to $paired, but found $pairIdsList[1] read. Is it paired-end data? Also check your -pairIds $pairIds"
+        }
+        if(paired && !chkR2.exists()) {
+            error "-paired set to $paired, but can't find $pairIdsList[1] read. Is it single-end data? Also check your -pairIds $pairIds"
+        }
+
+        string[] prefix = getFqPrefix(fq, fqRgxs, pairIdsList, extn)
         autoGen{prefix[0]} = prefix[1]
     }
     // convert hash into a string  
     string samplesConfig = "oldPrefix\tnewPrefix\n"
     for(string k : autoGen.keys()) {
-	//NOTE here is work around for the statement above about an empty key = value pair
+        //NOTE here is work around for the statement above about an empty key = value pair
         // not particular happy with it, but should do for now
         if(!k.isEmpty()) {
             samplesConfig += "$k\t" + autoGen{k} + "\n"
