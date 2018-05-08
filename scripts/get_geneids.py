@@ -45,7 +45,7 @@ def get_gtf(handler):
             line = i.split('\t')
             ninthField = line[8]
 
-            chk_gene_id = re.search('gene_id\s.([A-z0-9_ \- \(\)]+)',
+            chk_gene_id = re.search('gene_id\s.([A-z0-9_ \. \- \(\)]+)',
                                     ninthField)
             chk_gene_name = re.search('gene_name\s.([A-z0-9_ \. \: \- \(\)]+)',
                                       ninthField)
