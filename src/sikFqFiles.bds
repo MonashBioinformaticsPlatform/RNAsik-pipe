@@ -1,6 +1,8 @@
 #------------------------
 # Organising FASTQ files 
 #------------------------
+include "sikUtils.bds"
+
 string getTarDir(string tarFile, string sikDir) {
 
     string getExtn = tarFile.extName()
@@ -47,10 +49,11 @@ string[] getFqFiles(string fqDir, string extn, string sikDir) {
     }
     return fqFiles
 }
+
 string{} getSamplesMap(string[] fqFiles,  string samplesSheet) {
-    // sanity checks
+
     if(fqFiles.isEmpty()) {
-        error "getFqFiles function retuned nothing, something up with -fqDir parameter, check FASTQ file extention and pass correct -extn value maybe?"
+        error "no FASTQ files were found, check -fqDir, -extn or -pairIds"
     }
     if(samplesSheet.isEmpty()) {
         error "This error shouldn't happened, something is wrong with auto generating samplesSheet or users input"
@@ -60,22 +63,27 @@ string{} getSamplesMap(string[] fqFiles,  string samplesSheet) {
     //DOCS: extract oldPrefix, which is a string in fastq files 
     // that we'll use to aggregate multi-lane and paired reads together
     string{} samples = config(samplesSheet)
-    string[] oldPrefixes = samples.keys()
-    oldPrefixes = oldPrefixes.sort().reverse()
+    string[] sortedKeys = bubbleSort(samples.keys()).reverse()
 
     for(string fq : fqFiles) {
+
+        if(fq.lastIndexOf("_I1") > 0) {
+            continue
+        }
+
         bool noPrefix = true
-        // don't use those index files
-        if(fq.lastIndexOf("_I1") == -1) {
-            for(string oldPrefix : oldPrefixes) {
-                if(fq.baseName().startsWith(oldPrefix)) {
-                    noPrefix = false
-                    string sampleName = samples{oldPrefix}
-                    if(!samplesMap.hasKey(sampleName)) {
-                        samplesMap{sampleName} = ""
-                    }
-                    samplesMap{sampleName} += fq+","
+
+        for(string oldPrefix : sortedKeys) {
+
+            if(fq.baseName().startsWith(oldPrefix)) {
+
+                noPrefix = false
+
+                string sampleName = samples{oldPrefix}
+                if(!samplesMap.hasKey(sampleName)) {
+                    samplesMap{sampleName} = ""
                 }
+                samplesMap{sampleName} += fq+","
             }
         }
         // want to error out even if one of the fastq files wasn't accounted for
@@ -143,7 +151,7 @@ string[] getFqPrefix(string fqRead, string[] fqRgxs, string[] pairIdsList, strin
     for(string fqRgx : fqRgxs) {
         string[] tmp = localFqRead.split(fqRgx)
         int tmpLen = tmp.size()
-        // if tmpLen staied at 1 then no split had happend, continue past the loop
+        // if tmpLen stayed at 1 no split had happend, continue past the loop
         if(tmpLen > 1) {
             return [tmp[0], tmp[0]]
         }
@@ -206,6 +214,7 @@ string makeSamplesSheet(string[] fqReads, string[] fqRgxs, bool paired, string p
     }
     return samplesSheet
 }
+
 string{} mkBamsMap(string bamsDir, string samplesSheet) {
     string{} bamsMap
 

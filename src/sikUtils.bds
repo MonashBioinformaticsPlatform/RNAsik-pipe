@@ -129,3 +129,22 @@ string{} getConfigFile(string usrConfigFile) {
     }
     return sikConfig
 }
+
+string[] bubbleSort(string[] arr) {
+
+   int len = arr.size()
+
+   for(int i = len-1; i>=0; i--) {
+     for(int j = 1; j<=i; j++) {
+
+       if(arr[j-1].length() > arr[j].length()) {
+           //don't know what that variable will be
+           // let bds cast whatever
+	   temp := arr[j-1]
+           arr[j-1] = arr[j]
+           arr[j] = temp
+        }
+     }
+   }
+   return arr
+}
