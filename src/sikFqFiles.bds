@@ -74,7 +74,6 @@ string{} getSamplesMap(string[] fqFiles,  string samplesSheet) {
         bool noPrefix = true
 
         for(string oldPrefix : sortedKeys) {
-
             if(fq.baseName().startsWith(oldPrefix)) {
 
                 noPrefix = false
@@ -84,6 +83,8 @@ string{} getSamplesMap(string[] fqFiles,  string samplesSheet) {
                     samplesMap{sampleName} = ""
                 }
                 samplesMap{sampleName} += fq+","
+
+                break
             }
         }
         // want to error out even if one of the fastq files wasn't accounted for
