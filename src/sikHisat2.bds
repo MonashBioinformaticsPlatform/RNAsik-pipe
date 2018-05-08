@@ -88,7 +88,7 @@ string{} mapHisat2(string{} cmdExe, string bamFiles, string{} samplesMap, string
            reads = [r1, r2].join(" ")
         }
         if(!paired) {
-           string r1 = "-1 "+ readsList[0]
+           string r1 = "-U "+ readsList[0]
            reads = r1
         }
 
