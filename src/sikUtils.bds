@@ -12,7 +12,7 @@ string mkMultiqcIgnores(string strandInfo, string[] cntsFiles) {
 
         for(string cntsFile : cntsFiles) {
             if(!cntsFile.baseName().startsWith(strandFile)) {
-		string ignore = cntsFile.baseName(".txt")
+                string ignore = cntsFile.baseName(".txt")
                 //NOTE cntsFiles are actual .txt files from featureCounts output
                 //however we want to ignore .summary files
                 multiqcIgnore += " --ignore $ignore* " 
@@ -140,11 +140,29 @@ string[] bubbleSort(string[] arr) {
        if(arr[j-1].length() > arr[j].length()) {
            //don't know what that variable will be
            // let bds cast whatever
-	   temp := arr[j-1]
+           temp := arr[j-1]
            arr[j-1] = arr[j]
            arr[j] = temp
         }
      }
    }
    return arr
+}
+
+bool chkUniform(string{} fqMap) {
+
+    int prevLen = -1
+
+    for(string v : fqMap) {
+        string[] items = v.split(",")
+        int currLen = items.size()
+        if(prevLen < 0) {
+            prevLen = currLen
+            continue
+        }
+        if(prevLen != currLen) {
+            return false
+        }
+    }
+    return true
 }

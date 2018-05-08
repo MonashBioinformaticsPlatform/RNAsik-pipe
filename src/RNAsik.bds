@@ -173,6 +173,11 @@ string{} samplesMap
 if(!fqDir.isEmpty()) {
     samplesMap = getSamplesMap(fqFiles, samplesSheet)
 }
+bool isUniform = chkUniform(samplesMap)
+if(!isUniform) {
+    warning " This is wiered, samples have uneven FASTQ files distribution\n I'd expect all samples to have the same
+number of FASTQ files "
+}
 mkLog("fqMap", parseFqMap(samplesMap), "samples", logsDir)
 
 // BAM files
