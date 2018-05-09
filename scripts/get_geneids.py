@@ -32,7 +32,7 @@ parser.add_argument(
 )
 
 
-def get_gtf(handler):
+def get_gtf(handler, feat_type):
     genes_attr = {}
     typesRegex = "\s.([A-z0-9 _., \- /\(\)]+)"
 
@@ -43,44 +43,45 @@ def get_gtf(handler):
     for i in handler:
         if not i.startswith("#"):
             line = i.split('\t')
-            ninthField = line[8]
+            if line[2] == feat_type:
+                ninthField = line[8]
 
-            chk_gene_id = re.search('gene_id\s.([A-z0-9_ \. \- \(\)]+)',
-                                    ninthField)
-            chk_gene_name = re.search('gene_name\s.([A-z0-9_ \. \: \- \(\)]+)',
-                                      ninthField)
+                chk_gene_id = re.search('gene_id\s.([A-z0-9_ \. \- \(\)]+)',
+                                        ninthField)
+                chk_gene_name = re.search('gene_name\s.([A-z0-9_ \. \: \- \(\)]+)',
+                                          ninthField)
 
-            gene_name = 'NA'
-            gene_biotype = 'NA'
-            chrom = line[0]
+                gene_name = 'NA'
+                gene_biotype = 'NA'
+                chrom = line[0]
 
-            if chk_gene_name:
-                gene_name = chk_gene_name.group(1)
+                if chk_gene_name:
+                    gene_name = chk_gene_name.group(1)
 
-            for value in list(biotypes.values()):
-                checkBiotype = re.search(value, ninthField)
-                if checkBiotype:
-                    gene_biotype = checkBiotype.group(1)
+                for value in list(biotypes.values()):
+                    checkBiotype = re.search(value, ninthField)
+                    if checkBiotype:
+                        gene_biotype = checkBiotype.group(1)
 
-            if chrom not in genes_attr:
-                genes_attr[chrom] = {}
+                if chrom not in genes_attr:
+                    genes_attr[chrom] = {}
 
-            if chk_gene_id:
-                gene_id = chk_gene_id.group(1)
+                if chk_gene_id:
+                    gene_id = chk_gene_id.group(1)
 
-                if gene_id not in genes_attr[chrom]:
-                    genes_attr[chrom][gene_id] = {}
-                # TODO I feel that this is error prone..
-                # I'mm imaginig a situations where previous gene_name had
-                # proper value but in the next iteration (next line) gene_name
-                # tag doesn't exists and therefor gets NA value and thats now
-                # overides proper values already stored in the dictionary
-                # in theory every line in gtf files is self contained and this
-                # shouldn't happened but my custome gtf violated that rule,
-                # but former lines would always hold "proper" value, so I guess
-                # I'll leave it as is for now
-                genes_attr[chrom][gene_id]["gene_name"] = gene_name
-                genes_attr[chrom][gene_id]["biotype"] = gene_biotype
+                    if gene_id not in genes_attr[chrom]:
+                        genes_attr[chrom][gene_id] = {}
+                    # TODO I feel that this is error prone..
+                    # I'mm imaginig a situations where previous gene_name had
+                    # proper value but in the next iteration (next line) gene_name
+                    # tag doesn't exists and therefor gets NA value and thats now
+                    # overides proper values already stored in the dictionary
+                    # in theory every line in gtf files is self contained and this
+                    # shouldn't happened but my custome gtf violated that rule,
+                    # but former lines would always hold "proper" value, so I guess
+                    # I'll leave it as is for now
+                    genes_attr[chrom][gene_id]["gene_name"] = gene_name
+                    genes_attr[chrom][gene_id]["biotype"] = gene_biotype
 
     return genes_attr
 
@@ -175,9 +176,9 @@ with open(in_file) as handler:
     if file_type == "saf":
         genes_attr = get_saf(handler)
     if file_type == "gtf":
-        genes_attr = get_gtf(handler)
+        genes_attr = get_gtf(handler, feat_type)
     if file_type == "gff":
-        genes_attr = get_gff(handler)
+        genes_attr = get_gff(handler, feat_type)
 
     if genes_attr is not None:
 
