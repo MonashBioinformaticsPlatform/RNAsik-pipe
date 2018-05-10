@@ -5,9 +5,10 @@ string mkMultiqcIgnores(string strandInfo, string[] cntsFiles) {
     string multiqcIgnore 
 
     if(counts && strandInfo.exists()) {
-        string strandExitCode
         string strandType
-        (strandType, strandExitCode) = strandInfo.read().split(",")
+        int strandValue
+        int strandExitCode
+        (strandType, strandValue, strandExitCode) = strandInfo.read().split(",")
         string strandFile = strandType+".txt"
 
         for(string cntsFile : cntsFiles) {

@@ -11,12 +11,12 @@ import math
 import argparse
 
 parser = argparse.ArgumentParser(
-    usage='%(prog)s --logsDir <path/to/logFiles/directory>',
+    usage='%(prog)s --logs_dir <path/to/log_files/directory>',
     description="This script summarises log files information into html table",
     add_help=True
 )
 parser.add_argument(
-    '--logsDir',
+    '--logs_dir',
     required=True,
     help="specify directory with your BAM files, which should also hold "
          "`*Log.final.out` files"
@@ -29,7 +29,7 @@ parser.add_argument(
 )
 
 args = parser.parse_args()
-logsDir = args.logsDir
+logs_dir = args.logs_dir
 pattern = args.pattern
 
 # s_name = "Status"
@@ -59,7 +59,7 @@ pattern = args.pattern
 #        dups
 #        ]
 
-list_of_files = os.listdir(logsDir)
+list_of_files = os.listdir(logs_dir)
 data_dict = {}
 
 
@@ -104,17 +104,17 @@ def which_strand(d):
     if abs(strnd_val) > strnd_test:
         # print("Data is stranded %s" % sign(strnd_val))
         if strnd_val >= 0:
-            return "ForwardStrandedCounts,0"
+            return "ForwardStrandedCounts,%s,0" % str(strnd_val)
 
-        return "ReverseStrandedCounts,0"
+        return "ReverseStrandedCounts,%s,0" % str(strnd_val)
 
     elif abs(strnd_val) < non_strnd_test:
         # print("Data is non stranded %s" % sign(strnd_val))
-        return "NonStrandedCounts,0"
+        return "NonStrandedCounts,%s,0" % str(strnd_val)
     # NOTE default to non stranded counts, should be ok to get through RNAsik run
     elif non_strnd_test < abs(strnd_val) < strnd_test:
         # print("It is hard to guess what strand the data is %s" % sign(strnd_val))
-        return "NonStrandedCounts,1"
+        return "NonStrandedCounts,%s,1" % str(strnd_val)
     else:
         sys.exit("ERROR: This should not happend")
         # return "NonStrandedCounts,1"
@@ -123,7 +123,7 @@ def which_strand(d):
 for text_file in list_of_files:
     if text_file.endswith(pattern):
         name = text_file.split('.')[0]
-        full_path = os.path.join(logsDir, text_file)
+        full_path = os.path.join(logs_dir, text_file)
         with open(full_path) as handler:
             for i in handler:
                 line = i.strip().split("\t")

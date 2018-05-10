@@ -349,9 +349,16 @@ This script takes three different counts files i.e Forward, Reverse and Non stra
 guess which strand the data is. We can get this information from the sequencing facility and most Illumina
 library preparation kits are reverse stranded these days, but sometimes things happened and this approach
 gives us correct answers from the data itself.
-The output of this script is two values, comma separated. e.g `ReverseStandedCounts,0`
-The first value is obvious, tells you the type of strand it guessed. The second value is what's called an
-exit code, zero == all good. It means the script is pretty confident that it guessed it right. The other
+The output of this script is three values, comma separated; StrandType,StrandValue,ExitCode. e.g `ReverseStandedCounts,-0.924,0`
+The first value is obvious, tells you the type of strand it guessed. The second value is calculated like this
+
+```
+strnd_val = float(forward - reverse) / float(forward + reverse)
+```
+
+which in essence allows us to estimate strand type. It is useful to look at that value as well.
+Magnitude is the confidence and the sign is directrion, negative is reverse, positive is forward stranded
+The third value what's called an exit code, zero == all good. It means the script is pretty confident that it guessed it right. The other
 possible value could be 1, 1 == not good. It means the script couldn't guess what the strand was and simply
 defaulted to `NonStrandedCounts`. You should never see exit code 1 with anything else by non stranded counts
 i.e `NonStrandedCounts,1`. If you do, please report this as a bug.

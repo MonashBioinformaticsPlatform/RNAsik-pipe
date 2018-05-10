@@ -13,9 +13,10 @@ string[] getExonicRates(string{} cmdExe, string sikDir, string{} bamsMap, string
                           "ReverseStrandedCounts" => "strand-specific-reverse" }
     // if strandInfo comes from the user cmd input it'll be a string otherwise it'll be a file
     string strandType
+    int strandValue
+    int strandExitCode
     if(strandInfo.isFile()) {
-        string strandExitCode
-        (strandType, strandExitCode) = strandInfo.read().split(",")
+        (strandType, strandValue, strandExitCode) = strandInfo.read().split(",")
 
         if(!strandMap.hasKey(strandType)) {
             error "Something went wrong, this error should occur. Error is from sikExonicRate.bds"
