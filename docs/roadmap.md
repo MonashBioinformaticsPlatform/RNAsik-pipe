@@ -59,6 +59,15 @@ I already have a prototype in bds, just need to plug it in.
 
 ## Changelog
 
+### 1.5.1
+
+- several bug fixes including [#18](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/issues/18), hisat2 related bugs, and samtools sort memory bug
+- in relation to bug [#18](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/issues/18) added extra [sanity check](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/blob/b3f91ca72e2c34a97f3d6b757a2fc3b9027df001/src/sikUtils.bds#L153)
+- general code improvement and maintenance
+- updated docs and included new installation method
+- improved python scripts, made them user executable and updated docs with how to use them
+- updated UCSC binaries due to libpng12 issue
+
 ### 1.5.0
 
 - fixed bugs and improved python scripts, also migrated them to python3
