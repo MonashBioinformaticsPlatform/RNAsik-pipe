@@ -10,12 +10,8 @@
 - need to have better way to check for index directory, want to know if starIdx includes or doesn't indexing with annotation. 
 - recheck [Stuart's PR](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pull/10/commits/9e64da57de6da066e94bf6fcc66e23c36adb3671), polish off refFiles detection
 - recheck [this whole PR](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pull/10)
-- Document python scripts existence, what they do, how to run them manually in the case of failure, and the output they give
-
-### 1.5.1 Q2 (April/May) 2018
-
-- general maintenance and bug fixes
 - start including unit testing in your master branch, once I'm happy with with `unit_test` branch
+- noticed that qualimap could have high RAM consumption, need to fix cpu and mem parameters passing through sik.config file. Reckon to set mem at 4 or 6 Gb
 
 ### 1.5.2 Q3 (July/August) 2018
 
@@ -24,6 +20,7 @@ just counts, `RNAsik` shouldn't complain about `bwa` not found in the PATH. Also
 From memory it might not perform as it should. You really want a log of every event that had happened.
 - include logging of split lanes and R1 and R2. Want to be able to see from the log whether two reads were classified as split lanes or paired end. This is
 to do with recent bug that got fixed in [b924027](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/commit/b9240274fa7c964e953a767c254f31ba0d044547) 
+- have a look at BDS `log()` function as well, might come useful
 
 ### 1.5.3 Q4 (October/November) 2018
 
