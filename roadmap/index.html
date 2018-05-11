@@ -109,12 +109,8 @@
 <li>need to have better way to check for index directory, want to know if starIdx includes or doesn't indexing with annotation. </li>
 <li>recheck <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pull/10/commits/9e64da57de6da066e94bf6fcc66e23c36adb3671">Stuart's PR</a>, polish off refFiles detection</li>
 <li>recheck <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pull/10">this whole PR</a></li>
-<li>Document python scripts existence, what they do, how to run them manually in the case of failure, and the output they give</li>
-</ul>
-<h3 id="151-q2-aprilmay-2018">1.5.1 Q2 (April/May) 2018</h3>
-<ul>
-<li>general maintenance and bug fixes</li>
 <li>start including unit testing in your master branch, once I'm happy with with <code>unit_test</code> branch</li>
+<li>noticed that qualimap could have high RAM consumption, need to fix cpu and mem parameters passing through sik.config file. Reckon to set mem at 4 or 6 Gb</li>
 </ul>
 <h3 id="152-q3-julyaugust-2018">1.5.2 Q3 (July/August) 2018</h3>
 <ul>
@@ -123,6 +119,7 @@ just counts, <code>RNAsik</code> shouldn't complain about <code>bwa</code> not f
 From memory it might not perform as it should. You really want a log of every event that had happened.</li>
 <li>include logging of split lanes and R1 and R2. Want to be able to see from the log whether two reads were classified as split lanes or paired end. This is
 to do with recent bug that got fixed in <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/commit/b9240274fa7c964e953a767c254f31ba0d044547">b924027</a> </li>
+<li>have a look at BDS <code>log()</code> function as well, might come useful</li>
 </ul>
 <h3 id="153-q4-octobernovember-2018">1.5.3 Q4 (October/November) 2018</h3>
 <p>New feature(s) described below:</p>
@@ -162,6 +159,15 @@ I already have a prototype in bds, just need to plug it in.</p>
 <li>is there need for circular RNA support?</li>
 </ul>
 <h2 id="changelog">Changelog</h2>
+<h3 id="151">1.5.1</h3>
+<ul>
+<li>several bug fixes including <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/issues/18">#18</a>, hisat2 related bugs, and samtools sort memory bug</li>
+<li>in relation to bug <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/issues/18">#18</a> added extra <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/blob/b3f91ca72e2c34a97f3d6b757a2fc3b9027df001/src/sikUtils.bds#L153">sanity check</a></li>
+<li>general code improvement and maintenance</li>
+<li>updated docs and included new installation method</li>
+<li>improved python scripts, made them user executable and updated docs with how to use them</li>
+<li>updated UCSC binaries due to libpng12 issue</li>
+</ul>
 <h3 id="150">1.5.0</h3>
 <ul>
 <li>fixed bugs and improved python scripts, also migrated them to python3</li>
