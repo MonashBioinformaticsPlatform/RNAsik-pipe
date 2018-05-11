@@ -87,8 +87,8 @@ string[] getDegustFile(string{} cmdExe, string cntsDir, string strandInfo, strin
     }
 
     string strandType
-    int strandValue
-    int strandExitCode
+    string strandValue
+    string strandExitCode
     if(counts && strandInfo.exists()) {
         (strandType, strandValue, strandExitCode) = strandInfo.read().split(",")
     }

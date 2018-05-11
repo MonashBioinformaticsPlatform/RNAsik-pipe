@@ -6,8 +6,8 @@ string mkMultiqcIgnores(string strandInfo, string[] cntsFiles) {
 
     if(counts && strandInfo.exists()) {
         string strandType
-        int strandValue
-        int strandExitCode
+        string strandValue
+        string strandExitCode
         (strandType, strandValue, strandExitCode) = strandInfo.read().split(",")
         string strandFile = strandType+".txt"
 
