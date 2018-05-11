@@ -64,7 +64,8 @@ with open(gene_ids) as handler:
 # make samples sheet dictionary
 ss = open(samples_sheet).read().split("\n")
 ss = [s.split("\t")[1] for s in ss if s]
-
+sorted(ss, key=len)
+ss = ss[::-1]
 
 def get_name(raw_name, sample_names):
     for s_name in sample_names:
@@ -73,7 +74,6 @@ def get_name(raw_name, sample_names):
     raise Exception(
         "Didn't found sample name for this %s column in counts file, "
         "check your %s" % (raw_name, samples_sheet))
-
 
 with open(counts_file) as handler:
     s_names = None
