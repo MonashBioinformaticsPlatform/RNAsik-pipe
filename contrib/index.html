@@ -121,11 +121,72 @@ mkdocs serve
 <p>I need to write a more comprehensive developer guide at sometime soon. Any contributions are again extremely welcomed and again as I've mentioned in the <a href="#documentations">documentations</a> section above, any contributions need to come through pull request (PR). </p>
 <p>To summarise briefly layouts of the <code>src/</code>:</p>
 <ul>
-<li><code>RNAsik.bds</code> is main "executable" file that sources and runs the pipeline. </li>
-<li><code>sikHeader.bds</code> defines help menu and all user inputs options. I do have a couple of command line 
+<li><code>RNAsik.bds</code> is the main "executable" file that sources all required modules and runs the pipeline.</li>
+<li><code>sikHeader.bds</code> defines help menu and all user inputs options. I do have a couple of command line
 arguments hidden from main help menu, but if you take a pick at this file you'll see them all</li>
 <li>All other <code>*.bds</code> files contain functions to specific tasks those functions get called in <code>RNAsik.bds</code></li>
 </ul>
+<h4 id="building-conda-package">Building conda package</h4>
+<p>First of all you need to set up your conda environment. If you don't have <code>conda</code> installed get it first.</p>
+<ul>
+<li>download <a href="https://conda.io/miniconda.html">miniconda</a> <code>.sh</code> installer</li>
+<li>run it and follow the prompts</li>
+</ul>
+<pre><code>bash Miniconda3-latest-Linux-x86_64.sh
+</code></pre>
+
+<p>These are fairly routine steps, but if this is your first time you'll need to do them</p>
+<ul>
+<li>add a few <code>conda</code> "channels", this is so <code>conda</code> knows where to get things from</li>
+</ul>
+<pre><code>conda config --add channels defaults
+conda config --add channels conda-forge
+conda config --add channels bioconda
+</code></pre>
+
+<ul>
+<li>install a couple of required <code>conda</code> packages</li>
+</ul>
+<pre><code>conda install conda-build
+conda install anaconda-client
+</code></pre>
+
+<p>Note that you can use <code>-y</code> flag to say assume <code>yes</code> instead of manually entering
+yes/no</p>
+<ul>
+<li>you will need a copy of bioconda recipes. I haven't PR my fork to official bioconda channel
+so for now it is</li>
+</ul>
+<pre><code>git clone  https://github.com/serine/bioconda-recipes
+cd bioconda-recipes
+conda build recipes/rnasik
+</code></pre>
+
+<ul>
+<li>To install <code>RNAsik</code> locally from just build package. You need these two commands.
+First command simply list the location of where the <code>.tar.bz2</code> file is on the system.
+You also need that location if you want to publish to anaconda repository.
+The second command simply installs the package</li>
+</ul>
+<pre><code>conda build recipes/rnasik --output
+conda install -y --use-local rnasik
+</code></pre>
+
+<ul>
+<li>To upload newly build package to anacoda repository<ul>
+<li>set up an account at <a href="../anaconda.org">Anacoda</a></li>
+<li><code>anaconda login</code></li>
+<li><code>anaconda upload &lt;path_to_file.tar.bz2&gt;</code></li>
+</ul>
+</li>
+</ul>
+<p>Once you've logged in once, anaconda will store login token somewhere in your home directory</p>
+<ul>
+<li>here ?</li>
+</ul>
+<pre><code>~/.continuum/anaconda-client
+</code></pre>
+
 <p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p>
 
 <p class="twitter-btn">
