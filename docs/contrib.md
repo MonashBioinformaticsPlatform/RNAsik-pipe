@@ -31,11 +31,73 @@ I need to write a more comprehensive developer guide at sometime soon. Any contr
 
 To summarise briefly layouts of the `src/`:
 
-- `RNAsik.bds` is main "executable" file that sources and runs the pipeline. 
-- `sikHeader.bds` defines help menu and all user inputs options. I do have a couple of command line 
+- `RNAsik.bds` is the main "executable" file that sources all required modules and runs the pipeline.
+- `sikHeader.bds` defines help menu and all user inputs options. I do have a couple of command line
 arguments hidden from main help menu, but if you take a pick at this file you'll see them all
 - All other `*.bds` files contain functions to specific tasks those functions get called in `RNAsik.bds`
 
+#### Building conda package
+
+First of all you need to set up your conda environment. If you don't have `conda` installed get it first.
+
+- download [miniconda](https://conda.io/miniconda.html) `.sh` installer
+- run it and follow the prompts
+
+```
+bash Miniconda3-latest-Linux-x86_64.sh
+```
+
+These are fairly routine steps, but if this is your first time you'll need to do them
+
+- add a few `conda` "channels", this is so `conda` knows where to get things from
+
+```
+conda config --add channels defaults
+conda config --add channels conda-forge
+conda config --add channels bioconda
+```
+
+- install a couple of required `conda` packages
+
+```
+conda install conda-build
+conda install anaconda-client
+```
+
+Note that you can use `-y` flag to say assume `yes` instead of manually entering
+yes/no
+
+- you will need a copy of bioconda recipes. I haven't PR my fork to official bioconda channel
+so for now it is
+
+```
+git clone  https://github.com/serine/bioconda-recipes
+cd bioconda-recipes
+conda build recipes/rnasik
+```
+
+- To install `RNAsik` locally from just build package. You need these two commands.
+First command simply list the location of where the `.tar.bz2` file is on the system.
+You also need that location if you want to publish to anaconda repository.
+The second command simply installs the package
+
+```
+conda build recipes/rnasik --output
+conda install -y --use-local rnasik
+```
+
+- To upload newly build package to anacoda repository
+    - set up an account at [Anacoda](anaconda.org)
+    - `anaconda login`
+    - `anaconda upload <path_to_file.tar.bz2>`
+
+Once you've logged in once, anaconda will store login token somewhere in your home directory
+
+- here ?
+
+```
+~/.continuum/anaconda-client
+```
 
 <p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p>
 
