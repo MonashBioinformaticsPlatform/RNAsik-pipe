@@ -3,3 +3,63 @@
 extra_fn_clean_exts:
     - _sorted
     - _aligned
+
+table_columns_visible:
+
+    FastQC:
+
+        percent_duplicates: False
+        percent_gc: True
+        avg_sequence_length: True
+        percent_fails: False
+        total_sequences: True
+
+    STAR:
+
+        uniquely_mapped_percent: True
+        uniquely_mapped: True
+
+    featureCounts:
+
+            Assigned: True
+            percent_assigned: True
+
+    QualiMap:
+
+         5_3_bias: False
+         reads_aligned: False
+
+
+    "Samtools Stats":
+
+        error_rate: False
+        non-primary_alignments: False
+        reads_mapped: False
+        reads_mapped_percent: False
+        raw_total_sequences: False
+
+    "Samtools Flagstat":
+
+        mapped_passed: False 
+
+    Picard:
+
+        PCT_PF_READS_ALIGNED: False
+        PERCENT_DUPLICATION: True
+
+table_columns_placement:
+
+    FastQC:
+
+        total_sequences: 90.0
+        avg_sequence_length: 91.0
+
+    STAR:
+
+        uniquely_mapped: 93.0
+        uniquely_mapped_percent: 94.0
+
+    featureCounts:
+
+            Assigned: 96.0
+            percent_assigned: 97.0
