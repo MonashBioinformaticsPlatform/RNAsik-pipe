@@ -1,0 +1,54 @@
+include "../src/sikHeader.bds"
+include "../src/sikFqFiles.bds"
+
+string testDir = "test/fastq/test1"
+//string extn = "fastq.gz"
+string homeDir = "."
+
+void test_getFqFiles() {
+
+    string[] fqs = getFqFiles(testDir, extn, homeDir)
+    for(string fq : fqs) {
+
+        if(!fq.endsWith(extn)) {
+            error "Can't happend"
+        }
+
+    }
+}
+
+//returns list of maximum two elements
+//if data is paired-end list == 2
+//else if data is single-end list == 1
+//TODO can't fail this test.. there gotta be a way to do that..?
+void test_getFqPrefix() {
+
+    string[] fqs = getFqFiles(testDir, extn, homeDir)
+    
+    string[] pairIdsTypes = ["_R1,_R2", "_1,_2", "none", "", "blah", "_R3,"]
+    //TODO do I want to check if after the split each string isn't empty?
+    // in case user passed in -pairIds ","
+    for(string pairIds : pairIdsTypes) {
+        for(string fq : fqs) {
+            string[] prefix = getFqPrefix(fq, fqRgxs, pairIds, extn)
+
+            int chkPairIds = pairIds.indexOf(",")
+            if(chkPairIds == -1) {
+                //this means data isn't paired
+                // and therefore prefix must == 1
+                if(prefix.size() > 1) {
+                    error "Can't happend, prefix returned more than one element in the list, but pairIds is set to have paired end data suffixes"
+                }
+            }
+
+            if(prefix.size() < 0) {
+                error "Can't happend"
+            }
+            else if(prefix.size() > 2) {
+                error "Also can't happend"
+            }
+        }
+    }
+}
+//TODO to check getSamplesMap, perhaps try to check if fqRegex are working
+// i.e splitting occurs, and all those other checks. I guess this is really checking makeSamplesSheet
