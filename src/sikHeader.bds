@@ -15,7 +15,7 @@ help main options
 string fqDir        help path to fastqs directory, can be nested
 string align        help pick your aligner [star|hisat|bwa]
 string refFiles     help directory with reference files
-bool paired         help paired end data [false]
+bool paired         help paired end data [false], will also set pairIds = "_R1,_R2"
 bool all            help short hand for counts, mdups, exonicRate, qc, cov and multiqc
 
 help more options 
@@ -37,7 +37,7 @@ help extra configs
 string samplesSheet              help tab delimited file, each line: old_prefix \t new_prefix
 string outDir                    help output directory [sikRun]
 string extn = ".fastq.gz"        help specify FASTQ files extension [.fastq.gz]
-string pairIds = "_R1,_R2"       help specify read pairs, ["_R1,_R2"]
+string pairIds = "none"          help specify read pairs, [none]
 string extraOpts                 help add extra options through a file, each line: toolName = options
                                  #  e.g STAR = --outSAMtype BAM Unsorted, --outReadsUnmapped Fastx
                                  #      starIndex = --sjdbGTFfile /path/to/GTF/file, --sjdbOverhang 99
@@ -54,7 +54,6 @@ string[] fqRgxs = ["_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$", \
                     "_L[0-9]{3}_R[0-9].fastq.gz$", \
                     "_R[0-9]_[0-9]{3}.fastq.gz$", \
                     "_R[0-9].fastq.gz$"]
-
 
 //single-end
 string adapterFileSe = progPath+"/../supplementary/TruSeqAdapters.fa"

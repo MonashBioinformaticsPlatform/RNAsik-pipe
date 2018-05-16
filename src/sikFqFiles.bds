@@ -102,6 +102,7 @@ string[] alignerReads(string fqString, string pairIds) {
     // if no command foung in the pairIds string assume 
     // single-end data with _R1 or similar suffix
     // and therefore return fqString straight away
+    int chk = pairIds.indexOf(",")
     if(pairIds.indexOf(",") == -1) {
         return [fqClean]
     }
@@ -124,7 +125,7 @@ string[] alignerReads(string fqString, string pairIds) {
                     readTwo.add(fq)
                 }
                 else {
-                    error "check your pairIds value $pairIds, make sure it corresponds to your fastq files $fq OR set to none for single-end data"
+                    error "check your pairIds value $pairIds, make sure it corresponds to your fastq files $fq OR set \"-pairIds none\" for single-end data"
                 }
             }
         }
@@ -140,12 +141,12 @@ string[] alignerReads(string fqString, string pairIds) {
         }
     }
     else {
-        error "This shouldn't happened full stop!"
+        error "This can't happend"
     }
 }
 // retuns two items list [old_prefix, new_prefix]
 //TODO rename to getSampleName ?
-string[] getFqPrefix(string fqRead, string[] fqRgxs, string[] pairIdsList, string extn) {
+string[] getFqPrefix(string fqRead, string[] fqRgxs, string pairIds, string extn) {
     string localFqRead = fqRead.baseName()
     //attempt to guess fastq files extention that is including lane and _R prefix
     //if guessed, then 
@@ -161,20 +162,29 @@ string[] getFqPrefix(string fqRead, string[] fqRgxs, string[] pairIdsList, strin
             error "This shouldn't happened, check makeSampleSheet function"
         }
     }
-    //DOCS: if can't guess the suffix using fqRgxs fall back onto pairIdxs
-    int oneIdx = localFqRead.lastIndexOf(pairIdsList[0])
-    int twoIdx = localFqRead.lastIndexOf(pairIdsList[1])
-    
-    if(oneIdx != -1 || twoIdx != -1) {
-        return [localFqRead.substr(0, oneIdx), localFqRead.substr(0, oneIdx)]
+    int chkPairIds = pairIds.indexOf(",")
+    if(chkPairIds == -1) {
+        return [fqRead.baseName(extn), fqRead.baseName(extn)]
     }
-    //DOCS: if all of the above failed
-    // simply remove extn from the file and use that as a rootName
-    if( (oneIdx == -1) && (twoIdx == -1) ) {
-        return [fqRead.removeExt(extn), fqRead.removeExt(extn)]
+    else if(chkPairIds != -1) {
+        string[] pairIdsList = pairIds.split(",")
+        //TODO do I want to check if after the split each string isn't empty?
+        // in case user passed in -pairIds ","
+        int oneIdx = localFqRead.lastIndexOf(pairIdsList[0])
+        int twoIdx = localFqRead.lastIndexOf(pairIdsList[1])
+
+        if(oneIdx != -1 || twoIdx != -1) {
+            return [localFqRead.substr(0, oneIdx), localFqRead.substr(0, oneIdx)]
+        }
+        else if( (oneIdx == -1) && (twoIdx == -1) ) {
+            return [fqRead.baseName(extn), fqRead.baseName(extn)]
+        }
+        else {
+            error "No oldPrefix was found, although this shouldn't really happend"
+        }
     }
     else {
-        error "No oldPrefix was found, although this shouldn't really happened"
+        error "This can't happend"
     }
 }
 string makeSamplesSheet(string[] fqReads, string[] fqRgxs, bool paired, string pairIds, string extn, string sikDir) {
@@ -188,15 +198,21 @@ string makeSamplesSheet(string[] fqReads, string[] fqRgxs, bool paired, string p
     // get uniq prefix 
     for(string fq : fqReads) {
 
-        string chkR2 = fq.replace(pairIdsList[0], pairIdsList[1])
-        if(!paired && chkR2.exists()) {
-            error "-paired set to $paired, but found $pairIdsList[1] read. Is it paired-end data? Also check your -pairIds $pairIds"
+        int chkPairIds = pairIds.indexOf(",")
+        if(chkPairIds != -1) {
+            string chkR2 = fq.replace(pairIdsList[0], pairIdsList[1])
+            if(!paired && chkR2.exists()) {
+                error "-paired set to $paired, but found $pairIdsList[1] read. Is it paired-end data? Also check your -pairIds $pairIds"
+            }
+            if(paired && !chkR2.exists()) {
+                error "-paired set to $paired, but can't find $pairIdsList[1] read. Is it single-end data? Also check your -pairIds $pairIds"
+            }
         }
-        if(paired && !chkR2.exists()) {
-            error "-paired set to $paired, but can't find $pairIdsList[1] read. Is it single-end data? Also check your -pairIds $pairIds"
+        else if(chkPairIds == -1 && paired) {
+            error "pairIds set to $pairIds and paired set to $paired. This is a conflict"
         }
 
-        string[] prefix = getFqPrefix(fq, fqRgxs, pairIdsList, extn)
+        string[] prefix = getFqPrefix(fq, fqRgxs, pairIds, extn)
         autoGen{prefix[0]} = prefix[1]
     }
     // convert hash into a string  
@@ -213,8 +229,12 @@ string makeSamplesSheet(string[] fqReads, string[] fqRgxs, bool paired, string p
     if(!samplesSheet.exists() && !samplesSheet.isFile()) {
         samplesSheet.write(samplesConfig)
     }
+    else if(samplesSheet.exists()) {
+        warning "Samples sheet file $samplesSheet already exists, NOT overwriting it! Rename the file if you want new samples sheet file"
+    }
     return samplesSheet
 }
+
 
 string{} mkBamsMap(string bamsDir, string samplesSheet) {
     string{} bamsMap

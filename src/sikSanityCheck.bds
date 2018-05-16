@@ -13,6 +13,10 @@ if(all) {
     multiqc = true
 }
 
+if(paired) {
+    pairIds = "_R1,_R2"
+}
+
 string cmdArgsChk = chkCmdArgs()
 
 if(!align.isEmpty()) {
