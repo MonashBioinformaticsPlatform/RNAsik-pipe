@@ -14,7 +14,9 @@ if(all) {
 }
 
 if(paired) {
-    pairIds = "_R1,_R2"
+    if(pairIds == "none") {
+        pairIds = "_R1,_R2"
+    }
 }
 
 string cmdArgsChk = chkCmdArgs()

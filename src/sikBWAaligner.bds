@@ -57,10 +57,6 @@ string{} mapBWA(string{} cmdExe, string bamFiles, string{} samplesMap, string pa
 
         string rootBase = rootName.baseName()
         string bamOut = bamFiles+"/"+rootBase+"_bwaMem.bam"
-        
-        int chkLen = readsList.size()
-        if(chkLen < 2 && paired) error "R2 reads had not been found $readsList, but -paired set to $paired"
-        if(chkLen > 1 && !paired) error "-paired set to $paired, but only R1 reads found $readsList"
 
         string reads
 
