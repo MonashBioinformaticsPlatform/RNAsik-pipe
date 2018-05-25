@@ -67,23 +67,23 @@ if(!fqDir.isEmpty()) {
         string{} trimedOpts = { "--mode" => "any",  \
                                 "--min" => 20, \
                                 "--mean-quality" => 23, \
-                                "--compress" => ""}
+                                "--compress" => "", \
+                                "-x" => adapterFileSe}
         
         if(paired) {
             trimedOpts{"-y"} = adapterFilePe
-        }
-        else {
-            trimedOpts{"-x"} = adapterFileSe
+            trimedOpts{"--mode"} = "pe"
         }
         
         string allTrimedOpts = getOpts("skewer", trimedOpts, extraOpts)
         mkLog("skewer", allTrimedOpts, "toolsOpts", logsDir)
         
-        string[] trimedFqs = getTrimedFqs(cmdExe, fqFiles, sikDir, allTrimedOpts, extn)
+        string[] trimedFqs = getTrimedFqs(cmdExe, fqFiles, sikDir, allTrimedOpts, extn, pairIds, paired)
         mkLog("fqTrimed", parseList(trimedFqs), "samples", logsDir)
         //TODO I should be able to assign to fqFiles straight away, but just to be safe..
         // clean up once you are sure
         fqFiles = trimedFqs
+        pairIds = "-pair1,-pair2"
     }
 }
 //

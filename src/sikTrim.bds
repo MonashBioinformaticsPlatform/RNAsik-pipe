@@ -1,24 +1,14 @@
 
-string[] getTrimedFqs(string{} cmdExe, string[] fqFiles, string sikDir, string extraOpts, string extn) {
-    // a couple of sanity checks
+string[] getTrimedFqs(string{} cmdExe, string[] fqFiles, string sikDir, string extraOpts, string extn, string pairIds, bool paired) {
+
     if( (fqFiles.isEmpty()) && (trim) ) {
         error "No FASTQ files found, use -fqDir /path/to/fastq/dir."
     }
 
-    if(!cmdExe.hasKey("skewerExe")) {
-        error "Can't get skewer executable, check your config file $configFile"
-    }
-    string skewerExe = cmdExe{"skewerExe"}
-    //NOTE this is place holder code for future needs
-    //if(!cmdExe.hasKey("skewerMem")) {
-    //    error "Can't get memory settings for skewer, check your config file $configFile"
-    //}
-    //int skewerMem = cmdExe{"skewerMem"}.parseInt()
-
-    if(!cmdExe.hasKey("skewerCpu")) {
-        error "Can't get cpu settings for skewer alignment, check your config file $configFile"
-    }
-    int skewerCpu = cmdExe{"skewerCpu"}.parseInt()
+    string{} resource = getResource(cmdExe, "skewer", "")
+    string skewerExe = resource{"toolsExe"}
+    int trimMem = resource{"toolsMem"}.parseInt()
+    int trimCpu = resource{"toolsCpu"}.parseInt()
 
     string trimedDir = sikDir+"/"+"fastqDir/trimed"
     if(!trimedDir.exists() && trim) {
@@ -29,16 +19,65 @@ string[] getTrimedFqs(string{} cmdExe, string[] fqFiles, string sikDir, string e
 
     for(string fq : fqFiles) {
 
-        string preFix = trimedDir+"/"+fq.baseName(extn)
-        string trimedFq = preFix+"-trimmed.fastq.gz"
+        string[] readsList
+        string preFixHolder
 
-        trimedFqs.add(trimedFq)
-        dep(trim, trimedFq <- fq, cpus := skewerCpu, taskName := "Trimming adapters and quality from FASTQ") { 
-            sys $skewerExe --threads $skewerCpu \
+        if(paired) {
+            if(pairIds != "none") {
+                string[] pairIdsList = pairIds.split(",")
+
+                if(pairIdsList.size() != 2) {
+                    error "Wrong -pairIds setting, it is set to $pairIds. Please change to include suffix of both R1 and R2 reads"
+                }
+                //NOTE need fq.baseName() to obtain an accurate idx
+                // will be using that idx to splice prefix
+                int oneIdx = fq.baseName().lastIndexOf(pairIdsList[0])
+                int twoIdx = fq.baseName().lastIndexOf(pairIdsList[1])
+
+                if(oneIdx != -1 && twoIdx == -1) {
+                    // found R1 read proceed with trimming
+                    string r2 = fq.replace(pairIdsList[0], pairIdsList[1])
+
+                    if(!r2.exists()) {
+                        error "This is strange, R2 read doesn't exist -> $r2"
+                    }
+
+                    readsList = [fq, r2]
+                    preFixHolder = r2.baseName().substr(0, oneIdx)
+
+                }
+                else {
+                    // found R2 read continue to next fastq file
+                    continue
+                }
+            }
+        }
+        else {
+            readsList = [fq]
+        }
+
+        string preFix = trimedDir+"/"
+
+        string[] deps
+
+        if(!preFixHolder.isEmpty()) {
+            preFix += preFixHolder
+            deps += preFix+"-trimmed-pair1.fastq.gz"
+            deps += preFix+"-trimmed-pair2.fastq.gz"
+        }
+        else {
+            preFix += fq.baseName(extn)
+            deps += preFix+"-trimmed.fastq.gz"
+        }
+
+        string readsStr = readsList.join()
+
+        trimedFqs += deps
+        dep(trim, deps <- readsList, cpus := trimCpu, taskName := "Trimming adapters and quality from FASTQ") {
+            sys $skewerExe --threads $trimCpu \
                            --output $preFix \
                            $extraOpts \
-                           $fq
-
+                           $readsStr
         }
     }
     goal trimedFqs
