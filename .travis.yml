@@ -15,8 +15,11 @@ before_install:
 
 install:
 
-  - conda install --yes --channel serine bigdatascript
+  # RNAsik should pull bds with it
+  #- conda install --yes --channel serine bigdatascript
+  - conda install --yes --channel serine rnasik
 
 script:
 
   - bds -test test/sikTests.bds
+  - RNAsik
