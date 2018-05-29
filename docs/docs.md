@@ -435,3 +435,46 @@ To get just protein_coding features
                  --samples_sheet sikRun/samplesSheet.txt \
                  --biotype protein_coding > ForwardStrandedCounts-withNames-proteinCoding.txt
 ```
+
+## Metric files explained
+
+> A lot of the tools output some sort of metrics files, to stdout/stderr or a file.
+> Those metrics are important for analysis and QC checks going forward with the data.
+> All of those metrics files are summarised into [multiqc](https://multiqc.info) report.
+> This section will attempt to explain in details each one of those metrics
+
+
+#### STAR
+
+- `Log.final.out`
+
+This is straight out of the STAR docs
+
+Log.final.out: summary mapping statistics after mapping job is complete, very useful for
+quality control. The statistics are calculated for each read (single- or paired-end) and then
+summed or averaged over all reads. Note that STAR counts a paired-end read as one read,
+(unlike the samtools flagstat/idxstats, which count each mate separately). Most of the informa-
+tion is collected about the UNIQUE mappers (unlike samtools flagstat/idxstats which does not
+separate unique or multi-mappers). Each splicing is counted in the numbers of splices, which
+would correspond to summing the counts in SJ.out.tab. The mismatch/indel error rates are
+calculated on a per base basis, i.e. as total number of mismatches/indels in all unique mappers
+divided by the total number of mapped bases.
+
+#### Picard
+
+- [CollectAlignmentSummaryMetrics](https://broadinstitute.github.io/picard/picard-metric-definitions.html#AlignmentSummaryMetrics)
+
+
+- [CollectGcBiasMetrics](https://software.broadinstitute.org/gatk/documentation/tooldocs/current/picard_analysis_CollectGcBiasMetrics.php)
+- [MarkDuplicates](https://broadinstitute.github.io/picard/picard-metric-definitions.html#DuplicationMetrics)
+
+These are all picard tools that are used in the pipeline
+
+- `CreateSequenceDictionary`
+- `SortSam`
+- `MarkDuplicates`
+- `BuildBamIndex`
+- `CollectAlignmentSummaryMetrics`
+- `CollectInsertSizeMetrics`
+- `CollectGcBiasMetrics`
+- `EstimateLibraryComplexity`

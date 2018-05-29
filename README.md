@@ -1,5 +1,6 @@
 # RNAsik-pipe
 
+[![Build Status](https://travis-ci.org/MonashBioinformaticsPlatform/RNAsik-pipe.svg?branch=master)](https://travis-ci.org/MonashBioinformaticsPlatform/RNAsik-pipe)
 [![install-with-conda](https://anaconda.org/serine/rnasik/badges/installer/conda.svg)](https://anaconda.org/serine/rnasik)
 [![anaconda-version](https://anaconda.org/serine/rnasik/badges/version.svg)](https://anaconda.org/serine/rnasik/files)
 

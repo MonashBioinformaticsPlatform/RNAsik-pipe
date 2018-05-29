@@ -46,5 +46,4 @@
     - `SortSam`
     - `star`
 
-- [CollectGcBiasMetrics](https://software.broadinstitute.org/gatk/documentation/tooldocs/current/picard_analysis_CollectGcBiasMetrics.php)
 - [Interesting article](http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0062856)
