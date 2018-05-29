@@ -52,3 +52,52 @@ void test_getFqPrefix() {
 }
 //TODO to check getSamplesMap, perhaps try to check if fqRegex are working
 // i.e splitting occurs, and all those other checks. I guess this is really checking makeSamplesSheet
+
+//return {"toolsExe" => exePath, "toolsMem" => qcMem, "toolsCpu" => qcCpu}
+void test_getResource() {
+    string configPath = "configs/sik.config"
+    string{} configFile = config(configPath)
+
+    string[] toolsNames ["star", \
+                         "hisat2",\
+                         "bwa",\
+                         "counts",\
+                         "samtools",\
+                         "picard",\
+                         "bedtools",\
+                         "skewer",\
+                         "fastqc",\
+                         "qualiMap",\
+                         "multiqc"]
+
+    string{} subNames = {"star" => "Align,Idx", \
+                         "bwa" => "Align,Idx", \
+                         "hisat2" => "Align,Idx", \
+                         "samtools" => "Sort,Qc", \
+                         "picard" => "MarkDups,Qc"}
+
+   for(string toolsName : toolsNames) {
+
+      if(subNames.hasKey(toolsName)) {
+          string[] names = subNames{toolsName}.split(",")
+          for(string subName : names) {
+
+              string{} resources = getResource(configFile, toolsName, subName)
+
+              if(resources.size() != 3) {
+                  error "Can't happend. Must always return map of three items"
+              }
+
+              if(resources{"toolsExe"} != toolsName+"Exe") {
+                  error "These two string must equal"
+              }
+
+              if(resources{"toolsMem"} == "") {
+                  error "Can't have an empty string, check config file as well to be sure value is set there"
+              }
+          }
+      }
+
+   }
+}
+
