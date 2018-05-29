@@ -6,7 +6,7 @@
 
 [![anaconda-version](https://anaconda.org/serine/rnasik/badges/version.svg)](https://anaconda.org/serine/rnasik/files)
 
-#### This is fully sick way to get your differentially expressed genes !
+#### This is fully SIcK way towards differential gene expression !
 
 > `RNAsik-pipe` implemented in [BigDataScrip](http://pcingola.github.io/BigDataScript/) (BDS) language.
 
