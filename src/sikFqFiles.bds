@@ -133,7 +133,8 @@ string[] alignerReads(string fqString, string pairIds) {
         string readOneStr = readOne.join(",")
 
         if(readTwo.isEmpty()) {
-            return [readOneStr]
+            //return [readOneStr]
+            error "This can't happend, should hit return before this block"
         } 
         else {
             string readTwoStr = readTwo.join(",")
