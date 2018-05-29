@@ -1,0 +1,11 @@
+---
+
+sudo: false
+
+language: bds
+
+install:
+  - conda install -c serine bigdatascript
+
+script:
+  - bds -test test/sikTest.bds
