@@ -1,4 +1,5 @@
 include "sikHeader.bds"
+include "sikUtils.bds"
 #---------------------------------------
 # Functions to get different QC reports
 #---------------------------------------
@@ -26,6 +27,7 @@ string[] getFastqcReport(string{} cmdExe, string sikDir, string[] fqFiles, strin
     for(string fq : fqFiles) {
         string rootName = fq.baseName().removeExt(extn)
         string fqHtml = fastqcReport+"/"+rootName+preFix
+        string logsFile = fastqcReport+"/."+rootName+".siklog"
         //NOTE this is a bit of hack where I assign 4 cpus for each task regardless of 
         // threads values passed in. Also note that I'm setting --threads to 8. I don't fully
         // understand this, but by doing so fastqc gets Xmx2000m i.e 2G of heap memory for every task
@@ -34,8 +36,8 @@ string[] getFastqcReport(string{} cmdExe, string sikDir, string[] fqFiles, strin
         // Basically on 16 core machines I'm allowing 4 parallel task to runs, each taking 2G of heap memory
         // and I think this is ok.. However in parallel there probably be also running another (multiple?) java process
         // that will also take up heap memory unknown amount. 
-        dep(qc, fqHtml <- fq, cpus := fastqcCpu, taskName := "Running FASTQC") { 
-            sys $fastqcExe $fqQcOpts --threads $fastqcCpu --outdir $fastqcReport $fq
+        dep(qc, fqHtml <- fq, cpus := fastqcCpu, taskName := "Running FastQC on $fq and logging to $logsFile") {
+            sys $fastqcExe $fqQcOpts --threads $fastqcCpu --outdir $fastqcReport $fq > $logsFile 2>&1
         }
         fqHtmls.add(fqHtml)
     }
@@ -49,19 +51,21 @@ string getMultiqc(string{} cmdExe, string sikDir, string multiqcIgnore, string[]
     string multiqcExe = resource{"toolsExe"}
     int multiqcCpu = resource{"toolsCpu"}.parseInt()
 
+    string logsFile = sikDir+"/.multiqc.siklog"
+
     string outdep = sikDir+"/"+"multiqc_report.html"
     dep(multiqc, outdep <- allDeps, canFail := true, cpus := multiqcCpu, taskName := "Generating MultiQC report") {
         sys $multiqcExe $sikDir \
                         --outdir $sikDir \
                         $multiqcOpts \
                         $multiqcIgnore \
-                        --force
+                        --force > $logsFile 2>&1
     }
     goal outdep
     return outdep
 }
 
-string[] getAddMetrics(string{} cmdExe, string{} bamsMap, string fastaRef, string fastaDictFile) {
+string[] getAddMetrics(string{} cmdExe, string{} bamsMap, string fastaRef, string fastaDictFile, bool paired) {
 
     string{} resource = getResource(cmdExe, "picard", "Qc")
     string picardExe = resource{"toolsExe"}
@@ -74,16 +78,29 @@ string[] getAddMetrics(string{} cmdExe, string{} bamsMap, string fastaRef, strin
 
         string insertMetrics = bamFile.replace(".bam", "_insert_size.metrics")
         string hist = bamFile.replace(".bam", "_insert_size_hist.pdf")
+        string hackInsertMetrics = insertMetrics.baseName()
+        string insertMetricsLog = insertMetrics.replace(hackInsertMetrics, "."+hackInsertMetrics).removeExt()+".siklog"
         //
         string alignMetrics = bamFile.replace(".bam", "_align.metrics")
+        string hackAlignMetrics = alignMetrics.baseName()
+        string alignMetricsLog = alignMetrics.replace(hackAlignMetrics, "."+hackAlignMetrics).removeExt()+".siklog"
         //
         string gcMetrics = bamFile.replace(".bam", "_gc.metrics")
         string gcMetricsPdf = bamFile.replace(".bam", "_gc.pdf")
         string gcMetricsSummary = bamFile.replace(".bam", "_gc_summary.metrics")
+        string hackGcMetrics = gcMetrics.baseName()
+        string gcMetricsLog = gcMetrics.replace(hackGcMetrics, "."+hackGcMetrics).removeExt()+".siklog"
         //
         string libComplex = bamFile.replace(".bam", "_lib_complex.metrics")
+        string hackLibComplex = libComplex.baseName()
+        string libComplexLog = libComplex.replace(hackLibComplex, "."+hackLibComplex).removeExt()+".siklog"
 
-        addMetrics += insertMetrics
+        //TODO should probably also add log files as a dependencies
+
+        if(paired) {
+            addMetrics += insertMetrics
+        }
+
         addMetrics += hist
         addMetrics += alignMetrics
         addMetrics += gcMetrics
@@ -96,13 +113,13 @@ string[] getAddMetrics(string{} cmdExe, string{} bamsMap, string fastaRef, strin
                                                     INPUT=$bamFile \
                                                     OUTPUT=$insertMetrics \
                                                     HISTOGRAM_FILE=$hist \
-                                                    M=0.5 
+                                                    M=0.5 > $insertMetricsLog 2>&1
         }
         task(qc && !alignMetrics.exists(), alignMetrics <- [bamFile, fastaRef, fastaDictFile], cpus := qcCpu, taskName := "gathering metrics "+bamFile, canFail := true) {
             sys $picardExe CollectAlignmentSummaryMetrics VALIDATION_STRINGENCY=LENIENT \
                                                           REFERENCE_SEQUENCE=$fastaRef \
                                                           INPUT=$bamFile \
-                                                          OUTPUT=$alignMetrics
+                                                          OUTPUT=$alignMetrics > $alignMetricsLog 2>&1
         }
         task(qc && !gcMetrics.exists(), [gcMetrics, gcMetricsPdf, gcMetricsSummary] <- [bamFile, fastaRef, fastaDictFile], cpus := qcCpu, taskName := "gathering metrics "+bamFile, canFail := true) {
             sys $picardExe CollectGcBiasMetrics VALIDATION_STRINGENCY=LENIENT \
@@ -110,12 +127,12 @@ string[] getAddMetrics(string{} cmdExe, string{} bamsMap, string fastaRef, strin
                                                 OUTPUT=$gcMetrics \
                                                 CHART_OUTPUT=$gcMetricsPdf \
                                                 SUMMARY_OUTPUT=$gcMetricsSummary \
-                                                R=$fastaRef
+                                                R=$fastaRef > $gcMetricsLog 2>&1
         }
         task(qc && !libComplex.exists(), libComplex <- bamFile, cpus := qcCpu, taskName := "gathering metrics "+bamFile, canFail := true) {
             sys $picardExe EstimateLibraryComplexity VALIDATION_STRINGENCY=LENIENT \
                                                      INPUT=$bamFile \
-                                                     OUTPUT=$libComplex
+                                                     OUTPUT=$libComplex > $libComplexLog 2>&1
         }
     }
     return addMetrics

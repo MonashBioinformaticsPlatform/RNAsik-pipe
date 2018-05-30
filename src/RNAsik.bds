@@ -211,7 +211,7 @@ mkLog("theBams", parseMap(theBams), "data", logsDir)
 string[] samMetrics = getSamMetrics(cmdExe, theBams, localFastaRef)
 mkLog("addMetrics", parseList(samMetrics), "data", logsDir)
 
-string[] addMetrics = getAddMetrics(cmdExe, theBams, localFastaRef, fastaDictFile)
+string[] addMetrics = getAddMetrics(cmdExe, theBams, localFastaRef, fastaDictFile, paired)
 mkLog("addMetrics", parseList(addMetrics), "data", logsDir)
 // coverage files
 //NOTE this is for future implementation of strand specific coverage
