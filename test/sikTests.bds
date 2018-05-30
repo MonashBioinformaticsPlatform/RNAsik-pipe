@@ -1,5 +1,6 @@
 include "../src/sikHeader.bds"
 include "../src/sikFqFiles.bds"
+include "sikCommon.bds"
 
 string testDir = "test/fastq/test1"
 //string extn = "fastq.gz"
@@ -55,8 +56,6 @@ void test_getFqPrefix() {
 
 //return {"toolsExe" => exePath, "toolsMem" => qcMem, "toolsCpu" => qcCpu}
 void test_getResource() {
-    string configPath = "configs/sik.config"
-    string{} configFile = config(configPath)
 
     string[] toolsNames = ["star", \
                            "hisat2",\
@@ -92,7 +91,7 @@ void test_getResource() {
           string[] names = subNames{toolsName}.split(",")
           for(string subName : names) {
 
-              string{} resources = getResource(configFile, toolsName, subName)
+              string{} resources = getResource(testConfigFile, toolsName, subName)
 
               if(resources.size() != 3) {
                   error "Can't happend. Must always return map of three items"

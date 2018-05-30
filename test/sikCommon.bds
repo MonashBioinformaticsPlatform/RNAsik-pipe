@@ -1,0 +1,20 @@
+
+string testConfigPath = "configs/sik.config"
+string{} testConfigFile = config(testConfigPath)
+
+bool testPaired
+
+string testRefFiles = "test/refFiles"
+
+string testFastaRef = testRefFiles+"/Homo_sapiens.GRCh38.dna_sm.removed_contigs.fa"
+string testFastaFai = testRefFiles+"/Homo_sapiens.GRCh38.dna_sm.removed_contigs.fa.fai"
+string testFastaDict = testRefFiles+"/Homo_sapiens.GRCh38.dna_sm.removed_contigs.dict"
+
+//Homo_sapiens.GRCh38.83.removed_contigs.gtf
+//Homo_sapiens.GRCh38.83.removed_contigs.gtf.gz
+//Homo_sapiens.GRCh38.dna_sm.removed_contigs.chromSizes
+//Homo_sapiens.GRCh38.dna_sm.removed_contigs.fa.gz
+//Homo_sapiens.GRCh38.dna_sm.removed_contigs.hisat2Idx
+//Homo_sapiens.GRCh38.dna_sm.removed_contigs.starIdx
+//Log.out
+

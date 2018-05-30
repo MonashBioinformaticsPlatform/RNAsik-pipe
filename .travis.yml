@@ -26,6 +26,5 @@ install:
 
 script:
 
-  - bds -test test/sikTests.bds
-  # next two should result in the same thing
+  - ./test/sik_test.bash
   - RNAsik --help

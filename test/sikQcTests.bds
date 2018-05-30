@@ -1,0 +1,19 @@
+include "sikCommon.bds"
+include "../src/sikQC.bds"
+
+//string[] getAddMetrics(string{} cmdExe, string{} bamsMap, string fastaRef, string fastaDictFile, bool paired)
+//NOTE at the very list this function should return non empty list
+
+void test_getAddMetrics() {
+
+    string{} bamsMap = {"sampleA" => "sampleA.bam",\
+                        "sampleB" => "sampleB.bam",\
+                        "sampleC" => "sampleC.bam",\
+                        "sampleD" => "sampleD.bam"}
+
+    string[] addMetrics = getAddMetrics(testConfigFile, bamsMap, testFastaRef, testFastaDict, testPaired)
+    int metricsListSize = addMetrics.size()
+
+    assert("Can't have zero items in the list $addMetrics", metricsListSize > 0)
+}
+
