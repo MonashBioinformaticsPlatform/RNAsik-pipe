@@ -28,5 +28,4 @@ script:
 
   - bds -test test/sikTests.bds
   # next two should result in the same thing
-  - RNAsik
   - RNAsik --help

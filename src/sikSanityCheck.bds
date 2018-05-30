@@ -84,5 +84,5 @@ if(!bamsDir.isEmpty() && !fqDir.isEmpty()) {
 
 if( args.isEmpty() ) {
     printHelp()
-    exit(0)
+    exit(1)
 }
