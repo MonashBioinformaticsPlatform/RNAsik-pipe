@@ -103,11 +103,14 @@ string makeLocalRef(string{} cmdExe, string refFile, string refDir, string fileT
 }
 // make dictionary for picard pre-processing
 string makeDictFile(string{} cmdExe, string fastaRef) {
-    if(!cmdExe.hasKey("picardExe")) error "Can't get picard executable, check your config file $configFile"
-    string picardExe = cmdExe{"picardExe"}
-    // make .dict string
+
+    string{} resource = getResource(cmdExe, "picard", "CreateDict")
+    string picardExe = resource{"toolsExe"}
+    int createDictMem = resource{"toolsMem"}.parseInt()
+    int createDictCpu = resource{"toolsCpu"}.parseInt()
+
     string fastaDictFile = fastaRef.removeExt()+".dict"
-    task(mdups, fastaDictFile <- fastaRef, taskName := "Making dictionary File") {
+    task(mdups, fastaDictFile <- fastaRef, cpus := createDictCpu, mem := createDictMem, taskName := "Making dictionary File") {
         sys $picardExe CreateSequenceDictionary REFERENCE=$fastaRef \
                                                 OUTPUT=$fastaDictFile
     }
