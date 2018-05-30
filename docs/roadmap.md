@@ -10,10 +10,16 @@
 - need to have better way to check for index directory, want to know if starIdx includes or doesn't indexing with annotation. 
 - recheck [Stuart's PR](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pull/10/commits/9e64da57de6da066e94bf6fcc66e23c36adb3671), polish off refFiles detection
 - recheck [this whole PR](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pull/10)
-- start including unit testing in your master branch, once I'm happy with with `unit_test` branch
 - noticed that qualimap could have high RAM consumption, need to fix cpu and mem parameters passing through sik.config file. Reckon to set mem at 4 or 6 Gb
 
-### 1.5.2 Q3 (July/August) 2018
+### 1.5.2 (June/July) 2018
+
+- start including unit testing in your master branch, once I'm happy with with `unit_test` branch
+- make coverage plots stranded. Use `-strand` flag for stranded data, but still output non-stranded coverage. So 3 files
+  all up
+- add support for another aligner - [minimap2](https://github.com/lh3/minimap2)
+
+### 1.5.2 (July/August) 2018
 
 - improve `RNAsik` logging, particular want to make individual tools version logging independent of each other, so that if one wants to run
 just counts, `RNAsik` shouldn't complain about `bwa` not found in the PATH. Also double check the behaviour of the logger when pipelines re-runs.
@@ -22,7 +28,7 @@ From memory it might not perform as it should. You really want a log of every ev
 to do with recent bug that got fixed in [b924027](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/commit/b9240274fa7c964e953a767c254f31ba0d044547) 
 - have a look at BDS `log()` function as well, might come useful
 
-### 1.5.3 Q4 (October/November) 2018
+### 1.5.3 (October/November) 2018
 
 New feature(s) described below:
 
@@ -35,7 +41,7 @@ Because of changes in arg's options will do a minor version bump.
 
 - include handling of url based samples sheets, i.e `-samplesSheet` flag should handle local based or remote files, just like `-fastaRef` option
 
-### 1.6.0 Q3 (October/November) 2018
+### 1.6.0 (October/November) 2018
 
 - Plans to add variants calling to `RNAsik`. It'll be opt in flag,  `-varsCall`. Suggestions are welcomed about different name for a flag.
 I already have a prototype in bds, just need to plug it in.

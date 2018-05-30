@@ -129,6 +129,40 @@ conda install -c bioconda qualimap
 
 Right now `RNAsik` hosted from my "channel" (conda terminology). There are plans to push it to official [bioconda channel](https://bioconda.github.io/)
 
+#### conda extras
+
+- search "main" label (repository)
+
+```
+conda search -c serine rnasik
+```
+
+- search "dev" label (repository)
+
+```
+conda search -c serine/label/dev rnasik
+```
+
+- install specific version
+
+```
+conda install -c serine/label/dev "rnasik=1.5.1+3ecd215"
+```
+
+- install specific version and specific build number
+
+```
+conda install -c serine/label/dev "rnasik=1.5.1+3ecd215=4
+```
+
+- simply install latest from that "dev" label (repository)
+
+```
+conda install -c serine/label/dev rnasik
+```
+
+**NOTE:** that these are just some extras commands mainly for testing purposes not for production use !
+
 ### Alternative installation methods
 
 - [HERE](install.md)
