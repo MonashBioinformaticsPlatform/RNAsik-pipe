@@ -24,7 +24,7 @@ void test_getFqFiles() {
 void test_getFqPrefix() {
 
     string[] fqs = getFqFiles(testDir, extn, homeDir)
-    
+
     string[] pairIdsTypes = ["_R1,_R2", "_1,_2", "none", "", "blah", "_R3,"]
     //TODO do I want to check if after the split each string isn't empty?
     // in case user passed in -pairIds ","
@@ -58,23 +58,33 @@ void test_getResource() {
     string configPath = "configs/sik.config"
     string{} configFile = config(configPath)
 
-    string[] toolsNames ["star", \
-                         "hisat2",\
-                         "bwa",\
-                         "counts",\
-                         "samtools",\
-                         "picard",\
-                         "bedtools",\
-                         "skewer",\
-                         "fastqc",\
-                         "qualiMap",\
-                         "multiqc"]
+    string[] toolsNames = ["star", \
+                           "hisat2",\
+                           "bwa",\
+                           "counts",\
+                           "samtools",\
+                           "picard",\
+                           "bedtools",\
+                           "skewer",\
+                           "fastqc",\
+                           "qualiMap",\
+                           "multiqc"]
+
+    int toolsNamesSize = toolsNames.size()
+    if(toolsNamesSize <= 0) {
+        error "This can't happend, toolsNames list must have tool's name's, i.e size >= 0; $toolsNamesSize $toolsNames"
+    }
 
     string{} subNames = {"star" => "Align,Idx", \
                          "bwa" => "Align,Idx", \
                          "hisat2" => "Align,Idx", \
                          "samtools" => "Sort,Qc", \
-                         "picard" => "MarkDups,Qc"}
+                         "picard" => "MarkDups,Qc,CreateDict"}
+
+    int subNamesSize = subNames.size()
+    if(subNamesSize <= 0) {
+        error "This can't happend, thre gotta be subNames! i.e size >= 0; $subNamesSize $subNames"
+    }
 
    for(string toolsName : toolsNames) {
 
@@ -88,16 +98,27 @@ void test_getResource() {
                   error "Can't happend. Must always return map of three items"
               }
 
-              if(resources{"toolsExe"} != toolsName+"Exe") {
-                  error "These two string must equal"
+              if(resources{"toolsExe"}.isEmpty()) {
+                  error "Can't have an empty value for $toolsName, check config file"
               }
 
-              if(resources{"toolsMem"} == "") {
-                  error "Can't have an empty string, check config file as well to be sure value is set there"
+              string toolsCpu = resources{"toolsCpu"}
+
+              if(toolsCpu.isEmpty()) {
+                  error "Can't have an empty value for $toolsName and $subName, check config file"
               }
+
+              int cpuInt = toolsCpu.parseInt()
+              assert("Can't have zero values, check config file, $toolsName $subName set to $toolsCpu", cpuInt != 0)
+
+              string toolsMem = resources{"toolsMem"}
+              if(toolsMem.isEmpty()) {
+                  error "Can't have an empty value for $toolsName and $subName, check config file"
+              }
+
+              int memInt = toolsMem.parseInt()
+              assert("Can't have zero values, check config file, $toolsName $subName set to $toolsCpu", memInt != 0)
           }
       }
-
    }
 }
-
