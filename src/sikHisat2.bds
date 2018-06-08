@@ -25,7 +25,7 @@ string makeHisat2Idx(string{} cmdExe, string fastaRef, string gtfFile, string hi
 
     string[] genomeIdxFiles
     for(int i : range(1, 8)) {
-        genomeIdxFiles += hisat2IdxBase+".$i.ht2"
+        genomeIdxFiles += hisat2IdxBase+"\.$i\.ht2"
     }
 
     string[] outs
@@ -64,7 +64,7 @@ string{} mapHisat2(string{} cmdExe, string bamFiles, string{} samplesMap, string
 
     string[] genomeIdxFiles
     for(int i : range(1, 8)) {
-        genomeIdxFiles += hisat2Idx+".$i.ht2"
+        genomeIdxFiles += hisat2Idx+"\.$i.\ht2"
     }
 
     for(string rootName : samplesMap.keys()) {
