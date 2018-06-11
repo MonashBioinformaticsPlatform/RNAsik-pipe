@@ -16,9 +16,9 @@ string{} getSortedBams(string{} cmdExe, string sikDir, string{} bamsMap) {
     // at sortMem*sortCpu
     int sortBdsMem = sortMem*sortCpu
     // need to scale down by 80 % because sam takes a bit more RAM then actually given
-    real samSortConst = 0.8
+    real scalFact = 0.85
     // also need to covert to bytes as samtools sort needs that way
-    string sortSamMem = (samSortConst * sortMem/1000)+"K"
+    string sortSamMem = round(scalFact * sortMem/1000)+"K"
 
     string[] sortedBams
     string{} sortedBamsMap
