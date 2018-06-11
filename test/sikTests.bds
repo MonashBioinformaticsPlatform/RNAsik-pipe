@@ -85,39 +85,39 @@ void test_getResource() {
         error "This can't happend, thre gotta be subNames! i.e size >= 0; $subNamesSize $subNames"
     }
 
-   for(string toolsName : toolsNames) {
+    for(string toolsName : toolsNames) {
 
-      if(subNames.hasKey(toolsName)) {
-          string[] names = subNames{toolsName}.split(",")
-          for(string subName : names) {
+        if(subNames.hasKey(toolsName)) {
+            string[] names = subNames{toolsName}.split(",")
+            for(string subName : names) {
 
-              string{} resources = getResource(testConfigFile, toolsName, subName)
+                string{} resources = getResource(testConfigFile, toolsName, subName)
 
-              if(resources.size() != 3) {
-                  error "Can't happend. Must always return map of three items"
-              }
+                if(resources.size() != 3) {
+                    error "Can't happend. Must always return map of three items"
+                }
 
-              if(resources{"toolsExe"}.isEmpty()) {
-                  error "Can't have an empty value for $toolsName, check config file"
-              }
+                if(resources{"toolsExe"}.isEmpty()) {
+                    error "Can't have an empty value for $toolsName, check config file"
+                }
 
-              string toolsCpu = resources{"toolsCpu"}
+                string toolsCpu = resources{"toolsCpu"}
 
-              if(toolsCpu.isEmpty()) {
-                  error "Can't have an empty value for $toolsName and $subName, check config file"
-              }
+                if(toolsCpu.isEmpty()) {
+                    error "Can't have an empty value for $toolsName and $subName, check config file"
+                }
 
-              int cpuInt = toolsCpu.parseInt()
-              assert("Can't have zero values, check config file, $toolsName $subName set to $toolsCpu", cpuInt != 0)
+                int cpuInt = toolsCpu.parseInt()
+                assert("Can't have zero values, check config file, $toolsName $subName set to $toolsCpu", cpuInt != 0)
 
-              string toolsMem = resources{"toolsMem"}
-              if(toolsMem.isEmpty()) {
-                  error "Can't have an empty value for $toolsName and $subName, check config file"
-              }
+                string toolsMem = resources{"toolsMem"}
+                if(toolsMem.isEmpty()) {
+                    error "Can't have an empty value for $toolsName and $subName, check config file"
+                }
 
-              int memInt = toolsMem.parseInt()
-              assert("Can't have zero values, check config file, $toolsName $subName set to $toolsCpu", memInt != 0)
-          }
-      }
-   }
+                int memInt = toolsMem.parseInt()
+                assert("Can't have zero values, check config file, $toolsName $subName set to $toolsCpu", memInt != 0)
+            }
+        }
+    }
 }
