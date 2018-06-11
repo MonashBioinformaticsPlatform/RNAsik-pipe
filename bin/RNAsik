@@ -1,5 +1,6 @@
 #!/bin/bash
 
 sik_origin=`dirname "${BASH_SOURCE[0]}"`
-bds_config="$(which bds).config"
-bds -c ${bds_config} -log -reportHtml -reportYaml "${sik_origin}"/../src/RNAsik.bds "$@"
+default_bds_config="$(which bds).config"
+bds_config="${RNASIK_BDS_CONFIG:-$default_bds_config}"
+bds -c ${bds_config} -log -reportHtml -reportYaml "${sik_origin}"/../opt/rnasik-1.5.1/src/RNAsik.bds "$@"
