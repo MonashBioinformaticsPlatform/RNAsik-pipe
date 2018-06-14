@@ -52,7 +52,17 @@ string{} mapBWA(string{} cmdExe, string bamFiles, string{} samplesMap, string pa
 
     for(string rootName : samplesMap.keys()) {
         string[] readsList = alignerReads(samplesMap{rootName}, pairIds)
-        string[] deps = readsList
+        string[] deps
+        //NOTE for more information on the for loop below refere to
+        //sikSTAR.bds file line 62
+        for(string fq : readsList) {
+            int chk = fq.indexOf(",")
+            if(chk != -1) {
+                string[] reads = fq.split(",")
+                deps += reads
+            }
+        }
+
         deps += bwaIdxFiles
 
         string rootBase = rootName.baseName()
