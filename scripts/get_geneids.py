@@ -14,26 +14,29 @@ parser = argparse.ArgumentParser(
     add_help=True
 )
 parser.add_argument(
-    '--in_file',
+    '-i,--in_file',
     required=True,
+    metavar='FILE',
     help="path to your annotation file"
 )
 parser.add_argument(
-    '--file_type',
+    '-t,--file_type',
+    metavar='STR',
     required=True,
     help="specify file type [gff|gtf|saf]"
 )
 
 parser.add_argument(
-    '--feature_type',
+    '-f,--feat_type',
+    metavar='STR',
     default="gene",
-    help="specify feature type, this is for GFF file only, feature type comes from third column in "
-         "GFF file and is case sensitive, default [gene]"
+    help="specify feature type, this is third column in the file, default [gene]"
 )
 
-
 def get_gtf(handler, feat_type):
+
     genes_attr = {}
+
     typesRegex = "\s.([A-z0-9 _., \- /\(\)]+)"
 
     for key, value in list(biotypes.items()):
@@ -41,50 +44,54 @@ def get_gtf(handler, feat_type):
         biotypes[key] = tweak
 
     for i in handler:
-        if not i.startswith("#"):
-            line = i.split('\t')
-            if len(feature) == 9:
-                if line[2] == feat_type:
-                    ninthField = line[8]
+        line = i.strip()
 
-                    chk_gene_id = re.search('gene_id\s.([A-z0-9_ \. \- \(\)]+)',
-                                            ninthField)
-                    chk_gene_name = re.search('gene_name\s.([A-z0-9_ \. \: \- \(\)]+)',
-                                              ninthField)
+        if line.startswith("#"):
+            continue
 
-                    gene_name = 'NA'
-                    gene_biotype = 'NA'
-                    chrom = line[0]
+        feature = line.split('\t')
+        if len(feature) == 9:
+            if feature[2] == feat_type:
+                ninthField = feature[8]
 
-                    if chk_gene_name:
-                        gene_name = chk_gene_name.group(1)
+                chk_gene_id = re.search('gene_id\s.([A-z0-9_ \. \- \(\)]+)',
+                                        ninthField)
+                chk_gene_name = re.search('gene_name\s.([A-z0-9_ \. \: \- \(\)]+)',
+                                          ninthField)
 
-                    for value in list(biotypes.values()):
-                        checkBiotype = re.search(value, ninthField)
-                        if checkBiotype:
-                            gene_biotype = checkBiotype.group(1)
+                gene_name = 'NA'
+                gene_biotype = 'NA'
+                chrom = feature[0]
 
-                    if chrom not in genes_attr:
-                        genes_attr[chrom] = {}
+                if chk_gene_name:
+                    gene_name = chk_gene_name.group(1)
 
-                    if chk_gene_id:
-                        gene_id = chk_gene_id.group(1)
+                for value in list(biotypes.values()):
+                    checkBiotype = re.search(value, ninthField)
+                    if checkBiotype:
+                        gene_biotype = checkBiotype.group(1)
 
-                        if gene_id not in genes_attr[chrom]:
-                            genes_attr[chrom][gene_id] = {}
-                        # TODO I feel that this is error prone..
-                        # I'mm imaginig a situations where previous gene_name had
-                        # proper value but in the next iteration (next line) gene_name
-                        # tag doesn't exists and therefor gets NA value and thats now
-                        # overides proper values already stored in the dictionary
-                        # in theory every line in gtf files is self contained and this
-                        # shouldn't happened but my custome gtf violated that rule,
-                        # but former lines would always hold "proper" value, so I guess
-                        # I'll leave it as is for now
-                        genes_attr[chrom][gene_id]["gene_name"] = gene_name
-                        genes_attr[chrom][gene_id]["biotype"] = gene_biotype
-            else:
-                print("WARNING: Length of the line %d, should be 9" % len(feature), file = sys.stderr)
+                if chrom not in genes_attr:
+                    genes_attr[chrom] = {}
+
+                if chk_gene_id:
+                    gene_id = chk_gene_id.group(1)
+
+                    if gene_id not in genes_attr[chrom]:
+                        genes_attr[chrom][gene_id] = {}
+                    # TODO I feel that this is error prone..
+                    # I'mm imaginig a situations where previous gene_name had
+                    # proper value but in the next iteration (next line) gene_name
+                    # tag doesn't exists and therefor gets NA value and thats now
+                    # overides proper values already stored in the dictionary
+                    # in theory every line in gtf files is self contained and this
+                    # shouldn't happened but my custome gtf violated that rule,
+                    # but former lines would always hold "proper" value, so I guess
+                    # I'll leave it as is for now
+                    genes_attr[chrom][gene_id]["gene_name"] = gene_name
+                    genes_attr[chrom][gene_id]["biotype"] = gene_biotype
+        else:
+            print("WARNING: Length of the line %d, should be 9" % len(feature), file = sys.stderr)
 
     return genes_attr
 
@@ -100,46 +107,49 @@ def get_gff(handler, feat_type):
 
     for i in handler:
         line = i.strip()
-        if not line.startswith('#'):
-            feature = line.split('\t')
-            if len(feature) == 9:
-                if feature[2] == feat_type:
-                    ninthField = feature[8]
+
+        if line.startswith('#'):
+            continue
+
+        feature = line.split('\t')
+        if len(feature) == 9:
+            if feature[2] == feat_type:
+                ninthField = feature[8]
     
-                    chk_gene_id = re.search('ID=([A-z0-9_ \. \- \(\)]+)', ninthField)
-                    chk_gene_name = re.search('Name=([A-z0-9_ \. \: \- \(\)]+)', ninthField)
+                chk_gene_id = re.search('ID=([A-z0-9_ \. \- \(\)]+)', ninthField)
+                chk_gene_name = re.search('Name=([A-z0-9_ \. \: \- \(\)]+)', ninthField)
     
-                    gene_name = 'NA'
-                    gene_biotype = 'NA'
-                    chrom = feature[0]
+                gene_name = 'NA'
+                gene_biotype = 'NA'
+                chrom = feature[0]
 
-                    if chk_gene_name:
-                        gene_name = chk_gene_name.group(1)
-                    for value in list(biotypes.values()):
-                        checkBiotype = re.search(value, ninthField)
-                        if checkBiotype:
-                            gene_biotype = checkBiotype.group(1)
+                if chk_gene_name:
+                    gene_name = chk_gene_name.group(1)
+                for value in list(biotypes.values()):
+                    checkBiotype = re.search(value, ninthField)
+                    if checkBiotype:
+                        gene_biotype = checkBiotype.group(1)
 
-                    if chrom not in genes_attr:
-                        genes_attr[chrom] = {}
+                if chrom not in genes_attr:
+                    genes_attr[chrom] = {}
 
-                    if chk_gene_id:
-                        gene_id = chk_gene_id.group(1)
+                if chk_gene_id:
+                    gene_id = chk_gene_id.group(1)
 
-                        if gene_id not in genes_attr[chrom]:
-                            genes_attr[chrom][gene_id] = {}
+                    if gene_id not in genes_attr[chrom]:
+                        genes_attr[chrom][gene_id] = {}
 
-                        genes_attr[chrom][gene_id]["gene_name"] = gene_name
-                        genes_attr[chrom][gene_id]["biotype"] = gene_biotype
+                    genes_attr[chrom][gene_id]["gene_name"] = gene_name
+                    genes_attr[chrom][gene_id]["biotype"] = gene_biotype
 
-                    # if gene_id:
-                    #    if gene_id.group(1) not in genes_attr:
-                    #        genes_attr[gene_id.group(1)] = []
-                    #        genes_attr[gene_id.group(1)].append(gene_name)
-                    #        genes_attr[gene_id.group(1)].append(gene_biotype)
-                    #        genes_attr[gene_id.group(1)].append(feature[0])
-            else:
-                print("WARNING: Length of the line %d, should be 9" % len(feature), file = sys.stderr)
+                # if gene_id:
+                #    if gene_id.group(1) not in genes_attr:
+                #        genes_attr[gene_id.group(1)] = []
+                #        genes_attr[gene_id.group(1)].append(gene_name)
+                #        genes_attr[gene_id.group(1)].append(gene_biotype)
+                #        genes_attr[gene_id.group(1)].append(feature[0])
+        else:
+            print("WARNING: Length of the line %d, should be 9" % len(feature), file = sys.stderr)
 
     return genes_attr
 
