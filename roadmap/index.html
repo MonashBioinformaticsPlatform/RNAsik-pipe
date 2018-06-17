@@ -109,10 +109,16 @@
 <li>need to have better way to check for index directory, want to know if starIdx includes or doesn't indexing with annotation. </li>
 <li>recheck <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pull/10/commits/9e64da57de6da066e94bf6fcc66e23c36adb3671">Stuart's PR</a>, polish off refFiles detection</li>
 <li>recheck <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pull/10">this whole PR</a></li>
-<li>start including unit testing in your master branch, once I'm happy with with <code>unit_test</code> branch</li>
 <li>noticed that qualimap could have high RAM consumption, need to fix cpu and mem parameters passing through sik.config file. Reckon to set mem at 4 or 6 Gb</li>
 </ul>
-<h3 id="152-q3-julyaugust-2018">1.5.2 Q3 (July/August) 2018</h3>
+<h3 id="152-junejuly-2018">1.5.2 (June/July) 2018</h3>
+<ul>
+<li>start including unit testing in your master branch, once I'm happy with with <code>unit_test</code> branch</li>
+<li>make coverage plots stranded. Use <code>-strand</code> flag for stranded data, but still output non-stranded coverage. So 3 files
+  all up</li>
+<li>add support for another aligner - <a href="https://github.com/lh3/minimap2">minimap2</a></li>
+</ul>
+<h3 id="152-julyaugust-2018">1.5.2 (July/August) 2018</h3>
 <ul>
 <li>improve <code>RNAsik</code> logging, particular want to make individual tools version logging independent of each other, so that if one wants to run
 just counts, <code>RNAsik</code> shouldn't complain about <code>bwa</code> not found in the PATH. Also double check the behaviour of the logger when pipelines re-runs.
@@ -121,7 +127,7 @@ From memory it might not perform as it should. You really want a log of every ev
 to do with recent bug that got fixed in <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/commit/b9240274fa7c964e953a767c254f31ba0d044547">b924027</a> </li>
 <li>have a look at BDS <code>log()</code> function as well, might come useful</li>
 </ul>
-<h3 id="153-q4-octobernovember-2018">1.5.3 Q4 (October/November) 2018</h3>
+<h3 id="153-octobernovember-2018">1.5.3 (October/November) 2018</h3>
 <p>New feature(s) described below:</p>
 <ul>
 <li>implement new flag <code>-fqFiles</code> that can take either a file or a directory.<ul>
@@ -135,7 +141,7 @@ Because of changes in arg's options will do a minor version bump.</p>
 <ul>
 <li>include handling of url based samples sheets, i.e <code>-samplesSheet</code> flag should handle local based or remote files, just like <code>-fastaRef</code> option</li>
 </ul>
-<h3 id="160-q3-octobernovember-2018">1.6.0 Q3 (October/November) 2018</h3>
+<h3 id="160-octobernovember-2018">1.6.0 (October/November) 2018</h3>
 <ul>
 <li>
 <p>Plans to add variants calling to <code>RNAsik</code>. It'll be opt in flag,  <code>-varsCall</code>. Suggestions are welcomed about different name for a flag.

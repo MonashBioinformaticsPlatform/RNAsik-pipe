@@ -104,6 +104,7 @@
             <li><a href="#rnasik-output-explained">RNAsik output explained</a></li>
             <li><a href="#command-line-options">Command line options</a></li>
             <li><a href="#python-scripts">Python scripts</a></li>
+            <li><a href="#metric-files-explained">Metric files explained</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
@@ -216,6 +217,38 @@ conda config --add channels bioconda
 </code></pre>
 
 <p>Right now <code>RNAsik</code> hosted from my "channel" (conda terminology). There are plans to push it to official <a href="https://bioconda.github.io/">bioconda channel</a></p>
+<h4 id="conda-extras">conda extras</h4>
+<ul>
+<li>search "main" label (repository)</li>
+</ul>
+<pre><code>conda search -c serine rnasik
+</code></pre>
+
+<ul>
+<li>search "dev" label (repository)</li>
+</ul>
+<pre><code>conda search -c serine/label/dev rnasik
+</code></pre>
+
+<ul>
+<li>install specific version</li>
+</ul>
+<pre><code>conda install -c serine/label/dev &quot;rnasik=1.5.1+3ecd215&quot;
+</code></pre>
+
+<ul>
+<li>install specific version and specific build number</li>
+</ul>
+<pre><code>conda install -c serine/label/dev &quot;rnasik=1.5.1+3ecd215=4
+</code></pre>
+
+<ul>
+<li>simply install latest from that "dev" label (repository)</li>
+</ul>
+<pre><code>conda install -c serine/label/dev rnasik
+</code></pre>
+
+<p><strong>NOTE:</strong> that these are just some extras commands mainly for testing purposes not for production use !</p>
 <h3 id="alternative-installation-methods">Alternative installation methods</h3>
 <ul>
 <li><a href="../install/">HERE</a></li>
@@ -466,7 +499,50 @@ optional arguments:
                  --gene_ids sikRun/countFiles/geneIds.txt \
                  --samples_sheet sikRun/samplesSheet.txt \
                  --biotype protein_coding &gt; ForwardStrandedCounts-withNames-proteinCoding.txt
-</code></pre></div>
+</code></pre>
+
+<h2 id="metric-files-explained">Metric files explained</h2>
+<blockquote>
+<p>A lot of the tools output some sort of metrics files, to stdout/stderr or a file.
+Those metrics are important for analysis and QC checks going forward with the data.
+All of those metrics files are summarised into <a href="https://multiqc.info">multiqc</a> report.
+This section will attempt to explain in details each one of those metrics</p>
+</blockquote>
+<h4 id="star">STAR</h4>
+<ul>
+<li><code>Log.final.out</code></li>
+</ul>
+<p>This is straight out of the STAR docs</p>
+<p>Log.final.out: summary mapping statistics after mapping job is complete, very useful for
+quality control. The statistics are calculated for each read (single- or paired-end) and then
+summed or averaged over all reads. Note that STAR counts a paired-end read as one read,
+(unlike the samtools flagstat/idxstats, which count each mate separately). Most of the informa-
+tion is collected about the UNIQUE mappers (unlike samtools flagstat/idxstats which does not
+separate unique or multi-mappers). Each splicing is counted in the numbers of splices, which
+would correspond to summing the counts in SJ.out.tab. The mismatch/indel error rates are
+calculated on a per base basis, i.e. as total number of mismatches/indels in all unique mappers
+divided by the total number of mapped bases.</p>
+<h4 id="picard">Picard</h4>
+<ul>
+<li>
+<p><a href="https://broadinstitute.github.io/picard/picard-metric-definitions.html#AlignmentSummaryMetrics">CollectAlignmentSummaryMetrics</a></p>
+</li>
+<li>
+<p><a href="https://software.broadinstitute.org/gatk/documentation/tooldocs/current/picard_analysis_CollectGcBiasMetrics.php">CollectGcBiasMetrics</a></p>
+</li>
+<li><a href="https://broadinstitute.github.io/picard/picard-metric-definitions.html#DuplicationMetrics">MarkDuplicates</a></li>
+</ul>
+<p>These are all picard tools that are used in the pipeline</p>
+<ul>
+<li><code>CreateSequenceDictionary</code></li>
+<li><code>SortSam</code></li>
+<li><code>MarkDuplicates</code></li>
+<li><code>BuildBamIndex</code></li>
+<li><code>CollectAlignmentSummaryMetrics</code></li>
+<li><code>CollectInsertSizeMetrics</code></li>
+<li><code>CollectGcBiasMetrics</code></li>
+<li><code>EstimateLibraryComplexity</code></li>
+</ul></div>
         </div>
 
         <footer class="col-md-12">

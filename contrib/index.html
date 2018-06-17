@@ -97,6 +97,7 @@
             <li><a href="#documentations">Documentations</a></li>
             <li><a href="#users-group">User's group</a></li>
             <li><a href="#developing-pipeline-further">Developing pipeline further</a></li>
+            <li><a href="#travis-ci-and-testing">Travis CI and testing</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
@@ -107,18 +108,42 @@
 and of course with the source itself.</p>
 <h2 id="documentations">Documentations</h2>
 <p>I'm using <a href="https://github.com/mkdocs/mkdocs">mkdocs</a> to generate this site, which has been very easy to use.
-All documentations are written in plain markdown and located in main repo <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/tree/master/docs"><code>docs/</code> directory</a>. You can simply fork <code>RNAsik</code> repository, do appropriate changes to the docs and send me a pull request (PR). Any small changes are super welcomed, even one letter spell correction (there'll be more than one), but all changes need to come through PR, which will not only acknowledge you as contributor, but also enable me to review changes quickly and incorporate them in (pull them in) easily.</p>
+All documentations are written in plain markdown and located in main repo <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/tree/master/docs"><code>docs/</code> directory</a>. You can simply fork <code>RNAsik</code> repository, do changes to the docs and send me a pull request (PR). Any changes are super welcomed, even one letter spell correction (there'll be more than one), but all changes need to come through PR, which will not only acknowledge you as contributor, but also enable me to review changes quickly and incorporate them in (pull them in) easily.</p>
 <p>Quick notes on <a href="https://github.com/mkdocs/mkdocs">mkdocs</a>, it is pretty easy to install with <code>pip</code> in <code>virtualenv</code> if you prefer (you should).</p>
-<pre><code>git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe
-cd RNAsik-pipe
-mkdocs serve
+<ul>
+<li>to install mkdocs (don't have to use <code>virtualenv</code>)</li>
+</ul>
+<pre><code>virtualenv mkdocs_env
+source mkdocs_env/bin/activate
+pip install mkdocs
 </code></pre>
 
-<p>This will give you live updates to you copy of the docs, default URL should be <a href="../localhost:8000">localhost:8000</a>, but it will tell you that once you've started the server. Then simply use your favourite text editor to edit markdown documents. Commit your changes, don't be afraid to be verbose, say what you've added/changed/removed in your commit message. And send me PR</p>
+<ul>
+<li>mkdocs in the nutshell</li>
+</ul>
+<pre><code>mkdocs build
+mkdocs gh-deploy
+</code></pre>
+
+<p>This will deploy your copy of <code>RNAsik</code> docs to your <a href="https://pages.github.com/">github-pages (gh-pages)</a>
+You actually don't need to do that, you don't need deploy your own copy of the docs to your branch. Just use <code>mkdocs
+server</code> (read below) to prerview changes and send them through to me.</p>
+<pre><code>git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe
+cd RNAsik-pipe
+# do docs changes
+</code></pre>
+
+<ul>
+<li>get localhost server (to preview your changes)</li>
+</ul>
+<pre><code>mkdocs server
+</code></pre>
+
+<p>This will give you live updates to you copy of the docs, default URL should be <a href="../localhost:8000">localhost:8000</a>, but it will tell you that once you've started the server. Then simply use your favourite text editor to edit markdown documents. Commit your changes, don't be afraid to be verbose, say what you've added/changed/removed in your commit message. And send me PR.</p>
 <h2 id="users-group">User's group</h2>
 <p><a href="https://groups.google.com/forum/#!forum/rnasik">Just jump in and do it!</a></p>
 <h2 id="developing-pipeline-further">Developing pipeline further</h2>
-<p>I need to write a more comprehensive developer guide at sometime soon. Any contributions are again extremely welcomed and again as I've mentioned in the <a href="#documentations">documentations</a> section above, any contributions need to come through pull request (PR). </p>
+<p>I need to write a more comprehensive developer guide at sometime soon. Any contributions are again extremely welcomed and again as I've mentioned in the <a href="#documentations">documentations</a> section above, any contributions need to come through pull request (PR).</p>
 <p>To summarise briefly layouts of the <code>src/</code>:</p>
 <ul>
 <li><code>RNAsik.bds</code> is the main "executable" file that sources all required modules and runs the pipeline.</li>
@@ -177,6 +202,7 @@ conda install -y --use-local rnasik
 <li>set up an account at <a href="../anaconda.org">Anacoda</a></li>
 <li><code>anaconda login</code></li>
 <li><code>anaconda upload &lt;path_to_file.tar.bz2&gt;</code></li>
+<li><code>anaconda upload &lt;path_to_file.tar.bz2&gt;</code> --label dev</li>
 </ul>
 </li>
 </ul>
@@ -187,6 +213,13 @@ conda install -y --use-local rnasik
 <pre><code>~/.continuum/anaconda-client
 </code></pre>
 
+<h2 id="travis-ci-and-testing">Travis CI and testing</h2>
+<p>Continues integration is very useful to ensure your code is checked continiouslly. RNAsik code is checked (tested)
+with every commit. However that testing only as good as I, or hopefully we, will make it. BigDataScript provides
+very nice unit testing mechanism, the trick of course it gotta to be written. Currently only very small proportion
+of the code is actually covered by tests. A lot of work is needed in this space. Of course one might say that I should
+have been writing tests as I was writing my code. Perhaps, but I'm new to this and better later then never!</p>
+<p><a href="http://pcingola.github.io/BigDataScript/bigDataScript_manual.html#test">Have a look at bds docs</a> on how to write tests.</p>
 <p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p>
 
 <p class="twitter-btn">
