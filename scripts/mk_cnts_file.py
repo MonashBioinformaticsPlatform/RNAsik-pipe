@@ -12,27 +12,36 @@ parser = argparse.ArgumentParser(
     description="This script summarises log files information into html table",
     add_help=True
     )
-parser.add_argument('--counts_file',
+parser.add_argument('-i',
+                    '--counts_file',
+                    metavar='FILE',
                     required=True,
                     help="path to directory with featureCounts files"
                     )
-parser.add_argument('--gene_ids',
+parser.add_argument('-g',
+                    '--gene_ids',
+                    metavar='FILE',
                     required=True,
                     help="path to geneIds.txt file, format "
                          "EnsmblId\tChrm\tGeneName\tBiotype"
                     )
-parser.add_argument('--samples_sheet',
+parser.add_argument('-s',
+                    '--samples_sheet',
+                    metavar='FILE',
                     required=True,
                     help="path to samplesSheet.txt file, format "
                          "old_prefix\tnew_prefix"
                     )
-parser.add_argument('--biotype',
+parser.add_argument('-b',
+                    '--biotype',
+                    metavar='STR',
                     default="protein_coding",
                     help="specify biotype of interest [protein_coding], "
                          "'all' is special to include everything"
                     )
 parser.add_argument('--counts_col',
                     type=int,
+                    metavar='INT',
                     default=7,
                     help="Indicate which column begins read counts. "
                          "default [7], which is featureCounts default, all "

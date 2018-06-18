@@ -14,20 +14,23 @@ parser = argparse.ArgumentParser(
     add_help=True
 )
 parser.add_argument(
-    '-i,--in_file',
+    '-i',
+    '--in_file',
     required=True,
     metavar='FILE',
     help="path to your annotation file"
 )
 parser.add_argument(
-    '-t,--file_type',
+    '-t',
+    '--file_type',
     metavar='STR',
     required=True,
     help="specify file type [gff|gtf|saf]"
 )
 
 parser.add_argument(
-    '-f,--feat_type',
+    '-f',
+    '--feat_type',
     metavar='STR',
     default="gene",
     help="specify feature type, this is third column in the file, default [gene]"
@@ -177,7 +180,7 @@ def get_saf(handler):
 args = parser.parse_args()
 file_type = args.file_type
 in_file = args.in_file
-feat_type = args.feature_type
+feat_type = args.feat_type
 
 biotypes = {
     "gb": 'gene_biotype',
