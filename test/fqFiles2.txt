@@ -1,0 +1,8 @@
+test/fastqs/test3/sample_a_R1.fastq.gz
+test/fastqs/test3/sample_a_R2.fastq.gz
+test/fastqs/test3/sample_b_R1.fastq.gz
+test/fastqs/test3/sample_b_R2.fastq.gz
+test/fastqs/test3/sample_c_R1.fastq.gz
+test/fastqs/test3/sample_c_R2.fastq.gz
+test/fastqs/test3/sample_d_R1.fastq.gz
+test/fastqs/test3/sample_d_R2.fastq.gz

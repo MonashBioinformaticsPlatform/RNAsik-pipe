@@ -1,0 +1,70 @@
+include "../src/sikFqFiles.bds"
+include "../src/sikVersion"
+include "sikCommon.bds"
+
+int{} testFqFiles = {"test/fqFiles1.txt" => 8, \
+                     "test/fqFiles2.txt" => 8}
+                     //NOTE these two files are "broken" files
+                     // not sure how to include them into test since they 
+                     // get caught early on and test errors out for the right reason..
+                     //"test/fqFiles3.txt" => 0, \
+                     //"test/fqFiles4.txt" => 1}
+
+//int{} testFqFiles = {"test/fqFiles3.txt" => 0}
+
+string homeDir = "test/output"
+
+void test_fqDownload() {
+
+    for(string testFqFile : testFqFiles.keys()) {
+
+        string[] testFiles = testFqFile.readLines() 
+        int testFilesSize = testFiles.size()
+        assert("Can't have zero items in the fqFiles $testFiles", testFilesSize > 0)
+
+        for(string fq : testFiles) {
+
+            string fqFile = fqDownload(testConfigFile, fq, homeDir)
+
+            if(fqFile.isEmpty()) {
+                error "Can't have an empty string, something went wrong"
+            }
+        }
+    }
+}
+
+void test_getFqFiles() {
+
+    testFqFiles{"test/fastqs/test1"} = 8
+    testFqFiles{"test/fastqs/test2"} = 8
+    testFqFiles{"test/fastqs/test3"} = 8
+
+    string chkExtn = ".fastq.gz"
+    int totFqsCnt = 0
+    string[] totFqs 
+
+    for(string testFqFile : testFqFiles.keys()) {
+
+        totFqsCnt += testFqFiles{testFqFile}
+
+        string[] fqFiles = getFqFiles(testConfigFile, testFqFile, chkExtn, homeDir)
+        totFqs += fqFiles
+
+        //int chkSize = fqFiles.size()
+        //int chk = testFqFiles{testFqFile}
+
+        if(fqFiles.size() != testFqFiles{testFqFile}) {
+            error "Something went wrong, the output from getFqFiles function isn't what is expected, check $testFqFile"
+        }
+
+        for(string f : fqFiles) {
+            if(!f.endsWith(chkExtn)) {
+                error "This can't happend input extension must equal to ouput extension"
+            }
+        }
+    }
+
+    if(totFqs.size() != totFqsCnt) {
+        error "This can't happend number of fastq found should equal to expected number"
+    }
+}
