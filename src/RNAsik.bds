@@ -60,7 +60,7 @@ string toolsVersions = getToolsVersions(cmdExe, logsDir)
 
 string[] fqFiles
 if(!fqDir.isEmpty()) {
-    fqFiles = getFqFiles(fqDir, extn, sikDir)
+    fqFiles = getFqFiles(cmdExe, fqDir, extn, sikDir)
     mkLog("fqFiles", parseList(fqFiles), "samples", logsDir)
 
     if(trim) {

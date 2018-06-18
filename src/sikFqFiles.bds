@@ -1,53 +1,91 @@
 #------------------------
-# Organising FASTQ files 
+# Organising FASTQ files
 #------------------------
 include "sikUtils.bds"
 
-string getTarDir(string tarFile, string sikDir) {
+string fqDownload(string{} cmdExe, string fqFile, string sikDir) {
 
-    string getExtn = tarFile.extName()
-    string tarDir = sikDir+"/"+"fastqDir"
-    if(!tarDir.exists()) {
-        tarDir.mkdir()
+    //DOCS:
+    // Function takes a path string, either local or remote
+    // and output analysis directory a.k.a sikDir
+    // and moves file into sikDir/fastqDir directory
+
+    string{} resource = getResource(cmdExe, "cpFile", "")
+    string cpFileExe = resource{"toolsExe"}
+    int cpFileMem = resource{"toolsMem"}.parseInt()
+    int cpFileCpu = resource{"toolsCpu"}.parseInt()
+
+    string fqDir = sikDir+"/"+"fastqDir/"
+    if(!fqDir.exists()) {
+        fqDir.mkdir()
     }
-    string tarName = sikDir+"/fastqDir/"+tarFile.baseName()
-    bool tarOk = tarFile.download(tarName)
-    if(!tarOk) {
-        error "Check your URL -> $tarFile, looks like RNAsik can't get that resource"
+
+    string localFqFile = fqDir+fqFile.baseName()
+
+    string remoteSign = "://"
+    int chkRemote = fqFile.indexOf(remoteSign)
+
+    if(chkRemote != -1) {
+        bool fqOk = fqFile.download(localFqFile)
+        if(!fqOk) {
+            error "Check $fqFile URL, looks like RNAsik can't get that resource"
+        }
+        return localFqFile
     }
-    string[] argsList = ["-x", "-f"]
-    if(getExtn == "gz") {
-        argsList.add("-z")
+    else {
+        bool chkFile = fqFile.isFile()
+        if(!chkFile) {
+            error "Found not a file >> $fqFile << in -fqFiles string"
+        }
+        task(chkFile, localFqFile <- fqFile, mem := cpFileMem, cpus := cpFileCpu, taskName := "Copying $fqFile to $localFqFile") {
+            sys cp -v $fqFile $localFqFile
+        }
+        return localFqFile
     }
-    string tarArgs = argsList.join(" ")
-    //NOTE that tarOk inside task isn't needed as it will error before that if takOk = false, but doesn't really heart to have it here
-    //task(tarOk, tarName <- tarFile, taskName := "unarchiving $tarName to $tarDir") {
-    task(tarOk, taskName := "unarchiving $tarName to $tarDir") {
-        sys tar $tarArgs $tarName -C $tarDir
-    }
-    //TODO this wait is annoying here, couldn't not remove directory structure from tar
-    // I can use --strip-components flag, but don't know what directory structure will be inside tarball
-    // might have drop tar support in future, really liked idea from @pansapiens to implement -fqFiles with paths to
-    // local or remote locations. Already scheduled -fqFiles for later releases, will thing about dropping tar module than
-    wait
-    return tarDir
+
+    error "Should return before this block"
 }
-//DOCS: This is function is able to search recursively whatever is given through -fqDir 
-// it returns a list of all fastq files, if data is paired end, the list will have both R1 and R2 files
-string[] getFqFiles(string fqDir, string extn, string sikDir) {
 
-    int chkHttp = fqDir.toLower().indexOf("http:")
-    if(chkHttp != -1) fqDir = getTarDir(fqDir, sikDir)
+string[] recursList(string fqFiles, string extn) {
 
-    string[] fqFiles
-    // go through each file and check if its file or directory
-    for(string dir : fqDir.dirPath()){
-        // check if dir is directory and call getFqFiles on it
-        if(dir.isDir()) fqFiles += getFqFiles(dir, extn, sikDir)
-        // otherwise check if dir is FASTQ file and append it to the fqFiles
-        else if(dir.endsWith(extn)) fqFiles.add(dir)
+    //DOCS:
+    // Recursive list of file that end with user passed extn
+
+    string[] fqFilesList
+
+    for(string f : fqFiles.dirPath()) {
+        if(f.isDir()) {
+            fqFilesList += recursList(f, extn)
+        }
+        else if(f.endsWith(extn)) {
+            fqFilesList += f
+        }
     }
-    return fqFiles
+    return fqFilesList
+}
+
+string[] getFqFiles(string{} cmdExe, string fqFiles, string extn, string sikDir) {
+
+    //DOCS:
+    // This is function is able to search recursively whatever is given through -fqDir
+    // it returns a list of all fastq files, if data is paired end, the list will have both R1 and R2 files
+
+    string[] fqFilesList
+
+    if(fqFiles.isFile()) {
+        string[] remoteFiles = fqFiles.readLines()
+        for(string fq : remoteFiles) {
+            fqFilesList += fqDownload(cmdExe, fq, sikDir)
+        }
+    }
+    else if(fqFiles.isDir()) {
+        fqFilesList = recursList(fqFiles, extn)
+    }
+    else {
+        error "This can't happend -fqFiles (-fqDir) can only take a file or directory"
+    }
+
+    return fqFilesList
 }
 
 string{} getSamplesMap(string[] fqFiles,  string samplesSheet) {
@@ -60,7 +98,7 @@ string{} getSamplesMap(string[] fqFiles,  string samplesSheet) {
     }
 
     string{} samplesMap
-    //DOCS: extract oldPrefix, which is a string in fastq files 
+    //DOCS: extract oldPrefix, which is a string in fastq files
     // that we'll use to aggregate multi-lane and paired reads together
     string{} samples = config(samplesSheet)
     string[] sortedKeys = bubbleSort(samples.keys()).reverse()
@@ -99,7 +137,7 @@ string{} getSamplesMap(string[] fqFiles,  string samplesSheet) {
 string[] alignerReads(string fqString, string pairIds) {
     // remove trailing comma (,)
     string fqClean = fqString.substr(0, (fqString.length())-1)
-    // if no command foung in the pairIds string assume 
+    // if no command foung in the pairIds string assume
     // single-end data with _R1 or similar suffix
     // and therefore return fqString straight away
     int chk = pairIds.indexOf(",")
@@ -109,14 +147,14 @@ string[] alignerReads(string fqString, string pairIds) {
     else if(pairIds.indexOf(",") != -1) {
 
         string[] pairIdsList = pairIds.split(",")
-        
+
         string[] readOne
         string[] readTwo
         //DOCS: fqString holds all fastq files from a single sample, that includes R1 and R2 reads
-        // step through individual fastq files check if it is R1 or R2 and 
+        // step through individual fastq files check if it is R1 or R2 and
         for(string fq : fqClean.split(",")) {
             string fqBase = fq.baseName()
-            
+
             if(fqBase.lastIndexOf(pairIdsList[0]) != -1) {
                 readOne.add(fq)
             }
@@ -135,7 +173,7 @@ string[] alignerReads(string fqString, string pairIds) {
         if(readTwo.isEmpty()) {
             //return [readOneStr]
             error "This can't happend, should hit return before this block"
-        } 
+        }
         else {
             string readTwoStr = readTwo.join(",")
             return [readOneStr, readTwoStr]
@@ -150,7 +188,7 @@ string[] alignerReads(string fqString, string pairIds) {
 string[] getFqPrefix(string fqRead, string[] fqRgxs, string pairIds, string extn) {
     string localFqRead = fqRead.baseName()
     //attempt to guess fastq files extention that is including lane and _R prefix
-    //if guessed, then 
+    //if guessed, then
     for(string fqRgx : fqRgxs) {
         string[] tmp = localFqRead.split(fqRgx)
         int tmpLen = tmp.size()
@@ -196,7 +234,7 @@ string makeSamplesSheet(string[] fqReads, string[] fqRgxs, bool paired, string p
     //NOTE figured out that I'm putting an empty key = value pair into autoGen
     // this is because everytime there _R2 an empty list returned by getFqPrefix
     // which then gets converted to an empty key = value pair
-    // get uniq prefix 
+    // get uniq prefix
     for(string fq : fqReads) {
 
         int chkPairIds = pairIds.indexOf(",")
@@ -216,7 +254,7 @@ string makeSamplesSheet(string[] fqReads, string[] fqRgxs, bool paired, string p
         string[] prefix = getFqPrefix(fq, fqRgxs, pairIds, extn)
         autoGen{prefix[0]} = prefix[1]
     }
-    // convert hash into a string  
+    // convert hash into a string
     string samplesConfig = "oldPrefix\tnewPrefix\n"
     for(string k : autoGen.keys()) {
         //NOTE here is work around for the statement above about an empty key = value pair
