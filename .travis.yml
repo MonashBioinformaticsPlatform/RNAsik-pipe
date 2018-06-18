@@ -37,10 +37,6 @@ script:
   #- ./bin/RNAsik --help
   # some inconsistency with exit value
   - ./bin/RNAsik
-  - ./bin/RNAsik -fqDir http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/rawData/fqFiles.txt
-                 -align star \
-                 -fastaRef ftp://ftp.ensembl.org/pub/release-91/fasta/saccharomyces_cerevisiae/dna/Saccharomyces_cerevisiae.R64-1-1.dna_sm.toplevel.fa.gz \
-                 -gtfFile ftp://ftp.ensembl.org/pub/release-91/gtf/saccharomyces_cerevisiae/Saccharomyces_cerevisiae.R64-1-1.91.gtf.gz \
-                 -counts \
-                 -paired \
-                 -all
+
+  #NOTE will this command here, but can't really run on travis, since STAR gets out of memory kill, as expected though
+  # - ./bin/RNAsik -fqDir http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/rawData/fqFiles.txt -align star -fastaRef ftp://ftp.ensembl.org/pub/release-91/fasta/saccharomyces_cerevisiae/dna/Saccharomyces_cerevisiae.R64-1-1.dna_sm.toplevel.fa.gz -gtfFile ftp://ftp.ensembl.org/pub/release-91/gtf/saccharomyces_cerevisiae/Saccharomyces_cerevisiae.R64-1-1.91.gtf.gz -counts -paired -all
