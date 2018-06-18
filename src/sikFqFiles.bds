@@ -185,6 +185,98 @@ string[] alignerReads(string fqString, string pairIds) {
 }
 // retuns two items list [old_prefix, new_prefix]
 //TODO rename to getSampleName ?
+
+//TODO
+// This is strange function...I think what I want is to loop over all fastq files
+// look for prefix, in several different ways (as per current function) and simply
+// append to a prefix list, that holds unique number of prefixes found.
+// second function: given list of prefixes, loop over fastq files and assign prefixes
+//string[] getFqPrefix(string[] fqRead, string[] fqRgxs, string pairIds, string extn) {
+//
+//    string[] prefixes
+//
+//    for(string fq : fqReads) {
+//
+//        string localFq = fq.baseName()
+//
+//        for(string fqRgx : fqRgxs) {
+//            string[] tmp = localFq.split(fqRgx)
+//            int tmpLen = tmp.size()
+//            // if tmpLen stayed at 1 no split had happend, continue past the loop
+//            if(tmpLen > 1) {
+//                if(!prefixes.has(tmp[0])) {
+//                    prefixes.add(tmp[0])
+//                }
+//            }
+//        }
+//
+//        string[] pairIdsList = pairIds.split(",")
+//
+//        if(pairIdsList.size() != 2) {
+//            string read = fq.baseName(extn)
+//            if(!prefixes.has(read)) {
+//                prefixex.add(read)
+//            }
+//        }
+//
+//        int[] idxs =[localFqRead.lastIndexOf(pairIdsList[0]), \
+//                     localFqRead.lastIndexOf(pairIdsList[1])]
+//
+//        for(int i : idsx) {
+//            if(i != -1) {
+//                string read = localFq.substr(0, i)
+//                if(!prefixes.has(read)) {
+//                    prefixex.add(read)
+//                }
+//            }
+//        }
+//
+//    }
+//
+//    if(prefixes.isEmpty()) {
+//        error "Can't be empty"
+//    }
+//
+//    return prefixes
+//}
+
+//string mkTblFile(string[] fqReads, string[] prefixes) {
+//
+//    string{} samplesMap
+//
+//    string[] sortedPrefixes = bubbleSort(prefixes).reverse()
+//
+//    for(string fq : fqReads) {
+//
+//        if(fq.lastIndexOf("_I1") > 0) {
+//            continue
+//        }
+//
+//        for(string prefix : prefixes) {
+//
+//            if(fq.baseName().startsWith(prefix)) {
+//
+//                string sampleName = samples{oldPrefix}
+//                if(!samplesMap.hasKey(sampleName)) {
+//                    samplesMap{sampleName} = ""
+//                }
+//                samplesMap{sampleName} += fq+","
+//
+//                break
+//            }
+//        }
+//        // want to error out even if one of the fastq files wasn't accounted for
+//        // i.e if samples sheet was missing old_prefix for one of the fastq files
+//        if(noPrefix) {
+//            error "No oldPrefix was found for this $fq file, check you samplesSheet $samplesSheet"
+//        }
+//    }
+//    return samplesMap
+//
+//        }
+//    }
+//}
+
 string[] getFqPrefix(string fqRead, string[] fqRgxs, string pairIds, string extn) {
     string localFqRead = fqRead.baseName()
     //attempt to guess fastq files extention that is including lane and _R prefix
