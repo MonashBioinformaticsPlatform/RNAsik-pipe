@@ -3,4 +3,5 @@
 *.swp
 *.js
 *.html
-site/
+/site/
+/test/output/

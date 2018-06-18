@@ -21,10 +21,19 @@ install:
 
   # RNAsik should pull bds with it
   #- conda install --yes --channel serine bigdatascript
+  # For now doing specific bds version install, waiting on next release
+  - conda install --yes --channel serine/label/dev bigdatascript=v2.0+9ad04607
   - conda install --yes --channel serine rnasik
-
 
 script:
 
+  - ./test/get_geneids.bash
   - ./test/sik_test.bash
-  - RNAsik --help
+  # two different test, one for conda install
+  # does RNAsik from conda install works?
+  # going to comment this one out while waiting on next bds release
+  #- RNAsik --help
+  # does RNAsik from master branch works?
+  #- ./bin/RNAsik --help
+  # some inconsistency with exit value
+  - ./bin/RNAsik
