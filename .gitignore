@@ -5,3 +5,7 @@
 *.html
 /site/
 /test/output/
+# ignoring these files just in case
+# they are should not be in this repo
+/RNAsik.bds.*
+/sikRun
