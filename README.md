@@ -8,15 +8,17 @@
 
 #### This is fully SIcK way towards differential gene expression !
 
-> `RNAsik-pipe` implemented in [BigDataScrip](http://pcingola.github.io/BigDataScript/) (BDS) language.
+> `RNAsik-pipe` implemented in [BigDataScript (bds)](http://pcingola.github.io/BigDataScript/) language.
 
 ## IF( SuperQuickStart ) {
 
 ```BASH
-RNAsik -fqDir /path/to/raw-data/directory \
+RNAsik -fqDir http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/rawData/fqFiles.txt
        -align star \
-       -refFiles /path/to/refDir \
+       -fastaRef ftp://ftp.ensembl.org/pub/release-91/fasta/saccharomyces_cerevisiae/dna/Saccharomyces_cerevisiae.R64-1-1.dna_sm.toplevel.fa.gz \
+       -gtfFile ftp://ftp.ensembl.org/pub/release-91/gtf/saccharomyces_cerevisiae/Saccharomyces_cerevisiae.R64-1-1.91.gtf.gz \
        -counts \
+       -paired \
        -all
 ```
 
