@@ -1,0 +1,102 @@
+
+string mkMinimap2Idx(string{} cmdExe, string refFiles, string fastaRef, string minimap2Opts) {
+
+    string{} resource = getResource(cmdExe, "minimap2", "Idx")
+    string minimap2Exe = resource{"toolsExe"}
+    int idxMem = resource{"toolsMem"}.parseInt()
+    int idxCpu = resource{"toolsCpu"}.parseInt()
+
+    real scalFact = 0.85
+    string minimap2Mem = round(scalFact * idxMem/1000)+"K"
+
+    string minimap2IdxDir = fastaRef.removeExt()+".minimap2Idx"
+    if(!minimap2IdxDir.exists()) {
+        minimap2IdxDir.mkdir()
+    }
+
+    string minimap2Idx = minimap2IdxDir+"/"+fastaRef.baseName()+".mmi"
+
+    task(!fastaRef.isEmpty(), minimap2Idx <- fastaRef, cpus := idxCpu, mem := idxMem, taskName := "Making minimap2 index") {
+        sys $minimap2Exe -d $minimap2IxFile \
+                         -t $idxCpu \
+                         -I $minimap2Mem \
+                         $minimap2Opts \
+                         $fastaRef
+    }
+    return bwaIdxDir
+}
+
+string{} minimMap2(string{} cmdExe, string bamFiles, string{} samplesMap, string pairIds, bool paired, string bwaOpts, string genomeIdx, string fastaRef) {
+
+    string{} resource = getResource(cmdExe, "minimap2", "Align")
+    string minimap2Exe = resource{"toolsExe"}
+    int alignMem = resource{"toolsMem"}.parseInt()
+    int alignCpu = resource{"toolsCpu"}.parseInt()
+
+    string[] bamsList
+    string{} bamsMap
+    
+    string minimap2Idx
+
+    string[] idxs = genomeIdx.dirPath()
+
+    if(!fastaRef.isEmpty() && idxs.isEmpty()) {
+    	minimap2Idx = genomeIdx+"/"+fastaRef.baseName()
+    }
+    else if(!idxs.isEmpty()) {
+        minimap2Idx = idx[0]
+        if(!minimap2Idx.endsWith(".mmi")) {
+            error "This can't happend, for minimap2 index directory can only hold one file with file extension .mmi"
+        }
+    }
+
+    for(string rootName : samplesMap.keys()) {
+        string[] readsList = alignerReads(samplesMap{rootName}, pairIds)
+        string[] deps
+        //NOTE for more information on the for loop below refere to
+        //sikSTAR.bds file line 62
+        for(string fq : readsList) {
+            int chk = fq.indexOf(",")
+            if(chk != -1) {
+                string[] reads = fq.split(",")
+                deps += reads
+            }
+        }
+
+        deps += bwaIdxFiles
+
+        string rootBase = rootName.baseName()
+        string bamOut = bamFiles+"/"+rootBase+"_bwaMem.bam"
+
+        string reads
+
+        if(paired) {
+	    string readOne = readsList[0].replace("," , " ")
+	    string readTwo = readsList[1].replace("," , " ")
+
+            string subReadOne = "<(zcat "+readOne+")"
+            string subReadTwo = "<(zcat "+readTwo+")"
+              
+            reads = [subReadOne, subReadTwo].join()
+           
+        }
+        else {
+	    string readOne = readsList[0].replace("," , " ")
+            reads = "<(zcat "+readOne+")"
+        }
+
+        dep(!fqDir.isEmpty(), bamOut <- deps, cpus := alignCpu, mem := alignMem, taskName := "minimap2 aligning "+rootBase) {
+            sys $bwaExe mem -t $alignCpu \
+                            $bwaOpts \
+                            $bwaIdx \
+                            $reads | samtools view -S -b - > $bamOut
+        }
+        bamsList.add(bamOut)
+
+        if(bamsMap.hasKey(rootBase)) {
+            error "This should happened, please report this issue, sikBWAalinger.bds file"
+        }
+        bamsMap{rootBase} = bamOut
+    }
+    return bamsMap
+}
