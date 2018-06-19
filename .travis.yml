@@ -4,23 +4,11 @@ sudo: false
 
 language: bds
 
-before_install:
+install:
 
   - bash scripts/quick_install.bash
   - export PATH=$(readlink -f miniconda)/bin:$PATH
-
-install:
   
-  - conda config --add channels defaults
-  - conda config --add channels conda-forge
-  - conda config --add channels bioconda
-
-  # RNAsik should pull bds with it
-  #- conda install --yes --channel serine bigdatascript
-  # For now doing specific bds version install, waiting on next release
-  - conda install --yes --channel serine/label/dev bigdatascript=v2.0+9ad04607
-  - conda install --yes --channel serine rnasik
-
 script:
 
   - ./test/get_geneids.bash
