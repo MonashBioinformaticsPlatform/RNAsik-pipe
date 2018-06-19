@@ -12,3 +12,4 @@ picardExe = pirad -Xmx6g
 From reading condas picard wrapper script it appears that I can just pass extra java args
 through like that, needs testing
 
+document RNASIK_BDS_CONFIG and do travi test

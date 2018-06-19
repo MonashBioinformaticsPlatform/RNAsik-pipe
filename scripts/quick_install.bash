@@ -22,5 +22,5 @@ conda config --add channels conda-forge
 conda config --add channels bioconda
 
 conda install --yes --channel serine/label/dev bigdatascript=v2.0+9ad04607
-conda install --yes --channel serine/label/dev rnasik=1.5.1+2ca7bc4
+conda install --yes --channel serine/label/dev rnasik=1.5.1+c53adf6
 conda install --yes --channel bioconda qualimap
