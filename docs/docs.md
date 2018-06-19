@@ -7,7 +7,7 @@
 
 ### Install
 
-- [Download and run `quick_install.bash` script](extras/quick_install.bash)
+- [Download and run `quick_install.bash` script](https://raw.githubusercontent.com/MonashBioinformaticsPlatform/RNAsik-pipe/master/scripts/quick_install.bash)
 
 ### Align raw reads
 

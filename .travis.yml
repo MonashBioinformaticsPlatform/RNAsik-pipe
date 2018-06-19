@@ -6,7 +6,8 @@ language: bds
 
 before_install:
 
-  - bash docs/extras/quick_install.bash
+  - bash scripts/quick_install.bash
+  - export PATH=$(readlink -f miniconda)/bin:$PATH
 
 install:
   
