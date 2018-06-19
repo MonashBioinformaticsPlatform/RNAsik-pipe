@@ -7,13 +7,7 @@
 
 ### Install
 
-```
-conda config --add channels defaults
-conda config --add channels conda-forge
-conda config --add channels bioconda
-conda install -c serine rnasik 
-conda install -c bioconda qualimap 
-```
+- [Download and run `quick_install.bash` script](extras/quick_install.bash)
 
 ### Align raw reads
 
@@ -103,7 +97,7 @@ Alternatively as, hinted above, user can leverage of [RNAsik](https://github.com
 - run it and follow the prompts
 
 ```
-bash Miniconda3-latest-Linux-x86_64.sh 
+bash Miniconda3-latest-Linux-x86_64.sh
 ```
 
 - add a few `conda` "channels", this is so `conda` knows where to get things from
