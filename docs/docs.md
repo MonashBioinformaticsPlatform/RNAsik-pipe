@@ -8,6 +8,7 @@
 ### Install
 
 - [Download and run `quick_install.bash` script](https://raw.githubusercontent.com/MonashBioinformaticsPlatform/RNAsik-pipe/master/scripts/quick_install.bash)
+- `export PATH=$(readlink -f miniconda)/bin:$PATH` 
 
 ### Align raw reads
 
