@@ -38,6 +38,7 @@ string[] getExonicRates(string{} cmdExe, string sikDir, string{} bamsMap, string
         string countsFile = baseDir+"/"+bamKey+"_counts.txt"
 
         dep(exonicRate, depFile <- [bamFile, gtfFile, strandInfo], canFail := true, cpus := 2, taskName := "getting Int(ra|er)genic rates for"+bamFile) {
+            sys unset DISPLAY
             sys $qualimapExe rnaseq -bam $bamFile \
                                     -outdir $baseDir \
                                     $exonicOpts \
