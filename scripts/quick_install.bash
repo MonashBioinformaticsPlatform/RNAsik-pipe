@@ -13,7 +13,14 @@ else
   wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
 fi
 
-bash miniconda.sh -b -p miniconda
+if ! [[ -d miniconda ]]
+then
+  bash miniconda.sh -b -p miniconda
+elif ! [[ -d miniconda/bin ]]
+then
+  echo "ERROR: This can't happend, bin/ directory must exist inside miniconda directory"
+fi
+
 echo export PATH=$(readlink -f miniconda)/bin:$PATH
 export PATH=$(readlink -f miniconda)/bin:$PATH
 
