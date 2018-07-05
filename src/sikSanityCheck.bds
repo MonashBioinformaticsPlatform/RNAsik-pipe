@@ -42,7 +42,7 @@ if(!strand.isEmpty()) {
 
 if(!samplesSheet.isEmpty()) if(!samplesSheet.isFile()) error "-samplesSheet doesn't appear to be pointing at the valid file, double check your path $samplesSheet"
 if(!fqDir.isEmpty()) {
-    int chkHttp = fqDir.toLower().indexOf("http:")
+    int chkHttp = fqDir.toLower().indexOf("://")
     if(!fqDir.isDir() && chkHttp == -1) error "-fqDir doesn't point to valid directory, check your path $fqDir"
     if(align.isEmpty()) error "-align is empty, not sure why -fqDir $fqDir was specified, add more options"
 } 
