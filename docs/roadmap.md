@@ -11,15 +11,9 @@
 - recheck [Stuart's PR](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pull/10/commits/9e64da57de6da066e94bf6fcc66e23c36adb3671), polish off refFiles detection
 - recheck [this whole PR](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pull/10)
 - noticed that qualimap could have high RAM consumption, need to fix cpu and mem parameters passing through sik.config file. Reckon to set mem at 4 or 6 Gb
-
-### 1.5.2 (June/July) 2018
-
-- start including unit testing in your master branch, once I'm happy with with `unit_test` branch
-- make coverage plots stranded. Use `-strand` flag for stranded data, but still output non-stranded coverage. So 3 files
-  all up
 - add support for another aligner - [minimap2](https://github.com/lh3/minimap2)
 
-### 1.5.2 (July/August) 2018
+### 1.5.3 (August/September) 2018
 
 - improve `RNAsik` logging, particular want to make individual tools version logging independent of each other, so that if one wants to run
 just counts, `RNAsik` shouldn't complain about `bwa` not found in the PATH. Also double check the behaviour of the logger when pipelines re-runs.
@@ -28,7 +22,7 @@ From memory it might not perform as it should. You really want a log of every ev
 to do with recent bug that got fixed in [b924027](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/commit/b9240274fa7c964e953a767c254f31ba0d044547) 
 - have a look at BDS `log()` function as well, might come useful
 
-### 1.5.3 (October/November) 2018
+### 1.5.4 (October/November) 2018
 
 New feature(s) described below:
 
@@ -41,7 +35,7 @@ Because of changes in arg's options will do a minor version bump.
 
 - include handling of url based samples sheets, i.e `-samplesSheet` flag should handle local based or remote files, just like `-fastaRef` option
 
-### 1.6.0 (October/November) 2018
+### 1.6.0 (October/November ?) 2018
 
 - Plans to add variants calling to `RNAsik`. It'll be opt in flag,  `-varsCall`. Suggestions are welcomed about different name for a flag.
 I already have a prototype in bds, just need to plug it in.
@@ -61,6 +55,36 @@ I already have a prototype in bds, just need to plug it in.
 - is there need for circular RNA support?
 
 ## Changelog
+
+### 1.5.2
+
+features:
+
+  - `-fqDir` can now take file with links to fastq files, links can have local or remote paths
+  - coverage plots are now stranded, i.e for every bam file you'll get forward, reverse and all (non) stranded coverages
+  - trimming has now support for both single and paired-end data
+  - started to include logging of individual tools, started with sikQC.bds file. Basically redirecting individual tools stderr/stdout into logs files.
+
+maintenance:
+
+  - include continue integration testing - TraviCI and started writing more test that cover bds source as well as additional scripts source
+  - bug fixes and improvements of python scripts.
+  - added testing for `get_geneids.py` script, this isn't python unit test rather simple "does the tool run" type test.
+  - introduced short args notation for python scripts as an option to long args naming
+  - pulled [@pansapiens](https://github.com/pansapiens) PR, now we have `RNASIK_BDS_CONFIG` variable for passing bds.config
+  - fixed samtools sort bug that led to out-of-memory kill
+  - all (most?) picard tools now have mem and cpu parameters
+  - fixed bwa mem dependencies issue, for [more info here](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/blob/b5acbd03c0b79323420caead79927c6c4e00f92e/src/sikSTARaligner.bds#L62)
+  - fixed qualimap issue with DISPLAY variable, explicitly unsetting it now
+  - fixed pairIds overide, only set pairIds to default value _R1,_R2 if no -pairIds given on cmd
+  - removed paired-end checking from inside bwa, all checks happens outside of alinger scope now
+  - improved multiqc report visual, by tweaking config file, the report shouldn't look as cluttered
+
+conda:
+
+  - started packaging bds and RNAsik with conda, packages are available at [my anaconda channel](https://anaconda.org/serine)
+  - updated docs with how to conda build, install and upload
+  - wrote quick_install.bash script that does install and used in traviCI
 
 ### 1.5.1
 

@@ -13,3 +13,9 @@ From reading condas picard wrapper script it appears that I can just pass extra 
 through like that, needs testing
 
 document RNASIK_BDS_CONFIG and do travi test
+
+- add support for "transcript_level_support" into geneIds.txt file and propogate that through.
+idea being that some genes have greater support (confidence) then others, perhaps would be nice
+to see that but also filter on that i.e only "transcript_support_level = 1" best evidence (biological)
+It looks like "transcript_support_level" applicable to transcript and given gene can have several once
+so will need thing on best way to summarise that
