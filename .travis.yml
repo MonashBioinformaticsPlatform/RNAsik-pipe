@@ -16,7 +16,7 @@ script:
   # two different test, one for conda install
   # does RNAsik from conda install works?
   # going to comment this one out while waiting on next bds release
-  #- RNAsik --help
+  - RNAsik
   # does RNAsik from master branch works?
   #- ./bin/RNAsik --help
   # some inconsistency with exit value
