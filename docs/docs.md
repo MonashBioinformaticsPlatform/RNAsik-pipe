@@ -331,6 +331,84 @@ Pipelines runs `featureCounts` three times forcing reads to forward strand only,
 Share</a>
 </p>
 
+## RNAsik config file
+
+Below is a list of all options that are supported so by `RNAsik` so far with the defatul values.
+User can pass additional config file through `-configFile` options which takes precedence.
+User config dosen't have to hold all key=value pairs, just the one user wants to change. 
+
+For example if I want to use different `STAR` executable. I would create new file (name of the file isn't relevant),
+and inside I just put. 
+
+`starExe = new/path/to/STAR`
+
+`RNAsik` will inherit the rest of the options from the global config.
+
+Two things to note:
+
+- you can't have comment on the same line as options
+- don't quote values
+
+#### Executable paths
+
+- `starExe = STAR`
+- `hisat2Exe = hisat2`
+- `bwaExe = bwa`
+- `samtoolsExe = samtools`
+- `bedtoolsExe = bedtools`
+- `countsExe = featureCounts`
+- `fastqcExe = fastqc`
+- `pythonExe = python`
+- `picardExe = picard`
+- `jeExe = je`
+- `qualimapExe = qualimap`
+- `multiqcExe = multiqc`
+- `skewerExe = skewer`
+- `cpFileExe = cp`
+
+#### Memory settings
+
+- `starIdxMem = 40000000000`
+- `starAlignMem = 40000000000`
+- `bwaIdxMem = -1`
+- `bwaAlignMem = -1`
+- `hisat2IdxMem = -1`
+- `hisat2AlignMem = -1`
+- `samtoolsSortMem = 3000000000`
+- `samtoolsQcMem = -1`
+- `picardMarkDupsMem = 6000000000`
+- `picardQcMem = 6000000000`
+- `jeMem = picardMarkDupsMem`
+- `picardQcMem = -1`
+- `picardCreateDictMem = 4000000000`
+- `countsMem = -1`
+- `bedtoolsMem = 4000000000`
+- `fastqcMem = -1`
+- `multiqcMem = -1`
+- `skewerMem = -1`
+- `cpFileMem = 4000000000`
+
+#### Threads settings
+
+- `starIdxCpu = 24`
+- `starAlignCpu = 10`
+- `bwaIdxCpu = 30`
+- `bwaAlignCpu = 10`
+- `hisat2IdxCpu = 30`
+- `hisat2AlignCpu = 10`
+- `samtoolsSortCpu = 4`
+- `samtoolsQcCpu = 2`
+- `picardMarkDupsCpu = 2`
+- `jeCpu = picardMarkDupsCpu`
+- `picardQcCpu = 2`
+- `picardCreateDictCpu = 2`
+- `bedtoolsCpu = 2`
+- `countsCpu = 5`
+- `fastqcCpu = 8`
+- `multiqcCpu = 2`
+- `skewerCpu = 5`
+- `cpFileCpu = 2`
+
 ## Python scripts
 
 There a few python scripts that are used in the pipeline to do various things, mostly to do with read counts post processing.

@@ -13,7 +13,7 @@
 ## IF( SuperQuickStart ) {
 
 ```BASH
-RNAsik -fqDir http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/rawData/fqFiles.txt \
+RNAsik -fqDir https://bioinformatics.erc.monash.edu/home/kirill/sikTestData/rawData/fqFiles.txt \
        -align star \
        -fastaRef ftp://ftp.ensembl.org/pub/release-91/fasta/saccharomyces_cerevisiae/dna/Saccharomyces_cerevisiae.R64-1-1.dna_sm.toplevel.fa.gz \
        -gtfFile ftp://ftp.ensembl.org/pub/release-91/gtf/saccharomyces_cerevisiae/Saccharomyces_cerevisiae.R64-1-1.91.gtf.gz \
