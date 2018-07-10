@@ -66,13 +66,13 @@ If you ran `RNAsik` on a full data set and then used [Degust](http://degust.erc.
 ### Try it out
 
 ```BASH
-RNAsik -align star \
+RNAsik -fqDir https://bioinformatics.erc.monash.edu/home/kirill/sikTestData/rawData/fqFiles.txt \
+       -align star \
        -fastaRef ftp://ftp.ensembl.org/pub/release-91/fasta/saccharomyces_cerevisiae/dna/Saccharomyces_cerevisiae.R64-1-1.dna_sm.toplevel.fa.gz \
-       -fqDir http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/rawData/IndustrialAntifoamAgentsYeastRNAseqData.tar \
-       -counts \
        -gtfFile ftp://ftp.ensembl.org/pub/release-91/gtf/saccharomyces_cerevisiae/Saccharomyces_cerevisiae.R64-1-1.91.gtf.gz \
-       -all \
-       -paired
+       -counts \
+       -paired \
+       -all
 ```
 
 ## Introduction
@@ -322,15 +322,6 @@ Pipelines runs `featureCounts` three times forcing reads to forward strand only,
 <tr><td class="left_col">-bamsDir</td> <td> specify path to BAMs directory. Use if bams were generated outside of the pipeline </td></tr>
 </table>
 
-
-<p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p>
-
-<p class="twitter-btn">
-<a class="twitter-share-button"
-  href="https://twitter.com/intent/tweet?text=Hey%20I%27m%20using%20this%20fully%20sick%20RNAseq%20pipeline%20It%27s%20sik%20easy%20http%3A%2F%2Fgithub%2Ecom%2Fmonashbioinformaticsplatform%2FRNAsik%2Dpipe%20by%20%40kizza%5Fa%20from%20%40MonashBioinfo" data-size="large">
-Share</a>
-</p>
-
 ## RNAsik config file
 
 Below is a list of all options that are supported so by `RNAsik` so far with the defatul values.
@@ -570,8 +561,6 @@ divided by the total number of mapped bases.
 #### Picard
 
 - [CollectAlignmentSummaryMetrics](https://broadinstitute.github.io/picard/picard-metric-definitions.html#AlignmentSummaryMetrics)
-
-
 - [CollectGcBiasMetrics](https://software.broadinstitute.org/gatk/documentation/tooldocs/current/picard_analysis_CollectGcBiasMetrics.php)
 - [MarkDuplicates](https://broadinstitute.github.io/picard/picard-metric-definitions.html#DuplicationMetrics)
 
@@ -585,3 +574,11 @@ These are all picard tools that are used in the pipeline
 - `CollectInsertSizeMetrics`
 - `CollectGcBiasMetrics`
 - `EstimateLibraryComplexity`
+
+<p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p>
+
+<p class="twitter-btn">
+<a class="twitter-share-button"
+  href="https://twitter.com/intent/tweet?text=Hey%20I%27m%20using%20this%20fully%20sick%20RNAseq%20pipeline%20It%27s%20sik%20easy%20http%3A%2F%2Fgithub%2Ecom%2Fmonashbioinformaticsplatform%2FRNAsik%2Dpipe%20by%20%40kizza%5Fa%20from%20%40MonashBioinfo" data-size="large">
+Share</a>
+</p>
