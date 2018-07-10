@@ -103,6 +103,7 @@
             <li><a href="#rnasik-output">RNAsik output</a></li>
             <li><a href="#rnasik-output-explained">RNAsik output explained</a></li>
             <li><a href="#command-line-options">Command line options</a></li>
+            <li><a href="#rnasik-config-file">RNAsik config file</a></li>
             <li><a href="#python-scripts">Python scripts</a></li>
             <li><a href="#metric-files-explained">Metric files explained</a></li>
     </ul>
@@ -385,6 +386,79 @@ hence why I also don't count reads with <code>STAR</code></li>
 Share</a>
 </p>
 
+<h2 id="rnasik-config-file">RNAsik config file</h2>
+<p>Below is a list of all options that are supported so by <code>RNAsik</code> so far with the defatul values.
+User can pass additional config file through <code>-configFile</code> options which takes precedence.
+User config dosen't have to hold all key=value pairs, just the one user wants to change. </p>
+<p>For example if I want to use different <code>STAR</code> executable. I would create new file (name of the file isn't relevant),
+and inside I just put. </p>
+<p><code>starExe = new/path/to/STAR</code></p>
+<p><code>RNAsik</code> will inherit the rest of the options from the global config.</p>
+<p>Two things to note:</p>
+<ul>
+<li>you can't have comment on the same line as options</li>
+<li>don't quote values</li>
+</ul>
+<h4 id="executable-paths">Executable paths</h4>
+<ul>
+<li><code>starExe = STAR</code></li>
+<li><code>hisat2Exe = hisat2</code></li>
+<li><code>bwaExe = bwa</code></li>
+<li><code>samtoolsExe = samtools</code></li>
+<li><code>bedtoolsExe = bedtools</code></li>
+<li><code>countsExe = featureCounts</code></li>
+<li><code>fastqcExe = fastqc</code></li>
+<li><code>pythonExe = python</code></li>
+<li><code>picardExe = picard</code></li>
+<li><code>jeExe = je</code></li>
+<li><code>qualimapExe = qualimap</code></li>
+<li><code>multiqcExe = multiqc</code></li>
+<li><code>skewerExe = skewer</code></li>
+<li><code>cpFileExe = cp</code></li>
+</ul>
+<h4 id="memory-settings">Memory settings</h4>
+<ul>
+<li><code>starIdxMem = 40000000000</code></li>
+<li><code>starAlignMem = 40000000000</code></li>
+<li><code>bwaIdxMem = -1</code></li>
+<li><code>bwaAlignMem = -1</code></li>
+<li><code>hisat2IdxMem = -1</code></li>
+<li><code>hisat2AlignMem = -1</code></li>
+<li><code>samtoolsSortMem = 3000000000</code></li>
+<li><code>samtoolsQcMem = -1</code></li>
+<li><code>picardMarkDupsMem = 6000000000</code></li>
+<li><code>picardQcMem = 6000000000</code></li>
+<li><code>jeMem = picardMarkDupsMem</code></li>
+<li><code>picardQcMem = -1</code></li>
+<li><code>picardCreateDictMem = 4000000000</code></li>
+<li><code>countsMem = -1</code></li>
+<li><code>bedtoolsMem = 4000000000</code></li>
+<li><code>fastqcMem = -1</code></li>
+<li><code>multiqcMem = -1</code></li>
+<li><code>skewerMem = -1</code></li>
+<li><code>cpFileMem = 4000000000</code></li>
+</ul>
+<h4 id="threads-settings">Threads settings</h4>
+<ul>
+<li><code>starIdxCpu = 24</code></li>
+<li><code>starAlignCpu = 10</code></li>
+<li><code>bwaIdxCpu = 30</code></li>
+<li><code>bwaAlignCpu = 10</code></li>
+<li><code>hisat2IdxCpu = 30</code></li>
+<li><code>hisat2AlignCpu = 10</code></li>
+<li><code>samtoolsSortCpu = 4</code></li>
+<li><code>samtoolsQcCpu = 2</code></li>
+<li><code>picardMarkDupsCpu = 2</code></li>
+<li><code>jeCpu = picardMarkDupsCpu</code></li>
+<li><code>picardQcCpu = 2</code></li>
+<li><code>picardCreateDictCpu = 2</code></li>
+<li><code>bedtoolsCpu = 2</code></li>
+<li><code>countsCpu = 5</code></li>
+<li><code>fastqcCpu = 8</code></li>
+<li><code>multiqcCpu = 2</code></li>
+<li><code>skewerCpu = 5</code></li>
+<li><code>cpFileCpu = 2</code></li>
+</ul>
 <h2 id="python-scripts">Python scripts</h2>
 <p>There a few python scripts that are used in the pipeline to do various things, mostly to do with read counts post processing.
 Hopefully script name are self explanatory or have a good hint to what they do. All script have help menu, simply run the scripts
