@@ -162,13 +162,13 @@ I found this study <a href="https://www.ncbi.nlm.nih.gov//geo/query/acc.cgi?acc=
 <p>If you ran <code>RNAsik</code> on a full data set and then used <a href="http://degust.erc.monash.edu">Degust</a> for DGE analysis you should get <a href="http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/">these results</a>.</p>
 <p><em>Note that report was generated using <code>pandoc</code> with custome template and <code>igv_links</code> were created using <code>mk_igv_links</code> script located in <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/tree/master/scripts"><code>scripts/</code></a> directory</em></p>
 <h3 id="try-it-out">Try it out</h3>
-<pre><code class="BASH">RNAsik -align star \
+<pre><code class="BASH">RNAsik -fqDir https://bioinformatics.erc.monash.edu/home/kirill/sikTestData/rawData/fqFiles.txt \
+       -align star \
        -fastaRef ftp://ftp.ensembl.org/pub/release-91/fasta/saccharomyces_cerevisiae/dna/Saccharomyces_cerevisiae.R64-1-1.dna_sm.toplevel.fa.gz \
-       -fqDir http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/rawData/IndustrialAntifoamAgentsYeastRNAseqData.tar \
-       -counts \
        -gtfFile ftp://ftp.ensembl.org/pub/release-91/gtf/saccharomyces_cerevisiae/Saccharomyces_cerevisiae.R64-1-1.91.gtf.gz \
-       -all \
-       -paired
+       -counts \
+       -paired \
+       -all
 </code></pre>
 
 <h2 id="introduction">Introduction</h2>
