@@ -231,6 +231,16 @@
             "title": "Picard"
         }, 
         {
+            "location": "/tutorials/", 
+            "text": "Tutorials\n\n\nSo far I don't have any tutorials that I've wrote specific to this (RNAseq) topic, but\nhere is few very useful links to learning resource.\n\n\n\n\nHands-on Training in RNA-Seq Data Analysis\n\n\nApplied Computational Genomics Course\n\n\nBioconductor RNAseq tutorial\n\n\nRNA-seqlopedia", 
+            "title": "Tutes"
+        }, 
+        {
+            "location": "/tutorials/#tutorials", 
+            "text": "So far I don't have any tutorials that I've wrote specific to this (RNAseq) topic, but\nhere is few very useful links to learning resource.   Hands-on Training in RNA-Seq Data Analysis  Applied Computational Genomics Course  Bioconductor RNAseq tutorial  RNA-seqlopedia", 
+            "title": "Tutorials"
+        }, 
+        {
             "location": "/help/", 
             "text": "RNAsik? yep!\n\n\nGetting help\n\n\nThere is an open \nRNAsik user's google group\n any can ask and answer\nquestions there. I will try my best to respond to any questions there, but bear in mind that I could get saturated with work\nand might not be able to respond straight away.\n\n\nAlso couple of house keeping things:\n\n\n\n\nbe polite (in general) and considerate of others.\n\n\nInclude as much information about your problem as you can.\nThe problem needs to be reproducible, otherwise I might not be able to help you.\n\n\n\n\np.s any feedback and suggestions are also welcomed there\n\n\nBug reports\n\n\nBest place to submit bugs is with \nGitHub issues\n\nTry to include as much information as you can and again problem needs to be reproducible. Sometimes problem could be \nBigDataScript specific so also try looking at \nBigDataScrip user's group", 
             "title": "Help"
