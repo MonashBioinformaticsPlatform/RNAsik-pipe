@@ -1,5 +1,7 @@
 # RNAsik-pipe
 
+[![DOI](https://zenodo.org/badge/DOI/10.21105/joss.00583.svg)](https://doi.org/10.21105/joss.00583)
+
 [![Build Status](https://travis-ci.org/MonashBioinformaticsPlatform/RNAsik-pipe.svg?branch=master)](https://travis-ci.org/MonashBioinformaticsPlatform/RNAsik-pipe)
 
 [![install-with-conda](https://anaconda.org/serine/rnasik/badges/installer/conda.svg)](https://anaconda.org/serine/rnasik)
