@@ -1,0 +1,3 @@
+featureCounts = -t ID, -g gene, broken1
+STAR = --chimOutType WithinBAM, broken2
+starIdx = --sjdbGTFfile ~/ref-files/Homo_sapiens.GRCh38.82.gtf, --sjdbOverhang 99, --broken broken3

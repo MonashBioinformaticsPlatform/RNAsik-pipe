@@ -2,15 +2,15 @@ include "../src/sikFqFiles.bds"
 include "../src/sikVersion"
 include "sikCommon.bds"
 
-int{} testFqFiles = {"test/fqFiles1.txt" => 8, \
-                     "test/fqFiles2.txt" => 8}
+int{} testFqFiles = {"test/fastqs/fqFiles1.txt" => 8, \
+                     "test/fastqs/fqFiles2.txt" => 8}
                      //NOTE these two files are "broken" files
                      // not sure how to include them into test since they 
                      // get caught early on and test errors out for the right reason..
-                     //"test/fqFiles3.txt" => 0, \
-                     //"test/fqFiles4.txt" => 1}
+                     //"test/fastqs/fqFiles3.txt" => 0, \
+                     //"test/fastqs/fqFiles4.txt" => 1}
 
-//int{} testFqFiles = {"test/fqFiles3.txt" => 0}
+//int{} testFqFiles = {"test/fastqs/fqFiles3.txt" => 0}
 
 string homeDir = "test/output"
 

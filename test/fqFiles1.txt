@@ -1,8 +1,0 @@
-http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/IndustrialAntifoamAgentsYeastRNAseqData/ctrl1_R1.fastq.gz
-http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/IndustrialAntifoamAgentsYeastRNAseqData/ctrl1_R2.fastq.gz
-http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/IndustrialAntifoamAgentsYeastRNAseqData/ctrl2_R1.fastq.gz
-http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/IndustrialAntifoamAgentsYeastRNAseqData/ctrl2_R2.fastq.gz
-http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/IndustrialAntifoamAgentsYeastRNAseqData/Ind-Z1_R1.fastq.gz
-http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/IndustrialAntifoamAgentsYeastRNAseqData/Ind-Z1_R2.fastq.gz
-http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/IndustrialAntifoamAgentsYeastRNAseqData/Ind-Z2_R1.fastq.gz
-http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/IndustrialAntifoamAgentsYeastRNAseqData/Ind-Z2_R2.fastq.gz

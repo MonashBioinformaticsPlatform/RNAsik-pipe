@@ -1,0 +1,58 @@
+
+include "../src/sikExtraOptions.bds"
+include "sikCommon.bds"
+
+string{} getCurrOpts(string a) {
+
+    string[] args = a.split(",")
+
+    string{} currOpts
+
+    for(string o : args) {
+
+        string[] opts = o.trim().split(" ")
+
+        string k = opts.removeIdx(0)
+        string v = opts.join(" ")
+
+        currOpts{k} = v
+    }
+
+    return currOpts
+}
+
+void test_getExtrOpts() {
+
+    string[] extrOptsFiles = ["test/configFiles/extraOptsNotBroken.txt"]
+
+    // NOTE not yet sure how to test broken config yet..going to leave it for now
+    //string[] extrOptsFiles = ["test/configFiles/extraOptsNotBroken.txt", \
+    //                          "test/configFiles/extraOptsBroken.txt"]
+    
+    string{} globalOpts = {"featureCounts" => "-t check1, -g check2",\
+                           "STAR" => "--chimOutType check3, --chimSegmentMin check4",\
+                           "starIdx" => "--sjdbGTFfile check5, --sjdbOverhang check6"}
+
+    for(string f : extrOptsFiles) {
+
+        string{} usrOpts = getUsrOpts(f)
+
+        int n = usrOpts.keys().size() 
+        assert("Must have four keys in $usrOpts", n == 3)
+        
+        string[] tools = ["featureCounts", "STAR", "starIdx"]
+        
+        for(string t : tools) {
+
+            string{} currOpts = getCurrOpts(globalOpts{t})
+	    
+            string finalOpts = getExtrOpts(t, currOpts, usrOpts)
+             
+            int chkChk = finalOpts.indexOf("check")
+            assert("Can't have any check words in the final string", chkChk < 0)
+        }
+
+    }
+}
+
+test_getExtrOpts()
