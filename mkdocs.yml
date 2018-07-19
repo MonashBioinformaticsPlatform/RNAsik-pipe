@@ -11,7 +11,7 @@ pages:
   - Help: help.md
   - Contributing: contrib.md
   - Roadmap: roadmap.md
-  - Advance: install.md
+  - Checklist: checklist.md
 
 extra_css:
   - css/style.css
