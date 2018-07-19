@@ -58,6 +58,8 @@ string{} cmdExe = getConfigFile(configFile)
 // log versions of tools used
 string toolsVersions = getToolsVersions(cmdExe, logsDir)
 
+string{} usrOpts = getUsrOpts(extraOpts)
+
 string[] fqFiles
 if(!fqDir.isEmpty()) {
     fqFiles = getFqFiles(cmdExe, fqDir, extn, sikDir)
@@ -75,7 +77,7 @@ if(!fqDir.isEmpty()) {
             trimedOpts{"--mode"} = "pe"
         }
         
-        string allTrimedOpts = getOpts("skewer", trimedOpts, extraOpts)
+        string allTrimedOpts = getExtrOpts("skewer", trimedOpts, usrOpts)
         mkLog("skewer", allTrimedOpts, "toolsOpts", logsDir)
         
         string[] trimedFqs = getTrimedFqs(cmdExe, fqFiles, sikDir, allTrimedOpts, extn, pairIds, paired)
@@ -155,7 +157,7 @@ mkLog("fai", faIdx, "refFiles", logsDir)
 if(!align.isEmpty()) {
     //if(totRefFiles) {
     if(!totRefFiles && genomeIdx.isEmpty()) {
-        genomeIdx = getIdx(cmdExe, align, modelType, refFilesDir, localFastaRef, localGTF, extraOpts, logsDir)
+        genomeIdx = getIdx(cmdExe, align, modelType, refFilesDir, localFastaRef, localGTF, usrOpts, logsDir)
     }
     if(totRefFiles && genomeIdx.isEmpty()) {
         genomeIdx = totRefFiles{"idx"}
@@ -181,7 +183,7 @@ number of FASTQ files "
 mkLog("fqMap", parseFqMap(samplesMap), "samples", logsDir)
 
 // BAM files
-string{} bamsMap = getBams(cmdExe, align, bamFiles, samplesMap, pairIds, paired, extraOpts, genomeIdx, localFastaRef, logsDir)
+string{} bamsMap = getBams(cmdExe, align, bamFiles, samplesMap, pairIds, paired, usrOpts, genomeIdx, localFastaRef, logsDir)
 mkLog("bams", parseMap(bamsMap), "data", logsDir)
 
 // If user wants to use other parts of the pipeline without generating BAM files
@@ -230,7 +232,7 @@ if(modelType == "gff") {
 else if(modelType == "saf") {
     countsOpts{"-F"} = "SAF"
 }
-string allCountOpts = getOpts("featureCounts", countsOpts, extraOpts)
+string allCountOpts = getExtrOpts("featureCounts", countsOpts, usrOpts)
 mkLog("featureCounts", allCountOpts, "toolsOpts", logsDir)
 // get counts
 string[] featureCounts = getReadsCount(cmdExe, countFiles, theBams, allCountOpts, localGTF)
@@ -258,7 +260,7 @@ if(paired) {
     // then this will no longer be true
     exonicOpts{"--sorted"} = ""
 }
-string allExonicOpts = getOpts("qualimap", exonicOpts, extraOpts)
+string allExonicOpts = getExtrOpts("qualimap", exonicOpts, usrOpts)
 mkLog("qualiMap", allExonicOpts, "refFiles", logsDir)
 
 // get Int(ra|er)genic rates
@@ -268,7 +270,7 @@ mkLog("qualiMap", parseList(exonicRates), "data", logsDir)
 string{} fastqcOpts = { "--format" => "fastq", \
                         "--quiet" => ""}
 
-string fqQcOpts = getOpts("fastqc", fastqcOpts, extraOpts)
+string fqQcOpts = getExtrOpts("fastqc", fastqcOpts, usrOpts)
 mkLog("fastqc", fqQcOpts, "refFiles", logsDir)
 
 string[] fqQcReport = getFastqcReport(cmdExe, sikDir, fqFiles, fqQcOpts, extn)
@@ -314,7 +316,7 @@ if(exonicRate) {
 
 string{} multiqcOpts = {"--config" => sikProgPath+"/../configs/multiqc_conf.yml"}
 
-string allMultiqcOpts = getOpts("multiqc", multiqcOpts, extraOpts)
+string allMultiqcOpts = getExtrOpts("multiqc", multiqcOpts, usrOpts)
 mkLog("multiqc", allMultiqcOpts, "toolsOpts", logsDir)
 string multiqcIgnore = mkMultiqcIgnores(strandInfo, featureCounts)
 string qcReport = getMultiqc(cmdExe, sikDir, multiqcIgnore, multiqcDeps, allMultiqcOpts)

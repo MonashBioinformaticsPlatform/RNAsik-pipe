@@ -1,72 +1,102 @@
-#-------------------------
-# Extra option processing
-#-------------------------
-// {STAR => "--chimOutType WithinBAM,--chimSegmentMin 20", \
-//  starIndex => "--sjdbGTFfile /home/kirillt/ilustre/ref-files/Homo_sapiens/82/Homo_sapiens.GRCh38.82.gtf, --sjdbOverhang 99"
-// }
 
-string mkOptsStr(string{} optsMap) {
-    string[] allOpts
-    for(string key : optsMap.keys()) {
-        allOpts.add(key)
-        allOpts.add(optsMap{key})
+/*
+  Docs:
+
+  Data comes in like this
+
+  {"featureCounts" = "-t ID, -g gene",
+   "STAR" = "--chimOutType WithinBAM, --chimSegmentMin 20",
+   "starIndex" = "--sjdbGTFfile ~/ref-files/Homo_sapiens.GRCh38.82.gtf, --sjdbOverhang 99"}
+
+  but given a tool name, comes out like this
+
+  for featureCounts
+
+  {"-t" = "ID",
+   "-g" = "gene"}
+
+  for STAR aligner
+
+  {"--chimOutType" = "WithinBAM",
+   "--chimSegmentMin" = "20"}
+
+  for STAR aligner index
+
+  {"--sjdbGTFfile" = "~/ref-files/Homo_sapiens.GRCh38.82.gtf",
+   "--sjdbOverhang" = "99"}
+
+  it gets turned into a string later as well e.g
+
+  featureCounts
+
+  -t ID -g gene
+
+*/
+
+string mkOptsStr(string{} m) {
+
+    string[] opts
+
+    for(string k : m.keys()) {
+
+        opts.add(k)
+        opts.add(m{k})
     }
-    return allOpts.join(" ")
+
+    return opts.join(" ")
 }
 
-string getOpts(string toolName, string{} currentOpts, string args) {
-    string[] items
+string{} getUsrOpts(string usrOpts) {
 
-    if(!args.isEmpty()) {
-	// read config into map
-        string{} extraOpts = config(args)
-        // assert that we have some elements in the map
-        //if(extraOpts.size() != 0) {
-        if(!extraOpts) {
-            if(extraOpts.hasKey(toolName)) {
-                // get a particular tool options string from the map
-                string toolsOpts = extraOpts{toolName}
-                // split all options into list
-                // each option has key=value pair separated by space
-                items = toolsOpts.split(",")
-                //TODO fear that this could be a bug, if user didn't use commans to separate args
-                // docs do say to use commands though ...
-            }
-            else {
-		if(!configFile.isEmpty()) {
-	            error "Invalid tool name $toolName, please check your -configFile options"
-                }
-                else {
-	            error "This should not happened ! check getOpts function, please report on gitissues"
-                }
-            }
-        }
-    } 
-    // set new map to currnet options map
-    string{} optsMap = currentOpts
-    // go through all possible options
-    for(string item : items){ 
-	// get key=value pairs
-        string[] opts = item.split(" ")
-        string optKey = opts.removeIdx(0)
-        string optValue = opts.join(" ")
-        // if there are current options
-        // check and update them with newly passed in
-        if(currentOpts) {
-            for(string key : currentOpts.keys()){
-		// if the key already exist update its value from the user input
-                if(optKey.startsWith(key)) {
-                    optsMap{key} = optValue
-                }
-                else {
-                    optsMap{optKey} = optValue
-                }
-            }
-        }
-        // if no current options found simply append all key=pair values into new map
-        else {
-            optsMap{optKey} = optValue
+    string{} opts = config(usrOpts)
+
+    //NOTE was thinking to make this more generic
+    // and have like a nested hash type structure
+    // for example {aliger: {"STAR", "hisat2"..} }
+    // but I think this is too much for now
+    //string[] allowedTypes = ["aligner",\
+    //                         "counts",\
+    //                         "multiqc",\
+    //                         "mdups",\
+    //                         "cov",\
+    //                         "trim"]
+
+    string[] allowedTools = ["star",\
+                             "staridx",\
+                             "featurecounts",\
+                             "samtools sort",\
+                             "picard markduplicates",\
+                             "skewer",\
+                             "multiqc"]
+
+    for(string k : opts.keys()) {
+
+        if(!allowedTools.has(k.toLower())) {
+            error "Invalid tool name $k, please check your -extraOpts file"
         }
     }
-    return mkOptsStr(optsMap)
+
+    return opts
+}
+
+string getExtrOpts(string toolName, string{} currOpts, string{} usrOpts) {
+
+    string{} finalOpts = currOpts
+
+    string tmpOptsStr = usrOpts{toolName}
+    string[] toolsOpts = tmpOptsStr.split(",")
+
+    for(string o : toolsOpts) {
+
+        string[] opts = o.trim().split(" ")
+
+        string k = opts.removeIdx(0)
+        string v = opts.join(" ")
+
+        finalOpts{k} = v
+
+    }
+
+    return mkOptsStr(finalOpts)
+
 }

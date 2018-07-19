@@ -3,7 +3,7 @@ include "sikHisat2.bds"
 include "sikBWAaligner.bds"
 include "sikLog.bds"
 
-string{} getBams(string{} cmdExe, string aligner, string bamsDir, string{} samplesMap, string pairIds, bool paired, string userExtraOpts, string genomeIdx, string fastaRef, string logsDir) {
+string{} getBams(string{} cmdExe, string aligner, string bamsDir, string{} samplesMap, string pairIds, bool paired, string{} usrOpts, string genomeIdx, string fastaRef, string logsDir) {
     string{} bamsMap
     // STAR default options
     string{} starOpts = { "--outSAMtype" => "BAM Unsorted", \
@@ -16,17 +16,17 @@ string{} getBams(string{} cmdExe, string aligner, string bamsDir, string{} sampl
     string{} bwaMemOpts = {}
 
     if(aligner.indexOf("star") != -1) {
-        string allSTARopts = getOpts("STAR", starOpts, userExtraOpts)
+        string allSTARopts = getExtrOpts("STAR", starOpts, usrOpts)
         mkLog("STAR", allSTARopts, "refFiles", logsDir)
         bamsMap = mapSTAR(cmdExe, bamsDir, samplesMap, pairIds, paired, allSTARopts, genomeIdx)
     }
     if(aligner.indexOf("hisat2") != -1) {
-        string allHisat2Opts = getOpts("Hisat2", hisat2Opts, userExtraOpts)
+        string allHisat2Opts = getExtrOpts("Hisat2", hisat2Opts, usrOpts)
         mkLog("Hisat2", allHisat2Opts, "refFiles", logsDir)
         bamsMap = mapHisat2(cmdExe, bamsDir, samplesMap, pairIds, paired, allHisat2Opts, genomeIdx, fastaRef)
     }
     if(aligner.indexOf("bwa") != -1) {
-        string allBWAopts = getOpts("bwa mem", bwaMemOpts, userExtraOpts)
+        string allBWAopts = getExtrOpts("bwa mem", bwaMemOpts, usrOpts)
         mkLog("bwaMem", allBWAopts, "refFiles", logsDir)
         bamsMap = mapBWA(cmdExe, bamsDir, samplesMap, pairIds, paired, allBWAopts, genomeIdx, fastaRef)
     }

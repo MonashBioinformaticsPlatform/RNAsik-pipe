@@ -4,7 +4,7 @@ include "sikBWAaligner.bds"
 include "sikExtraOptions.bds"
 include "sikLog.bds"
 
-string getIdx(string{} cmdExe, string aligner, string modelType, string refFiles, string localFastaRef, string localGTF, string userExtraOpts, string logsDir) {
+string getIdx(string{} cmdExe, string aligner, string modelType, string refFiles, string localFastaRef, string localGTF, string{} usrOpts, string logsDir) {
     string genomeIdx
     // STAR index cmd options
     string{} starIdxOpts
@@ -19,17 +19,17 @@ string getIdx(string{} cmdExe, string aligner, string modelType, string refFiles
     string{} bwaIdxOpts = {}
     // Run the right indexing
     if(aligner.indexOf("star") != -1) {
-        string allStarIdxOpts = getOpts("starIndex", starIdxOpts, userExtraOpts)
+        string allStarIdxOpts = getExtrOpts("starIndex", starIdxOpts, usrOpts)
         mkLog("STAR", allStarIdxOpts, "refFiles", logsDir)
         genomeIdx = makeSTARindex(cmdExe, refFiles, localFastaRef, localGTF, allStarIdxOpts)
     }
     if(aligner.indexOf("hisat2") != -1) {
-        string allHisat2IdxOpts = getOpts("hisat2Index", hisat2IdxOpts, userExtraOpts)
+        string allHisat2IdxOpts = getExtrOpts("hisat2Index", hisat2IdxOpts, usrOpts)
         mkLog("Hisat2", allHisat2IdxOpts, "refFiles", logsDir)
         genomeIdx = makeHisat2Idx(cmdExe, localFastaRef, localGTF, allHisat2IdxOpts)
     }
     if(aligner.indexOf("bwa") != -1) {
-        string allBWAidxOpts = getOpts("bwaIdx", bwaIdxOpts, userExtraOpts)
+        string allBWAidxOpts = getExtrOpts("bwaIdx", bwaIdxOpts, usrOpts)
         mkLog("bwaMem", allBWAidxOpts, "refFiles", logsDir)
         genomeIdx = makeBWAidx(cmdExe, refFiles, localFastaRef, allBWAidxOpts)
     }
