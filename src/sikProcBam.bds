@@ -30,11 +30,13 @@ string{} getSortedBams(string{} cmdExe, string sikDir, string{} bamsMap) {
         //string tmpPrefix = bamFiles+"/"+bamKey+"_"+randInt(10000000)
         //-T $tmpPrefix \
         string sortedBam = bamFiles+"/"+bamKey+"_sorted.bam"
+        string sortedLog = bamFiles+"/."+bamKey+"_sorted.siklog"
+
         dep(mdups || !align.isEmpty(), sortedBam <- bamFile, cpus := sortCpu, mem := sortBdsMem, taskName := "sorting with samtools "+bamFile) {
             sys $samtoolsExe sort --threads $sortCpu \
                                   -m $sortSamMem \
                                   -o $sortedBam \
-                                  $bamFile
+                                  $bamFile > $sortedLog 2>&1
             sys $samtoolsExe index $sortedBam
             sys rm $bamFile
         }
@@ -68,6 +70,8 @@ string{} getDeDupedBams(string{} cmdExe, string{} bamsMap) {
         string bamFileIdx = bamFile+".bai"
         string mdupsName = bamFile.swapExt(".bam", "_mdups.bam")
         string metricsName = bamFile.swapExt(".bam", "_mdups.metrics")
+        string hackMdups = mdupsName.baseName()
+        string mdupsLog = mdupsName.replace(hackMdups, "."+hackMdups).removeExt()+".siklog"
 
         dep(mdups && !umi, [mdupsName, metricsName] <- bamFile, cpus := picardCpu, mem := picardMem, taskName := "markiing duplicates with picard MarkDuplicates "+bamFile) {
             sys $picardExe MarkDuplicates TMP_DIR=tmp/ \
@@ -75,7 +79,7 @@ string{} getDeDupedBams(string{} cmdExe, string{} bamsMap) {
                                           CREATE_INDEX=true \
                                           INPUT=$bamFile \
                                           OUTPUT=$mdupsName \
-                                          METRICS_FILE=$metricsName
+                                          METRICS_FILE=$metricsName > $mdupsLog 2>&1
             sys rm $bamFile $bamFileIdx
         }
         markedBams.add(mdupsName)
@@ -107,6 +111,8 @@ string{} getDeDupedBamsUmi(string{} cmdExe, string{} bamsMap) {
         string bamFileIdx = bamFile+".bai"
         string mdupsName = bamFile.swapExt(".bam", "_umi_mdups.bam")
         string metricsName = bamFile.swapExt(".bam", "_umi_mdups.metrics")
+        string hackMdups = mdupsName.baseName()
+        string mdupsLog = mdupsName.replace(hackMdups, "."+hackMdups).removeExt()+".siklog"
 
         dep(mdups && umi, [mdupsName, metricsName] <- bamFile, cpus := jeCpu, mem := jeMem, taskName := "marking duplicates with je "+bamFile) {
             sys $jeExe markdupes \
@@ -115,7 +121,7 @@ string{} getDeDupedBamsUmi(string{} cmdExe, string{} bamsMap) {
                        MISMATCHES=0 \
                        METRICS_FILE=$metricsName \
                        REMOVE_DUPLICATES=true \
-                       ASSUME_SORTED=true
+                       ASSUME_SORTED=true > $mdupsLog 2>&1
 
             sys $picardExe BuildBamIndex INPUT=$mdupsName
 

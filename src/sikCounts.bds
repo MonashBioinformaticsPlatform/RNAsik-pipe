@@ -24,20 +24,10 @@ string[] getReadsCount(string{} cmdExe, string countFiles, string{} bamsMap, str
 
     string[] bamsList = bamsMap.values()
 
-    if(!cmdExe.hasKey("countsExe")) {
-        error "Can't get featureCounts executable, check your config file $configFile"
-    }
-    string countsExe = cmdExe{"countsExe"}
-
-    if(!cmdExe.hasKey("countsMem")) {
-        error "Can't get memory settings for featureCounts, check your config file $configFile"
-    }
-    int countsMem = cmdExe{"countsMem"}.parseInt()
-
-    if(!cmdExe.hasKey("countsCpu")) {
-        error "Can't get cpu settings for featureCounts, check your config file $configFile"
-    }
-    int countsCpu = cmdExe{"countsCpu"}.parseInt()
+    string{} resource = getResource(cmdExe, "counts", "")
+    string countsExe = resource{"toolsExe"}
+    int countsMem = resource{"toolsMem"}.parseInt()
+    int countsCpu = resource{"toolsCpu"}.parseInt()
 
     if( (bamsList.isEmpty()) && (counts) ) {
         error "No BAM files were found, either used -align options or specify directory with BAM files using `-bamsDir"
@@ -48,20 +38,28 @@ string[] getReadsCount(string{} cmdExe, string countFiles, string{} bamsMap, str
     allDeps.add(localGTF)
 
     int chkPaired = extraOpts.indexOf("-p")
-    if(chkPaired != -1 && !paired) error "featureCounts had been set for paired end data but -paired is unset $paired"
-    if(chkPaired == -1 && paired) error "featureCounts hadn't been set for paired end data but -paired is set $paired"
+    if(chkPaired != -1 && !paired) {
+        error "featureCounts had been set for paired end data but -paired is unset $paired"
+    }
+    if(chkPaired == -1 && paired) {
+        error "featureCounts hadn't been set for paired end data but -paired is set $paired"
+    }
 
     string[] featureOut
-    string[] featureFiles = ["NonStrandedCounts.txt", "ForwardStrandedCounts.txt", "ReverseStrandedCounts.txt"]
+    string[] featureFiles = ["NonStrandedCounts.txt",\
+                             "ForwardStrandedCounts.txt",\
+                             "ReverseStrandedCounts.txt"]
+
     for(int i : range(0, 2)) {
         string countsName = countFiles+"/"+featureFiles[i]
+        string countsLog = countFiles+"/."+featureFiles[i].swapExt(".txt", ".siklog")
         featureOut.add(countsName)
         dep(counts, countsName <- allDeps, cpus := countsCpu, taskName := "Counting features $countsName") {
             sys $countsExe -T $countsCpu \
                            -s $i \
                            $extraOpts \
                            -o $countsName \
-                           $bamString
+                           $bamString > $countsLog 2>&1
         }
     }
     goal featureOut
