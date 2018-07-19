@@ -83,17 +83,21 @@ string getExtrOpts(string toolName, string{} currOpts, string{} usrOpts) {
 
     string{} finalOpts = currOpts
 
-    string tmpOptsStr = usrOpts{toolName}
-    string[] toolsOpts = tmpOptsStr.split(",")
+    if(usrOpts.hasKey(toolName)) {
 
-    for(string o : toolsOpts) {
+        string tmpOptsStr = usrOpts{toolName}
+        string[] toolsOpts = tmpOptsStr.split(",")
 
-        string[] opts = o.trim().split(" ")
+        for(string o : toolsOpts) {
 
-        string k = opts.removeIdx(0)
-        string v = opts.join(" ")
+            string[] opts = o.trim().split(" ")
 
-        finalOpts{k} = v
+            string k = opts.removeIdx(0)
+            string v = opts.join(" ")
+
+            finalOpts{k} = v
+
+        }
 
     }
 

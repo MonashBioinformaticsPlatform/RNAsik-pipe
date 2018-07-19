@@ -31,7 +31,8 @@ void test_getExtrOpts() {
     
     string{} globalOpts = {"featureCounts" => "-t check1, -g check2",\
                            "STAR" => "--chimOutType check3, --chimSegmentMin check4",\
-                           "starIdx" => "--sjdbGTFfile check5, --sjdbOverhang check6"}
+                           "starIdx" => "--sjdbGTFfile check5, --sjdbOverhang check6",\
+                           "notAtool" => "--blah 1"}
 
     for(string f : extrOptsFiles) {
 
@@ -40,7 +41,7 @@ void test_getExtrOpts() {
         int n = usrOpts.keys().size() 
         assert("Must have four keys in $usrOpts", n == 3)
         
-        string[] tools = ["featureCounts", "STAR", "starIdx"]
+        string[] tools = ["featureCounts", "STAR", "starIdx", "notAtool"]
         
         for(string t : tools) {
 
