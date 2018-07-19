@@ -8,7 +8,7 @@
         <meta name="author" content="serine">
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Tutes - RNAsik pipeline</title>
+        <title>Checklist - RNAsik pipeline</title>
         <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../css/font-awesome-4.5.0.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -52,8 +52,8 @@
                     <li >
                         <a href="../docs/">Docs</a>
                     </li>
-                    <li class="active">
-                        <a href="./">Tutes</a>
+                    <li >
+                        <a href="../tutorials/">Tutes</a>
                     </li>
                     <li >
                         <a href="../help/">Help</a>
@@ -64,8 +64,8 @@
                     <li >
                         <a href="../roadmap/">Roadmap</a>
                     </li>
-                    <li >
-                        <a href="../checklist/">Checklist</a>
+                    <li class="active">
+                        <a href="./">Checklist</a>
                     </li>
                 </ul>
 
@@ -76,12 +76,12 @@
                     </a>
                 </li>
                     <li >
-                        <a rel="next" href="../docs/">
+                        <a rel="next" href="../roadmap/">
                             <i class="fa fa-arrow-left"></i> Previous
                         </a>
                     </li>
-                    <li >
-                        <a rel="prev" href="../help/">
+                    <li class="disabled">
+                        <a rel="prev" >
                             Next <i class="fa fa-arrow-right"></i>
                         </a>
                     </li>
@@ -96,19 +96,64 @@
         <div class="container">
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="main active"><a href="#tutorials">Tutorials</a></li>
+        <li class="main active"><a href="#checklist">Checklist</a></li>
+            <li><a href="#must">Must</a></li>
+            <li><a href="#should">Should</a></li>
+            <li><a href="#up-to-you">Up to you</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
-<h1 id="tutorials">Tutorials</h1>
-<p>So far I don't have any tutorials that I've wrote specific to this (RNAseq) topic, but
-here is few very useful links to learning resource.</p>
+<h1 id="checklist">Checklist</h1>
+<p>I feel that the researchers some what commonly ask bioinformaticians - What do you need to know about the experiment?</p>
+<p>The short answer is everything ! but here is a break down of everything..</p>
+<blockquote>
+<p>The best practice is to gather all of the information in the checklist before the analysis.</p>
+</blockquote>
+<h2 id="must">Must</h2>
+<p>If the below information isn't give I can't really do the analysis</p>
 <ul>
-<li><a href="https://legacy.gitbook.com/book/ycl6/rna-seq-data-analysis/details">Hands-on Training in RNA-Seq Data Analysis</a></li>
-<li><a href="https://github.com/quinlan-lab/applied-computational-genomics">Applied Computational Genomics Course</a></li>
-<li><a href="https://master.bioconductor.org/packages/release/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html">Bioconductor RNAseq tutorial</a></li>
-<li><a href="https://rnaseq.uoregon.edu/">RNA-seqlopedia</a></li>
+<li>Have you got raw (FASTQ) files?</li>
+<li>What is your model organism?</li>
+<li>Which reference database to use? (e.g. ucsc, ensembl, refseq)</li>
+<li>Additional reference files e.g transgenes? will need relevant files (FASTA , GTF/GFF)</li>
+<li>Do you have a samples sheet for me?</li>
+</ul>
+<h2 id="should">Should</h2>
+<p>I'm saying should, but really the more information you provide the more
+accurate - more reflective analysis is going to be of your biological experiment</p>
+<ul>
+<li>Have I got enough explanation about experimental design including:<ul>
+<li>Any batch effects. Paired-data (eg. individual before/after treatment)</li>
+<li>Comparisons of interest.  Pairwise? Interaction?</li>
+<li>Additional factors for contrast matrix:<ul>
+<li>sample pairing</li>
+<li>sex</li>
+<li>time points</li>
+<li>phenotype</li>
+<li>stimulus</li>
+<li>other..</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="up-to-you">Up to you</h2>
+<p>This is your experiment and your money and time spend on it. I'm just saying 
+that there are instrument to instrument variations and biases. As well as 
+certain artifacts due to particular library preparation method. On top of that
+you'll need this information if you are going to publish your results in a paper.</p>
+<ul>
+<li>Which sequencing facility was doing the sequencing?</li>
+<li>Library preparation info:<ul>
+<li>library type: single or paired end</li>
+<li>preparation method ribo-depletion or poly(A), other</li>
+<li>is library stranded </li>
+<li>name of preparation kit was used</li>
+</ul>
+</li>
+<li>Sequencer used (e.g HiSeq1500, NovaSeq, NextSeq etc)</li>
+<li>Are you keeping a copy of your raw data somewhere safe</li>
 </ul></div>
         </div>
 
