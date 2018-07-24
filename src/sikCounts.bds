@@ -11,12 +11,12 @@ string getStrandInfo(string{} cmdExe, string[] readCounts) {
     string countsDir = readCounts[0].dirName()
     string strandInfo = countsDir+"/"+"strandInfo.txt"
 
-    tidStrand := task(counts, strandInfo <- readCounts, taskName := "getting strand info") {
+    task(counts, strandInfo <- readCounts, taskName := "getting strand info") {
         sys $pythonExe $pyScript --logs_dir $countsDir > $strandInfo
     }
     // need to wait here, because later on some other tasks will try to read from that file
     // so it really need to be made
-    wait tidStrand
+    wait
     return strandInfo
 }
 

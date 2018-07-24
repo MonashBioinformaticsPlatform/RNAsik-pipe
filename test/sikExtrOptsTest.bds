@@ -21,6 +21,9 @@ string{} getCurrOpts(string a) {
     return currOpts
 }
 
+//TODO need to add test to test for when -extraOpts flag isn't sete
+// and therefore usrOpts string is empty, fixed a bug where RNAsik was
+// breaking due to empty usrOpts string
 void test_getExtrOpts() {
 
     string[] extrOptsFiles = ["test/configFiles/extraOptsNotBroken.txt"]

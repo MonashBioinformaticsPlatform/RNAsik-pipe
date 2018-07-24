@@ -48,7 +48,10 @@ string mkOptsStr(string{} m) {
 
 string{} getUsrOpts(string usrOpts) {
 
-    string{} opts = config(usrOpts)
+    string{} opts
+    if(!usrOpts.isEmpty()) {
+        opts = config(usrOpts)
+    }
 
     //NOTE was thinking to make this more generic
     // and have like a nested hash type structure
