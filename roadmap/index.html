@@ -115,30 +115,15 @@
 <li>noticed that qualimap could have high RAM consumption, need to fix cpu and mem parameters passing through sik.config file. Reckon to set mem at 4 or 6 Gb</li>
 <li>add support for another aligner - <a href="https://github.com/lh3/minimap2">minimap2</a></li>
 </ul>
-<h3 id="153-augustseptember-2018">1.5.3 (August/September) 2018</h3>
-<ul>
-<li>improve <code>RNAsik</code> logging, particular want to make individual tools version logging independent of each other, so that if one wants to run
-just counts, <code>RNAsik</code> shouldn't complain about <code>bwa</code> not found in the PATH. Also double check the behaviour of the logger when pipelines re-runs.
-From memory it might not perform as it should. You really want a log of every event that had happened.</li>
-<li>include logging of split lanes and R1 and R2. Want to be able to see from the log whether two reads were classified as split lanes or paired end. This is
-to do with recent bug that got fixed in <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/commit/b9240274fa7c964e953a767c254f31ba0d044547">b924027</a> </li>
-<li>have a look at BDS <code>log()</code> function as well, might come useful</li>
-</ul>
-<h3 id="154-octobernovember-2018">1.5.4 (October/November) 2018</h3>
-<p>New feature(s) described below:</p>
-<ul>
-<li>implement new flag <code>-fqFiles</code> that can take either a file or a directory.<ul>
-<li>if a directory is given, do what <code>-fqDir</code> does now and traverse down retuning list of fastq files. </li>
-<li>if a file is given, use those locations getting fastq files. Location can be local file path or URLs, assume one location per line</li>
-</ul>
-</li>
-</ul>
-<p>Will keep <code>-fqDir</code> flag, as a backward compatibility with a warning that flag had been deprecated. Will also schedule to remove <code>-fqDir</code> completely in future releases
-Because of changes in arg's options will do a minor version bump.</p>
+<h3 id="154-end-of-the-year-2018">1.5.4 (end of the year) 2018</h3>
 <ul>
 <li>include handling of url based samples sheets, i.e <code>-samplesSheet</code> flag should handle local based or remote files, just like <code>-fastaRef</code> option</li>
+<li>better tools version logging, don't like when <code>RNAsik</code> checks <code>bwa</code> version when <code>STAR</code> aligner is used</li>
+<li>include logging of split lanes and R1 and R2. Want to be able to see from the log whether two reads were classified as split lanes or paired end. This is
+to do with recent bug that got fixed in <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/commit/b9240274fa7c964e953a767c254f31ba0d044547">b924027</a> </li>
+<li>add alignment free support for RNAseq analysis salmon/kalisto</li>
 </ul>
-<h3 id="160-octobernovember-2018">1.6.0 (October/November ?) 2018</h3>
+<h3 id="160-februarymarch-2019">1.6.0 (February/March) 2019</h3>
 <ul>
 <li>
 <p>Plans to add variants calling to <code>RNAsik</code>. It'll be opt in flag,  <code>-varsCall</code>. Suggestions are welcomed about different name for a flag.
@@ -156,10 +141,9 @@ I already have a prototype in bds, just need to plug it in.</p>
 </ul>
 <h2 id="ideas-for-future-releases">Ideas for future releases</h2>
 <ul>
-<li>include IGVlink into RNAsik-pipe output, can only do that if data outputted into something that is hostable i.e object store?</li>
 <li>Need better support for exonic/intronic rates estimation. Is <code>read_distribution.py</code> from RSeQC good idea? Right now qualiMap is ok flag to opt in.</li>
-<li>add alignment free support for RNAseq analysis e.g salmon/kalisto</li>
 <li>is there need for circular RNA support?</li>
+<li>add demultiplexign tools into pipeline; <code>-demult</code>, <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/issues/32">more info here</a></li>
 </ul>
 <h2 id="changelog">Changelog</h2>
 <h3 id="152">1.5.2</h3>
