@@ -13,29 +13,15 @@
 - noticed that qualimap could have high RAM consumption, need to fix cpu and mem parameters passing through sik.config file. Reckon to set mem at 4 or 6 Gb
 - add support for another aligner - [minimap2](https://github.com/lh3/minimap2)
 
-### 1.5.3 (August/September) 2018
-
-- improve `RNAsik` logging, particular want to make individual tools version logging independent of each other, so that if one wants to run
-just counts, `RNAsik` shouldn't complain about `bwa` not found in the PATH. Also double check the behaviour of the logger when pipelines re-runs.
-From memory it might not perform as it should. You really want a log of every event that had happened.
-- include logging of split lanes and R1 and R2. Want to be able to see from the log whether two reads were classified as split lanes or paired end. This is
-to do with recent bug that got fixed in [b924027](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/commit/b9240274fa7c964e953a767c254f31ba0d044547) 
-- have a look at BDS `log()` function as well, might come useful
-
-### 1.5.4 (October/November) 2018
-
-New feature(s) described below:
-
-- implement new flag `-fqFiles` that can take either a file or a directory.
-    - if a directory is given, do what `-fqDir` does now and traverse down retuning list of fastq files. 
-    - if a file is given, use those locations getting fastq files. Location can be local file path or URLs, assume one location per line
-
-Will keep `-fqDir` flag, as a backward compatibility with a warning that flag had been deprecated. Will also schedule to remove `-fqDir` completely in future releases
-Because of changes in arg's options will do a minor version bump.
+### 1.5.4 (end of the year) 2018
 
 - include handling of url based samples sheets, i.e `-samplesSheet` flag should handle local based or remote files, just like `-fastaRef` option
+- better tools version logging, don't like when `RNAsik` checks `bwa` version when `STAR` aligner is used
+- include logging of split lanes and R1 and R2. Want to be able to see from the log whether two reads were classified as split lanes or paired end. This is
+to do with recent bug that got fixed in [b924027](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/commit/b9240274fa7c964e953a767c254f31ba0d044547) 
+- add alignment free support for RNAseq analysis salmon/kalisto
 
-### 1.6.0 (October/November ?) 2018
+### 1.6.0 (February/March) 2019
 
 - Plans to add variants calling to `RNAsik`. It'll be opt in flag,  `-varsCall`. Suggestions are welcomed about different name for a flag.
 I already have a prototype in bds, just need to plug it in.
@@ -49,10 +35,9 @@ I already have a prototype in bds, just need to plug it in.
 
 ## Ideas for future releases 
 
-- include IGVlink into RNAsik-pipe output, can only do that if data outputted into something that is hostable i.e object store?
 - Need better support for exonic/intronic rates estimation. Is `read_distribution.py` from RSeQC good idea? Right now qualiMap is ok flag to opt in.
-- add alignment free support for RNAseq analysis e.g salmon/kalisto
 - is there need for circular RNA support?
+- add demultiplexign tools into pipeline; `-demult`, [more info here](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/issues/32)
 
 ## Changelog
 

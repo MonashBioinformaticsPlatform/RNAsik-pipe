@@ -1,6 +1,6 @@
 # RNAsik-pipe
 
-[![DOI](https://zenodo.org/badge/DOI/10.21105/joss.00583.svg)](https://doi.org/10.21105/joss.00583)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1403976.svg)](https://doi.org/10.5281/zenodo.1403976)
 
 [![Build Status](https://travis-ci.org/MonashBioinformaticsPlatform/RNAsik-pipe.svg?branch=master)](https://travis-ci.org/MonashBioinformaticsPlatform/RNAsik-pipe)
 
