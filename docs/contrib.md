@@ -112,7 +112,7 @@ conda install -y --use-local rnasik
 ```
 
 - To upload newly build package to anacoda repository
-    - set up an account at [Anacoda](anaconda.org)
+    - set up an account at [Anacoda](https://anaconda.org)
     - `anaconda login`
     - `anaconda upload <path_to_file.tar.bz2>`
     - `anaconda upload <path_to_file.tar.bz2>` --label dev
