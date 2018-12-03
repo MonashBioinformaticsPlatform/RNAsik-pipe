@@ -1,9 +1,12 @@
+---
+bibliography: supplementary/RNAsik.bib
+---
 
 ![mbp-banner](images/mbp_banner.png)
 
 # RNAsik for RNAseq
 
-> **N.B** This workflow assumes model organism has a reference genome. If the reference genome isn't applicable, different workflow is required.
+> **N.B** This workflow assumes model organism has a reference genome. If the reference genome isn't applicable, different workflow might be required.
 
 ## About
 
@@ -36,15 +39,19 @@ As mentioned above [multiqc](http://multiqc.info) report is a great first step i
 
 ## How to cite
 
-At the moment the only way to cite is point to github repository. I'm in the process of obtaining `doi` reference.
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1403976.svg)](https://doi.org/10.5281/zenodo.1403976)
 
 -----
 
-> Tsyganov, K. Perry, A. Archer, S. Powell, D. (2018, January 25). _RNAsik pipeline for RNA sequencing analysis_. https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe
+Tsyganov, Kirill, Andrew James Perry, Stuart Kenneth Archer, and David Powell. 2018. “RNAsik: A Pipeline for Complete and Reproducible RNA-Seq Analysis That Runs Anywhere with Speed and Ease.” Journal of Open Source Software 3: 583.
 
 -----
 
-_It can be hard to give full acknowlegment to all contributors. The nature of the open source projects such that contributors can come and go, however they leave behind valuable contributions and need to get full credit for that. Please look at [RNAsik GitHub](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe) repository to get a full sense of who is contributing. In particular one can look at [number of commits](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/graphs/contributors), [issues triaging and handling](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/issues) and [pull requests (PRs)](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pulls). Please also remember that every contribution matters, nothing is too small!_
+_It is hard to give full acknowlegment to all contributors. The nature of the open source projects such that contributors can come and go, however they leave behind valuable contributions and need to get full credit for that. Please look at [RNAsik GitHub](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe) repository to get a full sense of who is contributing. In particular one can look at [number of commits](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/graphs/contributors), [issues triaging and handling](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/issues) and [pull requests (PRs)](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pulls). Please also remember that every contribution matters, nothing is too small!_
+
+## Methods
+
+Raw fastq files have been analysed with RNAsik pipeline [@Tsyganov2018-si] to produce raw genes count matrix and various quality control metrics. For this analysis RNAsik pipeline [@Tsyganov2018-si] ran with STAR aligner option [@Dobin2013-yw] and reads were quantified with featureCounts [@Liao2014-qo]. Raw counts were then analysed with Degust [@Powell2015] web tool to do differential expression analysis to produce list of differentially expressed genes and several quality plots including classical multidimensional scaling (MDS) and MA plots. In this analysis limma voom [@Law2014-ev] was used for differential expression analysis. Degust [@Powell2015] largely follows limma voom workflow with typical conts per million (CPM) library size normalisation and trimmed mean of M values (TMM) normalisation [@Robinson2010-yu] for RNA composition normalisation.
 
 ## MBP team photo
 
