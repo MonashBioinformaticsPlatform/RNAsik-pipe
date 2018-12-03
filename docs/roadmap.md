@@ -1,13 +1,13 @@
 
 ![mbp-banner](images/mbp_banner.png)
 
-# Roadmap 
+# Roadmap
 
 ## Going forward
 
 ### 1.x.x
 
-- need to have better way to check for index directory, want to know if starIdx includes or doesn't indexing with annotation. 
+- need to have better way to check for index directory, want to know if starIdx includes or doesn't indexing with annotation.
 - recheck [Stuart's PR](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pull/10/commits/9e64da57de6da066e94bf6fcc66e23c36adb3671), polish off refFiles detection
 - recheck [this whole PR](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pull/10)
 - noticed that qualimap could have high RAM consumption, need to fix cpu and mem parameters passing through sik.config file. Reckon to set mem at 4 or 6 Gb
@@ -18,7 +18,7 @@
 - include handling of url based samples sheets, i.e `-samplesSheet` flag should handle local based or remote files, just like `-fastaRef` option
 - better tools version logging, don't like when `RNAsik` checks `bwa` version when `STAR` aligner is used
 - include logging of split lanes and R1 and R2. Want to be able to see from the log whether two reads were classified as split lanes or paired end. This is
-to do with recent bug that got fixed in [b924027](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/commit/b9240274fa7c964e953a767c254f31ba0d044547) 
+to do with recent bug that got fixed in [b924027](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/commit/b9240274fa7c964e953a767c254f31ba0d044547)
 - add alignment free support for RNAseq analysis salmon/kalisto
 
 ### 1.6.0 (February/March) 2019
@@ -26,14 +26,14 @@ to do with recent bug that got fixed in [b924027](https://github.com/MonashBioin
 - Plans to add variants calling to `RNAsik`. It'll be opt in flag,  `-varsCall`. Suggestions are welcomed about different name for a flag.
 I already have a prototype in bds, just need to plug it in.
 
-    - Not sure which caller to use `GATK` or `freebayes` will need to do more reading on that. 
-    - Also need to document common pitfalls for using RNAseq for variant calling e.g can only can variances in coding regions that are expressed. 
+    - Not sure which caller to use `GATK` or `freebayes` will need to do more reading on that.
+    - Also need to document common pitfalls for using RNAseq for variant calling e.g can only can variances in coding regions that are expressed.
     - Not a good idea to use pulled samples as you won't be able to get allele frequency
     - will also need to find out where to get known SNP's (snpDB? for known germ line mutations) and a list of blacklisted regions
 
 - [an example of someone else variant calling pipeline](https://github.com/CRG-CNAG/CalliNGS-NF)
 
-## Ideas for future releases 
+## Ideas for future releases
 
 - Need better support for exonic/intronic rates estimation. Is `read_distribution.py` from RSeQC good idea? Right now qualiMap is ok flag to opt in.
 - is there need for circular RNA support?
@@ -115,7 +115,7 @@ conda:
     - `-threads`
     - `-memory`
 
-- all flags changes have some backward compatibility, i.e will set the closet new option. 
+- all flags changes have some backward compatibility, i.e will set the closet new option.
 
 ### 1.4.9
 
@@ -138,7 +138,7 @@ conda:
 - improved readability of the code
 - improved and fixed bugs in handling fastq files and assignment of fastq to sample names
 
-### 1.4.7 
+### 1.4.7
 
 - fixed STAR memory allocation issue, now user can run with fewer cpus without a worry for STAR spawning multiple tasks causing out of memory issue.
 - made BASH wrapper (not ideal) for `RNAsik` this is capture `bds` logs including report.html which is rather valuable piece of information about the run
@@ -155,6 +155,67 @@ conda:
 - added samplesSheep logging
 - fixed few minor bugs and improved code quality
 - added `canFail` option to several non crucial tasks, allowing pipeline to continue if some task failed of fastqc and qualimap to allow them to fail as those are non essential tasks.
+
+### 1.3
+
+## Content
+
+- [General](#general)
+- [STAR](#star)
+- [featureCounts](#featureCounts)
+
+#### General
+
+- Improved documentations and help menu
+- Introduced new `-extraOptions` command. Now user can pass in any additional commands that particular tools can have. This will make pipeline rather flexible.
+- Included more checks along the way, such as:
+
+    - checking if directories and files given on the cli are valid and accessible
+    - check if FASTQ files where found in the given location
+    - if no `-align` option was specified check that `bamFiles` directory exists and has BAM files
+    - if no `-prePro` options specified checks for `preqcBamFiles` directory and not present through an error. Can now use `-proBams` for processed bams to specify RNAseQC ready bams
+
+- Made `RNAsik-pipe` more sequential, i.e step one run STAR, then run featureCounts then run processing steps. Previously featureCounts and picard tools were running in paralell and I/O was suffering. It is faster to have featureCounts end its run before doing picard processing.
+
+- Removed `-makeIndicies` and `-fqDirs` options and simplified input
+    - Combined `-fqDir` and `fqDirs` into single flag `-fqDir` under which you can specify either directory with FASTQ's or a project directory with directories with FASTQ's. In another way, now pipeline looks two level deep for FASTQ files in a given directory under `-fqDir`
+    - `-makeIndex` now only makes STAR index. In future it might accept aligner name for which to make an index
+    - other indicies for picard and RNAseQC are now made on the fly when those tools are called
+- Don't have to specify `-makeIndex` if running an alignment. If `-align` given and no `-genomeIndex` is specified, then pipeline will ask for `-fastaRef` and make index before aligning
+- Improved scoping. RNAsik-pipe is a mine file that runs everything, all other files define functions and don't look outside of the file. Everything is passed in from within main file - RANsik-pipe.
+- Included an option to specify gzipped files, but not in the `-extraOptions` if additoinal file is need to be given through `extraOptions` and file is gzipped it won't be handled. The gzipped option is specific for `fastaRef` and `gtfFile` only. Those can be gzipped and pipieline will handle it.
+- also now copy `fastaRef` and `gtfFile` into `refFiles` directory. This is to avoid permission issues. Because original destination might not have all the required files, such as `.dict` and `.fai` files and if not permitted pipeline won't be able to execute certain steps.
+- Introduced `-sampleNames` options now user can "fix" BAM file names and all the downstream file and data naming to something more minegful.
+
+#### STAR
+
+- Changed bool `-star` option for `-align` that now accepts a string. At the moment the only string it can accept is `star` (lower case). This is again step towards making pipeline more flexible for users demands. In future I'm planing to introduce other aligners to my pipeline so that user perhaps can choose an aligner.
+- Auto detect is FASTQ are paired-end or not. Wrote a function that loops through `-fqDir` directory and counting all the R1 and R2 reads. Based on the counts it ditermines whether data is paired end or not.
+
+#### featureCounts
+
+- included a couple of python script that uses `gffutils` package to make a datatbase of GTF entries and then parse that database file to get public gene names, Ensmebl Ids and gene's biotypes. It is easy to include more information about the gene with this python module.
+- Included more post processing on count files, now they are ready for degust upload
+
+### 1.2
+
+- Changed the way `RNAsik-pipe` gets read counts files. Now it creates only two files one for reverse
+stranded data and another for non stranded data. featureNo and featureReverse directories with
+corresponding read counts files have been removed and replaced with featureNo.txt and
+featureRevere.txt that already will have all of your reads in columns as expected by
+[Degust](http://www.vicbioinformatics.com/degust/). Minor cosmetic changes are made to both
+featureNo.txt and featureReverse.txt to convert then into featureNoCounts.txt and
+featureReverseCounts.txt respectively. Use counts file for your
+[Degust](http://www.vicbioinformatics.com/degust/) session.
+
+- Added `threads` option, default at [1], so that user can specify number of threads they wish to
+  use.
+
+- Added `makeIndex` option, which allows user to either make all indices with `makeIndices`, that is
+  `STAR genomeGenerate`, `picard CreateSequnceDictionary` and `samtools faidx`, but given that STAR index
+takes a long time, can be some hours if running on minimal number of threads and user already has
+BAM files and just wishes to use other modules of the `RNAsik-pipe`, user can now just make other
+required indices.
 
 <p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p>
 
