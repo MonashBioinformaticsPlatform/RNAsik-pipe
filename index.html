@@ -7,91 +7,92 @@
         <meta name="description" content="None">
         <meta name="author" content="serine">
         
-        <link rel="shortcut icon" href="./img/favicon.ico">
+        <link rel="shortcut icon" href="img/favicon.ico">
         <title>RNAsik pipeline</title>
-        <link href="./css/bootstrap-custom.min.css" rel="stylesheet">
-        <link href="./css/font-awesome-4.5.0.css" rel="stylesheet">
-        <link href="./css/base.css" rel="stylesheet">
-        <link rel="stylesheet" href="./css/highlight.css">
-        <link href="./css/style.css" rel="stylesheet">
+        <link href="css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="css/font-awesome.min.css" rel="stylesheet">
+        <link href="css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+        <link href="css/style.css" rel="stylesheet">
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
             <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
 
-        <script src="./js/jquery-1.10.2.min.js"></script>
-        <script src="./js/bootstrap-3.0.3.min.js"></script>
-        <script src="./js/highlight.pack.js"></script> 
+        <script src="js/jquery-1.10.2.min.js" defer></script>
+        <script src="js/bootstrap-3.0.3.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
     </head>
 
     <body class="homepage">
 
         <div class="navbar navbar-default navbar-fixed-top" role="navigation">
-    <div class="container">
+            <div class="container">
 
-        <!-- Collapsed navigation -->
-        <div class="navbar-header">
-            <!-- Expander button -->
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href=".">RNAsik pipeline</a>
+                <!-- Collapsed navigation -->
+                <div class="navbar-header">
+                    <!-- Expander button -->
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href=".">RNAsik pipeline</a>
+                </div>
+
+                <!-- Expanded navigation -->
+                <div class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="active">
+                                <a href=".">About</a>
+                            </li>
+                            <li >
+                                <a href="docs/">Docs</a>
+                            </li>
+                            <li >
+                                <a href="tutorials/">Tutes</a>
+                            </li>
+                            <li >
+                                <a href="help/">Help</a>
+                            </li>
+                            <li >
+                                <a href="contrib/">Contributing</a>
+                            </li>
+                            <li >
+                                <a href="roadmap/">Roadmap</a>
+                            </li>
+                            <li >
+                                <a href="checklist/">Checklist</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="disabled">
+                                <a rel="next" >
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li >
+                                <a rel="prev" href="docs/">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe"><i class="fa fa-github"></i> GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
         </div>
-
-        <!-- Expanded navigation -->
-        <div class="navbar-collapse collapse">
-                <!-- Main navigation -->
-                <ul class="nav navbar-nav">
-                    <li class="active">
-                        <a href=".">About</a>
-                    </li>
-                    <li >
-                        <a href="docs/">Docs</a>
-                    </li>
-                    <li >
-                        <a href="tutorials/">Tutes</a>
-                    </li>
-                    <li >
-                        <a href="help/">Help</a>
-                    </li>
-                    <li >
-                        <a href="contrib/">Contributing</a>
-                    </li>
-                    <li >
-                        <a href="roadmap/">Roadmap</a>
-                    </li>
-                    <li >
-                        <a href="checklist/">Checklist</a>
-                    </li>
-                </ul>
-
-            <ul class="nav navbar-nav navbar-right">
-                <li>
-                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
-                        <i class="fa fa-search"></i> Search
-                    </a>
-                </li>
-                    <li class="disabled">
-                        <a rel="next" >
-                            <i class="fa fa-arrow-left"></i> Previous
-                        </a>
-                    </li>
-                    <li >
-                        <a rel="prev" href="docs/">
-                            Next <i class="fa fa-arrow-right"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe"><i class="fa fa-github"></i> GitHub</a>
-                    </li>
-            </ul>
-        </div>
-    </div>
-</div>
 
         <div class="container">
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
@@ -99,15 +100,16 @@
         <li class="main active"><a href="#rnasik-for-rnaseq">RNAsik for RNAseq</a></li>
             <li><a href="#about">About</a></li>
             <li><a href="#how-to-cite">How to cite</a></li>
+            <li><a href="#methods">Methods</a></li>
             <li><a href="#mbp-team-photo">MBP team photo</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
-<p><img alt="mbp-banner" src="./images/mbp_banner.png" /></p>
+<p><img alt="mbp-banner" src="images/mbp_banner.png" /></p>
 <h1 id="rnasik-for-rnaseq">RNAsik for RNAseq</h1>
 <blockquote>
-<p><strong>N.B</strong> This workflow assumes model organism has a reference genome. If the reference genome isn't applicable, different workflow is required.</p>
+<p><strong>N.B</strong> This workflow assumes model organism has a reference genome. If the reference genome isn't applicable, different workflow might be required.</p>
 </blockquote>
 <h2 id="about">About</h2>
 <p><a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik</a> pipeline was build in house for processing <a href="https://rnaseq.uoregon.edu/">RNA-seq(uencing)</a> data.
@@ -134,15 +136,15 @@ It is written in <a href="http://pcingola.github.io/BigDataScript/download.html"
 </ul>
 <p>As mentioned above <a href="http://multiqc.info">multiqc</a> report is a great first step in the attempt to answer those questions. A lot of the time everything looks fairly good and consistent allowing downstream analysis. Sometimes user can tweak certain individual parameters which can improve results, other times it comes down to experimental design and/or library preparation and sequencing issues. Either way one need to make this "first iteration" in order to see room for improvement. </p>
 <h2 id="how-to-cite">How to cite</h2>
-<p>At the moment the only way to cite is point to github repository. I'm in the process of obtaining <code>doi</code> reference.</p>
+<p><a href="https://doi.org/10.5281/zenodo.1403976"><img alt="DOI" src="https://zenodo.org/badge/DOI/10.5281/zenodo.1403976.svg" /></a></p>
 <hr />
-<blockquote>
-<p>Tsyganov, K. Perry, A. Archer, S. Powell, D. (2018, January 25). <em>RNAsik pipeline for RNA sequencing analysis</em>. https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe</p>
-</blockquote>
+<p>Tsyganov, Kirill, Andrew James Perry, Stuart Kenneth Archer, and David Powell. 2018. “RNAsik: A Pipeline for Complete and Reproducible RNA-Seq Analysis That Runs Anywhere with Speed and Ease.” Journal of Open Source Software 3: 583.</p>
 <hr />
-<p><em>It can be hard to give full acknowlegment to all contributors. The nature of the open source projects such that contributors can come and go, however they leave behind valuable contributions and need to get full credit for that. Please look at <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik GitHub</a> repository to get a full sense of who is contributing. In particular one can look at <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/graphs/contributors">number of commits</a>, <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/issues">issues triaging and handling</a> and <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pulls">pull requests (PRs)</a>. Please also remember that every contribution matters, nothing is too small!</em></p>
+<p><em>It is hard to give full acknowlegment to all contributors. The nature of the open source projects such that contributors can come and go, however they leave behind valuable contributions and need to get full credit for that. Please look at <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik GitHub</a> repository to get a full sense of who is contributing. In particular one can look at <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/graphs/contributors">number of commits</a>, <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/issues">issues triaging and handling</a> and <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pulls">pull requests (PRs)</a>. Please also remember that every contribution matters, nothing is too small!</em></p>
+<h2 id="methods">Methods</h2>
+<p>Raw fastq files have been analysed with RNAsik pipeline [@Tsyganov2018-si] to produce raw genes count matrix and various quality control metrics. For this analysis RNAsik pipeline [@Tsyganov2018-si] ran with STAR aligner option [@Dobin2013-yw] and reads were quantified with featureCounts [@Liao2014-qo]. Raw counts were then analysed with Degust [@Powell2015] web tool to do differential expression analysis to produce list of differentially expressed genes and several quality plots including classical multidimensional scaling (MDS) and MA plots. In this analysis limma voom [@Law2014-ev] was used for differential expression analysis. Degust [@Powell2015] largely follows limma voom workflow with typical conts per million (CPM) library size normalisation and trimmed mean of M values (TMM) normalisation [@Robinson2010-yu] for RNA composition normalisation.</p>
 <h2 id="mbp-team-photo">MBP team photo</h2>
-<p><img alt="team_photo_2017" src="./images/team_photo_2017.jpg" /></p>
+<p><img alt="team_photo_2017" src="images/team_photo_2017.jpg" /></p>
 <p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p>
 
 <p class="twitter-btn">
@@ -155,12 +157,14 @@ Share</a>
         <footer class="col-md-12">
             <hr>
                 <p>Created by <a href="https://twitter.com/kizza_a">Kirill Tsyganov</a> with help from the <a href="http://bioinformatics.erc.monash.edu">Monash Bioinformatics Platform</a> team. <br /><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</p>
-            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
         </footer>
-        <script>var base_url = '.';</script>
-        <script src="./js/base.js"></script>
-        <script src="./search/require.js"></script>
-        <script src="./search/search.js"></script>
+        <script>
+            var base_url = ".",
+                shortcuts = {"previous": 80, "search": 83, "help": 191, "next": 78};
+        </script>
+        <script src="js/base.js" defer></script>
+        <script src="search/main.js" defer></script>
 
         <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
     <div class="modal-dialog">
@@ -176,7 +180,7 @@ Share</a>
                 </p>
                 <form role="form">
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
                     </div>
                 </form>
                 <div id="mkdocs-search-results"></div>
@@ -202,19 +206,19 @@ Share</a>
                 </thead>
                 <tbody>
                   <tr>
-                    <td><kbd>?</kbd></td>
+                    <td class="help shortcut"><kbd>?</kbd></td>
                     <td>Open this help</td>
                   </tr>
                   <tr>
-                    <td><kbd>&larr;</kbd></td>
-                    <td>Previous page</td>
-                  </tr>
-                  <tr>
-                    <td><kbd>&rarr;</kbd></td>
+                    <td class="next shortcut"><kbd>n</kbd></td>
                     <td>Next page</td>
                   </tr>
                   <tr>
-                    <td><kbd>s</kbd></td>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
                     <td>Search</td>
                   </tr>
                 </tbody>
@@ -226,11 +230,10 @@ Share</a>
     </div>
 </div>
 
-
     </body>
 </html>
 
 <!--
-MkDocs version : 0.17.3
-Build Date UTC : 2018-08-27 12:19:15
+MkDocs version : 1.0.4
+Build Date UTC : 2018-12-03 23:25:32
 -->

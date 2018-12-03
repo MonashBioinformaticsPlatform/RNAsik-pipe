@@ -8,7 +8,7 @@
         <meta name="author" content="serine">
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Tutes - RNAsik pipeline</title>
+        <title>ToDo - RNAsik pipeline</title>
         <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -53,8 +53,8 @@
                             <li >
                                 <a href="../docs/">Docs</a>
                             </li>
-                            <li class="active">
-                                <a href="./">Tutes</a>
+                            <li >
+                                <a href="../tutorials/">Tutes</a>
                             </li>
                             <li >
                                 <a href="../help/">Help</a>
@@ -76,16 +76,6 @@
                                 <i class="fa fa-search"></i> Search
                             </a>
                         </li>
-                            <li >
-                                <a rel="next" href="../docs/">
-                                    <i class="fa fa-arrow-left"></i> Previous
-                                </a>
-                            </li>
-                            <li >
-                                <a rel="prev" href="../help/">
-                                    Next <i class="fa fa-arrow-right"></i>
-                                </a>
-                            </li>
                             <li>
                                 <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe"><i class="fa fa-github"></i> GitHub</a>
                             </li>
@@ -97,19 +87,60 @@
         <div class="container">
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="main active"><a href="#tutorials">Tutorials</a></li>
+        <li class="main active"><a href="#todo">ToDo</a></li>
+            <li><a href="#java-related-issues">Java related issues</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
-<h1 id="tutorials">Tutorials</h1>
-<p>So far I don't have any tutorials that I've wrote specific to this (RNAseq) topic, but
-here is few very useful links to learning resource.</p>
+<h1 id="todo">ToDo</h1>
 <ul>
-<li><a href="https://legacy.gitbook.com/book/ycl6/rna-seq-data-analysis/details">Hands-on Training in RNA-Seq Data Analysis</a></li>
-<li><a href="https://github.com/quinlan-lab/applied-computational-genomics">Applied Computational Genomics Course</a></li>
-<li><a href="https://master.bioconductor.org/packages/release/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html">Bioconductor RNAseq tutorial</a></li>
-<li><a href="https://rnaseq.uoregon.edu/">RNA-seqlopedia</a></li>
+<li>turns out that picard that comes with conda install isn't good for clusters env.
+there might be a simple fix to this, but basically this to do to remind me to DO that.
+This is all to do with not having enough heap memory, I think the fix might be as simple
+as setting sik.config to have</li>
+</ul>
+<pre><code>picardExe = pirad -Xmx6g
+</code></pre>
+
+<p>From reading condas picard wrapper script it appears that I can just pass extra java args
+through like that, needs testing</p>
+<p>document RNASIK_BDS_CONFIG and do travi test</p>
+<ul>
+<li>add support for "transcript_level_support" into geneIds.txt file and propogate that through.
+idea being that some genes have greater support (confidence) then others, perhaps would be nice
+to see that but also filter on that i.e only "transcript_support_level = 1" best evidence (biological)
+It looks like "transcript_support_level" applicable to transcript and given gene can have several once
+so will need thing on best way to summarise that</li>
+</ul>
+<h2 id="java-related-issues">Java related issues</h2>
+<p>I need to start gather better logs. This is useful command to grab java version and args</p>
+<pre><code>java -version
+# Picked up JAVA_TOOL_OPTIONS:
+# Picked up _JAVA_OPTIONS: -Xmx512m -Xms64m
+# java version &quot;1.7.0_40&quot;
+OpenJDK Runtime Environment (IcedTea 2.4.1) (suse-3.41.1-x86_64)
+OpenJDK 64-Bit Server VM (build 24.0-b50, mixed mode)
+</code></pre>
+
+<p>I think issue of passing in correct memory i.e memory passed to the task has to be the same as memmory
+passed to JVM, can be solved with <code>_JAVA_OPTIONS</code> parameter.</p>
+<p>Other couple of useful commands are</p>
+<pre><code>jps
+jps -v
+</code></pre>
+
+<p>This is to list running java process and they flags</p>
+<p>I don't know at this stage what would be better</p>
+<pre><code>sys _JAVA_OPTIONS=blah $picardExe ...
+</code></pre>
+
+<p>OR</p>
+<p>Parse memory out of the config and set it globaly</p>
+<p>Do I need this option? JAVA_OPTIONS="-Djava.io.tmpdir=$HOME/tmp"</p>
+<h4 id="links">Links</h4>
+<ul>
+<li>https://stackoverflow.com/questions/28327620/difference-between-java-options-java-tool-options-and-java-opts</li>
 </ul></div>
         </div>
 

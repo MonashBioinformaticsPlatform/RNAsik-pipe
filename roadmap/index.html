@@ -10,88 +10,89 @@
         <link rel="shortcut icon" href="../img/favicon.ico">
         <title>Roadmap - RNAsik pipeline</title>
         <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
-        <link href="../css/font-awesome-4.5.0.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
-        <link rel="stylesheet" href="../css/highlight.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
         <link href="../css/style.css" rel="stylesheet">
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
             <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
 
-        <script src="../js/jquery-1.10.2.min.js"></script>
-        <script src="../js/bootstrap-3.0.3.min.js"></script>
-        <script src="../js/highlight.pack.js"></script> 
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap-3.0.3.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
     </head>
 
     <body>
 
         <div class="navbar navbar-default navbar-fixed-top" role="navigation">
-    <div class="container">
+            <div class="container">
 
-        <!-- Collapsed navigation -->
-        <div class="navbar-header">
-            <!-- Expander button -->
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="..">RNAsik pipeline</a>
+                <!-- Collapsed navigation -->
+                <div class="navbar-header">
+                    <!-- Expander button -->
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="..">RNAsik pipeline</a>
+                </div>
+
+                <!-- Expanded navigation -->
+                <div class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li >
+                                <a href="..">About</a>
+                            </li>
+                            <li >
+                                <a href="../docs/">Docs</a>
+                            </li>
+                            <li >
+                                <a href="../tutorials/">Tutes</a>
+                            </li>
+                            <li >
+                                <a href="../help/">Help</a>
+                            </li>
+                            <li >
+                                <a href="../contrib/">Contributing</a>
+                            </li>
+                            <li class="active">
+                                <a href="./">Roadmap</a>
+                            </li>
+                            <li >
+                                <a href="../checklist/">Checklist</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li >
+                                <a rel="next" href="../contrib/">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li >
+                                <a rel="prev" href="../checklist/">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe"><i class="fa fa-github"></i> GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
         </div>
-
-        <!-- Expanded navigation -->
-        <div class="navbar-collapse collapse">
-                <!-- Main navigation -->
-                <ul class="nav navbar-nav">
-                    <li >
-                        <a href="..">About</a>
-                    </li>
-                    <li >
-                        <a href="../docs/">Docs</a>
-                    </li>
-                    <li >
-                        <a href="../tutorials/">Tutes</a>
-                    </li>
-                    <li >
-                        <a href="../help/">Help</a>
-                    </li>
-                    <li >
-                        <a href="../contrib/">Contributing</a>
-                    </li>
-                    <li class="active">
-                        <a href="./">Roadmap</a>
-                    </li>
-                    <li >
-                        <a href="../checklist/">Checklist</a>
-                    </li>
-                </ul>
-
-            <ul class="nav navbar-nav navbar-right">
-                <li>
-                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
-                        <i class="fa fa-search"></i> Search
-                    </a>
-                </li>
-                    <li >
-                        <a rel="next" href="../contrib/">
-                            <i class="fa fa-arrow-left"></i> Previous
-                        </a>
-                    </li>
-                    <li >
-                        <a rel="prev" href="../checklist/">
-                            Next <i class="fa fa-arrow-right"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe"><i class="fa fa-github"></i> GitHub</a>
-                    </li>
-            </ul>
-        </div>
-    </div>
-</div>
 
         <div class="container">
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
@@ -100,6 +101,7 @@
             <li><a href="#going-forward">Going forward</a></li>
             <li><a href="#ideas-for-future-releases">Ideas for future releases</a></li>
             <li><a href="#changelog">Changelog</a></li>
+            <li><a href="#content">Content</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
@@ -109,7 +111,7 @@
 <h2 id="going-forward">Going forward</h2>
 <h3 id="1xx">1.x.x</h3>
 <ul>
-<li>need to have better way to check for index directory, want to know if starIdx includes or doesn't indexing with annotation. </li>
+<li>need to have better way to check for index directory, want to know if starIdx includes or doesn't indexing with annotation.</li>
 <li>recheck <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pull/10/commits/9e64da57de6da066e94bf6fcc66e23c36adb3671">Stuart's PR</a>, polish off refFiles detection</li>
 <li>recheck <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pull/10">this whole PR</a></li>
 <li>noticed that qualimap could have high RAM consumption, need to fix cpu and mem parameters passing through sik.config file. Reckon to set mem at 4 or 6 Gb</li>
@@ -120,7 +122,7 @@
 <li>include handling of url based samples sheets, i.e <code>-samplesSheet</code> flag should handle local based or remote files, just like <code>-fastaRef</code> option</li>
 <li>better tools version logging, don't like when <code>RNAsik</code> checks <code>bwa</code> version when <code>STAR</code> aligner is used</li>
 <li>include logging of split lanes and R1 and R2. Want to be able to see from the log whether two reads were classified as split lanes or paired end. This is
-to do with recent bug that got fixed in <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/commit/b9240274fa7c964e953a767c254f31ba0d044547">b924027</a> </li>
+to do with recent bug that got fixed in <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/commit/b9240274fa7c964e953a767c254f31ba0d044547">b924027</a></li>
 <li>add alignment free support for RNAseq analysis salmon/kalisto</li>
 </ul>
 <h3 id="160-februarymarch-2019">1.6.0 (February/March) 2019</h3>
@@ -129,8 +131,8 @@ to do with recent bug that got fixed in <a href="https://github.com/MonashBioinf
 <p>Plans to add variants calling to <code>RNAsik</code>. It'll be opt in flag,  <code>-varsCall</code>. Suggestions are welcomed about different name for a flag.
 I already have a prototype in bds, just need to plug it in.</p>
 <ul>
-<li>Not sure which caller to use <code>GATK</code> or <code>freebayes</code> will need to do more reading on that. </li>
-<li>Also need to document common pitfalls for using RNAseq for variant calling e.g can only can variances in coding regions that are expressed. </li>
+<li>Not sure which caller to use <code>GATK</code> or <code>freebayes</code> will need to do more reading on that.</li>
+<li>Also need to document common pitfalls for using RNAseq for variant calling e.g can only can variances in coding regions that are expressed.</li>
 <li>Not a good idea to use pulled samples as you won't be able to get allele frequency</li>
 <li>will also need to find out where to get known SNP's (snpDB? for known germ line mutations) and a list of blacklisted regions</li>
 </ul>
@@ -228,7 +230,7 @@ I already have a prototype in bds, just need to plug it in.</p>
 </ul>
 </li>
 <li>
-<p>all flags changes have some backward compatibility, i.e will set the closet new option. </p>
+<p>all flags changes have some backward compatibility, i.e will set the closet new option.</p>
 </li>
 </ul>
 <h3 id="149">1.4.9</h3>
@@ -270,6 +272,77 @@ I already have a prototype in bds, just need to plug it in.</p>
 <li>fixed few minor bugs and improved code quality</li>
 <li>added <code>canFail</code> option to several non crucial tasks, allowing pipeline to continue if some task failed of fastqc and qualimap to allow them to fail as those are non essential tasks.</li>
 </ul>
+<h3 id="13">1.3</h3>
+<h2 id="content">Content</h2>
+<ul>
+<li><a href="#general">General</a></li>
+<li><a href="#star">STAR</a></li>
+<li><a href="#featureCounts">featureCounts</a></li>
+</ul>
+<h4 id="general">General</h4>
+<ul>
+<li>Improved documentations and help menu</li>
+<li>Introduced new <code>-extraOptions</code> command. Now user can pass in any additional commands that particular tools can have. This will make pipeline rather flexible.</li>
+<li>
+<p>Included more checks along the way, such as:</p>
+<ul>
+<li>checking if directories and files given on the cli are valid and accessible</li>
+<li>check if FASTQ files where found in the given location</li>
+<li>if no <code>-align</code> option was specified check that <code>bamFiles</code> directory exists and has BAM files</li>
+<li>if no <code>-prePro</code> options specified checks for <code>preqcBamFiles</code> directory and not present through an error. Can now use <code>-proBams</code> for processed bams to specify RNAseQC ready bams</li>
+</ul>
+</li>
+<li>
+<p>Made <code>RNAsik-pipe</code> more sequential, i.e step one run STAR, then run featureCounts then run processing steps. Previously featureCounts and picard tools were running in paralell and I/O was suffering. It is faster to have featureCounts end its run before doing picard processing.</p>
+</li>
+<li>
+<p>Removed <code>-makeIndicies</code> and <code>-fqDirs</code> options and simplified input</p>
+<ul>
+<li>Combined <code>-fqDir</code> and <code>fqDirs</code> into single flag <code>-fqDir</code> under which you can specify either directory with FASTQ's or a project directory with directories with FASTQ's. In another way, now pipeline looks two level deep for FASTQ files in a given directory under <code>-fqDir</code></li>
+<li><code>-makeIndex</code> now only makes STAR index. In future it might accept aligner name for which to make an index</li>
+<li>other indicies for picard and RNAseQC are now made on the fly when those tools are called</li>
+</ul>
+</li>
+<li>Don't have to specify <code>-makeIndex</code> if running an alignment. If <code>-align</code> given and no <code>-genomeIndex</code> is specified, then pipeline will ask for <code>-fastaRef</code> and make index before aligning</li>
+<li>Improved scoping. RNAsik-pipe is a mine file that runs everything, all other files define functions and don't look outside of the file. Everything is passed in from within main file - RANsik-pipe.</li>
+<li>Included an option to specify gzipped files, but not in the <code>-extraOptions</code> if additoinal file is need to be given through <code>extraOptions</code> and file is gzipped it won't be handled. The gzipped option is specific for <code>fastaRef</code> and <code>gtfFile</code> only. Those can be gzipped and pipieline will handle it.</li>
+<li>also now copy <code>fastaRef</code> and <code>gtfFile</code> into <code>refFiles</code> directory. This is to avoid permission issues. Because original destination might not have all the required files, such as <code>.dict</code> and <code>.fai</code> files and if not permitted pipeline won't be able to execute certain steps.</li>
+<li>Introduced <code>-sampleNames</code> options now user can "fix" BAM file names and all the downstream file and data naming to something more minegful.</li>
+</ul>
+<h4 id="star">STAR</h4>
+<ul>
+<li>Changed bool <code>-star</code> option for <code>-align</code> that now accepts a string. At the moment the only string it can accept is <code>star</code> (lower case). This is again step towards making pipeline more flexible for users demands. In future I'm planing to introduce other aligners to my pipeline so that user perhaps can choose an aligner.</li>
+<li>Auto detect is FASTQ are paired-end or not. Wrote a function that loops through <code>-fqDir</code> directory and counting all the R1 and R2 reads. Based on the counts it ditermines whether data is paired end or not.</li>
+</ul>
+<h4 id="featurecounts">featureCounts</h4>
+<ul>
+<li>included a couple of python script that uses <code>gffutils</code> package to make a datatbase of GTF entries and then parse that database file to get public gene names, Ensmebl Ids and gene's biotypes. It is easy to include more information about the gene with this python module.</li>
+<li>Included more post processing on count files, now they are ready for degust upload</li>
+</ul>
+<h3 id="12">1.2</h3>
+<ul>
+<li>
+<p>Changed the way <code>RNAsik-pipe</code> gets read counts files. Now it creates only two files one for reverse
+stranded data and another for non stranded data. featureNo and featureReverse directories with
+corresponding read counts files have been removed and replaced with featureNo.txt and
+featureRevere.txt that already will have all of your reads in columns as expected by
+<a href="http://www.vicbioinformatics.com/degust/">Degust</a>. Minor cosmetic changes are made to both
+featureNo.txt and featureReverse.txt to convert then into featureNoCounts.txt and
+featureReverseCounts.txt respectively. Use counts file for your
+<a href="http://www.vicbioinformatics.com/degust/">Degust</a> session.</p>
+</li>
+<li>
+<p>Added <code>threads</code> option, default at [1], so that user can specify number of threads they wish to
+  use.</p>
+</li>
+<li>
+<p>Added <code>makeIndex</code> option, which allows user to either make all indices with <code>makeIndices</code>, that is
+  <code>STAR genomeGenerate</code>, <code>picard CreateSequnceDictionary</code> and <code>samtools faidx</code>, but given that STAR index
+takes a long time, can be some hours if running on minimal number of threads and user already has
+BAM files and just wishes to use other modules of the <code>RNAsik-pipe</code>, user can now just make other
+required indices.</p>
+</li>
+</ul>
 <p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p>
 
 <p class="twitter-btn">
@@ -282,12 +355,14 @@ Share</a>
         <footer class="col-md-12">
             <hr>
                 <p>Created by <a href="https://twitter.com/kizza_a">Kirill Tsyganov</a> with help from the <a href="http://bioinformatics.erc.monash.edu">Monash Bioinformatics Platform</a> team. <br /><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</p>
-            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
         </footer>
-        <script>var base_url = '..';</script>
-        <script src="../js/base.js"></script>
-        <script src="../search/require.js"></script>
-        <script src="../search/search.js"></script>
+        <script>
+            var base_url = "..",
+                shortcuts = {"previous": 80, "search": 83, "help": 191, "next": 78};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
 
         <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
     <div class="modal-dialog">
@@ -303,7 +378,7 @@ Share</a>
                 </p>
                 <form role="form">
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
                     </div>
                 </form>
                 <div id="mkdocs-search-results"></div>
@@ -329,19 +404,19 @@ Share</a>
                 </thead>
                 <tbody>
                   <tr>
-                    <td><kbd>?</kbd></td>
+                    <td class="help shortcut"><kbd>?</kbd></td>
                     <td>Open this help</td>
                   </tr>
                   <tr>
-                    <td><kbd>&larr;</kbd></td>
-                    <td>Previous page</td>
-                  </tr>
-                  <tr>
-                    <td><kbd>&rarr;</kbd></td>
+                    <td class="next shortcut"><kbd>n</kbd></td>
                     <td>Next page</td>
                   </tr>
                   <tr>
-                    <td><kbd>s</kbd></td>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
                     <td>Search</td>
                   </tr>
                 </tbody>
@@ -352,7 +427,6 @@ Share</a>
         </div>
     </div>
 </div>
-
 
     </body>
 </html>

@@ -8,7 +8,7 @@
         <meta name="author" content="serine">
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Tutes - RNAsik pipeline</title>
+        <title>Draft - RNAsik pipeline</title>
         <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -53,8 +53,8 @@
                             <li >
                                 <a href="../docs/">Docs</a>
                             </li>
-                            <li class="active">
-                                <a href="./">Tutes</a>
+                            <li >
+                                <a href="../tutorials/">Tutes</a>
                             </li>
                             <li >
                                 <a href="../help/">Help</a>
@@ -76,16 +76,6 @@
                                 <i class="fa fa-search"></i> Search
                             </a>
                         </li>
-                            <li >
-                                <a rel="next" href="../docs/">
-                                    <i class="fa fa-arrow-left"></i> Previous
-                                </a>
-                            </li>
-                            <li >
-                                <a rel="prev" href="../help/">
-                                    Next <i class="fa fa-arrow-right"></i>
-                                </a>
-                            </li>
                             <li>
                                 <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe"><i class="fa fa-github"></i> GitHub</a>
                             </li>
@@ -97,19 +87,74 @@
         <div class="container">
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="main active"><a href="#tutorials">Tutorials</a></li>
+        <li class="main active"><a href="#log-files">Log files</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
-<h1 id="tutorials">Tutorials</h1>
-<p>So far I don't have any tutorials that I've wrote specific to this (RNAseq) topic, but
-here is few very useful links to learning resource.</p>
+<h3 id="log-files">Log files</h3>
 <ul>
-<li><a href="https://legacy.gitbook.com/book/ycl6/rna-seq-data-analysis/details">Hands-on Training in RNA-Seq Data Analysis</a></li>
-<li><a href="https://github.com/quinlan-lab/applied-computational-genomics">Applied Computational Genomics Course</a></li>
-<li><a href="https://master.bioconductor.org/packages/release/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html">Bioconductor RNAseq tutorial</a></li>
-<li><a href="https://rnaseq.uoregon.edu/">RNA-seqlopedia</a></li>
+<li><code>data/</code><ul>
+<li><code>addMetrics</code></li>
+<li><code>bams</code></li>
+<li><code>covFiles</code></li>
+<li><code>degust</code></li>
+<li><code>fastqc</code></li>
+<li><code>featureCounts</code></li>
+<li><code>mdupsBams</code></li>
+<li><code>qualiMap</code></li>
+<li><code>strandInfo</code></li>
+</ul>
+</li>
+<li><code>other/</code><ul>
+<li><code>annotation</code></li>
+<li><code>pairedBool</code></li>
+</ul>
+</li>
+<li><code>refFiles/</code><ul>
+<li><code>bwa</code></li>
+<li><code>bwaMem</code></li>
+<li><code>chromSizes</code></li>
+<li><code>fai</code></li>
+<li><code>fastaRef</code></li>
+<li><code>fastqc</code></li>
+<li><code>gtfFile</code></li>
+<li><code>picardDictFile</code></li>
+<li><code>qualiMap</code></li>
+</ul>
+</li>
+<li><code>samples/</code><ul>
+<li><code>fqFiles</code></li>
+<li><code>fqMap</code></li>
+<li><code>samplesSheet</code></li>
+</ul>
+</li>
+<li><code>toolsOpts/</code><ul>
+<li><code>featureCounts</code></li>
+<li><code>multiqc</code></li>
+</ul>
+</li>
+<li>
+<p><code>versions/</code></p>
+<ul>
+<li><code>bedtools2</code></li>
+<li><code>bwa</code></li>
+<li><code>fastqc</code></li>
+<li><code>featureCounts</code></li>
+<li><code>MarkDuplicates</code></li>
+<li><code>multiqc</code></li>
+<li><code>python</code></li>
+<li><code>qualimap</code></li>
+<li><code>ReorderSam</code></li>
+<li><code>RNAsik</code></li>
+<li><code>samtools</code></li>
+<li><code>SortSam</code></li>
+<li><code>star</code></li>
+</ul>
+</li>
+<li>
+<p><a href="http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0062856">Interesting article</a></p>
+</li>
 </ul></div>
         </div>
 

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <meta name="author" content="serine">
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Install - RNAsik pipeline</title>
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+        <link href="../css/style.css" rel="stylesheet">
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap-3.0.3.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+
+                <!-- Collapsed navigation -->
+                <div class="navbar-header">
+                    <!-- Expander button -->
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="..">RNAsik pipeline</a>
+                </div>
+
+                <!-- Expanded navigation -->
+                <div class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li >
+                                <a href="..">About</a>
+                            </li>
+                            <li >
+                                <a href="../docs/">Docs</a>
+                            </li>
+                            <li >
+                                <a href="../tutorials/">Tutes</a>
+                            </li>
+                            <li >
+                                <a href="../help/">Help</a>
+                            </li>
+                            <li >
+                                <a href="../contrib/">Contributing</a>
+                            </li>
+                            <li >
+                                <a href="../roadmap/">Roadmap</a>
+                            </li>
+                            <li >
+                                <a href="../checklist/">Checklist</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li>
+                                <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe"><i class="fa fa-github"></i> GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#using-bio-ansible">Using bio-ansible</a></li>
+            <li><a href="#quick-start">Quick start</a></li>
+        <li class="main "><a href="#tools-prerequisites">Tools prerequisites</a></li>
+        <li class="main "><a href="#system-prerequisites">System prerequisites</a></li>
+        <li class="main "><a href="#running-bio-ansible">Running bio-ansible</a></li>
+        <li class="main "><a href="#alternative-installation-method-for-rnasik">Alternative installation method for RNAsik</a></li>
+        <li class="main "><a href="#make-rnasik-analysis-ready">Make RNAsik analysis ready</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h2 id="using-bio-ansible">Using bio-ansible</h2>
+<h3 id="quick-start">Quick start</h3>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=oHRa9iniy3o">watch it on youtube</a></li>
+</ul>
+<pre><code>sudo apt-get install unzip make gcc git python-virtualenv
+sudo apt-get install zlib1g-dev libbz2-dev liblzma-dev libncurses5-dev
+sudo apt-get install openjdk-8-jdk ant golang-go
+sudo apt-get install git htop tmux vim
+
+virtualenv ~/ansible_env
+source ~/ansible_env/bin/activate
+
+pip install --upgrade pip
+pip install ansible
+
+git clone https://github.com/MonashBioinformaticsPlatform/bio-ansible
+cd bio-ansible/
+ansible-playbook -i hosts bio.yml --tags dirs,bds,rnasik,star,bwa,hisat2,subread,samtools,htslib,bedtools,picard,qualimap,fastqc,multiqc
+
+export PATH=$HOME/bioansible/software/apps/BigDataScript-0.99999g:$PATH
+export PATH=$HOME/bioansible/software/apps/RNAsik-pipe-1.4.9/bin:$PATH
+
+RNAsik
+</code></pre>
+
+<h2 id="tools-prerequisites">Tools prerequisites</h2>
+<p>I tried to account for every sub-dependency in <a href="https://github.com/MonashBioinformaticsPlatform/bio-ansible">bio-ansible</a>, definitely checked against vanilla ubuntu 16.04 linux distro, however other systems/linux distros might have slight deviation from this. If you run into trouble please double check dependencies for the tool that is failing.
+There is quite a spectrum of languages there in the pipeline, C/C++, java and python so far. One can image the difficulty to accommodate every distro and/or system. I'm doing my best !</p>
+<ul>
+<li><a href="http://pcingola.github.io/BigDataScript/download.html">BigDataScript</a></li>
+<li><a href="https://github.com/alexdobin/STAR/releases">STAR aligner</a></li>
+<li><a href="http://subread.sourceforge.net/">subread</a></li>
+<li><a href="http://www.htslib.org/download/">samtools</a></li>
+<li><a href="http://bedtools.readthedocs.io/en/latest/index.html">bedtools2</a></li>
+<li><a href="http://broadinstitute.github.io/picard/">Picard tools</a></li>
+<li><a href="http://qualimap.bioinfo.cipf.es/">QualiMap</a></li>
+<li><a href="http://multiqc.info/">MultiQC</a> </li>
+<li><a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/">FastQC</a></li>
+</ul>
+<h2 id="system-prerequisites">System prerequisites</h2>
+<p>In order to install system dependencies you'll need admin privilege i.e <code>sudo</code></p>
+<p><strong>General</strong>, these are you "stock" utils, that most running system will/should have</p>
+<ul>
+<li><code>unzip</code></li>
+<li><code>make</code></li>
+<li><code>gcc</code></li>
+<li><code>git</code></li>
+<li><code>python-virtualenv</code></li>
+</ul>
+<pre><code>sudo apt-get install unzip make gcc git python-virtualenv
+</code></pre>
+
+<p><strong>samtools, htslib and bwa deps</strong>, these are some what specific libraries</p>
+<ul>
+<li><code>zlib1g-dev</code> </li>
+<li><code>libbz2-dev</code> </li>
+<li><code>liblzma-dev</code></li>
+<li><code>libncurses5-dev</code></li>
+</ul>
+<pre><code>sudo apt-get install zlib1g-dev libbz2-dev liblzma-dev libncurses5-dev
+</code></pre>
+
+<p><strong>Java and BigDataScript</strong>, these again rather generic packages, except golang. 
+Note that golang is pretty easy to install, comes as a pre-compiled binary <a href="https://golang.org/dl/">here</a> if you don't want to get it through system package mamanger</p>
+<ul>
+<li><code>openjdk-8-jdk</code> </li>
+<li><code>ant</code></li>
+<li><code>golang-go</code></li>
+</ul>
+<pre><code>sudo apt-get install openjdk-8-jdk ant golang-go
+</code></pre>
+
+<p><strong>Extras</strong>, these are optional dependencies, but <code>tmux</code> especially recommended as pipeline run could take some time to complete
+<em>provided you are doing this on remote machine (server), which is also recommended</em></p>
+<ul>
+<li><code>htop</code></li>
+<li><code>tmux</code></li>
+<li><code>vim</code></li>
+</ul>
+<pre><code>sudo apt-get install git htop tmux vim
+</code></pre>
+
+<h2 id="running-bio-ansible">Running bio-ansible</h2>
+<p>Follow <a href="http://docs.ansible.com/ansible/intro_installation.html">ansible installation guid</a> to get ansible then:</p>
+<pre><code class="BASH">git clone https://github.com/MonashBioinformaticsPlatform/bio-ansible
+cd bio-ansible/
+ansible-playbook -i hosts bio.yml --tags dirs,bds,rnasik,star,bwa,hisat2,subread,samtools,htslib,bedtools,picard,qualimap,fastqc,multiqc
+</code></pre>
+
+<h2 id="alternative-installation-method-for-rnasik">Alternative installation method for RNAsik</h2>
+<p>If you have all of the tools installed and you just need <code>RNAsik</code> you can simply <code>git clone</code> it. It doesn't require any
+other installations/compilations. BUT you do need to have <a href="https://github.com/pcingola/BigDataScript">BigDataScript</a> installed
+and have it in your <code>PATH</code> for <code>RNAsik</code> to run</p>
+<pre><code class="BASH">git clone https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe
+path/to/RNAsik-pipe/bin/RNAsik
+</code></pre>
+
+<h2 id="make-rnasik-analysis-ready">Make RNAsik analysis ready</h2>
+<p><a href="https://github.com/MonashBioinformaticsPlatform/bio-ansible">bio-ansible</a> is complete bioinformatics stack (with heavily genomics focus at this stage) deployment written in ansible script, which depending on a type of deployment might require admin privilege i.e <code>sudo</code>.
+Given that <a href="#system-prerequisites">system prerequisites</a> are satisfied one <strong>don't</strong> need <code>sudo</code> to install bioinformatics stack, primarily <a href="https://github.com/MonashBioinformaticsPlatform/bio-ansible/blob/master/roles/bio_tools/tasks/main.yml">bio_tools</a>.</p>
+<p>In this docs there is an assumption that user either has <code>sudo</code> rights and/or able to install <a href="#system-prerequisites">system prerequisites</a> OR already has those dependencies installed and therefore can simply use <a href="https://github.com/MonashBioinformaticsPlatform/bio-ansible">bio-ansible</a> as per installing <code>RNAsik</code> section above to get all required tools dependencies.</p>
+<p>Also right now <a href="https://github.com/MonashBioinformaticsPlatform/bio-ansible">bio-ansible</a> is focused on a particular tools/enviroment management type, which is <a href="https://lmod.readthedocs.io/en/latest/">lmod</a>, where one can <code>module load samtools</code> into their environment for use, by default <code>samtools</code> isn't available in the current (shell) environment. This is rather common approach on HPC clusters. Because of that type of installation, if user doesn't have pre-installed <code>lmod</code> they will needs to either <code>export PATH</code> for every tool (sounds a bit annoying), OR <code>export</code> <code>RNAsik</code> into your <code>PATH</code> and them simply let <code>RNAsik</code> know where tools are through <code>-configFile</code> option.</p>
+<pre><code>export PATH=$HOME/bioansible/software/apps/BigDataScript-0.99999g:$PATH
+export PATH=$HOME/bioansible/software/apps/RNAsik-pipe-1.4.9/bin:$PATH
+</code></pre>
+
+<p>copy these lines into file e.g sik.config and add <code>-configFile path/to/sik.config</code> to <code>RNAsik</code></p>
+<pre><code>starExe = $HOME/bioansible/software/apps/STAR-2.5.2b/STAR
+hisat2Exe = $HOME/bioansible/software/apps/hisat2-2.1.0/bin/hisat2
+bwaExe = $HOME/bioansible/software/apps/bwa-v0.7.15/bwa
+samtoolsExe = $HOME/bioansible/software/apps/samtools-1.4.1/bin/samtools
+bedtoolsExe = $HOME/bioansible/software/apps/bedtools2-2.25.0/bin/bedtools
+countsExe = $HOME/bioansible/software/apps/subread-1.5.2/bin/featureCounts
+fastqcExe = $HOME/bioansible/software/apps/fastqc-0.11.5/fastqc
+pythonExe = python
+picardExe = java -Xmx6g -jar $HOME/bioansible/software/apps/picard-2.17.10/picard.jar
+qualimapExe = $HOME/bioansible/software/apps/qualimap_v2.2.1/qualimap
+multiqcExe = $HOME/bioansible/software/apps/multiqc-1.4/bin/multiqc
+</code></pre>
+
+<p>If the user happens to have <code>lmod</code> installed, simply <code>module use $HOME/bioansible/software/modules/bio</code> to let <code>lmod</code> know about new modules and then simply <code>module load RNAsik-pipe</code>, which will automatically "pull" other dependencies into your environment. You can check that by <code>module list</code> to see what is in your environment</p></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+                <p>Created by <a href="https://twitter.com/kizza_a">Kirill Tsyganov</a> with help from the <a href="http://bioinformatics.erc.monash.edu">Monash Bioinformatics Platform</a> team. <br /><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</p>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"previous": 80, "search": 83, "help": 191, "next": 78};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="Keyboard Shortcuts Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Keyboard Shortcuts</h4>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
