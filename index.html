@@ -142,7 +142,7 @@ It is written in <a href="http://pcingola.github.io/BigDataScript/download.html"
 <hr />
 <p><em>It is hard to give full acknowlegment to all contributors. The nature of the open source projects such that contributors can come and go, however they leave behind valuable contributions and need to get full credit for that. Please look at <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik GitHub</a> repository to get a full sense of who is contributing. In particular one can look at <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/graphs/contributors">number of commits</a>, <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/issues">issues triaging and handling</a> and <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pulls">pull requests (PRs)</a>. Please also remember that every contribution matters, nothing is too small!</em></p>
 <h2 id="methods">Methods</h2>
-<p>Raw fastq files have been analysed with RNAsik pipeline <span class="citation">(Tsyganov et al. 2018)</span> to produce raw genes count matrix and various quality control metrics. For this analysis RNAsik pipeline <span class="citation">(Tsyganov et al. 2018)</span> ran with STAR aligner option <span class="citation">(Dobin et al. 2013)</span> and reads were quantified with featureCounts <span class="citation">(Liao, Smyth, and Shi 2014)</span>. Raw counts were then analysed with Degust <span class="citation">(Powell 2015)</span> web tool to do differential expression analysis to produce list of differentially expressed genes and several quality plots including classical multidimensional scaling (MDS) and MA plots. In this analysis limma voom <span class="citation">(Law et al. 2014)</span> was used for differential expression analysis. Degust <span class="citation">(Powell 2015)</span> largely follows limma voom workflow with typical conts per million (CPM) library size normalisation and trimmed mean of M values (TMM) normalisation <span class="citation">(Robinson and Oshlack 2010)</span> for RNA composition normalisation.</p>
+<p>Raw fastq files have been analysed with RNAsik pipeline <span class="citation">(Tsyganov et al. 2018)</span> to produce raw genes count matrix and various quality control metrics. For this analysis RNAsik pipeline <span class="citation">(Tsyganov et al. 2018)</span> ran with STAR aligner option <span class="citation">(Dobin et al. 2013)</span> and reads were quantified with featureCounts <span class="citation">(Liao, Smyth, and Shi 2014)</span>. The reference GTF and FASTA files were downloaded from <a href="https://ensembl.org">Ensembl database</a>. Raw counts were then analysed with Degust <span class="citation">(Powell 2015)</span> web tool to do differential expression analysis to produce list of differentially expressed genes and several quality plots including classical multidimensional scaling (MDS) and MA plots. In this analysis limma voom <span class="citation">(Law et al. 2014)</span> was used for differential expression analysis. Degust <span class="citation">(Powell 2015)</span> largely follows limma voom workflow with typical conts per million (CPM) library size normalisation and trimmed mean of M values (TMM) normalisation <span class="citation">(Robinson and Oshlack 2010)</span> for RNA composition normalisation.</p>
 
 <h2 id="references" class="unnumbered">References</h2>
 
@@ -185,7 +185,7 @@ Share</a>
         </footer>
         <script>
             var base_url = ".",
-                shortcuts = {"previous": 80, "search": 83, "help": 191, "next": 78};
+                shortcuts = {"help": 191, "search": 83, "next": 78, "previous": 80};
         </script>
         <script src="js/base.js" defer></script>
         <script src="search/main.js" defer></script>
@@ -259,5 +259,5 @@ Share</a>
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2018-12-04 03:06:37
+Build Date UTC : 2018-12-04 03:13:57
 -->
