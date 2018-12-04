@@ -142,7 +142,7 @@ It is written in <a href="http://pcingola.github.io/BigDataScript/download.html"
 <hr />
 <p><em>It is hard to give full acknowlegment to all contributors. The nature of the open source projects such that contributors can come and go, however they leave behind valuable contributions and need to get full credit for that. Please look at <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik GitHub</a> repository to get a full sense of who is contributing. In particular one can look at <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/graphs/contributors">number of commits</a>, <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/issues">issues triaging and handling</a> and <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/pulls">pull requests (PRs)</a>. Please also remember that every contribution matters, nothing is too small!</em></p>
 <h2 id="methods">Methods</h2>
-<p>Raw fastq files have been analysed with RNAsik pipeline [@Tsyganov2018-si] to produce raw genes count matrix and various quality control metrics. For this analysis RNAsik pipeline [@Tsyganov2018-si] ran with STAR aligner option [@Dobin2013-yw] and reads were quantified with featureCounts [@Liao2014-qo]. Raw counts were then analysed with Degust [@Powell2015] web tool to do differential expression analysis to produce list of differentially expressed genes and several quality plots including classical multidimensional scaling (MDS) and MA plots. In this analysis limma voom [@Law2014-ev] was used for differential expression analysis. Degust [@Powell2015] largely follows limma voom workflow with typical conts per million (CPM) library size normalisation and trimmed mean of M values (TMM) normalisation [@Robinson2010-yu] for RNA composition normalisation.</p>
+<p>Raw fastq files have been analysed with RNAsik pipeline [<a class="citation" href="#ref-Tsyganov2018" id="cite-Tsyganov2018">Tsyganov2018</a>-si] to produce raw genes count matrix and various quality control metrics. For this analysis RNAsik pipeline [<a class="citation" href="#ref-Tsyganov2018" id="cite-Tsyganov2018">Tsyganov2018</a>-si] ran with STAR aligner option [<a class="citation" href="#ref-Dobin2013" id="cite-Dobin2013">Dobin2013</a>-yw] and reads were quantified with featureCounts [<a class="citation" href="#ref-Liao2014" id="cite-Liao2014">Liao2014</a>-qo]. Raw counts were then analysed with Degust [<a class="citation" href="#ref-Powell2015" id="cite-Powell2015">Powell2015</a>] web tool to do differential expression analysis to produce list of differentially expressed genes and several quality plots including classical multidimensional scaling (MDS) and MA plots. In this analysis limma voom [<a class="citation" href="#ref-Law2014" id="cite-Law2014">Law2014</a>-ev] was used for differential expression analysis. Degust [<a class="citation" href="#ref-Powell2015" id="cite-Powell2015">Powell2015</a>] largely follows limma voom workflow with typical conts per million (CPM) library size normalisation and trimmed mean of M values (TMM) normalisation [<a class="citation" href="#ref-Robinson2010" id="cite-Robinson2010">Robinson2010</a>-yu] for RNA composition normalisation.</p>
 <h2 id="mbp-team-photo">MBP team photo</h2>
 <p><img alt="team_photo_2017" src="images/team_photo_2017.jpg" /></p>
 <p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p>
@@ -151,7 +151,38 @@ It is written in <a href="http://pcingola.github.io/BigDataScript/download.html"
 <a class="twitter-share-button"
   href="https://twitter.com/intent/tweet?text=Hey%20I%27m%20using%20this%20fully%20sick%20RNAseq%20pipeline%20It%27s%20sik%20easy%20http%3A%2F%2Fgithub%2Ecom%2Fmonashbioinformaticsplatform%2FRNAsik%2Dpipe%20by%20%40kizza%5Fa%20from%20%40MonashBioinfo" data-size="large">
 Share</a>
-</p></div>
+</p>
+
+<div class="references">
+<table>
+<tbody>
+<tr id="ref-Tsyganov2018">
+<td>Tsyganov2018</td>
+<td>Missing citation</td>
+</tr>
+<tr id="ref-Dobin2013">
+<td>Dobin2013</td>
+<td>Missing citation</td>
+</tr>
+<tr id="ref-Liao2014">
+<td>Liao2014</td>
+<td>Missing citation</td>
+</tr>
+<tr id="ref-Powell2015">
+<td>Powell2015</td>
+<td><p>Powell D.: <i>Degust: Powerfull and user friendly front-end data analsysis, visualisation and exploratory tool for RNA-sequencing</i>. (2015)</p></td>
+</tr>
+<tr id="ref-Law2014">
+<td>Law2014</td>
+<td>Missing citation</td>
+</tr>
+<tr id="ref-Robinson2010">
+<td>Robinson2010</td>
+<td>Missing citation</td>
+</tr>
+</tbody>
+</table>
+</div></div>
         </div>
 
         <footer class="col-md-12">
@@ -161,7 +192,7 @@ Share</a>
         </footer>
         <script>
             var base_url = ".",
-                shortcuts = {"previous": 80, "next": 78, "help": 191, "search": 83};
+                shortcuts = {"previous": 80, "help": 191, "next": 78, "search": 83};
         </script>
         <script src="js/base.js" defer></script>
         <script src="search/main.js" defer></script>
@@ -235,5 +266,5 @@ Share</a>
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2018-12-03 23:35:49
+Build Date UTC : 2018-12-04 02:38:05
 -->
