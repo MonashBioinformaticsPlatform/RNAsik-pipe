@@ -1,0 +1,22 @@
+<p>Raw fastq files have been analysed with RNAsik pipeline <span class="citation">(Tsyganov et al. 2018)</span> to produce raw genes count matrix and various quality control metrics. For this analysis RNAsik pipeline <span class="citation">(Tsyganov et al. 2018)</span> ran with STAR aligner option <span class="citation">(Dobin et al. 2013)</span> and reads were quantified with featureCounts <span class="citation">(Liao, Smyth, and Shi 2014)</span>. Raw counts were then analysed with Degust <span class="citation">(Powell 2015)</span> web tool to do differential expression analysis to produce list of differentially expressed genes and several quality plots including classical multidimensional scaling (MDS) and MA plots. In this analysis limma voom <span class="citation">(Law et al. 2014)</span> was used for differential expression analysis. Degust <span class="citation">(Powell 2015)</span> largely follows limma voom workflow with typical conts per million (CPM) library size normalisation and trimmed mean of M values (TMM) normalisation <span class="citation">(Robinson and Oshlack 2010)</span> for RNA composition normalisation.</p>
+<h2 id="references" class="unnumbered">References</h2>
+<div id="refs" class="references">
+<div id="ref-Dobin2013-yw">
+<p>Dobin, Alexander, Carrie A Davis, Felix Schlesinger, Jorg Drenkow, Chris Zaleski, Sonali Jha, Philippe Batut, Mark Chaisson, and Thomas R Gingeras. 2013. “STAR: Ultrafast Universal RNA-seq Aligner.” <em>Bioinformatics</em> 29 (1): 15–21. <a href="http://dx.doi.org/10.1093/bioinformatics/bts635" class="uri">http://dx.doi.org/10.1093/bioinformatics/bts635</a>.</p>
+</div>
+<div id="ref-Law2014-ev">
+<p>Law, Charity W, Yunshun Chen, Wei Shi, and Gordon K Smyth. 2014. “Voom: Precision Weights Unlock Linear Model Analysis Tools for RNA-seq Read Counts.” <em>Genome Biol.</em> 15 (2): R29. <a href="http://dx.doi.org/10.1186/gb-2014-15-2-r29" class="uri">http://dx.doi.org/10.1186/gb-2014-15-2-r29</a>.</p>
+</div>
+<div id="ref-Liao2014-qo">
+<p>Liao, Yang, Gordon K Smyth, and Wei Shi. 2014. “FeatureCounts: An Efficient General Purpose Program for Assigning Sequence Reads to Genomic Features.” <em>Bioinformatics</em> 30 (7): 923–30. <a href="http://dx.doi.org/10.1093/bioinformatics/btt656" class="uri">http://dx.doi.org/10.1093/bioinformatics/btt656</a>.</p>
+</div>
+<div id="ref-Powell2015">
+<p>Powell, David. 2015. “Degust: Powerfull and User Friendly Front-End Data Analsysis, Visualisation and Exploratory Tool for Rna-Sequencing.” github. <a href="http://degust.erc.monash.edu" class="uri">http://degust.erc.monash.edu</a>.</p>
+</div>
+<div id="ref-Robinson2010-yu">
+<p>Robinson, Mark D, and Alicia Oshlack. 2010. “A Scaling Normalization Method for Differential Expression Analysis of RNA-seq Data.” <em>Genome Biol.</em> 11 (3): R25. <a href="http://dx.doi.org/10.1186/gb-2010-11-3-r25" class="uri">http://dx.doi.org/10.1186/gb-2010-11-3-r25</a>.</p>
+</div>
+<div id="ref-Tsyganov2018-si">
+<p>Tsyganov, Kirill, Andrew James Perry, Stuart Kenneth Archer, and David Powell. 2018. “RNAsik: A Pipeline for Complete and Reproducible RNA-seq Analysis That Runs Anywhere with Speed and Ease.” <em>Journal of Open Source Software</em> 3: 583. <a href="https://www.theoj.org/joss-papers/joss.00583/10.21105.joss.00583.pdf" class="uri">https://www.theoj.org/joss-papers/joss.00583/10.21105.joss.00583.pdf</a>.</p>
+</div>
+</div>

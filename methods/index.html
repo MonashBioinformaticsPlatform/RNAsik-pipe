@@ -8,7 +8,7 @@
         <meta name="author" content="serine">
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Tutes - RNAsik pipeline</title>
+        <title>Methods - RNAsik pipeline</title>
         <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -53,8 +53,8 @@
                             <li >
                                 <a href="../docs/">Docs</a>
                             </li>
-                            <li class="active">
-                                <a href="./">Tutes</a>
+                            <li >
+                                <a href="../tutorials/">Tutes</a>
                             </li>
                             <li >
                                 <a href="../help/">Help</a>
@@ -76,16 +76,6 @@
                                 <i class="fa fa-search"></i> Search
                             </a>
                         </li>
-                            <li >
-                                <a rel="next" href="../docs/">
-                                    <i class="fa fa-arrow-left"></i> Previous
-                                </a>
-                            </li>
-                            <li >
-                                <a rel="prev" href="../help/">
-                                    Next <i class="fa fa-arrow-right"></i>
-                                </a>
-                            </li>
                             <li>
                                 <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe"><i class="fa fa-github"></i> GitHub</a>
                             </li>
@@ -97,20 +87,13 @@
         <div class="container">
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="main active"><a href="#tutorials">Tutorials</a></li>
+        <li class="main active"><a href="#references">References</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
-<h1 id="tutorials">Tutorials</h1>
-<p>So far I don't have any tutorials that I've wrote specific to this (RNAseq) topic, but
-here is few very useful links to learning resource.</p>
-<ul>
-<li><a href="https://legacy.gitbook.com/book/ycl6/rna-seq-data-analysis/details">Hands-on Training in RNA-Seq Data Analysis</a></li>
-<li><a href="https://github.com/quinlan-lab/applied-computational-genomics">Applied Computational Genomics Course</a></li>
-<li><a href="https://master.bioconductor.org/packages/release/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html">Bioconductor RNAseq tutorial</a></li>
-<li><a href="https://rnaseq.uoregon.edu/">RNA-seqlopedia</a></li>
-</ul></div>
+<p>Raw fastq files have been analysed with RNAsik pipeline [@Tsyganov2018-si] to produce raw genes count matrix and various quality control metrics. For this analysis RNAsik pipeline [@Tsyganov2018-si] ran with STAR aligner option [@Dobin2013-yw] and reads were quantified with featureCounts [@Liao2014-qo]. Raw counts were then analysed with Degust [@Powell2015] web tool to do differential expression analysis to produce list of differentially expressed genes and several quality plots including classical multidimensional scaling (MDS) and MA plots. In this analysis limma voom [@Law2014-ev] was used for differential expression analysis. Degust [@Powell2015] largely follows limma voom workflow with typical conts per million (CPM) library size normalisation and trimmed mean of M values (TMM) normalisation [@Robinson2010-yu] for RNA composition normalisation.</p>
+<h2 id="references">References</h2></div>
         </div>
 
         <footer class="col-md-12">
