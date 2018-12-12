@@ -76,8 +76,7 @@ sep = args.sep
 if not dir.endswith("/"):
     dir = dir + '/'
 
-allowed_files = ['bam', 'gtf', 'gff3', 'vcf', 'fa', 'fasta', 'wig', 'bw',
-                 'bedGraph']
+allowed_files = ['bam', 'gtf', 'gff3', 'vcf', 'gz', 'fa', 'fasta', 'wig', 'bw', 'bedGraph']
 
 
 # NOTE this function going to work on our servers, by probably wont elsewhere
