@@ -238,7 +238,7 @@ mkLog("featureCounts", allCountOpts, "toolsOpts", logsDir)
 string[] featureCounts = getReadsCount(cmdExe, countFiles, theBams, allCountOpts, localGTF)
 mkLog("featureCounts", parseList(featureCounts), "data", logsDir)
 // get strand info
-string strandInfo = getStrandInfo(cmdExe, featureCounts)
+string strandInfo = getStrandInfo(cmdExe, featureCounts, samplesSheet)
 if(strandInfo.isFile()) {
     mkLog("strandInfo", strandInfo.read().trim(), "data", logsDir)
 } 

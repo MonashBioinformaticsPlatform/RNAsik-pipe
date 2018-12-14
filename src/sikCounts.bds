@@ -2,22 +2,25 @@
 # Counts
 #----------------------------------------
 // runs python script `strand_guessing.py` that guess strandness of the data
-string getStrandInfo(string{} cmdExe, string[] readCounts) {
+string getStrandInfo(string{} cmdExe, string[] readCounts, string samplesSheet) {
     if(!cmdExe.hasKey("pythonExe")) error "Can't get python executable, check your config file $configFile"
     string pythonExe = cmdExe{"pythonExe"}
 
     string getProgPath = programPath.pathName()
     string pyScript = getProgPath+"/../scripts/strand_guessing.py"
     string countsDir = readCounts[0].dirName()
-    string strandInfo = countsDir+"/"+"strandInfo.txt"
+    string strandInfoAll = countsDir+"/"+"strandInfoAll.txt"
+    string strandInfoGuess = countsDir+"/"+"strandInfoGuess.txt"
 
-    task(counts, strandInfo <- readCounts, taskName := "getting strand info") {
-        sys $pythonExe $pyScript --logs_dir $countsDir > $strandInfo
+    task(counts, [strandInfoAll, strandInfoGuess] <- readCounts, taskName := "getting strand info") {
+        sys $pythonExe $pyScript --logs_dir $countsDir \
+                                 --samples_sheet $samplesSheet \
+                                 --outdir $countsDir
     }
     // need to wait here, because later on some other tasks will try to read from that file
     // so it really need to be made
     wait
-    return strandInfo
+    return strandInfoGuess
 }
 
 string[] getReadsCount(string{} cmdExe, string countFiles, string{} bamsMap, string extraOpts, string localGTF) {
