@@ -8,7 +8,7 @@ import os
 import re
 
 parser = argparse.ArgumentParser(
-    usage='%(prog)s --file_type [gff|gtf|saf] --in_file <path/to/your/db_file>',
+    usage='%(prog)s --file_type [gff|gtf|saf] --in_file <path/to/your/db_file> --feat_type [gene|exon]',
     description="This script creates three column file: "
                 "Gene ID, Gene Name and Gene Biotype",
     add_help=True
@@ -33,7 +33,7 @@ parser.add_argument(
     '--feat_type',
     metavar='STR',
     default="gene",
-    help="specify feature type, this is third column in the file, default [gene]"
+    help="specify feature type, this is third column in the GTF reference file, default [gene]"
 )
 
 def get_gtf(handler, feat_type):
