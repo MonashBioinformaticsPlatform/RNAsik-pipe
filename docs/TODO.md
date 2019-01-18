@@ -59,3 +59,23 @@ Do I need this option? JAVA_OPTIONS="-Djava.io.tmpdir=$HOME/tmp"
 #### Links
 
 - https://stackoverflow.com/questions/28327620/difference-between-java-options-java-tool-options-and-java-opts
+
+## Modules and extensibility
+
+If I want RNAsik to do additional things for me for example call variances
+or put it more generally execute me random bds scripts how can I do that?
+
+Let's say I wrote a plugin that can latch onto RNAsik
+
+Let's do that in a form of additional flag `-pluginFile path/to/file`
+
+In that file one will specify input/output, something rather simple e.g bamFiles
+meaning the input for the plugin will be bamFiles
+
+Then path to a plugin module i.e `newPlugIn.bds`
+
+Plugin module needs to inheret sikRun path and all other configFile paths, because we
+want to deposit plugin staff inside into sikRun directory
+
+The right thing would be to somehow include plugin module before very last - multiqc step
+such that multiqc has a chance to pickup on those extra log file that module could generate
