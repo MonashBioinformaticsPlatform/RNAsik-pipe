@@ -8,7 +8,7 @@ import os
 import re
 
 parser = argparse.ArgumentParser(
-    usage='%(prog)s --file_type [gff|gtf|saf] --in_file <path/to/your/db_file>',
+    usage='%(prog)s --file_type [gff|gtf|saf] --in_file <path/to/your/db_file> --feat_type [gene|exon]',
     description="This script creates three column file: "
                 "Gene ID, Gene Name and Gene Biotype",
     add_help=True
@@ -30,13 +30,19 @@ parser.add_argument(
 
 parser.add_argument(
     '-f',
-    '--feat_type',
-    metavar='STR',
-    default="gene",
-    help="specify feature type, this is third column in the file, default [gene]"
+    '--feat_types',
+    type=str,
+    dest='feat_types',
+    metavar='FEATURE_NAME',
+    nargs='+',
+    default=['gene', 'exon', 'transcript', 'CDS'],
+    help="specify feature types (space seperated, eg -f gene exon CDS transcript). This is third column in the input annotation file. Default [gene exon transcript CDS]"
 )
 
-def get_gtf(handler, feat_type):
+def get_gtf(handler, feat_types=None):
+
+    if feat_types is None:
+        feat_types = ['gene', 'exon', 'transcript', 'CDS']
 
     genes_attr = {}
 
@@ -54,7 +60,7 @@ def get_gtf(handler, feat_type):
 
         feature = line.split('\t')
         if len(feature) == 9:
-            if feature[2] == feat_type:
+            if feature[2] in feat_types:
                 ninthField = feature[8]
 
                 chk_gene_id = re.search('gene_id\s.([A-z0-9_ \. \- \(\)]+)',
@@ -99,7 +105,11 @@ def get_gtf(handler, feat_type):
     return genes_attr
 
 
-def get_gff(handler, feat_type):
+def get_gff(handler, feat_types=None):
+
+    if feat_types is None:
+        feat_types = ['gene', 'exon', 'transcript', 'CDS']
+
     genes_attr = {}
 
     typesRegex = "=([A-z0-9 _., \- /\(\)]+)"
@@ -116,7 +126,7 @@ def get_gff(handler, feat_type):
 
         feature = line.split('\t')
         if len(feature) == 9:
-            if feature[2] == feat_type:
+            if feature[2] in feat_types:
                 ninthField = feature[8]
     
                 chk_gene_id = re.search('ID=([A-z0-9_ \. \- \(\)]+)', ninthField)
@@ -180,7 +190,7 @@ def get_saf(handler):
 args = parser.parse_args()
 file_type = args.file_type
 in_file = args.in_file
-feat_type = args.feat_type
+feat_types = args.feat_types
 
 biotypes = {
     "gb": 'gene_biotype',
@@ -195,9 +205,9 @@ with open(in_file) as handler:
     if file_type == "saf":
         genes_attr = get_saf(handler)
     if file_type == "gtf":
-        genes_attr = get_gtf(handler, feat_type)
+        genes_attr = get_gtf(handler, feat_types)
     if file_type == "gff":
-        genes_attr = get_gff(handler, feat_type)
+        genes_attr = get_gff(handler, feat_types)
 
     if genes_attr is not None:
 
