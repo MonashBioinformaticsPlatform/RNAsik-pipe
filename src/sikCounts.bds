@@ -54,9 +54,15 @@ string[] getReadsCount(string{} cmdExe, string countFiles, string{} bamsMap, str
         string countsName = countFiles+"/"+featureFiles[i]
         string countsLog = countFiles+"/."+featureFiles[i].swapExt(".txt", ".siklog")
         featureOut.add(countsName)
+        //NOTE added -Q 10 to featureCounts. This is important filtering step that filters
+        //multi-mappers out using MAPQ field in bam file i.e 5th column. Not many (onle one?) alingers
+        //follow string definition of MAPQ filed as per sam specs. Most splice-aware aligners tophat, hisat2 and STAR
+        //have discrete number of MAPQs. This doesn't matter too much in this case and MAPQ of 10 will filter out
+        //correct - "uniquelly mapped" reads. For STAR, tophat2 and hisat2 MAPQ > 10 essentially means MAPQ = 50/255 depending on the alinger
         dep(counts, countsName <- allDeps, cpus := countsCpu, taskName := "Counting features $countsName") {
             sys $countsExe -T $countsCpu \
                            -s $i \
+                           -Q 10 \
                            $extraOpts \
                            -o $countsName \
                            $bamString > $countsLog 2>&1
