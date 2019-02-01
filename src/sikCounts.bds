@@ -87,44 +87,40 @@ string getGeneIds(string pythonExe, string countFilesDir, string gtfFile, string
     return geneIds
 }
 //TODO make mkCntsFile to accept args from extraOpts file, in particular --biotype, not every annotation file will have that info
-string[] getDegustFile(string{} cmdExe, string cntsDir, string strandInfo, string samplesSheet, string gtfFile, string modelType) {
+string[] getDegustFile(string{} cmdExe, string[] cntFiles, string samplesSheet, string gtfFile, string modelType) {
     // sanity check
     if(!cmdExe.hasKey("pythonExe")) {
         error "Can't get python executable, check your config file $configFile"
     }
 
-    string strandType
-    string strandValue
-    string strandExitCode
-    if(counts && strandInfo.exists()) {
-        (strandType, strandValue, strandExitCode) = strandInfo.read().split(",")
-    }
-    else if(counts && !strandInfo.exists()) {
-        error "This shouldn't happened, check getDegustFile function"
-    }
+    string[] res
+
+    string cntsDir = cntFiles[0].dirName()
 
     string pythonExe = cmdExe{"pythonExe"}
     string geneIdsFile = getGeneIds(pythonExe, cntsDir, gtfFile, modelType)
-    
-    string cntsFile = cntsDir+"/"+strandType+".txt"
-
-    string degustFileAll = cntsFile.swapExt(".txt", "-withNames.txt")
-    string degustFileProteinCoding = cntsFile.swapExt(".txt", "-withNames-proteinCoding.txt")
-    
     string mkCntsFile = programPath.pathName()+"/../scripts/mk_cnts_file.py"
 
-    task(counts, degustFileAll <- [cntsFile, geneIdsFile, samplesSheet], canFail := true, taskName := "making degust file with all features") {
-        sys $pythonExe $mkCntsFile --counts_file $cntsFile \
-                                   --gene_ids $geneIdsFile \
-                                   --samples_sheet $samplesSheet \
-                                   --biotype "all" > $degustFileAll
-    }
-    task(counts, degustFileProteinCoding <- [cntsFile, geneIdsFile, samplesSheet], canFail := true, taskName := "making degust file with protein coding features") {
-        sys $pythonExe $mkCntsFile --counts_file $cntsFile \
-                                   --gene_ids $geneIdsFile \
-                                   --samples_sheet $samplesSheet \
-                                   --biotype "protein_coding" > $degustFileProteinCoding
+    for(string cntFile : cntFiles) {
+        string degustFileAll = cntFile.swapExt(".txt", "-withNames.txt")
+        string degustFileProteinCoding = cntFile.swapExt(".txt", "-withNames-proteinCoding.txt")
+
+        res.add(degustFileAll)
+
+        dep(counts, degustFileAll <- [cntFile, geneIdsFile, samplesSheet], canFail := true, taskName := "making degust file with all features") {
+            sys $pythonExe $mkCntsFile --counts_file $cntFile \
+                                       --gene_ids $geneIdsFile \
+                                       --samples_sheet $samplesSheet \
+                                       --biotype "all" > $degustFileAll
+        }
+        dep(counts, degustFileProteinCoding <- [cntFile, geneIdsFile, samplesSheet], canFail := true, taskName := "making degust file with protein coding features") {
+            sys $pythonExe $mkCntsFile --counts_file $cntFile \
+                                       --gene_ids $geneIdsFile \
+                                       --samples_sheet $samplesSheet \
+                                       --biotype "protein_coding" > $degustFileProteinCoding
+        }
     }
 
-    return [degustFileAll, degustFileProteinCoding]
+    goal res
+    return res
 }
