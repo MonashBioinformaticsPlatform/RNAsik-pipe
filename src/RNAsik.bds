@@ -251,7 +251,8 @@ if(paired) {
     // bams need to be sorted by name, which is default output from STAR
     //TODO need to reinforce this! If user will output SortedByCoordinates from STAR 
     // then this will no longer be true
-    exonicOpts{"--sorted"} = ""
+    // because samtools sort is default by coordinate
+    // exonicOpts{"--sorted"} = ""
 }
 string allExonicOpts = getOpts("qualimap", exonicOpts, extraOpts)
 mkLog("qualiMap", allExonicOpts, "refFiles", logsDir)
