@@ -32,7 +32,7 @@ if(!refFiles.isEmpty()) {
 }
 
 //TODO these mkdir calls need to be moved inside
-// individual function 
+// individual function
 string refFilesDir = sikDir+"/"+"refFiles"
 if(!refFilesDir.exists() && refFiles.isEmpty()) {
     refFilesDir.mkdir()
@@ -71,15 +71,15 @@ if(!fqDir.isEmpty()) {
                                 "--mean-quality" => 23, \
                                 "--compress" => "", \
                                 "-x" => adapterFileSe}
-        
+
         if(paired) {
             trimedOpts{"-y"} = adapterFilePe
             trimedOpts{"--mode"} = "pe"
         }
-        
+
         string allTrimedOpts = getExtrOpts("skewer", trimedOpts, usrOpts)
         mkLog("skewer", allTrimedOpts, "toolsOpts", logsDir)
-        
+
         string[] trimedFqs = getTrimedFqs(cmdExe, fqFiles, sikDir, allTrimedOpts, extn, pairIds, paired)
         mkLog("fqTrimed", parseList(trimedFqs), "samples", logsDir)
         //TODO I should be able to assign to fqFiles straight away, but just to be safe..
@@ -91,7 +91,7 @@ if(!fqDir.isEmpty()) {
 //
 if(samplesSheet.isEmpty()) {
     samplesSheet = makeSamplesSheet(fqFiles, fqRgxs, paired, pairIds, extn, sikDir)
-} 
+}
 mkLog("samplesSheet", parseMap(config(samplesSheet)), "samples", logsDir)
 
 // set path to fasta file
@@ -130,7 +130,7 @@ mkLog("annotation type", modelType, "other", logsDir)
 string fastaDictFile
 if(totRefFiles) {
     fastaDictFile = totRefFiles{"dict"}
-} 
+}
 else {
     fastaDictFile = makeDictFile(cmdExe, localFastaRef)
 }
@@ -153,7 +153,7 @@ else {
     faIdx = makeFaiFile(cmdExe, localFastaRef)
 }
 mkLog("fai", faIdx, "refFiles", logsDir)
-// get genomeIdx 
+// get genomeIdx
 if(!align.isEmpty()) {
     //if(totRefFiles) {
     if(!totRefFiles && genomeIdx.isEmpty()) {
@@ -165,9 +165,9 @@ if(!align.isEmpty()) {
         if(!chkExtn.startsWith(align)) {
             error "Index ($genomeIdx) doesn't seem to correspond to aligner ($align) of choice"
         }
-    } 
+    }
 }
-mkLog(align, genomeIdx, "refFiles", logsDir)
+//mkLog(align, genomeIdx, "refFiles", logsDir)
 
 
 // map of FASTQ to unique name i.e gathering FASTQ that are split across different lanes
@@ -183,13 +183,16 @@ number of FASTQ files "
 mkLog("fqMap", parseFqMap(samplesMap), "samples", logsDir)
 
 // BAM files
-string{} bamsMap = getBams(cmdExe, align, bamFiles, samplesMap, pairIds, paired, usrOpts, genomeIdx, localFastaRef, logsDir)
-mkLog("bams", parseMap(bamsMap), "data", logsDir)
-
+string{} bamsMap
 // If user wants to use other parts of the pipeline without generating BAM files
 if(!bamsDir.isEmpty()) {
     bamsMap = mkBamsMap(bamsDir, samplesSheet)
 }
+else {
+   bamsMap = getBams(cmdExe, align, bamFiles, samplesMap, pairIds, paired, usrOpts, genomeIdx, localFastaRef, logsDir)
+}
+
+mkLog("bams", parseMap(bamsMap), "data", logsDir)
 
 string{} theBams
 // sorted, reorted and marking duplicates in BAM files
@@ -209,7 +212,7 @@ else if(sortedBamsMap) {
 goal theBams.values()
 mkLog("theBams", parseMap(theBams), "data", logsDir)
 
-// get additional RNAseq metrics 
+// get additional RNAseq metrics
 string[] samMetrics = getSamMetrics(cmdExe, theBams, localFastaRef)
 mkLog("addMetrics", parseList(samMetrics), "data", logsDir)
 
@@ -241,10 +244,10 @@ mkLog("featureCounts", parseList(featureCounts), "data", logsDir)
 string strandInfo = getStrandInfo(cmdExe, featureCounts, samplesSheet)
 if(strandInfo.isFile()) {
     mkLog("strandInfo", strandInfo.read().trim(), "data", logsDir)
-} 
+}
 mkLog("pairedBool", paired, "other", logsDir)
 if(exonicRate) {
-    //TODO maybe error is to strong. Have a think of a way to including warning instead. 
+    //TODO maybe error is to strong. Have a think of a way to including warning instead.
     if(!counts && strand.isEmpty()) error "No strand information found. Use -counts flag to get it. Alternatively use -strand flag with appropriate strand type."
     if(!counts && !strand.isEmpty()) strandInfo = strand
 }
@@ -255,7 +258,7 @@ if(paired) {
     // flag for paired end data
     exonicOpts{"--paired"} = ""
     // bams need to be sorted by name, which is default output from STAR
-    //TODO need to reinforce this! If user will output SortedByCoordinates from STAR 
+    //TODO need to reinforce this! If user will output SortedByCoordinates from STAR
     // then this will no longer be true
     exonicOpts{"--sorted"} = ""
 }
@@ -275,7 +278,7 @@ mkLog("fastqc", fqQcOpts, "refFiles", logsDir)
 string[] fqQcReport = getFastqcReport(cmdExe, sikDir, fqFiles, fqQcOpts, extn)
 mkLog("fastqc", parseList(fqQcReport), "data", logsDir)
 
-// gather all files up for multiqc 
+// gather all files up for multiqc
 string[] multiqcDeps
 if(align.startsWith("star")) {
     for(string bamName : bamsMap.keys() ) {
