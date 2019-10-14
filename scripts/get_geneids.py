@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: iso-8859-15 -*-
+#!/usr/bin/env python3
 
-from __future__ import print_function
 import argparse
 import sys
 import os
@@ -128,10 +126,10 @@ def get_gff(handler, feat_types=None):
         if len(feature) == 9:
             if feature[2] in feat_types:
                 ninthField = feature[8]
-    
+
                 chk_gene_id = re.search('ID=([A-z0-9_ \. \- \(\)]+)', ninthField)
                 chk_gene_name = re.search('Name=([A-z0-9_ \. \: \- \(\)]+)', ninthField)
-    
+
                 gene_name = 'NA'
                 gene_biotype = 'NA'
                 chrom = feature[0]

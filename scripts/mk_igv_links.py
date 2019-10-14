@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
-# -*- coding: iso-8859-15 -*-
 
-from __future__ import print_function
 import sys
 import os
 import argparse
-
 
 def str2bool(v):
     if v.lower() in ('yes', 'true', 't', 'y', '1'):
@@ -121,13 +118,13 @@ list_of_files = os.listdir(dir)
 if igv_meta:
     igv_header = '# IGV links page'
     igv_intro = '## Intro'
-    igv_info = '''It is best to launch local instance of IGV for optimal 
-    performance. However it is possible to launch over the web. To launch over 
-    the web click on "launch IGV" link below, alternatively click on 
-    "download/help" link and get your own copy of IGV. Once you have IGV 
+    igv_info = '''It is best to launch local instance of IGV for optimal
+    performance. However it is possible to launch over the web. To launch over
+    the web click on "launch IGV" link below, alternatively click on
+    "download/help" link and get your own copy of IGV. Once you have IGV
     running simply click on IGV link below to load the data into the IGV.
-    Please note that you don\'t have to download files for IGV to work. 
-    IGV will get the right information without you downloading the files, 
+    Please note that you don\'t have to download files for IGV to work.
+    IGV will get the right information without you downloading the files,
     they are there simply for your own reference'''
 
     igv_launch = '- [Launch IGV](http://data.broadinstitute.org/igv/projects/current/igv_lm.jnlp)'

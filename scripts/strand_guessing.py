@@ -1,11 +1,9 @@
-#!/usr/bin/env python
-# -*- coding: iso-8859-15 -*-
+#!/usr/bin/env python3
 
 # Author: serine
 # Date: 10/11/2016
 # Last updated: 12/12/2018
 
-from __future__ import print_function
 import os
 import sys
 import math
