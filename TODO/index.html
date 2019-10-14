@@ -89,6 +89,7 @@
     <ul class="nav bs-sidenav">
         <li class="main active"><a href="#todo">ToDo</a></li>
             <li><a href="#java-related-issues">Java related issues</a></li>
+            <li><a href="#modules-and-extensibility">Modules and extensibility</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
@@ -141,7 +142,19 @@ jps -v
 <h4 id="links">Links</h4>
 <ul>
 <li>https://stackoverflow.com/questions/28327620/difference-between-java-options-java-tool-options-and-java-opts</li>
-</ul></div>
+</ul>
+<h2 id="modules-and-extensibility">Modules and extensibility</h2>
+<p>If I want RNAsik to do additional things for me for example call variances
+or put it more generally execute me random bds scripts how can I do that?</p>
+<p>Let's say I wrote a plugin that can latch onto RNAsik</p>
+<p>Let's do that in a form of additional flag <code>-pluginFile path/to/file</code></p>
+<p>In that file one will specify input/output, something rather simple e.g bamFiles
+meaning the input for the plugin will be bamFiles</p>
+<p>Then path to a plugin module i.e <code>newPlugIn.bds</code></p>
+<p>Plugin module needs to inheret sikRun path and all other configFile paths, because we
+want to deposit plugin staff inside into sikRun directory</p>
+<p>The right thing would be to somehow include plugin module before very last - multiqc step
+such that multiqc has a chance to pickup on those extra log file that module could generate</p></div>
         </div>
 
         <footer class="col-md-12">
@@ -151,7 +164,7 @@ jps -v
         </footer>
         <script>
             var base_url = "..",
-                shortcuts = {"help": 191, "search": 83, "next": 78, "previous": 80};
+                shortcuts = {"previous": 80, "help": 191, "search": 83, "next": 78};
         </script>
         <script src="../js/base.js" defer></script>
         <script src="../search/main.js" defer></script>
