@@ -75,6 +75,7 @@ if(!fqDir.isEmpty()) {
         if(paired) {
             trimedOpts{"-y"} = adapterFilePe
             trimedOpts{"--mode"} = "pe"
+            pairIds = "-pair1,-pair2"
         }
 
         string allTrimedOpts = getExtrOpts("skewer", trimedOpts, usrOpts)
@@ -85,7 +86,6 @@ if(!fqDir.isEmpty()) {
         //TODO I should be able to assign to fqFiles straight away, but just to be safe..
         // clean up once you are sure
         fqFiles = trimedFqs
-        pairIds = "-pair1,-pair2"
     }
 }
 //

@@ -1,17 +1,17 @@
 
-// What needs logging: 
+// What needs logging:
 //
 // - tools version
 // - samplesSheet
 // - timestamp, first run and all the consecutive runs
 // - reference files location (full path), particular now that I have -refFiles options
-// - gft or gff 
+// - gft or gff
 // - paired end or not
 // - additional options for every tool
 // - strand guessing
-// 
+//
 // Where and how to keep the log?
-// 
+//
 // - single director "logs"
 // - with subdirectories for each task e.g:
 //    - tools versions log
@@ -73,7 +73,7 @@ string mkLog(string fileName, string strToLog, string logType, string logsDir) {
         //strToLog.write(logFile)
         sys echo "$strToLog" > $logFile
     }
-    else error "This shouldn't happened, check mkLog function"
+    else error "This shouldn't happened, check mkLog function $fileName $logType $logsDir"
     return strToLog
 }
 
@@ -112,7 +112,7 @@ string getToolsVersions(string{} cmdExe, string logsDir) {
     string picardExe = cmdExe{"picardExe"}
     string qualimapExe = cmdExe{"qualimapExe"}
     string multiqcExe = cmdExe{"multiqcExe"}
-   
+
     string starVersion = versionsDir+"/star"
     string bwaVersion = versionsDir+"/bwa"
     string samtoolsVersion = versionsDir+"/samtools"
@@ -126,22 +126,22 @@ string getToolsVersions(string{} cmdExe, string logsDir) {
     string qualimapVersion = versionsDir+"/qualimap"
     string multiqcVersion = versionsDir+"/multiqc"
     string rnasikVersion = versionsDir+"/RNAsik"
-    
+
     string rnasikVersionFile = programPath.pathName()+"/sikVersion.bds"
 
     task(taskName := "Getting versions of tools in use" ) {
         sys $starExe --version > $starVersion
-        sys $bwaExe |& grep Version > $bwaVersion 
-        sys $samtoolsExe |& grep Version > $samtoolsVersion 
-        sys $bedtoolsExe --version > $bedtools2Version 
-        sys $countsExe -v |& sed '/^\s*$/d' > $featureCountsVersion 
-        sys $fastqcExe --version > $fastqcVersion 
+        sys $bwaExe |& grep Version > $bwaVersion
+        sys $samtoolsExe |& grep Version > $samtoolsVersion
+        sys $bedtoolsExe --version > $bedtools2Version
+        sys $countsExe -v |& sed '/^\s*$/d' > $featureCountsVersion
+        sys $fastqcExe --version > $fastqcVersion
         sys $picardExe SortSam |& grep Version > $sortSamVersion
         sys $picardExe ReorderSam |& grep Version > $reorderSamVersion
         sys $picardExe MarkDuplicates |& grep Version > $markDupsVersion
         sys $qualimapExe --help | grep -A 1 QualiMap > $qualimapVersion
-        sys $multiqcExe --version > $multiqcVersion 
-        sys $pythonExe --version |& grep Python > $pythonVersion 
+        sys $multiqcExe --version > $multiqcVersion
+        sys $pythonExe --version |& grep Python > $pythonVersion
         sys cat $rnasikVersionFile > $rnasikVersion
     }
     return "all good!"
