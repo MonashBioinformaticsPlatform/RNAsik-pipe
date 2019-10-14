@@ -13,13 +13,14 @@
 - noticed that qualimap could have high RAM consumption, need to fix cpu and mem parameters passing through sik.config file. Reckon to set mem at 4 or 6 Gb
 - add support for another aligner - [minimap2](https://github.com/lh3/minimap2)
 
-### 1.5.4 (end of the year) 2018
+### 1.5.5 (end of the year) 2019
 
 - include handling of url based samples sheets, i.e `-samplesSheet` flag should handle local based or remote files, just like `-fastaRef` option
 - better tools version logging, don't like when `RNAsik` checks `bwa` version when `STAR` aligner is used
 - include logging of split lanes and R1 and R2. Want to be able to see from the log whether two reads were classified as split lanes or paired end. This is
 to do with recent bug that got fixed in [b924027](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/commit/b9240274fa7c964e953a767c254f31ba0d044547)
 - add alignment free support for RNAseq analysis salmon/kalisto
+- include igv_links.html as part of the RNAsik output, default to file:/// with a bit of javascript in the html to figure out the correct path
 
 ### 1.6.0 (February/March) 2019
 
@@ -40,6 +41,34 @@ I already have a prototype in bds, just need to plug it in.
 - add demultiplexign tools into pipeline; `-demult`, [more info here](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/issues/32)
 
 ## Changelog
+
+### 1.5.4
+
+maitenance:
+
+  - fixed #42
+  - important fix #41 bug
+  - changed scaling factor down fixed #39
+  - removed qualimap rnaseq test from travis. It's a bad test which doesn't really test anything.
+  - Merged 'feature/permissive-geneids' @pansapiens PR #38
+  - Merge pull request #31 from methylnick/patch-1
+  - worked on python scripts
+  - improvements `strand_guessing script`, thanks to @stu2
+  - docs
+
+### 1.5.3
+
+features:
+
+  - updated je-suite defualt values, previous ones were buggy
+
+maitenance:
+
+  - bug fixes in sikCounts and sikExtrOpts
+  - capturing stdout/stderr from samtools sort, picard mdups and counts also minor consmetic code re-arrangements
+  - fixed small bug in getExtrOpts function and added a test for it
+  - rewrote and simplified parsing user passed extra tools option.
+  - docs
 
 ### 1.5.2
 
