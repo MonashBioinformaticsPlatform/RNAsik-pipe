@@ -99,7 +99,6 @@
     <ul class="nav bs-sidenav">
         <li class="main active"><a href="#contributing">Contributing</a></li>
             <li><a href="#documentations">Documentations</a></li>
-            <li><a href="#users-group">User's group</a></li>
             <li><a href="#developing-pipeline-further">Developing pipeline further</a></li>
             <li><a href="#travis-ci-and-testing">Travis CI and testing</a></li>
     </ul>
@@ -144,8 +143,6 @@ cd RNAsik-pipe
 </code></pre>
 
 <p>This will give you live updates to you copy of the docs, default URL should be <a href="localhost:8000">localhost:8000</a>, but it will tell you that once you've started the server. Then simply use your favourite text editor to edit markdown documents. Commit your changes, don't be afraid to be verbose, say what you've added/changed/removed in your commit message. And send me PR.</p>
-<h2 id="users-group">User's group</h2>
-<p><a href="https://groups.google.com/forum/#!forum/rnasik">Just jump in and do it!</a></p>
 <h2 id="developing-pipeline-further">Developing pipeline further</h2>
 <p>I need to write a more comprehensive developer guide at sometime soon. Any contributions are again extremely welcomed and again as I've mentioned in the <a href="#documentations">documentations</a> section above, any contributions need to come through pull request (PR).</p>
 <p>To summarise briefly layouts of the <code>src/</code>:</p>
@@ -156,12 +153,13 @@ arguments hidden from main help menu, but if you take a pick at this file you'll
 <li>All other <code>*.bds</code> files contain functions to specific tasks those functions get called in <code>RNAsik.bds</code></li>
 </ul>
 <h4 id="building-conda-package">Building conda package</h4>
-<p>First of all you need to set up your conda environment. If you don't have <code>conda</code> installed get it first.</p>
+<p>First of all you need to install (mini)conda.</p>
 <ul>
 <li>download <a href="https://conda.io/miniconda.html">miniconda</a> <code>.sh</code> installer</li>
 <li>run it and follow the prompts</li>
 </ul>
-<pre><code>bash Miniconda3-latest-Linux-x86_64.sh
+<p>I run it like this</p>
+<pre><code class="BASH">bash Miniconda3-latest-Linux-x86_64.sh -b -p ~/.miniconda
 </code></pre>
 
 <p>These are fairly routine steps, but if this is your first time you'll need to do them</p>
@@ -174,10 +172,9 @@ conda config --add channels bioconda
 </code></pre>
 
 <ul>
-<li>install a couple of required <code>conda</code> packages</li>
+<li>install a couple <code>conda</code> packages, required</li>
 </ul>
-<pre><code>conda install conda-build
-conda install anaconda-client
+<pre><code>conda install conda-build anaconda-client
 </code></pre>
 
 <p>Note that you can use <code>-y</code> flag to say assume <code>yes</code> instead of manually entering
@@ -217,6 +214,42 @@ conda install -y --use-local rnasik
 <pre><code>~/.continuum/anaconda-client
 </code></pre>
 
+<h4 id="rnasik-conda-environment">RNAsik conda environment</h4>
+<p>Since version 1.5.4 RNAsik conda package only contains <code>RNAsik</code> pipeline without any additional bioinformatics tools. This is because I was having issues building a new version of the conda package. I'm guessing this is to do with the fact that those other bioinformatics tools like samtools etc aren't true dependencies, although I was specifing them under "requirements: run: " the build was spending too much time in "solving environment".
+Instead I exported full environmnet and how that on github such that use can simply grab that yaml and re-create RNAsik env</p>
+<p>This is how to create new environment yaml config file</p>
+<pre><code>cat &gt; tools.txt
+
+rnasik
+bigdatascript
+fastqc
+multiqc
+bedtools
+star==2.7.2b
+subread
+samtools
+picard
+bwa
+skewer
+je-suite
+qualimap
+
+ctrl^D
+</code></pre>
+
+<pre><code>while read t; do conda install -y $t ;done &lt; tools.txt
+</code></pre>
+
+<p>I know that you can give all of those tools on command line all at once, but this for some reason gets stuck in "solving environment" as well</p>
+<pre><code>conda env export &gt; rnasik-1.5.4.yaml
+</code></pre>
+
+<p>Optionally you can initiate empty - clean environment before installing all of the packages with</p>
+<pre><code>conda create --name rnasik-1.5.4
+conda activate rnasik-1.5.4
+</code></pre>
+
+<p>And then install and export. This additional step is probably better approach, since you are creating clean RNAsik environment</p>
 <h2 id="travis-ci-and-testing">Travis CI and testing</h2>
 <p>Continues integration is very useful to ensure your code is checked continiouslly. RNAsik code is checked (tested)
 with every commit. However that testing only as good as I, or hopefully we, will make it. BigDataScript provides
@@ -240,7 +273,7 @@ Share</a>
         </footer>
         <script>
             var base_url = "..",
-                shortcuts = {"previous": 80, "help": 191, "search": 83, "next": 78};
+                shortcuts = {"help": 191, "search": 83, "previous": 80, "next": 78};
         </script>
         <script src="../js/base.js" defer></script>
         <script src="../search/main.js" defer></script>

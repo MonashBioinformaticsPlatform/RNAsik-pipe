@@ -118,9 +118,15 @@
 <h1 id="documentation">Documentation</h1>
 <h2 id="quick-start">Quick start</h2>
 <h3 id="install">Install</h3>
+<p>This will install conda and then create (install) RNAsik environment</p>
 <ul>
 <li><a href="https://raw.githubusercontent.com/MonashBioinformaticsPlatform/RNAsik-pipe/master/scripts/quick_install.bash">Download and run <code>quick_install.bash</code> script</a></li>
-<li><code>export PATH=$(readlink -f miniconda)/bin:$PATH</code> </li>
+<li>source $(readlink -f miniconda/etc/profile.d/conda.sh)</li>
+<li>conda activate rnasik-1.5.4</li>
+</ul>
+<p>Alternativelly if you have conda installed and know about conda environments, grab <a href="https://raw.githubusercontent.com/MonashBioinformaticsPlatform/RNAsik-pipe/master/supplementary/conda_envs/1.5.4.yaml">yaml config file here</a> and create RNAsik env with the following command</p>
+<ul>
+<li><code>conda env create --name rnasik-1.5.4 --file rnasik-1.5.4.yaml</code></li>
 </ul>
 <h3 id="align-raw-reads">Align raw reads</h3>
 <pre><code class="BASH">RNAsik -align star \
@@ -146,7 +152,7 @@
 <p>N.B <code>RNAsik</code> pipeline is some what resource hungry. This isn't <code>RNAsik</code> fault per say, because it "simply" wraps other tools. STAR aligner required fair amount of RAM and cpus. For a large genome like mouse it required around 30 Gb of RAM and the more cpus you have the quicker you'll map. I would advise not run the pipeline with less than 4 cores, which is default. This testing data set is of yeast and requires about 14 Gb of RAM. Also read <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/issues/7#issuecomment-367172511">this comment</a>, in summary you might have <code>RNAsik</code> failing on system that are under minimum system resources, this is work in progess and should be fixed in the future.</p>
 </blockquote>
 <p>I figured that for testing you need smallish data set as well as species with a small genome, as indexing of genome takes a while for larger genome e.g mouse
-I found this study <a href="https://www.ncbi.nlm.nih.gov//geo/query/acc.cgi?acc=GSE103004">GSE103004</a> which looks like an open access. If you follow <a href="https://www.ncbi.nlm.nih.gov//geo/query/acc.cgi?acc=GSE103004">that link</a> you should hit front GEO page for that study. You can find your way to actual data (SRA files) files, but I always find it's a bit convoluted, so hit <a href="https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SRP116034">here is a link to data files</a>. </p>
+I found this study <a href="https://www.ncbi.nlm.nih.gov//geo/query/acc.cgi?acc=GSE103004">GSE103004</a> which looks like an open access. If you follow <a href="https://www.ncbi.nlm.nih.gov//geo/query/acc.cgi?acc=GSE103004">that link</a> you should hit front GEO page for that study. You can find your way to actual data (SRA files) files, but I always find it's a bit convoluted, so hit <a href="https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SRP116034">here is a link to data files</a>.</p>
 <p>I've already prepared raw-data (fastq) files for you. I also reduced number of samples and sub-sampled reads to speed up your test run. Firstly though let me explain to you how to get full data set.</p>
 <ul>
 <li>
@@ -160,8 +166,8 @@ I found this study <a href="https://www.ncbi.nlm.nih.gov//geo/query/acc.cgi?acc=
 <pre><code>while read s; do fastq-dump --gzip --split-files $s &gt; $s.log 2&gt;&amp;1 &amp;done &lt; SRR_Acc_List.txt
 </code></pre>
 
-<p>You can download <a href="https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SRP116034">SRR_Acc_List.txt file at this page</a> (mentioned that page before). That list has 9 sra files corresponding to 9 samples, where each samples was paired end and therefore total number of files is double - 18. </p>
-<p>Also note that default marking when extracting from sra for R1 and R2 is <code>_1</code> and <code>_2</code> respectively and so if you are running <code>RNAsik</code> on that full data set you'll need to pass <code>-pairIds "_1,_2"</code> flag, default is <code>-pairIds "_R1,_R2"</code> </p>
+<p>You can download <a href="https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SRP116034">SRR_Acc_List.txt file at this page</a> (mentioned that page before). That list has 9 sra files corresponding to 9 samples, where each samples was paired end and therefore total number of files is double - 18.</p>
+<p>Also note that default marking when extracting from sra for R1 and R2 is <code>_1</code> and <code>_2</code> respectively and so if you are running <code>RNAsik</code> on that full data set you'll need to pass <code>-pairIds "_1,_2"</code> flag, default is <code>-pairIds "_R1,_R2"</code></p>
 <p>If you want nicely labeled bam and then counts you can pass <code>-samplesSheet samplesSheet.txt</code>. I haven't implemented url based samples sheets, so you'll need to download one before hand from <a href="http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/samplesSheet.txt">here</a>. I'll include handling of url based samples sheets into roadmap, so watch that space !</p>
 <p>If you ran <code>RNAsik</code> on a full data set and then used <a href="http://degust.erc.monash.edu">Degust</a> for DGE analysis you should get <a href="http://bioinformatics.erc.monash.edu/home/kirill/sikTestData/">these results</a>.</p>
 <p><em>Note that report was generated using <code>pandoc</code> with custome template and <code>igv_links</code> were created using <code>mk_igv_links</code> script located in <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/tree/master/scripts"><code>scripts/</code></a> directory</em></p>
@@ -184,14 +190,14 @@ I found this study <a href="https://www.ncbi.nlm.nih.gov//geo/query/acc.cgi?acc=
 <li><a href="http://broadinstitute.github.io/picard/">picard tools also for general bam fiels filtering</a></li>
 <li><a href="http://qualimap.bioinfo.cipf.es/">QualiMap for intragenic and interegenic rates</a></li>
 <li><a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/">FastQC for QC metrics on yor fastq files</a></li>
-<li><a href="http://multiqc.info/">MultiQC for wraping everying into nice, single page report</a> </li>
+<li><a href="http://multiqc.info/">MultiQC for wraping everying into nice, single page report</a></li>
 </ul>
-<p>As one can imagine every one of those tools has several number of options and by running <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik-pipeline</a> you get predefined - subjective run. Obviously it all comes from years of experience and continues development and improvement. Use can always pass his/her own options through <code>-extraOptions</code> flag for more fine turning. 
+<p>As one can imagine every one of those tools has several number of options and by running <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik-pipeline</a> you get predefined - subjective run. Obviously it all comes from years of experience and continues development and improvement. Use can always pass his/her own options through <code>-extraOptions</code> flag for more fine turning.
 Alternatively as, hinted above, user can leverage of <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik</a> to run everything separately with fine control over the individual run. <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik</a> produces <a href="https://en.wikipedia.org/wiki/HTML">.html report</a> with all commands options specified.</p>
 <h2 id="installation">Installation</h2>
 <h3 id="using-conda">Using conda</h3>
 <ul>
-<li>download <a href="https://conda.io/miniconda.html">miniconda</a> <code>.sh</code> installer </li>
+<li>download <a href="https://conda.io/miniconda.html">miniconda</a> <code>.sh</code> installer</li>
 <li>run it and follow the prompts</li>
 </ul>
 <pre><code>bash Miniconda3-latest-Linux-x86_64.sh
@@ -208,13 +214,13 @@ conda config --add channels bioconda
 <ul>
 <li>install <code>RNAsik</code> pipeline</li>
 </ul>
-<pre><code>conda install -c serine rnasik 
+<pre><code>conda install -c serine rnasik
 </code></pre>
 
 <ul>
 <li>additionally install <code>qualimap</code> separately (it was a tricky to include qualimap into RNAsik because large number of dependencies that qualimap has)</li>
 </ul>
-<pre><code>conda install -c bioconda qualimap 
+<pre><code>conda install -c bioconda qualimap
 
 </code></pre>
 
@@ -271,7 +277,7 @@ conda config --add channels bioconda
 
 <h2 id="user-input-explained">User input explained</h2>
 <h3 id="annotation-files">Annotation files</h3>
-<p>Annotation file would central for differential expression (DE) analysis without one you won't be able to do one. You could have very well assembled genome with very good mapping rate, but unless you know where your genes are on that genome i.e start and end coordinates for your features e.g genes you won't be able to deduce any information about those features and therefore compare between conditions. Below is an example of bear minimum information you need for feature counting. </p>
+<p>Annotation file would central for differential expression (DE) analysis without one you won't be able to do one. You could have very well assembled genome with very good mapping rate, but unless you know where your genes are on that genome i.e start and end coordinates for your features e.g genes you won't be able to deduce any information about those features and therefore compare between conditions. Below is an example of bear minimum information you need for feature counting.</p>
 <pre><code>GeneID  Chr Start   End Strand
 497097  chr1    3204563 3207049 -
 497097  chr1    3411783 3411982 -
@@ -284,13 +290,13 @@ conda config --add channels bioconda
 <p>If for whatever reason you can't get hold of <code>GFF/GTF</code> files and your annotation comes in <code>GenBank</code> (very common for bacterial genomes) or <code>Bed</code> files, don't panic and try to parse those files into <code>SAF</code> format. There are plans to include <code>gb_parse.py</code> script that should help most people with <code>GenBank</code> files.</p>
 <p>Irrespective of which reference file distributor and which annotation file you are going to use, it is highly recommended that both of those files come from the same distributor. Most common distributors are <a href="http://www.ensembl.org/index.html">Ensembl</a>, <a href="http://genome.ucsc.edu/">UCSC</a> and <a href="ftp://ftp.ncbi.nih.gov/genomes/">NCBI</a>.</p>
 <h3 id="raw-data-files">Raw data files</h3>
-<p>Raw data is something that you should take good care of. You can regenerate all other data files, but you can't really regenerate you raw data, not unless you have lots of money and time. So be sure to back your <code>fastq</code> files up and never mess/do (i.e modify) your original fastq files. If you want to try something out, make a copy and do whatever you are doing on a copy. Also there will never be a need to unzip your fastq file. All of you fastq file should be gziped and have file extension <code>.fastq.gz</code> or <code>fq.gz</code> or something similar. </p>
-<p><code>RNAsik</code> will search recursively your <code>-fqDir</code> and find all fastq files. <code>RNAsik</code> can handle nested directories as long as your data is homogeneous i.e all data belongs to the same library type single-end or paired-end. If data is paired end, <code>RNAsik</code> uses <code>-pairIds</code> value to figure out read pairs. You can check that all of your fastq files had been found by looking into <code>sikRun/logs/samples/fqFiles</code>. </p>
+<p>Raw data is something that you should take good care of. You can regenerate all other data files, but you can't really regenerate you raw data, not unless you have lots of money and time. So be sure to back your <code>fastq</code> files up and never mess/do (i.e modify) your original fastq files. If you want to try something out, make a copy and do whatever you are doing on a copy. Also there will never be a need to unzip your fastq file. All of you fastq file should be gziped and have file extension <code>.fastq.gz</code> or <code>fq.gz</code> or something similar.</p>
+<p><code>RNAsik</code> will search recursively your <code>-fqDir</code> and find all fastq files. <code>RNAsik</code> can handle nested directories as long as your data is homogeneous i.e all data belongs to the same library type single-end or paired-end. If data is paired end, <code>RNAsik</code> uses <code>-pairIds</code> value to figure out read pairs. You can check that all of your fastq files had been found by looking into <code>sikRun/logs/samples/fqFiles</code>.</p>
 <p>After obtaining a list of all fastq files <code>RNAsik</code> tries to be smart and attempts to group fastq files into samples, that is R1 and R2 reads are grouped, but also any fastq files that had been split across lanes should also be grouped. You should end up, after the run, with the same number of bam files as you have samples. Again you can check grouping in <code>sikRun/logs/samples/fqMap</code></p>
 <p><code>RNAsik</code> fastq grouping works in two modes:</p>
 <ul>
-<li>smart guessing it is a little involved but essentially it uses regular expression to check if fastq files have common suffix and therefore belong to the same sample. It heavily relies on clear labeling of R1 and R2 reads for paired-end data. </li>
-<li>a more straight forward mode is simply to use samples sheet file, which is any text file with two columns separated by a tab character, <code>old_prefix\tnew_prefix</code>. Prefix in this case is your sample name, unique bit of the file. </li>
+<li>smart guessing it is a little involved but essentially it uses regular expression to check if fastq files have common suffix and therefore belong to the same sample. It heavily relies on clear labeling of R1 and R2 reads for paired-end data.</li>
+<li>a more straight forward mode is simply to use samples sheet file, which is any text file with two columns separated by a tab character, <code>old_prefix\tnew_prefix</code>. Prefix in this case is your sample name, unique bit of the file.</li>
 </ul>
 <p>Samples sheet in a bit more details; If you have four samples, two wild-type and two controls, you should have four bam files after the analysis. However you number of fastq files is rather variable, depending on your sequencing. For paired-end sequencing you are going to end up with 2 fastq files per sample and 8 fastq files all up. If your sequencing was also split across lanes, say two lanes, then you are going to have 4 fastq file per each samples and 16 fastq files in total. <code>RNAsik</code> tries to simplify this for you.</p>
 <h2 id="rnasik-output">RNAsik output</h2>
@@ -328,7 +334,7 @@ conda config --add channels bioconda
 <li>even though <code>STAR</code> is pretty amazing (honestly), but I still rather prefer one tool for one job,
 hence why I also don't count reads with <code>STAR</code></li>
 </ul>
-<p>The bam files from <code>bamFiles/</code> are only used with <code>featureCounts</code> and then <code>picard</code> suite converts them into sorted and marked duplicate bam files, which are now placed into <code>mdupsFiles/</code> directory. The rest of the analysis based on these bam files. I'm still deciding what to do with "raw" bam files in <code>bamFiles/</code> directory. They should be removed after run have finished, but if you have to re-run the pipeline to get additional things (which you can, it will resolve all dependencies and only run new tasks) those bams are now gone and will get regenerated, which will trigger the rest of pipeline to re-run, which is unwanted result. This is why I'm not auto-removing those bam files, rather doing manually after I'm sure.  </p>
+<p>The bam files from <code>bamFiles/</code> are only used with <code>featureCounts</code> and then <code>picard</code> suite converts them into sorted and marked duplicate bam files, which are now placed into <code>mdupsFiles/</code> directory. The rest of the analysis based on these bam files. I'm still deciding what to do with "raw" bam files in <code>bamFiles/</code> directory. They should be removed after run have finished, but if you have to re-run the pipeline to get additional things (which you can, it will resolve all dependencies and only run new tasks) those bams are now gone and will get regenerated, which will trigger the rest of pipeline to re-run, which is unwanted result. This is why I'm not auto-removing those bam files, rather doing manually after I'm sure.</p>
 <h3 id="count-files">Count files</h3>
 <p>Probably the second most important thing in the pipeline is getting read counts. That is given some genome annotation count how many of mapped reads actually ended up mapping into know annotation. For classical differential expression analysis we are interested in protein coding genes only, which pipeline attempts to filter for, but there are other biotypes that we can differentially compare.</p>
 <p>The pipeline attempts to guess the strand (directionality) of your library. In theory sequencing provider that had made your libraries should be able to tell you that, but sometimes they get it wrong or simply that information never reaches us (bioinformaticians) hence the guessing.</p>
@@ -385,9 +391,9 @@ hence why I also don't count reads with <code>STAR</code></li>
 <h2 id="rnasik-config-file">RNAsik config file</h2>
 <p>Below is a list of all options that are supported so by <code>RNAsik</code> so far with the defatul values.
 User can pass additional config file through <code>-configFile</code> options which takes precedence.
-User config dosen't have to hold all key=value pairs, just the one user wants to change. </p>
+User config dosen't have to hold all key=value pairs, just the one user wants to change.</p>
 <p>For example if I want to use different <code>STAR</code> executable. I would create new file (name of the file isn't relevant),
-and inside I just put. </p>
+and inside I just put.</p>
 <p><code>starExe = new/path/to/STAR</code></p>
 <p><code>RNAsik</code> will inherit the rest of the options from the global config.</p>
 <p>Two things to note:</p>
@@ -622,7 +628,7 @@ Share</a>
         </footer>
         <script>
             var base_url = "..",
-                shortcuts = {"previous": 80, "help": 191, "search": 83, "next": 78};
+                shortcuts = {"help": 191, "search": 83, "previous": 80, "next": 78};
         </script>
         <script src="../js/base.js" defer></script>
         <script src="../search/main.js" defer></script>
