@@ -46,10 +46,6 @@ mkdocs server
 
 This will give you live updates to you copy of the docs, default URL should be [localhost:8000](localhost:8000), but it will tell you that once you've started the server. Then simply use your favourite text editor to edit markdown documents. Commit your changes, don't be afraid to be verbose, say what you've added/changed/removed in your commit message. And send me PR.
 
-## User's group
-
-[Just jump in and do it!](https://groups.google.com/forum/#!forum/rnasik)
-
 ## Developing pipeline further
 
 I need to write a more comprehensive developer guide at sometime soon. Any contributions are again extremely welcomed and again as I've mentioned in the [documentations](#documentations) section above, any contributions need to come through pull request (PR).
@@ -63,13 +59,15 @@ arguments hidden from main help menu, but if you take a pick at this file you'll
 
 #### Building conda package
 
-First of all you need to set up your conda environment. If you don't have `conda` installed get it first.
+First of all you need to install (mini)conda.
 
 - download [miniconda](https://conda.io/miniconda.html) `.sh` installer
 - run it and follow the prompts
 
-```
-bash Miniconda3-latest-Linux-x86_64.sh
+I run it like this
+
+```BASH
+bash Miniconda3-latest-Linux-x86_64.sh -b -p ~/.miniconda
 ```
 
 These are fairly routine steps, but if this is your first time you'll need to do them
@@ -82,11 +80,10 @@ conda config --add channels conda-forge
 conda config --add channels bioconda
 ```
 
-- install a couple of required `conda` packages
+- install a couple `conda` packages, required
 
 ```
-conda install conda-build
-conda install anaconda-client
+conda install conda-build anaconda-client
 ```
 
 Note that you can use `-y` flag to say assume `yes` instead of manually entering
@@ -124,6 +121,52 @@ Once you've logged in once, anaconda will store login token somewhere in your ho
 ```
 ~/.continuum/anaconda-client
 ```
+
+#### RNAsik conda environment
+
+Since version 1.5.4 RNAsik conda package only contains `RNAsik` pipeline without any additional bioinformatics tools. This is because I was having issues building a new version of the conda package. I'm guessing this is to do with the fact that those other bioinformatics tools like samtools etc aren't true dependencies, although I was specifing them under "requirements: run: " the build was spending too much time in "solving environment".
+Instead I exported full environmnet and how that on github such that use can simply grab that yaml and re-create RNAsik env
+
+This is how to create new environment yaml config file
+
+```
+cat > tools.txt
+
+rnasik
+bigdatascript
+fastqc
+multiqc
+bedtools
+star==2.7.2b
+subread
+samtools
+picard
+bwa
+skewer
+je-suite
+qualimap
+
+ctrl^D
+```
+
+```
+while read t; do conda install -y $t ;done < tools.txt
+```
+
+I know that you can give all of those tools on command line all at once, but this for some reason gets stuck in "solving environment" as well
+
+```
+conda env export > rnasik-1.5.4.yaml
+```
+
+Optionally you can initiate empty - clean environment before installing all of the packages with
+
+```
+conda create --name rnasik-1.5.4
+conda activate rnasik-1.5.4
+```
+
+And then install and export. This additional step is probably better approach, since you are creating clean RNAsik environment
 
 ## Travis CI and testing
 

@@ -24,6 +24,8 @@ fi
 conda_sh=$(realpath miniconda/etc/profile.d/conda.sh)
 source ${conda_sh}
 
+conda update --name base --channel defaults conda
+
 wget -O ${conda_env} "https://raw.githubusercontent.com/MonashBioinformaticsPlatform/RNAsik-pipe/master/supplementary/conda_envs/${config}"
 conda env create --name ${name} --file ${conda_env}
 
