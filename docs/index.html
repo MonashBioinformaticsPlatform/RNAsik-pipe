@@ -196,67 +196,14 @@ I found this study <a href="https://www.ncbi.nlm.nih.gov//geo/query/acc.cgi?acc=
 Alternatively as, hinted above, user can leverage of <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik</a> to run everything separately with fine control over the individual run. <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik</a> produces <a href="https://en.wikipedia.org/wiki/HTML">.html report</a> with all commands options specified.</p>
 <h2 id="installation">Installation</h2>
 <h3 id="using-conda">Using conda</h3>
-<ul>
-<li>download <a href="https://conda.io/miniconda.html">miniconda</a> <code>.sh</code> installer</li>
-<li>run it and follow the prompts</li>
-</ul>
-<pre><code>bash Miniconda3-latest-Linux-x86_64.sh
+<p>download <a href="https://conda.io/miniconda.html">miniconda</a> <code>.sh</code> installer</p>
+<pre><code>bash Miniconda3-latest-Linux-x86_64.sh -b -p miniconda
+source miniconda/etc/profile.d/conda.sh
+wget https://raw.githubusercontent.com/MonashBioinformaticsPlatform/RNAsik-pipe/master/supplementary/conda_envs/1.5.4.yaml
+conda env create --name rnasik-1.5.4 --file rnasik-1.5.4.yaml
+conda activate rnasik-1.5.4
 </code></pre>
 
-<ul>
-<li>add a few <code>conda</code> "channels", this is so <code>conda</code> knows where to get things from</li>
-</ul>
-<pre><code>conda config --add channels defaults
-conda config --add channels conda-forge
-conda config --add channels bioconda
-</code></pre>
-
-<ul>
-<li>install <code>RNAsik</code> pipeline</li>
-</ul>
-<pre><code>conda install -c serine rnasik
-</code></pre>
-
-<ul>
-<li>additionally install <code>qualimap</code> separately (it was a tricky to include qualimap into RNAsik because large number of dependencies that qualimap has)</li>
-</ul>
-<pre><code>conda install -c bioconda qualimap
-
-</code></pre>
-
-<p>Right now <code>RNAsik</code> hosted from my "channel" (conda terminology). There are plans to push it to official <a href="https://bioconda.github.io/">bioconda channel</a></p>
-<h4 id="conda-extras">conda extras</h4>
-<ul>
-<li>search "main" label (repository)</li>
-</ul>
-<pre><code>conda search -c serine rnasik
-</code></pre>
-
-<ul>
-<li>search "dev" label (repository)</li>
-</ul>
-<pre><code>conda search -c serine/label/dev rnasik
-</code></pre>
-
-<ul>
-<li>install specific version</li>
-</ul>
-<pre><code>conda install -c serine/label/dev &quot;rnasik=1.5.1+3ecd215&quot;
-</code></pre>
-
-<ul>
-<li>install specific version and specific build number</li>
-</ul>
-<pre><code>conda install -c serine/label/dev &quot;rnasik=1.5.1+3ecd215=4
-</code></pre>
-
-<ul>
-<li>simply install latest from that "dev" label (repository)</li>
-</ul>
-<pre><code>conda install -c serine/label/dev rnasik
-</code></pre>
-
-<p><strong>NOTE:</strong> that these are just some extras commands mainly for testing purposes not for production use !</p>
 <h3 id="alternative-installation-methods">Alternative installation methods</h3>
 <ul>
 <li><a href="../install/">HERE</a></li>
@@ -628,7 +575,7 @@ Share</a>
         </footer>
         <script>
             var base_url = "..",
-                shortcuts = {"help": 191, "search": 83, "previous": 80, "next": 78};
+                shortcuts = {"next": 78, "search": 83, "help": 191, "previous": 80};
         </script>
         <script src="../js/base.js" defer></script>
         <script src="../search/main.js" defer></script>
