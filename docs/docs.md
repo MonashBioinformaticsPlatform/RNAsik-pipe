@@ -101,69 +101,15 @@ Alternatively as, hinted above, user can leverage of [RNAsik](https://github.com
 
 ### Using conda
 
-- download [miniconda](https://conda.io/miniconda.html) `.sh` installer
-- run it and follow the prompts
+download [miniconda](https://conda.io/miniconda.html) `.sh` installer
 
 ```
-bash Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh -b -p miniconda
+source miniconda/etc/profile.d/conda.sh
+wget https://raw.githubusercontent.com/MonashBioinformaticsPlatform/RNAsik-pipe/master/supplementary/conda_envs/1.5.4.yaml
+conda env create --name rnasik-1.5.4 --file rnasik-1.5.4.yaml
+conda activate rnasik-1.5.4
 ```
-
-- add a few `conda` "channels", this is so `conda` knows where to get things from
-
-```
-conda config --add channels defaults
-conda config --add channels conda-forge
-conda config --add channels bioconda
-```
-
-- install `RNAsik` pipeline
-
-```
-conda install -c serine rnasik
-```
-
-- additionally install `qualimap` separately (it was a tricky to include qualimap into RNAsik because large number of dependencies that qualimap has)
-
-```
-conda install -c bioconda qualimap
-
-```
-
-Right now `RNAsik` hosted from my "channel" (conda terminology). There are plans to push it to official [bioconda channel](https://bioconda.github.io/)
-
-#### conda extras
-
-- search "main" label (repository)
-
-```
-conda search -c serine rnasik
-```
-
-- search "dev" label (repository)
-
-```
-conda search -c serine/label/dev rnasik
-```
-
-- install specific version
-
-```
-conda install -c serine/label/dev "rnasik=1.5.1+3ecd215"
-```
-
-- install specific version and specific build number
-
-```
-conda install -c serine/label/dev "rnasik=1.5.1+3ecd215=4
-```
-
-- simply install latest from that "dev" label (repository)
-
-```
-conda install -c serine/label/dev rnasik
-```
-
-**NOTE:** that these are just some extras commands mainly for testing purposes not for production use !
 
 ### Alternative installation methods
 
