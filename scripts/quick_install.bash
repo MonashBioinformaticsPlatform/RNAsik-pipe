@@ -1,10 +1,10 @@
 #!/bin/bash
 
-#if [[ -z "$@" ]]
-#then
-#  echo "USAGE: ./quick_install run"
-#  exit 
-#fi
+version="1.5.4"
+config="${version}.yaml"
+
+name="rnasik-${version}"
+conda_env="${name}.yaml"
 
 if [[ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]]
 then
@@ -21,14 +21,16 @@ then
   echo "ERROR: This can't happend, bin/ directory must exist inside miniconda directory"
 fi
 
-echo export PATH=$(readlink -f miniconda)/bin:$PATH
-export PATH=$(readlink -f miniconda)/bin:$PATH
+conda_sh=$(realpath miniconda/etc/profile.d/conda.sh)
+source ${conda_sh}
 
-conda config --add channels defaults
-conda config --add channels conda-forge
-conda config --add channels bioconda
+wget -O ${conda_env} "https://raw.githubusercontent.com/MonashBioinformaticsPlatform/RNAsik-pipe/master/supplementary/conda_envs/${config}"
+conda env create --name ${name} --file ${conda_env}
 
-#conda install --yes --channel serine/label/dev bigdatascript=v2.0+9ad04607
-#conda install --yes --channel serine/label/dev rnasik=1.5.1+c53adf6
-conda install --yes --channel serine rnasik
-conda install --yes --channel bioconda qualimap
+echo ""
+echo "MSG: Run this command to source conda"
+echo "     source ${conda_sh}"
+echo ""
+echo "MSG: And run this command to activate RNAsik environment"
+echo "     conda activate ${name}"
+echo ""
