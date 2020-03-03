@@ -1,61 +1,89 @@
 #---------------------------------
-# The Header File 
+# The Header File
 #---------------------------------
 
 string progPath = programPath.pathName()
 string versionFile = progPath+"/sikVersion.bds"
 string versionNumber = versionFile.read()
-print("RNAsik version $versionNumber") 
+print("RNAsik version $versionNumber")
 
 helpUnsorted := true
-help Usage: RNAsik -fqDir </path/to/your/fastqs> [options]
+help Usage: RNAsik -sikConfig </path/to/sik.config
+
+string sikConfig    help main configuration file
 
 help main options
 
-string fqDir        help path to fastqs directory, can be nested
-string align        help pick your aligner [star|hisat|bwa]
+string metadata     help path to metadata file, each line: SampleName, SampleGroup, R1, R2 [R1_L1, R2_L2]
+string aligner      help pick your aligner [star|hisat|bwa]
 string refFiles     help directory with reference files
 bool paired         help paired end data [false], will also set pairIds = "_R1,_R2"
-bool all            help short hand for counts, mdups, exonicRate, qc, cov and multiqc
 
-help more options 
+help more options
 
-string gtfFile      help path to refFile.gtf
-string fastaRef     help path to refFile.fa
-string genomeIdx    help genome index
+string geneModels   help path to annotation file [gtf|gff|saf]
+string fasta        help path to reference file <fasta>
+//string genomeIdx    help genome index
 bool counts         help do read counts [featureCounts]
-bool mdups          help process bam files, sort and mark dups [picard]
+bool mdups          help process bam files, sort and mark dups using samtools
 bool qc             help do bunch of QCs, fastqc, picard QCs and samtools
-bool exonicRate     help do Int(ra|er)genic rates [qualiMap]
-bool multiqc        help do MultiQC report [multiqc]
-bool trim           help do FASTQ trimming [skewer]
+bool trim           help do FASTQ quality and adaptor trimming using skewer
 bool cov            help make coverage plots, bigWig files
-bool umi            help deduplicates using UMIs
+//bool umi            help deduplicates using UMIs
 
-help extra configs 
+help extra configs
 
-string samplesSheet              help tab delimited file, each line: old_prefix \t new_prefix
-string outDir                    help output directory [sikRun]
-string extn = ".fastq.gz"        help specify FASTQ files extension [.fastq.gz]
-string pairIds = "none"          help specify read pairs, [none]
-string extraOpts                 help add extra options through a file, each line: toolName = options
-                                 #  e.g STAR = --outSAMtype BAM Unsorted, --outReadsUnmapped Fastx
-                                 #      starIndex = --sjdbGTFfile /path/to/GTF/file, --sjdbOverhang 99
-                                 #      featureCounts = -t gene 
-string configFile                help specify custome configuration file
+string outDir       help output directory [sikRun]
 
-// can use this string to pass in marked bams
-string bamsDir
-bool cleanUp
-// strand information
-string strand
+class CmdFlags {
 
-string[] fqRgxs = ["_L[0-9]{3}_R[0-9]_[0-9]{3}.fastq.gz$", \
-                    "_L[0-9]{3}_R[0-9].fastq.gz$", \
-                    "_R[0-9]_[0-9]{3}.fastq.gz$", \
-                    "_R[0-9].fastq.gz$"]
+    string sikConfig
+    string metadata
+    string aligner
+    string refFiles
+    bool paired
+    string geneModels
+    string fasta
+    bool counts
+    bool mdups
+    bool qc
+    string outDir
 
-//single-end
-string adapterFileSe = progPath+"/../supplementary/TruSeqAdapters.fa"
-//paired-end
-string adapterFilePe = progPath+"/../supplementary/TruSeqAdapters.fa"
+    void CmdFlags(string sikConfig, \
+                  string metadata, \
+                  string alinger, \
+                  string refFiles, \
+                  bool paired, \
+                  string geneModels, \
+                  string fasta, \
+                  bool counts, \
+                  bool mdups, \
+                  bool qc, \
+                  string outDir) {
+
+        this.sikConfig = sikConfig
+        this.metadata = metadata
+        this.aligner = aligner
+        this.refFiles = refFiles
+        this.paired = paired
+        this.geneModels = geneModels
+        this.fasta = fasta
+        this.counts = counts
+        this.mdups = mdups
+        this.qc = qc
+
+        if(outDir.isEmpty()) {
+            this.outDir = "sikRun"
+        } else {
+            this.outDir = outDir
+        }
+    }
+
+}
+
+//cmdFlags := new CmdFlags(sikConfig, metadata, aligner, refFiles, paired, geneModels, fasta, counts, mdups, qc, outDir)
+//println(cmdFlags.outDir)
+////single-end
+//string adapterFileSe = progPath+"/../supplementary/TruSeqAdapters.fa"
+////paired-end
+//string adapterFilePe = progPath+"/../supplementary/TruSeqAdapters.fa"

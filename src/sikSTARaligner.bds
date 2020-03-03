@@ -4,25 +4,25 @@
 
 include "sikFqFiles.bds"
 
-string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string gtfFile, string starOpts) {
+string makeSTARindex(string{} resources, string{} reference) {
 
-    string{} resource = getResource(cmdExe, "star", "Idx")
-    string starExe = resource{"toolsExe"}
-    int idxMem = resource{"toolsMem"}.parseInt()
-    int idxCpu = resource{"toolsCpu"}.parseInt()
+    string starExe = resource.toolsExe
+    int alignMem = resource.toolsMem
+    int alignCpu = resource.toolsCpu
+    string starCmdOpts = resources.sikCmdOpts
 
-    string genomeIdxDir = fastaRef.removeExt()+".starIdx"
+    string genomeIdxDir = reference.genomeIndexPrefix+".starIdx"
     if(!genomeIdxDir.exists()) {
         genomeIdxDir.mkdir()
     }
-    
+
     string[] idxFiles = ["chrLength.txt", "chrNameLength.txt", "chrName.txt", "chrStart.txt", "Genome", "genomeParameters.txt", "SA", "SAindex"]
     string[] genomeIdxFiles
     for(string idxFile : idxFiles) {
         string idxDep = genomeIdxDir + "/" + idxFile
         genomeIdxFiles.add(idxDep)
     }
-    //string[] refFilesIn 
+    //string[] refFilesIn
     //refFilesIn += fastaRef
 
     //int chkGTF = starOpts.indexOf("--sjdbGTFfile")
@@ -39,70 +39,42 @@ string makeSTARindex(string{} cmdExe, string refFiles, string fastaRef, string g
     return genomeIdxDir
 }
 
-string{} mapSTAR(string{} cmdExe, string bamFiles, string{} samplesMap, string pairIds, bool paired, string starOpts, string genomeIdx) {
+string{} mapSTAR(string{} resources, string{} sample, string genomeIdx) {
 
-    string{} resource = getResource(cmdExe, "star", "Align")
-    string starExe = resource{"toolsExe"}
-    int alignMem = resource{"toolsMem"}.parseInt()
-    int alignCpu = resource{"toolsCpu"}.parseInt()
+    string starExe = resource.toolsExe
+    int alignMem = resource.toolsMem
+    int alignCpu = resource.toolsCpu
+    string starCmdOpts = resources.sikCmdOpts
 
-    string[] bamsList
-    string{} bamsMap
+    string indexFiles = reference.indexFile
 
-    string[] idxFiles = ["chrLength.txt", "chrNameLength.txt", "chrName.txt", "chrStart.txt", "Genome", "genomeParameters.txt", "SA", "SAindex"]
-    string[] genomeIdxFiles
-    for(string idxFile : idxFiles) {
-        string idxDep = genomeIdx + "/" + idxFile
-        genomeIdxFiles.add(idxDep)
+
+    string[] fqFilesR1 = sample.fqFilesR1
+    string[] fqFilesR2 = sample.fqFilesR2
+    string sampleName = sample.sampleName
+    sampleName += "_" // STAR picularity
+    string bamOut = sample.bamOut
+    string bamLog = sample.bamLog
+
+    string[] deps
+    deps += fqFilesR1
+    deps += fqFilesR2
+    deps += indexFiles
+
+    string fqR1 = fqFilesR1.join(",")
+    string fqR2 = fqFilesR2.join(",")
+    string fqStr = [fqR1, fqR2].join(" ")
+
+    string logMsg = "STAR aligning " + sampleName
+
+    task([bamOut, bamLog] <- deps, cpus := alignCpu, mem := alignMem, taskName := logMsg) {
+
+        sys $starExe --runThreadN $alignCpu \
+                     --runMode alignReads \
+                     --genomeDir $genomeIdx \
+                     --outSAMattrRGline ID:001 CN:Unknown DS:RNAseq PL:ILLUMINA PM:ILLUMINA SM:$sampleName \ //TODO should make this information to come from metadata config file, default to empty string
+                     --readFilesIn $fqStr \
+                     --outFileNamePrefix $sampleName \
+                     $starCmdOpts
     }
-
-    for(string rootName : samplesMap.keys()) {
-        string[] readsList = alignerReads(samplesMap{rootName}, pairIds)
-        string[] deps
-        //TODO this is temp fix, don't particular like it, but due to time constrains fixing it here
-        // what would be much prefered if readsList was proper readsList and contained fqFiles instead.
-        // It is some what problematic to know where R1 and R2 reads are, which was whole idea of alignerReads function
-        // alignerReads should return "ready to go" fastq files
-        for(string fq : readsList) {
-            int chk = fq.indexOf(",")
-            if(chk != -1) {
-                string[] reads = fq.split(",")
-                deps += reads
-            }
-        }
-
-        deps += genomeIdxFiles
-
-        string rootBase = rootName.baseName()
-        //DOCS: need to make preFix here because STAR takes a file prefix
-        // whereas bamOut need to satisfy dependencies for bds to exit
-        string preFix = bamFiles+"/"+rootBase+"_"
-        
-        string bamOut
-        int checkUnsorted = starOpts.indexOf("Unsorted")
-        int checkSorted = starOpts.indexOf("SortedByCoordinate")
-        if(checkUnsorted != -1) bamOut = preFix+"Aligned.out.bam"
-        if(checkSorted != -1) bamOut = preFix+"Aligned.sortedByCoord.out.bam"
-
-        string reads = readsList.join(" ")
-        dep(!fqDir.isEmpty() && align.startsWith("star"), bamOut <- deps, cpus := alignCpu, mem := alignMem, taskName := "STAR aligning "+rootBase) {
-            sys $starExe --runThreadN $alignCpu \
-                         --runMode alignReads \
-                         --genomeDir $genomeIdx \
-                         --outSAMattrRGline ID:001 CN:Unknown DS:RNA-seq PL:ILLUMINA PM:MiSeq SM:$rootBase \
-                         --readFilesIn $reads \
-                         --outFileNamePrefix $preFix \
-                         $starOpts
-                     
-        }
-        bamsList.add(bamOut)
-        if(bamsMap.hasKey(rootBase)) {
-            error "This should happened, please report this issue, sikSTARaligner.bds file"
-        }
-        bamsMap{rootBase} = bamOut
-    }
-    //NOTE turns out that if I don't have a goal here then these BAM files aren't tracked
-    // meaning they can be deleted. Main goal is to get markedBams
-    //goal bamsList
-    return bamsMap
 }
