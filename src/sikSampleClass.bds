@@ -1,0 +1,113 @@
+/*
+Class to represent a sample input and output
+*/
+
+class Metadata {
+
+    string sampleName
+    string sampleGroup
+    string[] fqFilesR1
+    string[] fqFilesR2
+    bool paired
+
+    void Metadata(string line, bool paired) {
+
+        assert(!(line.startsWith("#")) | !(line.isEmpty()))
+
+        this.paired = paired
+
+        string[] samplesList = line.split("\t")
+
+        int nItems = samplesList.size()
+
+        if(nItems < 4) {
+            error("There needs to be at least four columns in your samples sheet: SampleName, SampleGroup, R1 and R2")
+        } else if(nItems == 4) {
+            log("MSG: Detected four columns in the samples sheet file")
+            this.sampleName = samplesList[0]
+            this.sampleGroup = samplesList[1]
+            this.fqFilesR1.add(samplesList[2])
+            this.fqFilesR2.add(samplesList[3])
+
+        } else if(nItems > 4) {
+
+            int nFqs = nItems-2
+            bool chk = (nFqs % 2 == 0)
+            assert(chk)
+
+            this.sampleName = samplesList[0]
+            this.sampleGroup = samplesList[1]
+
+            for(int i : range(1, nFqs/2)) {
+                int idx = i+3
+                this.fqFilesR1.add(samplesList[idx])
+                this.fqFilesR2.add(samplesList[idx+1])
+            }
+        }
+    }
+}
+
+class Results extends Metadata {
+
+    string bamOut
+    string bamLog
+
+    void Results(string sikDir, string line, bool paired) {
+        log("MSG: Output directory $sikDir")
+
+        Metadata(line, paired)
+
+        this.bamOut = sikDir + "/" + this.sampleName + ".bam"
+        this.bamLog = sikDir + "/" + this.sampleName + ".siklog"
+    }
+
+}
+
+class AlignerResults extends Results {
+
+    void AlignerResults(string sikDir, string aligner, string line, bool paired) {
+        log("MSG: Aligner type $aligner")
+
+        Results(sikDir, line, paired)
+
+        switch(aligner) {
+            case 'star':
+                this.bamOut = this.bamOut.replace(".bam", "_Aligned.out.bam")
+                this.bamLog = this.bamLog.replace(".siklog", "_Log.out.final")
+                break
+            case 'hisat2':
+                this.bamOut = this.bamOut.replace(".bam", "_aligned.bam")
+                this.bamLog = this.bamLog.replace(".siklog", "_aligned.log")
+                break
+
+            case 'bwaMem':
+                this.bamOut = this.bamOut.replace(".bam", "bwaMem.bam")
+                this.bamLog = this.bamLog.replace(".siklog", "bwaMem.log")
+                break
+            default:
+                error("SikErr: There needs to be an error here to make sure nothing else is passed through, other than allowed aligners")
+        }
+    }
+}
+
+class Sample extends AlignerResults {
+
+    void Sample(string sikDir, string aligner, string line, bool paired) {
+        AlignerResults(sikDir, aligner, line, paired)
+    }
+
+}
+
+//string sikDir = "check"
+//string[] samples = "samples_file.txt".readLines()
+//
+//for(string s : samples) {
+//    //TODO think about the header line - first line, maybe juts skip or use the comment
+//    if(s.startsWith("#") || s.isEmpty()) {
+//        continue
+//    }
+//
+//    sample := new Sample(sikDir, "star", s)
+//    //sample := new Metadata(s)
+//    println(sample)
+//}

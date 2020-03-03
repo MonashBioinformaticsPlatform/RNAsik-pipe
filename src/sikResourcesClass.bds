@@ -1,0 +1,103 @@
+/*
+Trying to abstract away command line options that you typically pass to tools here
+*/
+
+class SikResourcesConfig {
+
+    string{} sikResourcesConfig = config(programPath.pathName()+"/../configs/sikResources.config")
+
+    void SikResourcesConfig(string userResourcesConfigFn) {
+        assert(userResourcesConfigFn.exists())
+
+        string{} userResourcesConfig = config(userResourcesConfigFn)
+
+        for(string k : userResourcesConfig.keys() ) {
+            if(!this.sikResourcesConfig.hasKey(k)) {
+                error "This shouldn't happened :-|"
+            }
+            this.sikResourcesConfig{k} = userResourcesConfig{k}
+        }
+
+        if(this.sikResourcesConfig.size() < 0) {
+            error "This definitely shouldn't happend :o|"
+        }
+    }
+}
+
+class Tool extends SikResourcesConfig {
+
+    string toolExe
+    int toolMem
+    int toolCpu
+
+    void Tool(string toolName, string subName, string userResourcesConfigFn) {
+
+        SikResourcesConfig(userResourcesConfigFn)
+
+        string toolExe = toolName+"Exe"
+        string toolMem = toolName+subName+"Mem"
+        string toolCpu = toolName+subName+"Cpu"
+
+        if(!this.sikResourcesConfig.hasKey(toolExe)) {
+            error "Can't get $toolName executable, check your config file"
+        }
+        this.toolExe = this.sikResourcesConfig{toolExe}
+
+        if(!this.sikResourcesConfig.hasKey(toolMem)) {
+            error "Can't get memory settings for $toolName, check your config file"
+        }
+        this.toolMem = this.sikResourcesConfig{toolMem}.parseInt()
+
+        if(!this.sikResourcesConfig.hasKey(toolCpu)) {
+            error "Can't get cpu settings for $toolName, check your config file"
+        }
+        this.toolCpu = this.sikResourcesConfig{toolCpu}.parseInt()
+    }
+}
+
+//TODO if user appends non tool specific options into userCmdOptions.config, this will break downstread command since
+// all I'm doing it parsing the string straigth down to command line. In future would be nice to make a dictionary of allowed options etc
+
+class SikCmdOpts extends Tool {
+
+    string sikCmdOptsDir = programPath.pathName()+"/../configs/sikCmdOptions"
+    string{} sikCmdOptsConfig
+
+    void SikCmdOpts(string toolName, string subName, string userResourcesConfigFn, string userCmdOptsConfigFn, bool paired) {
+
+        Tool(toolName, subName, userResourcesConfigFn)
+
+        string sikCmdOptsConfigFn = sikCmdOptsDir + "/" + toolName+".config"
+        assert(sikCmdOptsConfigFn.exists())
+        this.sikCmdOptsConfig = config(sikCmdOptsConfigFn)
+
+        assert(userCmdOptsConfigFn.exists())
+        string{} userCmdOptsConfig = config(userCmdOptsConfigFn)
+
+        for(string k : userCmdOptsConfig.keys() ) {
+            this.sikCmdOptsConfig{k} = userCmdOptsConfig{k}
+        }
+    }
+}
+
+class Resources extends SikCmdOpts {
+
+    string sikCmdOpts
+
+    void Resources(string toolName, string subName, string userResourcesConfigFn, string userCmdOptsConfigFn, bool paired) {
+        SikCmdOpts(toolName, subName, userResourcesConfigFn, userCmdOptsConfigFn, paired)
+
+        for(string k: this.sikCmdOptsConfig.keys()) {
+            this.sikCmdOpts += k
+            this.sikCmdOpts += " "
+            this.sikCmdOpts += sikCmdOptsConfig{k}
+        }
+    }
+}
+
+//c := new Resources("star", "Align", "sik.config", "opts.config", false)
+//
+//println(c.toolExe)
+//println(c.toolMem)
+//println(c.toolCpu)
+//println(c.sikCmdOptsConfig)

@@ -1,0 +1,80 @@
+/*
+Abstracting away references
+*/
+
+class ReferenceFiles {
+
+    string fasta
+    string fastaIndex
+    string fastaDict
+    string chromSizes
+    string geneModels // probably nice abstraction here, since I'll be able to set geneModels to whatever object I need
+
+    string refFilesDir
+
+    //string[] idxFiles = ["chrLength.txt", "chrNameLength.txt", "chrName.txt", "chrStart.txt", "Genome", "genomeParameters.txt", "SA", "SAindex"]
+    //string[] genomeIdxFiles
+
+    void ReferenceFiles(string{} cmdFlags) {
+
+        this.refFilesDir = cmdFlags.sikDir+"/refFiles"
+
+        if(!this.refFilesDir.exists()) {
+            this.refFilesDir.mkdir()
+        }
+        this.fasta = getFa(cmdFlgas.fastaFn)
+        //NOTE could have function to turn geneModles into the object I want,
+        // thinking about all the fuckiery I had with gff, gtf and genebank parsing
+        // abstract away here
+        this.geneModels = getFa(cmdFlgas.geneModelsFn)
+
+        this.fastaIndex = getFaIdx(this.fasta)
+        this.chromSizes = getChromSizes(this.fasta)
+        this.fastaDict = getFaDict(this.fasta)
+    }
+}
+
+class StarIndex extends ReferenceFiles {
+
+    string[] starIndexFiles = ["chrLength.txt", "chrNameLength.txt", "chrName.txt", "chrStart.txt", "Genome", "genomeParameters.txt", "SA", "SAindex"]
+
+    string genomeIdx
+    string[] idxDeps
+    string genomeIdx
+
+
+    void StarIndex(string{} cmdFlags) {
+
+        void ReferenceFiles(cmdFlags)
+
+        string extName = this.fasta.extName()
+        string genomeIdxDir
+
+        if(extName == "gz") {
+            genomeIdxDir = this.refFilesDir + "/" + this.fasta.baseName().removeExt().removeExt()+".starIdx"
+        } else {
+            genomeIdxDir = this.refFilesDir + "/" + this.fasta.baseName().removeExt()+".starIdx"
+        }
+        log("MSG: Making STAR genomic index directory $genomeIdxDir")
+
+        if(!genomeIdxDir.exists()) {
+            genomeIdxDir.mkdir()
+        }
+
+        mkGenomeIdx(this.fasta, aligner, genomeIdxDir)
+
+        for(string idxFile : starIndexFiles) {
+            this.idxDeps.add(genomeIndexPrefix + "/" + idxFile
+        }
+
+        this.genomeIdx = genomeIdxDir
+
+    }
+}
+
+class ReferencesAux {
+
+    void ReferencesAux(...) {
+        void
+    }
+}
