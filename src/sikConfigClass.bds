@@ -132,27 +132,75 @@ class SikResourcesConfig extends SikConfig {
 
 class StarConfig extends SikResourcesConfig {
 
+/*
+FYI:
+The following keys are removed from allowed keys
+--runMode: is special and set internally only
+--runThread and --runThreadN: are resource keys, they set through different avenue via sik.config starAlingerCpu and starAlignerMem
+--outFileNamePrefix: this is sample specific and is set via samples sheet
+--genomeDir: this is set internally in RNAsik, no need to set it externally
+--genomeFastaFiles: as per --genomeDir
+
+*/
+
+/*
+
+NOTE
+As far as index specific keys goes, I think there is only --genomeSAindexNbases and --genomeChrBinNbits
+all other keys can be included either at the mapping or indexing step
+I guess it would be important to know how the reference was made
+
+I'm not sure what to do if I find --sjdbSTFfile key in the user (sik.config) config file, do I pass it at indexing step
+or do I pass to mapping step? I guess doing at index step would mean that it happened once, whereas if I'm passing it at
+the alignment step I would have to pass it every time, N samples.
+
+I guess for now I'll will only pass those to indexing, ah.. actually if the index directory and already exists and/or user passing it in directly
+then I should pass those to the alignment step
+
+This config class needs to know whether user has passed in refFiles with pre-existing indecies
+
+*/
     string{} alignerResources
     string[] alignerCmdOpts
-    string{} sikStarConfig
+    string[] indexCmdOpts
+    // TODO I need to figure out how make sikStarConfig internal use only. I don't really need this to be exposed to the outside
+    // I think convention is to use underscore prefix i.e _sikStarConfig
+    string{} _sikStarConfig
 
     void StarConfig(string sikConfigFn, bool paired) {
 
         SikResourcesConfig(sikConfigFn)
 
+        string[] idxKeys = ["--sjdbGTFfile", \
+                            "--sjdbOverhang", \
+                            "--sjdbGTFtagExonParentTranscript", \
+                            "--sjdbGTFfeatureExon", \
+                            "--sjdbGTFtagExonParentTranscript", \
+                            "--sjdbFileChrStartEnd", \
+                            "--genomeSAindexNbases", \
+                            "--genomeChrBinNbits"]
+
         string sikStarConfigFn = this.configOriginFn + "/sikCmdOptions/star.config"
         assert(sikStarConfigFn.exists())
 
-        // TODO need to set / check paired end flags
+        // TODO need to set / check paired end flags?
 
-        this.sikStarConfig = config(sikStarConfigFn)
+        this._sikStarConfig = config(sikStarConfigFn)
 
-        for(string k : this.sikStarConfig.keys()) {
+        for(string k : this._sikStarConfig.keys()) {
 
             if(this.starConfig.hasKey(k)) {
-                alignerCmdOpts.add([k, this.starConfig{k}].join(" "))
+                /*
+                  TODO this is hasn't been properly implemented. At this stage I'm simply assuming that the user can't pass
+                */
+                if(idxKeys.has(k)) {
+                    indexCmdOpts.add([k, this.starConfig{k}].join(" "))
+                } else {
+                    alignerCmdOpts.add([k, this.starConfig{k}].join(" "))
+                }
+
             } else {
-                alignerCmdOpts.add([k, this.sikStarConfig{k}].join(" "))
+                alignerCmdOpts.add([k, this._sikStarConfig{k}].join(" "))
             }
         }
 
@@ -174,13 +222,38 @@ class StarConfig extends SikResourcesConfig {
 
         alignerResources{"alignerCpu"} = this.sikResourcesConfig{"starAlignerCpu"}
         alignerResources{"alignerMem"} = this.sikResourcesConfig{"starAlignerMem"}
-        alignerResources{"mkIdxCpu"} = this.sikResourcesConfig{"starIdxCpu"}
-        alignerResources{"mkIdxMem"} = this.sikResourcesConfig{"starIdxMem"}
-        alignerResources{"toolExe"} = this.sikResourcesConfig{"starExe"}
+        alignerResources{"idxCpu"} = this.sikResourcesConfig{"starIdxCpu"}
+        alignerResources{"idxMem"} = this.sikResourcesConfig{"starIdxMem"}
+        alignerResources{"starExe"} = this.sikResourcesConfig{"starExe"}
 
     }
 }
 
+class RefConfig extends SikResourcesConfig {
+
+    string{} refResouces
+    //NOTE I can later extend this class to also allow custome cmd options passing
+    // will leave it as is for now, since I haven't seen a lot of use case for this
+    //string[] refCmdOpts
+    void RefConfig(string sikConfigFn) {
+
+        SikResourcesConfig(sikConfigFn)
+
+        refResouces{"cpExe"} = this.sikResourcesConfig{"cpExe"}
+        refResouces{"cpCpu"} = this.sikResourcesConfig{"cpCpu"}
+        refResouces{"cpMem"} = this.sikResourcesConfig{"cpMem"}
+
+        refResouces{"faiExe"} = this.sikResourcesConfig{"samtoolsExe"} + " faidx"
+        refResouces{"faiCpu"} = this.sikResourcesConfig{"samtoolsFaidxCpu"}
+        refResouces{"faiMem"} = this.sikResourcesConfig{"samtoolsFaidxMem"}
+
+        refResouces{"dictExe"} = this.sikResourcesConfig{"picardExe"} + " CreateSequenceDictionary"
+        refResouces{"dictCpu"} = this.sikResourcesConfig{"picardDictCpu"}
+        refResouces{"dictMem"} = this.sikResourcesConfig{"picardDictMem"}
+
+    }
+
+}
 //class CountsConfig extends SikConfig {
 //
 //    string{} sikCountsConfig

@@ -1,0 +1,61 @@
+
+string getRef(string{} refConfig, string refFile, string refDir) {
+
+    string x = refConfig{"cpExe"}
+    int xCpu = refConfig{"cpCpu"}.parseInt()
+    int xMem = refConfig{"cpMem"}.parseInt()
+
+    string fileName = refFile.baseName()
+    string localRef = refDir+"/"+fileName
+
+    task(refFile.isFile(), localRef <- refFile, cpus := xCpu, mem := xMem, taskName := "Copying $refFile to $refDir") {
+        sys $x -v $refFile $refDir
+    }
+
+    return localRef
+}
+
+string mkFai(string{} refConfig, string fasta) {
+
+    string x = refConfig{"faiExe"}
+    int xCpu = refConfig{"faiCpu"}.parseInt()
+    int xMem = refConfig{"faiMem"}.parseInt()
+
+    string fai = fasta+".fai"
+
+    task(fai <- fasta, cpus := xCpu, mem := xMem, taskName := "Indexing $fasta file") {
+        sys $x $fasta
+    }
+
+    return fai
+}
+
+string mkDict(string{} refConfig, string fasta) {
+
+    string x = refConfig{"dictExe"}
+    int xCpu = refConfig{"dictCpu"}.parseInt()
+    int xMem = refConfig{"dictMem"}.parseInt()
+
+    string dict = fasta.removeExt()+".dict"
+
+    task(mdups, dict <- fasta, cpus := xCpu, mem := xMem, taskName := "Making dictionary File") {
+        sys $x REFERENCE=$fasta OUTPUT=$dict
+    }
+
+    return dict
+}
+
+
+string mkChromSizes(string fasta) {
+
+    string chromSizes = fasta.removeExt()+".chromSizes"
+    string x = programPath.pathName()+"/../scripts/ucsc_bin/faSize"
+    int xCpu = 1
+    int xMem = -1
+
+    task(chromSizes <- fasta, cpus := xCpu, mem := xMem, taskName := "Make chrom sizes file") {
+        sys $x -detailed $fasta > $chromSizes
+    }
+
+    return chromSizes
+}

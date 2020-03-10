@@ -2,41 +2,38 @@
 # STAR alignment function
 #------------------------------
 
-include "sikFqFiles.bds"
+string mkSTARidx(string fasta, string refDir, string starIdxDir, string{} config) {
 
-string makeSTARindex(string{} resources, string{} reference) {
+    string{} resources = config.resouces
+    string x = resources{"alignerExe"}
+    string xCpu = resources{"idxCpu"}.parseInt()
+    string xMem = resources{"idxMem"}.parseInt()
 
-    string starExe = resource.toolsExe
-    int alignMem = resource.toolsMem
-    int alignCpu = resource.toolsCpu
-    string starCmdOpts = resources.sikCmdOpts
-
-    string genomeIdxDir = reference.genomeIndexPrefix+".starIdx"
-    if(!genomeIdxDir.exists()) {
-        genomeIdxDir.mkdir()
-    }
+    string starCmdOpts = config.indexCmdOpts.join(" ")
 
     string[] idxFiles = ["chrLength.txt", "chrNameLength.txt", "chrName.txt", "chrStart.txt", "Genome", "genomeParameters.txt", "SA", "SAindex"]
-    string[] genomeIdxFiles
+    string[] idxDeps
+
     for(string idxFile : idxFiles) {
-        string idxDep = genomeIdxDir + "/" + idxFile
-        genomeIdxFiles.add(idxDep)
+        string idxDep = starIdxDir + "/" + idxFile
+        idxDeps.add(idxDep)
     }
-    //string[] refFilesIn
-    //refFilesIn += fastaRef
+
+    refDir = refDir + "/"
 
     //int chkGTF = starOpts.indexOf("--sjdbGTFfile")
     //if(chkGTF != -1) refFilesIn += gtfFile
 
-    task(!fastaRef.isEmpty(), genomeIdxFiles <- fastaRef, cpus := idxCpu, mem := idxMem, taskName := "Making STAR index") {
-        sys $starExe --runThreadN $idxCpu \
-                     --runMode genomeGenerate \
-                     --outFileNamePrefix $refFiles/ \
-                     --genomeDir $genomeIdxDir \
-                     --genomeFastaFiles $fastaRef \
-                     $starOpts
+    task(!fastaRef.isEmpty(), idxDeps <- fasta, cpus := xCpu, mem := xMem, taskName := "Making STAR index") {
+        sys $x --runThreadN $xCpu \
+               --runMode genomeGenerate \
+               --genomeDir $starIdxDir \
+               --outFileNamePrefix $refDir \
+               --genomeFastaFiles $fasta \
+               $starCmdOpts
     }
-    return genomeIdxDir
+
+    return starIdxDir
 }
 
 string{} mapSTAR(string{} resources, string{} sample, string genomeIdx) {

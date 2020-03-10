@@ -2,84 +2,170 @@
 Abstracting away references
 */
 
+
+ /*
+ NOTE
+
+ I think I need to stop coping reference files into sikRun directory, while it feels nice to have everything self contained
+ I think there is a better way. If I'm going ahead with sik.config idea, where user specified everything in the single - main config
+ than there is no need to copy reference file, which I mainly did for loggin purpose, the main config inplicitelly tracks which reference files
+ were used.
+
+I remembered, the reason I was copying reference fasta and annotation files into refFiles is because often I need to make fai and dict files as well as chromSizes
+and depending on the tool, some require that those file located right next it's parent i.e fasta and fasta.fai need to be in the same directory, but if I'm sourcing
+fasta from elsewhere and there isn't fai next to it, I can't (shouldn't even if can) write to some unknown location in the filesystem. So I do have a good reason to copy refrence files.
+The only exception if the user passing previous refFiles, in that case, all required files should be there
+
+ */
+
 class ReferenceFiles {
 
     string fasta
-    string fastaIndex
-    string fastaDict
+    string faIdx
+    string faDict
     string chromSizes
     string geneModels // probably nice abstraction here, since I'll be able to set geneModels to whatever object I need
+    string genomeIdx // here genomeIdx should be the string that aligner expects, for STAR this will be directory name, for bwa mem it'll be file basename
+    string refDir
 
-    string refFilesDir
+    void ReferenceFiles(string{} cmdFlags, string{} refConfig) {
+        // NOTE here we need to make a check for users refFiles, and if given parse it out and sanity check
+        string refFilesFn = cmdFlags.refFiles
+        string aligner = cmdFlags.aligner
 
-    //string[] idxFiles = ["chrLength.txt", "chrNameLength.txt", "chrName.txt", "chrStart.txt", "Genome", "genomeParameters.txt", "SA", "SAindex"]
-    //string[] genomeIdxFiles
+        if(!refFilesFn.isEmpty()) {
 
-    void ReferenceFiles(string{} cmdFlags) {
+            string[] allowedFasta = ["fa", \
+                                     "fasta", \
+                                     "fna"]
 
-        this.refFilesDir = cmdFlags.sikDir+"/refFiles"
+            string[] allowedGeneModels = ["gtf", \
+                                          "gff", \
+                                          "gff3", \
+                                          "saf"]
 
-        if(!this.refFilesDir.exists()) {
-            this.refFilesDir.mkdir()
+            string[] allowedOtherRef = ["fai", \
+                                        "dict", \
+                                        "chromSizes"]
+
+            string{} allowedIdx = {"star" => "starIdx", \
+                                   "hisat2" => "hisat2Idx", \
+                                   "bwaMem" => "bwaIdx"}
+
+            string[] allowedRefExt
+
+            allowedRefExt += allowedGeneModels
+            allowedRefExt += allowedFasta
+            allowedRefExt += allowedOtherRef
+            allowedRefExt += allowedIdx.values()
+
+            for(string refFile : refFilesFn.dirPath()) {
+
+                string extn = refFile.extName()
+
+                if(extn == "gz") {
+                    extn = refFile.removeExt().extName()
+                }
+
+                if(!allowedRefExt.has(extn)) {
+                    warning "\n\
+                             \n\
+                             SikWarn: Identified unknown reference file in the $refFilesFn directory. Skipping this file $r
+                             \n"
+                    continue
+                }
+
+                if(allowedFasta.has(extn)) {
+                    this.fasta = refFile
+                }
+
+                if(allowedGeneModels.has(extn)) {
+                    this.geneModels = refFile
+                }
+
+                if(allowedOtherRef.has(extn)) {
+
+                    switch(extn) {
+                        case "fai":
+                            this.faIdx = refFile
+                            break
+                        case "dict":
+                            this.faDict = refFile
+                            break
+                        case "chromSizes":
+                            chromSizes = refFile
+                            break
+                    }
+
+                }
+
+                if(allowedIdx.hasValue(extn)) {
+                    assert(allowedIdx{aligner} == extn)
+                    this.genomeIdx = refFile
+                }
+            }
+
+        } else {
+
+            this.refDir = cmdFlags.sikDir+"/refFiles"
+
+            if(!this.refDir.exists()) {
+                this.refDir.mkdir()
+            }
+
+            this.fasta = getRef(refConfig, cmdFlgas.fastaFn, this.refDir)
+            this.faIdx = mkFai(refConfig, this.fasta)
+            this.faDict = mkDict(refConfig, this.fasta)
+            this.chromSizes = mkChromSize(this.fasta)
+
+            //NOTE could have function to turn geneModles into the object I want,
+            // thinking about all the fuckiery I had with gff, gtf and genebank parsing abstract away here
+            this.geneModels = getRef(refConfig, cmdFlgas.geneModelsFn, refDir)
         }
-        this.fasta = getFa(cmdFlgas.fastaFn)
-        //NOTE could have function to turn geneModles into the object I want,
-        // thinking about all the fuckiery I had with gff, gtf and genebank parsing
-        // abstract away here
-        this.geneModels = getFa(cmdFlgas.geneModelsFn)
-
-        this.fastaIndex = getFaIdx(this.fasta)
-        this.chromSizes = getChromSizes(this.fasta)
-        this.fastaDict = getFaDict(this.fasta)
     }
 }
 
 class StarIndex extends ReferenceFiles {
+    // Here I should check and error out if ReferenceFiles class doesn't have what I need
+    //string refFilesDir
 
-    string[] starIndexFiles = ["chrLength.txt", "chrNameLength.txt", "chrName.txt", "chrStart.txt", "Genome", "genomeParameters.txt", "SA", "SAindex"]
-
-    string genomeIdx
-    string[] idxDeps
-    string genomeIdx
-
-    void StarIndex(string{} cmdFlags, string{} resources) {
+    void StarIndex(string{} cmdFlags, string{} starConfig) {
 
         ReferenceFiles(cmdFlags)
 
         string extName = this.fasta.extName()
-        string genomeIdxDir
+        string starIdxDir
 
+        //TODO would be useful to stick aligner version to the suffix as well in future
         if(extName == "gz") {
-            genomeIdxDir = this.refFilesDir + "/" + this.fasta.baseName().removeExt().removeExt()+".starIdx"
+            this.starIdxDir = this.refDir + "/" + this.fasta.baseName().removeExt().removeExt()+".starIdx"
         } else {
-            genomeIdxDir = this.refFilesDir + "/" + this.fasta.baseName().removeExt()+".starIdx"
-        }
-        log("MSG: Making STAR genomic index directory $genomeIdxDir")
-
-        if(!genomeIdxDir.exists()) {
-            genomeIdxDir.mkdir()
+            this.starIdxDir = this.refDir + "/" + this.fasta.baseName().removeExt()+".starIdx"
         }
 
-        mkGenomeIdx(this.fasta, cmdFlags.aligner, genomeIdxDir)
-
-        for(string idxFile : starIndexFiles) {
-            this.idxDeps.add(genomeIndexPrefix + "/" + idxFile
+        log("MSG: Making STAR genomic index directory $starIdxDir")
+        if(!this.starIdxDir.exists()) {
+            this.starIdxDir.mkdir()
         }
 
-        this.genomeIdx = genomeIdxDir
+        this.genomeIdx = mkSTARIdx(this.fasta, this.refDir, this.starIdxDir, starConfig)
 
     }
 }
 
 class References {
 
-    void References(string{} cmdFlags, string{} resources) {
+    //string{} refs
+
+    //void ReferenceFiles(string{} cmdFlags, string{} refConfig) {
+    void References(string{} cmdFlags, string{} config) {
 
         string aligner = cmdFlags.aligner
 
         switch(aligner) {
             case 'star':
-                StarIndex(cmdFlags, resources)
+                starConfig := new StarConfig(cmdFlags.sikConfig, cmdFlags.paired)
+                StarIndex(cmdFlags, starConfig)
                 break
             case 'hisat2':
                 error("SikErr: Haven't been implemented yet")
