@@ -1,0 +1,11 @@
+#sample_name	group_name	R1	R2
+#example one
+cntr_rep1	cntr	cntr_rep1_001_R1.fastq.gz	cntr_rep1_001_R2.fastq.gz	cntr_rep1_002_R1.fastq.gz	cntr_rep1_002_R2.fastq.gz
+
+#example two
+cntr_rep2	cntr	cntr_rep2_001_R1.fastq.gz	cntr_rep2_001_R2.fastq.gz	cntr_rep3_001_R1.fastq.gz	cntr_rep3_001_R2.fastq.gz
+
+#example three
+treat_rep1	treat	treat_rep1_001_R1.fastq.gz	treat_rep1_001_R2.fastq.gz
+treat_rep2	treat	treat_rep2_001_R1.fastq.gz	treat_rep2_001_R2.fastq.gz
+treat_rep3	treat	treat_rep3_001_R1.fastq.gz	treat_rep3_001_R2.fastq.gz
