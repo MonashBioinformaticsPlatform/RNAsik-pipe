@@ -42,10 +42,9 @@ class StarIndex extends ReferenceFiles {
     string[] idxDeps
     string genomeIdx
 
+    void StarIndex(string{} cmdFlags, string{} resources) {
 
-    void StarIndex(string{} cmdFlags) {
-
-        void ReferenceFiles(cmdFlags)
+        ReferenceFiles(cmdFlags)
 
         string extName = this.fasta.extName()
         string genomeIdxDir
@@ -61,7 +60,7 @@ class StarIndex extends ReferenceFiles {
             genomeIdxDir.mkdir()
         }
 
-        mkGenomeIdx(this.fasta, aligner, genomeIdxDir)
+        mkGenomeIdx(this.fasta, cmdFlags.aligner, genomeIdxDir)
 
         for(string idxFile : starIndexFiles) {
             this.idxDeps.add(genomeIndexPrefix + "/" + idxFile
@@ -72,9 +71,25 @@ class StarIndex extends ReferenceFiles {
     }
 }
 
-class ReferencesAux {
+class References {
 
-    void ReferencesAux(...) {
-        void
+    void References(string{} cmdFlags, string{} resources) {
+
+        string aligner = cmdFlags.aligner
+
+        switch(aligner) {
+            case 'star':
+                StarIndex(cmdFlags, resources)
+                break
+            case 'hisat2':
+                error("SikErr: Haven't been implemented yet")
+                break
+
+            case 'bwaMem':
+                error("SikErr: Haven't been implemented yet")
+                break
+            default:
+                error("SikErr: There needs to be an error here to make sure nothing else is passed through, other than allowed aligners")
+        }
     }
 }

@@ -1,0 +1,205 @@
+/*
+Abstracting away config files interface
+*/
+
+/*
+
+DOCS:
+This story goes like this. SikConfig is a class that grabs user's specified config via -sikConfig argument. In the future it'll be the only argument use will need to specify.
+The class parses sik.config and segregates into appropriate bins e.g cmd options, or STAR aligner specific options etc.
+The following classes all inheret SikConfig. The SikResoucesConfig (the naming is a little ambigiouse) parses out all internal/global RNAsik config files, all the defaults that RNAsik comes with,
+giving preference to the users input arguments. I guess the future TODO is to somehow also validate SikConfig for intergraty. I'm doing that, but not as regious I think.
+Finally each tool should have it's own class e.g StarConfig which holds all configurations need for STAR to run.
+It appears to me that my previous class sikResoucesClass.bds has become redundant
+
+*/
+
+class SikConfig {
+    //NOTE
+    // This is it ! sik yeh!
+    // DOCS:
+    // This class takes sik.config with a bag of random keys, segregates them into appropriate areas and passes them on.
+    // All other classes extend this one
+    // The final class is Config(), that way in the code I simply call config := new Config() and "magically" I'll have everything I need right, right?
+
+    string configOriginFn = programPath.pathName()+"/../configs"
+
+    // General configs
+    string{} resourcesConfig
+
+    // Problematic key=values
+    string{} unassigned
+
+    // tooling config
+    string{} starConfig
+    string{} featureCountsConfig
+    string{} sikCmdFlags
+
+    //TODO
+    //string{} samtoolsFlagstatConfig
+    //string{} samtoolsStatConfig
+
+    void SikConfig(string sikConfigFn) {
+
+        string resourcesAllowedKeysFn = this.configOriginFn + "/sikAllowedKeys/resources.txt"
+        assert(resourcesAllowedKeysFn.exists())
+        string[] resourcesAllowedKeys = resourcesAllowedKeysFn.readLines()
+
+        string starAllowedKeysFn = this.configOriginFn + "/sikAllowedKeys/star.txt"
+        assert(starAllowedKeysFn.exists())
+        string[] starAllowedKeys = starAllowedKeysFn.readLines()
+
+        string featureCountsAllowedKeysFn = this.configOriginFn + "/sikAllowedKeys/featureCounts.txt"
+        assert(featureCountsAllowedKeysFn.exists())
+        string[] featureCountsAllowedKeys = featureCountsAllowedKeysFn.readLines()
+
+        string[] sikCmdKeys = ["sikConfig", \
+                               "metadata", \
+                               "aligner", \
+                               "refFiles", \
+                               "paired", \
+                               "geneModels", \
+                               "fasta", \
+                               "counts", \
+                               "mdups", \
+                               "qc", \
+                               "outDir"]
+
+        assert(sikConfigFn.exists())
+        string{} sikConfig = config(sikConfigFn)
+
+        for(string k : sikConfig.keys()) {
+
+            if(resourcesAllowedKeys.has(k)) {
+                this.resourcesConfig{k} = sikConfig{k}
+                continue
+            } else if(starAllowedKeys.has(k)) {
+                this.starConfig{k} = sikConfig{k}
+                continue
+            } else if(featureCountsAllowedKeys.has(k)) {
+                this.featureCountsConfig{k} = sikConfig{k}
+                continue
+            } else if(sikCmdKeys.has(k)) {
+                this.sikCmdFlags{k} = sikConfig{k}
+                continue
+            } else {
+                this.unassigned{k} = sikConfig{k}
+            }
+        }
+
+        if(unassigned.size() > 0) {
+            error "\n\
+                   \n\
+                   SikErr: Too many unassigned keys in the config file\
+                   \n\
+                   $unassigned\
+                   \n"
+        }
+    }
+}
+
+class SikResourcesConfig extends SikConfig {
+
+    string{} sikResourcesConfig
+
+    void SikResourcesConfig(string sikConfigFn) {
+
+        SikConfig(sikConfigFn)
+
+        string sikResourcesConfigFn = this.configOriginFn + "/sikResources.config"
+        assert(sikResourcesConfigFn.exists())
+
+        this.sikResourcesConfig = config(sikResourcesConfigFn)
+
+        for(string k : this.sikResourcesConfig.keys()) {
+            if(this.resourcesConfig.hasKey(k)) {
+                sikResourcesConfig{k} = this.resourcesConfig{k}
+            }
+        }
+    }
+}
+
+// NOTE This class is the one I want to pass around. It should have all necessary parameters for the tool execution
+// In general it now becomes relativelly easy to extend RNAsik with new aligner, simply add a class for your aligner of choice
+// in this case STAR
+// Class methods:
+// - toolExe
+// - alignerCpu
+// - alignerMem
+// - mkIdxCpu
+// - mkIdxMem
+// - toolArgs
+
+class StarConfig extends SikResourcesConfig {
+
+    string{} alignerResources
+    string[] alignerCmdOpts
+    string{} sikStarConfig
+
+    void StarConfig(string sikConfigFn, bool paired) {
+
+        SikResourcesConfig(sikConfigFn)
+
+        string sikStarConfigFn = this.configOriginFn + "/sikCmdOptions/star.config"
+        assert(sikStarConfigFn.exists())
+
+        // TODO need to set / check paired end flags
+
+        this.sikStarConfig = config(sikStarConfigFn)
+
+        for(string k : this.sikStarConfig.keys()) {
+
+            if(this.starConfig.hasKey(k)) {
+                alignerCmdOpts.add([k, this.starConfig{k}].join(" "))
+            } else {
+                alignerCmdOpts.add([k, this.sikStarConfig{k}].join(" "))
+            }
+        }
+
+        //TODO sanity check for all keys are found in the
+        string[] sanityChk = ["starAlignerCpu", \
+                              "starAlignerMem", \
+                              "starIdxCpu", \
+                              "starIdxMem", \
+                              "starExe"]
+
+        for(string k : sanityChk) {
+            if(!this.sikResourcesConfig.hasKey(k)) {
+                error "\n\
+                       \n\
+                       SikErr: Key not found -> $k. Check you configuration files \
+                       \n"
+            }
+        }
+
+        alignerResources{"alignerCpu"} = this.sikResourcesConfig{"starAlignerCpu"}
+        alignerResources{"alignerMem"} = this.sikResourcesConfig{"starAlignerMem"}
+        alignerResources{"mkIdxCpu"} = this.sikResourcesConfig{"starIdxCpu"}
+        alignerResources{"mkIdxMem"} = this.sikResourcesConfig{"starIdxMem"}
+        alignerResources{"toolExe"} = this.sikResourcesConfig{"starExe"}
+
+    }
+}
+
+//class CountsConfig extends SikConfig {
+//
+//    string{} sikCountsConfig
+//
+//    void CountsConfig(string sikConfigFn, bool paired) {
+//
+//        SikConfig(sikConfigFn)
+//
+//        string sikCountsConfigFn = this.configOriginFn + "/sikCmdOptions/featureCounts.config"
+//        assert(sikCountsConfigFn.exists())
+//
+//        // TODO need to set / check paired end flags
+//
+//        this.sikCountsConfig = config(sikCountsConfigFn)
+//
+//        for(string k : this.sikCountsConfig.keys()) {
+//            if(this.featureCountsConfig.hasKey(k)) {
+//                sikCountsConfig{k} = this.featureCountsConfig{k}
+//            }
+//        }
+//    }
+//}
