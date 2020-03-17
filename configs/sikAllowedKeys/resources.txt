@@ -49,3 +49,6 @@ fastqcCpu
 multiqcCpu
 skewerCpu
 cpFileCpu
+bgzipExe
+bgzipCpu
+bgzipMem
