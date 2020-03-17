@@ -4,86 +4,44 @@
 
 string progPath = programPath.pathName()
 string versionFile = progPath+"/sikVersion.bds"
+string sikConfigFile = progPath + "/../sik_example.config"
 string versionNumber = versionFile.read()
+
 print("RNAsik version $versionNumber")
 
 helpUnsorted := true
-help Usage: RNAsik -sikConfig </path/to/sik.config
+help Usage: RNAsik -sikConfig </path/to/sik.config>
+help Command line options:
 
 string sikConfig    help main configuration file
 
-help main options
+help SikConfig keys:
+help      metadata <string>   : path to metadata file, each line: SampleName, SampleGroup, R1, R2 [R1_L1, R2_L2]
+help      aligner <string>    : select aligner [star|hisat|bwa]
+help      geneModels <string> : path to annotation file [gtf|gff|saf]
+help      fasta <string>      : path to reference file <fasta>
+help      genomeIdx <string>  : path to genome index, as per alingers specification
+help      refFiles <string>   : directory with reference files
+help      paired <bool>       : paired end data [false]
+help      counts <bool>       : make table of read counts [featureCounts]
+help      qc <bool>           : run QCs checks (fastqc, picard and samtools)
+help      trim <bool>         : quality and adaptor trimming [skewer]
+help      cov <bool>          : make coverage plots (bigWig files)
+help      outDir <string>     : output directory [sikRun]
 
-string metadata     help path to metadata file, each line: SampleName, SampleGroup, R1, R2 [R1_L1, R2_L2]
-string aligner      help pick your aligner [star|hisat|bwa]
-string refFiles     help directory with reference files
-bool paired         help paired end data [false], will also set pairIds = "_R1,_R2"
+//bool mdups                help process bam files, sort and mark dups using samtools
+//bool umi       help deduplicates using UMIs
 
-help more options
+if( args.isEmpty() ) {
+    printHelp()
 
-string geneModels           help path to annotation file [gtf|gff|saf]
-string fasta                help path to reference file <fasta>
-//string genomeIdx            help genome index
-bool counts                 help do read counts [featureCounts]
-bool mdups                  help process bam files, sort and mark dups using samtools
-bool qc                     help do bunch of QCs, fastqc, picard QCs and samtools
-bool trim                   help do FASTQ quality and adaptor trimming using skewer
-bool cov                    help make coverage plots, bigWig files
-//bool umi            help deduplicates using UMIs
-
-help extra configs
-
-string outDir       help output directory [sikRun]
-
-class CmdFlags {
-
-    string sikConfig
-    string metadata
-    string aligner
-    string refFiles
-    bool paired
-    string geneModels
-    string fasta
-    bool counts
-    bool mdups
-    bool qc
-    string outDir
-
-    void CmdFlags(string sikConfig, \
-                  string metadata, \
-                  string alinger, \
-                  string refFiles, \
-                  bool paired, \
-                  string geneModels, \
-                  string fasta, \
-                  bool counts, \
-                  bool mdups, \
-                  bool qc, \
-                  string outDir) {
-
-        if(sikConfig.isEmpty()) {
-            error "SikErr: You need to supply config file with -sikConfig path/to/sik.config"
-        }
-
-        this.sikConfig = sikConfig
-        this.metadata = metadata
-        this.aligner = aligner
-        this.refFiles = refFiles
-        this.paired = paired
-        this.geneModels = geneModels
-        this.fasta = fasta
-        this.counts = counts
-        this.mdups = mdups
-        this.qc = qc
-
-        if(outDir.isEmpty()) {
-            this.outDir = "sikRun"
-        } else {
-            this.outDir = outDir
-        }
+    println("SikMsg: Copying an sik_example.config file into current directory")
+    string localConfig = sikConfigFile.baseName()
+    if(!localConfig.exists()) {
+        sys cp $sikConfigFile $localConfig
     }
+    exit(1)
 }
-
 //string adapterFileSe = progPath+"/../supplementary/TruSeqAdapters.fa"
 ///paired-end
 //string adapterFilePe = progPath+"/../supplementary/TruSeqAdapters.fa"

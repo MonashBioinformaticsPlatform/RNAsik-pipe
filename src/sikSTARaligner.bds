@@ -1,0 +1,130 @@
+/*
+STAR aligner utils
+*/
+
+class StarIndex {
+
+    string genomeIdx
+
+    void StarIndex(SikStarConfig sikStarConf, string fasta, string refDir, string genomeIdx) {
+
+        string extn = fasta.extName()
+        string starIdxDir
+
+        //TODO would be useful to stick aligner version to the suffix as well in future
+        if(extn == "gz") {
+            starIdxDir = refDir + "/" + fasta.baseName().removeExt().removeExt()+".starIdx"
+        } else {
+            starIdxDir = refDir + "/" + fasta.baseName().removeExt()+".starIdx"
+        }
+
+        log("MSG: Making STAR genomic index directory $starIdxDir")
+        if(!starIdxDir.exists()) {
+            starIdxDir.mkdir()
+        }
+
+        /*
+            TODO this isn't ideal, but in my ReferenceFiles class I'm attempting to set genomeIdx variable
+            which can come about in three different ways:
+                - via refFiles variable, in which case RNAsik will pick it up and set genomeIdx
+                - direct user input, via genomeIdx = /path/to/index
+                - in the last resort RNAsik will simply make genomeIdx as per specified aligner
+            unfortunatelly BDS doesn't seem to have a way to set a variable to NULL. So if user didn't specify genomeIdx in they config
+            then I cope an error when trying to check for that key.
+            I think I know what the right solution should be - my SikConfig class should check for all missing keys and set them accordingly,
+            that way they key will either be present of empty and I can always check with .isEmpty() call
+        */
+        if(genomeIdx == "NULL" || genomeIdx.isEmpty()) {
+            this.genomeIdx = mkSTARidx(sikStarConf, fasta, refDir, starIdxDir)
+        } else {
+            assert(genomeIdx.exists())
+            this.genomeIdx = genomeIdx
+        }
+    }
+}
+
+string mkSTARidx(SikStarConfig sikStarConf, string fasta, string refDir, string starIdxDir) {
+
+    string{} resources = sikStarConf.idxRes
+    string x = resources{"starExe"}
+    int xCpu = resources{"idxCpu"}.parseInt()
+    int xMem = resources{"idxMem"}.parseInt()
+
+    string starCmdOpts = sikStarConf.idxCmdOpts.join(" ")
+
+    string[] idxFiles = ["chrLength.txt", "chrNameLength.txt", "chrName.txt", "chrStart.txt", "Genome", "genomeParameters.txt", "SA", "SAindex"]
+    string[] idxDeps
+
+    for(string idxFile : idxFiles) {
+        string idxDep = starIdxDir + "/" + idxFile
+        idxDeps.add(idxDep)
+    }
+
+    string logFn = refDir + "/" + "." + fasta.baseName().removeExt() + ".starIdx.siklog"
+    refDir = refDir + "/"
+
+    //int chkGTF = starOpts.indexOf("--sjdbGTFfile")
+    //if(chkGTF != -1) refFilesIn += gtfFile
+
+    log("MSG: Beginng STAR indexing")
+
+    task(idxDeps <- fasta, cpus := xCpu, mem := xMem, taskName := "Making STAR index") {
+        sys $x --runThreadN $xCpu \
+               --runMode genomeGenerate \
+               --genomeDir $starIdxDir \
+               --outFileNamePrefix $refDir \
+               --genomeFastaFiles $fasta \
+               $starCmdOpts > $logFn 2>&1
+        //NOTE I think it's good idea to drop unzipped fasta file here, at this stage I don't think I'll needed
+        //sys rm $fasta
+        //NOTE turns out, deleting fasta here causes bunch of dependencies issues, so gonna keep it there untill figure out better solution
+    }
+
+    return starIdxDir
+}
+
+//string{} mapSTAR(string{} resources, string{} sample, string genomeIdx) {
+//
+//    string starExe = resource.toolsExe
+//    int alignMem = resource.toolsMem
+//    int alignCpu = resource.toolsCpu
+//    string starCmdOpts = resources.sikCmdOpts
+//
+//    string indexFiles = reference.indexFile
+//
+//
+//    string[] fqFilesR1 = sample.fqFilesR1
+//    string[] fqFilesR2 = sample.fqFilesR2
+//    string sampleName = sample.sampleName
+//    sampleName += "_" // STAR picularity
+//    string bamOut = sample.bamOut
+//    string bamLog = sample.bamLog
+//
+//    string[] deps
+//    deps += fqFilesR1
+//    deps += fqFilesR2
+//    deps += indexFiles
+//
+//    string fqR1 = fqFilesR1.join(",")
+//    string fqR2 = fqFilesR2.join(",")
+//    string fqStr = [fqR1, fqR2].join(" ")
+//
+//    string logMsg = "STAR aligning " + sampleName
+//
+//    //TODO should make this information to come from metadata config file, default to empty string
+//
+//    task([bamOut, bamLog] <- deps, cpus := alignCpu, mem := alignMem, taskName := logMsg) {
+//
+//        sys $starExe --runThreadN $alignCpu \
+//                     --runMode alignReads \
+//                     --genomeDir $genomeIdx \
+//                     --outSAMattrRGline ID:001 CN:Unknown DS:RNAseq PL:ILLUMINA PM:ILLUMINA SM:$sampleName \
+//                     --readFilesIn $fqStr \
+//                     --outFileNamePrefix $sampleName \
+//                     $starCmdOpts
+//    }
+//
+//    return "place holder"
+//}
+
+

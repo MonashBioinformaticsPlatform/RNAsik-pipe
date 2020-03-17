@@ -17,48 +17,48 @@ It appears to me that my previous class sikResoucesClass.bds has become redundan
 class SikConfig {
     //NOTE
     // This is it ! sik yeh!
-    // DOCS:
-    // This class takes sik.config with a bag of random keys, segregates them into appropriate areas and passes them on.
-    // All other classes extend this one
-    // The final class is Config(), that way in the code I simply call config := new Config() and "magically" I'll have everything I need right, right?
+    /*
+       DOCS:
+       This class takes sik.config with a bag of random keys, segregates them into appropriate areas and passes them on.
+       All other classes extend this one
+       The final class is Config(), that way in the code I simply call config := new Config() and "magically" I'll have everything I need right, right?
+       This class has the following objects:
 
-    string configOriginFn = programPath.pathName()+"/../configs"
+       - sikCmdFlgas
+       - usrResConfg
+       - usrStarConf
+       - usrCntsConfg
 
-    // General configs
-    string{} resourcesConfig
+       TODO each additional tool should have its own slot in this class e.g string{} usrFlagstatConf
+    */
 
-    // Problematic key=values
-    string{} unassigned
-
-    // tooling config
-    string{} starConfig
-    string{} featureCountsConfig
-    string{} sikCmdFlags
-
-    //TODO
-    //string{} samtoolsFlagstatConfig
-    //string{} samtoolsStatConfig
+    string{} _unassigned   //note sure what to do with these yet, error out for now
+    string{} sikCmdFlags   // user resources
+    string{} usrResConf
+    string{} usrStarConf
+    string{} usrCntsConf
 
     void SikConfig(string sikConfigFn) {
 
-        string resourcesAllowedKeysFn = this.configOriginFn + "/sikAllowedKeys/resources.txt"
+        string configOriginFn = programPath.pathName()+"/../configs"
+        string resourcesAllowedKeysFn = configOriginFn + "/sikAllowedKeys/resources.txt"
         assert(resourcesAllowedKeysFn.exists())
         string[] resourcesAllowedKeys = resourcesAllowedKeysFn.readLines()
 
-        string starAllowedKeysFn = this.configOriginFn + "/sikAllowedKeys/star.txt"
+        string starAllowedKeysFn = configOriginFn + "/sikAllowedKeys/star.txt"
         assert(starAllowedKeysFn.exists())
         string[] starAllowedKeys = starAllowedKeysFn.readLines()
 
-        string featureCountsAllowedKeysFn = this.configOriginFn + "/sikAllowedKeys/featureCounts.txt"
+        string featureCountsAllowedKeysFn = configOriginFn + "/sikAllowedKeys/featureCounts.txt"
         assert(featureCountsAllowedKeysFn.exists())
         string[] featureCountsAllowedKeys = featureCountsAllowedKeysFn.readLines()
 
-        string[] sikCmdKeys = ["sikConfig", \
-                               "metadata", \
+        string[] sikCmdKeys = ["metadata", \
                                "aligner", \
                                "refFiles", \
                                "paired", \
                                "geneModels", \
+                               "genomeIdx", \
                                "fasta", \
                                "counts", \
                                "mdups", \
@@ -71,49 +71,48 @@ class SikConfig {
         for(string k : sikConfig.keys()) {
 
             if(resourcesAllowedKeys.has(k)) {
-                this.resourcesConfig{k} = sikConfig{k}
+                this.usrResConf{k} = sikConfig{k}
                 continue
             } else if(starAllowedKeys.has(k)) {
-                this.starConfig{k} = sikConfig{k}
+                this.usrStarConf{k} = sikConfig{k}
                 continue
             } else if(featureCountsAllowedKeys.has(k)) {
-                this.featureCountsConfig{k} = sikConfig{k}
+                this.usrCntsConf{k} = sikConfig{k}
                 continue
             } else if(sikCmdKeys.has(k)) {
                 this.sikCmdFlags{k} = sikConfig{k}
                 continue
             } else {
-                this.unassigned{k} = sikConfig{k}
+                this._unassigned{k} = sikConfig{k}
             }
         }
 
-        if(unassigned.size() > 0) {
+        if(_unassigned.size() > 0) {
             error "\n\
                    \n\
-                   SikErr: Too many unassigned keys in the config file\
+                   SikErr: Too many _unassigned keys in the config file\
                    \n\
-                   $unassigned\
+                   $_unassigned\
                    \n"
         }
     }
 }
 
-class SikResourcesConfig extends SikConfig {
+class SikResourcesConfig {
 
-    string{} sikResourcesConfig
+    string{} _sikResConf
 
-    void SikResourcesConfig(string sikConfigFn) {
+    void SikResourcesConfig(string{} usrResConf) {
 
-        SikConfig(sikConfigFn)
+        string configOriginFn = programPath.pathName()+"/../configs"
+        string sikRefConfFn = configOriginFn + "/sikResources.config"
+        assert(sikRefConfFn.exists())
 
-        string sikResourcesConfigFn = this.configOriginFn + "/sikResources.config"
-        assert(sikResourcesConfigFn.exists())
+        this._sikResConf = config(sikRefConfFn)
 
-        this.sikResourcesConfig = config(sikResourcesConfigFn)
-
-        for(string k : this.sikResourcesConfig.keys()) {
-            if(this.resourcesConfig.hasKey(k)) {
-                sikResourcesConfig{k} = this.resourcesConfig{k}
+        for(string k : this._sikResConf.keys()) {
+            if(usrResConf.hasKey(k)) {
+                _sikResConf{k} = usrResConf{k}
             }
         }
     }
@@ -130,7 +129,23 @@ class SikResourcesConfig extends SikConfig {
 // - mkIdxMem
 // - toolArgs
 
-class StarConfig extends SikResourcesConfig {
+class SikStarConfig extends SikResourcesConfig {
+
+/*
+
+DOCS: This class takes, takes global sikRefConf that holds information about all required resources and usrStarConf information which is anything that
+user specified and adjusted for STAR to work with. The SikStarConfig can then be passed to STAR indexing and alignment. Main objects from this class are:
+
+- alignerRes
+- alignerCmdOpts
+
+AND
+
+- idxRes
+- idxCmdOpts
+
+*/
+
 
 /*
 FYI:
@@ -160,16 +175,17 @@ then I should pass those to the alignment step
 This config class needs to know whether user has passed in refFiles with pre-existing indecies
 
 */
-    string{} alignerResources
+    string{} alignerRes
     string[] alignerCmdOpts
-    string[] indexCmdOpts
-    // TODO I need to figure out how make sikStarConfig internal use only. I don't really need this to be exposed to the outside
-    // I think convention is to use underscore prefix i.e _sikStarConfig
-    string{} _sikStarConfig
 
-    void StarConfig(string sikConfigFn, bool paired) {
+    string{} idxRes
+    string[] idxCmdOpts
 
-        SikResourcesConfig(sikConfigFn)
+    string{} _sikStarConf // private to this class
+
+    void SikStarConfig(string{} usrResConf, string{} usrStarConf) {
+
+        SikResourcesConfig(usrResConf)
 
         string[] idxKeys = ["--sjdbGTFfile", \
                             "--sjdbOverhang", \
@@ -180,27 +196,30 @@ This config class needs to know whether user has passed in refFiles with pre-exi
                             "--genomeSAindexNbases", \
                             "--genomeChrBinNbits"]
 
-        string sikStarConfigFn = this.configOriginFn + "/sikCmdOptions/star.config"
+        string configOriginFn = programPath.pathName()+"/../configs"
+        string sikStarConfigFn = configOriginFn + "/sikCmdOptions/star.config"
         assert(sikStarConfigFn.exists())
 
-        // TODO need to set / check paired end flags?
+        this._sikStarConf = config(sikStarConfigFn)
 
-        this._sikStarConfig = config(sikStarConfigFn)
+        string[] keys = this._sikStarConf.keys()
+        keys += usrStarConf.keys()
+        keys = unique(keys)
 
-        for(string k : this._sikStarConfig.keys()) {
+        for(string k : keys) {
 
-            if(this.starConfig.hasKey(k)) {
+            if(usrStarConf.hasKey(k)) {
                 /*
                   TODO this is hasn't been properly implemented. At this stage I'm simply assuming that the user can't pass
                 */
                 if(idxKeys.has(k)) {
-                    indexCmdOpts.add([k, this.starConfig{k}].join(" "))
+                    idxCmdOpts.add([k, usrStarConf{k}].join(" "))
                 } else {
-                    alignerCmdOpts.add([k, this.starConfig{k}].join(" "))
+                    alignerCmdOpts.add([k, usrStarConf{k}].join(" "))
                 }
 
             } else {
-                alignerCmdOpts.add([k, this._sikStarConfig{k}].join(" "))
+                alignerCmdOpts.add([k, this._sikStarConf{k}].join(" "))
             }
         }
 
@@ -212,7 +231,7 @@ This config class needs to know whether user has passed in refFiles with pre-exi
                               "starExe"]
 
         for(string k : sanityChk) {
-            if(!this.sikResourcesConfig.hasKey(k)) {
+            if(!this._sikResConf.hasKey(k)) {
                 error "\n\
                        \n\
                        SikErr: Key not found -> $k. Check you configuration files \
@@ -220,59 +239,41 @@ This config class needs to know whether user has passed in refFiles with pre-exi
             }
         }
 
-        alignerResources{"alignerCpu"} = this.sikResourcesConfig{"starAlignerCpu"}
-        alignerResources{"alignerMem"} = this.sikResourcesConfig{"starAlignerMem"}
-        alignerResources{"idxCpu"} = this.sikResourcesConfig{"starIdxCpu"}
-        alignerResources{"idxMem"} = this.sikResourcesConfig{"starIdxMem"}
-        alignerResources{"starExe"} = this.sikResourcesConfig{"starExe"}
+        alignerRes{"alignerCpu"} = this._sikResConf{"starAlignerCpu"}
+        alignerRes{"alignerMem"} = this._sikResConf{"starAlignerMem"}
+        alignerRes{"starExe"} = this._sikResConf{"starExe"}
+
+        idxRes{"idxCpu"} = this._sikResConf{"starIdxCpu"}
+        idxRes{"idxMem"} = this._sikResConf{"starIdxMem"}
+        idxRes{"starExe"} = this._sikResConf{"starExe"}
 
     }
 }
 
-class RefConfig extends SikResourcesConfig {
+class SikReferencesConfig extends SikResourcesConfig {
 
-    string{} refResouces
+    string{} sikRefConf
     //NOTE I can later extend this class to also allow custome cmd options passing
     // will leave it as is for now, since I haven't seen a lot of use case for this
     //string[] refCmdOpts
-    void RefConfig(string sikConfigFn) {
+    void SikReferencesConfig(string{} usrResConf) {
 
-        SikResourcesConfig(sikConfigFn)
+        SikResourcesConfig(usrResConf)
 
-        refResouces{"cpExe"} = this.sikResourcesConfig{"cpExe"}
-        refResouces{"cpCpu"} = this.sikResourcesConfig{"cpCpu"}
-        refResouces{"cpMem"} = this.sikResourcesConfig{"cpMem"}
+        sikRefConf{"cpExe"} = this._sikResConf{"cpExe"}
+        sikRefConf{"cpCpu"} = this._sikResConf{"cpCpu"}
+        sikRefConf{"cpMem"} = this._sikResConf{"cpMem"}
 
-        refResouces{"faiExe"} = this.sikResourcesConfig{"samtoolsExe"} + " faidx"
-        refResouces{"faiCpu"} = this.sikResourcesConfig{"samtoolsFaidxCpu"}
-        refResouces{"faiMem"} = this.sikResourcesConfig{"samtoolsFaidxMem"}
+        sikRefConf{"bgzipExe"} = this._sikResConf{"bgzipExe"}
+        sikRefConf{"bgzipCpu"} = this._sikResConf{"bgzipCpu"}
+        sikRefConf{"bgzipMem"} = this._sikResConf{"bgzipMem"}
 
-        refResouces{"dictExe"} = this.sikResourcesConfig{"picardExe"} + " CreateSequenceDictionary"
-        refResouces{"dictCpu"} = this.sikResourcesConfig{"picardDictCpu"}
-        refResouces{"dictMem"} = this.sikResourcesConfig{"picardDictMem"}
+        sikRefConf{"faiExe"} = this._sikResConf{"samtoolsExe"} + " faidx"
+        sikRefConf{"faiCpu"} = this._sikResConf{"samtoolsFaidxCpu"}
+        sikRefConf{"faiMem"} = this._sikResConf{"samtoolsFaidxMem"}
 
+        sikRefConf{"dictExe"} = this._sikResConf{"picardExe"} + " CreateSequenceDictionary"
+        sikRefConf{"dictCpu"} = this._sikResConf{"picardDictCpu"}
+        sikRefConf{"dictMem"} = this._sikResConf{"picardDictMem"}
     }
-
 }
-//class CountsConfig extends SikConfig {
-//
-//    string{} sikCountsConfig
-//
-//    void CountsConfig(string sikConfigFn, bool paired) {
-//
-//        SikConfig(sikConfigFn)
-//
-//        string sikCountsConfigFn = this.configOriginFn + "/sikCmdOptions/featureCounts.config"
-//        assert(sikCountsConfigFn.exists())
-//
-//        // TODO need to set / check paired end flags
-//
-//        this.sikCountsConfig = config(sikCountsConfigFn)
-//
-//        for(string k : this.sikCountsConfig.keys()) {
-//            if(this.featureCountsConfig.hasKey(k)) {
-//                sikCountsConfig{k} = this.featureCountsConfig{k}
-//            }
-//        }
-//    }
-//}

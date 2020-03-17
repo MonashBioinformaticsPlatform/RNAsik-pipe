@@ -1,53 +1,38 @@
 
-string getRef(string{} refConfig, string refFile, string refDir) {
+string unBgzip(string{} sikRefConf, string fasta, string refDir) {
 
-    string x = refConfig{"cpExe"}
-    int xCpu = refConfig{"cpCpu"}.parseInt()
-    int xMem = refConfig{"cpMem"}.parseInt()
+    string out = refDir + "/" + fasta.baseName().removeExt()
 
-    string fileName = refFile.baseName()
-    string localRef = refDir+"/"+fileName
+    string x = sikRefConf{"bgzipExe"}
+    int xCpu = sikRefConf{"bgzipCpu"}.parseInt()
+    int xMem = sikRefConf{"bgzipMem"}.parseInt()
 
-    task(refFile.isFile(), localRef <- refFile, cpus := xCpu, mem := xMem, taskName := "Copying $refFile to $refDir") {
-        sys $x -v $refFile $refDir
+    task(out <- fasta, cpus := xCpu, mem := xMem, taskName := "bgzip --decompress") {
+        sys $x --stdout --decompress $fasta > $out
     }
 
-    return localRef
+    return out
 }
 
-string mkFai(string{} refConfig, string fasta) {
+string bgzip(string{} sikRefConf, string in) {
 
-    string x = refConfig{"faiExe"}
-    int xCpu = refConfig{"faiCpu"}.parseInt()
-    int xMem = refConfig{"faiMem"}.parseInt()
+    string x = sikRefConf{"bgzipExe"}
+    int xCpu = sikRefConf{"bgzipCpu"}.parseInt()
+    int xMem = sikRefConf{"bgzipMem"}.parseInt()
 
-    string fai = fasta+".fai"
+    string res = in + ".gz"
+    string idx = res + ".gzi"
 
-    task(fai <- fasta, cpus := xCpu, mem := xMem, taskName := "Indexing $fasta file") {
-        sys $x $fasta
+    task([res, idx] <- in, cpus := xCpu, mem := xMem, taskName := "bgzip $in") {
+        sys $x --stdout --index $in > $res
     }
 
-    return fai
+    return res
 }
-
-string mkDict(string{} refConfig, string fasta) {
-
-    string x = refConfig{"dictExe"}
-    int xCpu = refConfig{"dictCpu"}.parseInt()
-    int xMem = refConfig{"dictMem"}.parseInt()
-
-    string dict = fasta.removeExt()+".dict"
-
-    task(mdups, dict <- fasta, cpus := xCpu, mem := xMem, taskName := "Making dictionary File") {
-        sys $x REFERENCE=$fasta OUTPUT=$dict
-    }
-
-    return dict
-}
-
 
 string mkChromSizes(string fasta) {
 
+    //string chromSizes = refDir + "/" + fasta.baseName().removeExt()+".chromSizes"
     string chromSizes = fasta.removeExt()+".chromSizes"
     string x = programPath.pathName()+"/../scripts/ucsc_bin/faSize"
     int xCpu = 1
@@ -58,4 +43,62 @@ string mkChromSizes(string fasta) {
     }
 
     return chromSizes
+}
+
+string getRef(string{} sikRefConf, string refFile, string refDir) {
+
+    string x = sikRefConf{"cpExe"}
+    int xCpu = sikRefConf{"cpCpu"}.parseInt()
+    int xMem = sikRefConf{"cpMem"}.parseInt()
+
+    string fileName = refFile.baseName()
+    string localRef = refDir+"/"+fileName
+
+    string logFn = refDir + "/." + fileName + ".siklog"
+
+    task(refFile.isFile(), localRef <- refFile, cpus := xCpu, mem := xMem, taskName := "Copying $refFile to $refDir") {
+        sys $x -v $refFile $refDir > $logFn 2>&1
+    }
+
+    return localRef
+}
+string mkFai(string{} sikRefConf, string fasta) {
+
+    string x = sikRefConf{"faiExe"}
+    int xCpu = sikRefConf{"faiCpu"}.parseInt()
+    int xMem = sikRefConf{"faiMem"}.parseInt()
+
+    string fai = fasta+".fai"
+
+    task(fai <- fasta, cpus := xCpu, mem := xMem, taskName := "Indexing $fasta file") {
+        sys $x $fasta
+    }
+
+    return fai
+}
+
+string mkDict(string{} sikRefConf, string fasta, bool mdups) {
+
+    string x = sikRefConf{"dictExe"}
+    int xCpu = sikRefConf{"dictCpu"}.parseInt()
+    int xMem = sikRefConf{"dictMem"}.parseInt()
+
+    string extn = fasta.extName()
+
+    string dict
+
+    if(extn == "gz") {
+        dict = fasta.removeExt().removeExt()+".dict"
+    } else {
+        dict = fasta.removeExt()+".dict"
+    }
+
+    string tmp = dict.baseName()
+    string logFn = dict.replace(tmp, "." + tmp + ".siklog")
+
+    task(mdups, dict <- fasta, cpus := xCpu, mem := xMem, taskName := "Making dictionary File") {
+        sys $x REFERENCE=$fasta OUTPUT=$dict > $logFn 2>&1
+    }
+
+    return dict
 }

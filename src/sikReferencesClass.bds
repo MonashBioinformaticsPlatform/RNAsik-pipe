@@ -2,6 +2,10 @@
 Abstracting away references
 */
 
+include "sikRefUtils.bds"
+include "sikUtils.bds"
+include "sikSTARutils.bds"
+include "sikConfigClass.bds"
 
  /*
  NOTE
@@ -28,12 +32,20 @@ class ReferenceFiles {
     string genomeIdx // here genomeIdx should be the string that aligner expects, for STAR this will be directory name, for bwa mem it'll be file basename
     string refDir
 
-    void ReferenceFiles(string{} cmdFlags, string{} refConfig) {
+    void ReferenceFiles(string{} sikCmdFlags, SikReferencesConfig _sikRefConf) {
         // NOTE here we need to make a check for users refFiles, and if given parse it out and sanity check
-        string refFilesFn = cmdFlags.refFiles
-        string aligner = cmdFlags.aligner
 
-        if(!refFilesFn.isEmpty()) {
+        string{} sikRefConf = _sikRefConf.sikRefConf
+
+        string refFilesFn = getVal(sikCmdFlags, "refFiles")
+        string genomeIdx = getVal(sikCmdFlags, "genomeIdx")
+        string fastaFn = sikCmdFlags{"fasta"}
+        string geneModelsFn = sikCmdFlags{"geneModels"}
+        string aligner = sikCmdFlags{"aligner"}
+        string sikDir = sikCmdFlags{"outDir"}
+        bool mdups = sikCmdFlags{"mdups"}
+
+        if(refFilesFn != "NULL") {
 
             string[] allowedFasta = ["fa", \
                                      "fasta", \
@@ -61,6 +73,10 @@ class ReferenceFiles {
 
             for(string refFile : refFilesFn.dirPath()) {
 
+                if(refFile.endsWith('.siklog')) {
+                    continue
+                }
+
                 string extn = refFile.extName()
 
                 if(extn == "gz") {
@@ -70,7 +86,7 @@ class ReferenceFiles {
                 if(!allowedRefExt.has(extn)) {
                     warning "\n\
                              \n\
-                             SikWarn: Identified unknown reference file in the $refFilesFn directory. Skipping this file $r
+                             SikWarn: Identified unknown reference file in the $refFilesFn directory. Skipping this file $refFile
                              \n"
                     continue
                 }
@@ -100,6 +116,12 @@ class ReferenceFiles {
                 }
 
                 if(allowedIdx.hasValue(extn)) {
+                    if(genomeIdx != "NULL") {
+                        warning "\n\
+                                 \n\
+                                 SikWarn: User specified both refFiles and genomeIdx, only one is sufficient. RNAsik will proceed with this genomeIdx $refFile
+                                 \n"
+                    }
                     assert(allowedIdx{aligner} == extn)
                     this.genomeIdx = refFile
                 }
@@ -107,70 +129,57 @@ class ReferenceFiles {
 
         } else {
 
-            this.refDir = cmdFlags.sikDir+"/refFiles"
+            this.refDir = sikDir+"/refFiles"
 
             if(!this.refDir.exists()) {
                 this.refDir.mkdir()
             }
 
-            this.fasta = getRef(refConfig, cmdFlgas.fastaFn, this.refDir)
-            this.faIdx = mkFai(refConfig, this.fasta)
-            this.faDict = mkDict(refConfig, this.fasta)
-            this.chromSizes = mkChromSize(this.fasta)
+            string localFa
+
+            string extn = fastaFn.extName()
+            if(extn == "gz") {
+                localFa = unBgzip(sikRefConf, fastaFn, this.refDir)
+            } else {
+                localFa = getRef(sikRefConf, fastaFn, this.refDir)
+            }
+            this.fasta = bgzip(sikRefConf, localFa)
+
+            if(aligner == "star") {
+                /*
+                DOCS: this seems stupid but STAR aligner can handle gzipped FASTA reference, has to unzipped
+                */
+                this.fasta = localFa
+            }
+
+            this.faIdx = mkFai(sikRefConf, this.fasta)
+            this.faDict = mkDict(sikRefConf, this.fasta, mdups)
+            this.chromSizes = mkChromSizes(this.fasta)
 
             //NOTE could have function to turn geneModles into the object I want,
             // thinking about all the fuckiery I had with gff, gtf and genebank parsing abstract away here
-            this.geneModels = getRef(refConfig, cmdFlgas.geneModelsFn, refDir)
+            this.geneModels = getRef(sikRefConf, geneModelsFn, this.refDir)
         }
     }
 }
 
-class StarIndex extends ReferenceFiles {
-    // Here I should check and error out if ReferenceFiles class doesn't have what I need
-    //string refFilesDir
+class References extends ReferenceFiles {
 
-    void StarIndex(string{} cmdFlags, string{} starConfig) {
+    void References(SikConfig sikConf, SikReferencesConfig sikRefConf) {
 
-        ReferenceFiles(cmdFlags)
+        ReferenceFiles(sikConf.sikCmdFlags, sikRefConf)
 
-        string extName = this.fasta.extName()
-        string starIdxDir
-
-        //TODO would be useful to stick aligner version to the suffix as well in future
-        if(extName == "gz") {
-            this.starIdxDir = this.refDir + "/" + this.fasta.baseName().removeExt().removeExt()+".starIdx"
-        } else {
-            this.starIdxDir = this.refDir + "/" + this.fasta.baseName().removeExt()+".starIdx"
-        }
-
-        log("MSG: Making STAR genomic index directory $starIdxDir")
-        if(!this.starIdxDir.exists()) {
-            this.starIdxDir.mkdir()
-        }
-
-        this.genomeIdx = mkSTARIdx(this.fasta, this.refDir, this.starIdxDir, starConfig)
-
-    }
-}
-
-class References {
-
-    //string{} refs
-
-    //void ReferenceFiles(string{} cmdFlags, string{} refConfig) {
-    void References(string{} cmdFlags, string{} config) {
-
-        string aligner = cmdFlags.aligner
+        string aligner = sikConf.sikCmdFlags{"aligner"}
 
         switch(aligner) {
             case 'star':
-                starConfig := new StarConfig(cmdFlags.sikConfig, cmdFlags.paired)
-                StarIndex(cmdFlags, starConfig)
+                sikStarConf := new SikStarConfig(sikConf.usrResConf, sikConf.usrStarConf)
+                StarIndex starIdx = new StarIndex(sikStarConf, this.fasta, this.refDir, this.genomeIdx)
+                this.genomeIdx = starIdx.genomeIdx
                 break
             case 'hisat2':
                 error("SikErr: Haven't been implemented yet")
                 break
-
             case 'bwaMem':
                 error("SikErr: Haven't been implemented yet")
                 break
