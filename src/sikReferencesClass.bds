@@ -4,7 +4,7 @@ Abstracting away references
 
 include "sikRefUtils.bds"
 include "sikUtils.bds"
-include "sikSTARaligner.bds"
+include "sikSTARclass.bds"
 include "sikConfigClass.bds"
 
  /*
