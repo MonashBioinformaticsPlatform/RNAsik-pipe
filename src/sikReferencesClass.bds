@@ -5,6 +5,7 @@ Abstracting away references
 include "sikRefUtils.bds"
 include "sikUtils.bds"
 include "sikSTARclass.bds"
+include "sikBWAclass.bds"
 include "sikConfigClass.bds"
 
  /*
@@ -182,7 +183,9 @@ class References extends ReferenceFiles {
                 error("SikErr: Haven't been implemented yet")
                 break
             case 'bwaMem':
-                error("SikErr: Haven't been implemented yet")
+                SikBWAidxConfig sikBWAidxConf = new SikBWAidxConfig(sikConf.usrResConf, sikConf.usrToolsConf)
+                BWAindex bwaIdx = new BWAindex(sikBWAidxConf, this.fasta, this.refDir, this.genomeIdx)
+                this.genomeIdx = bwaIdx.genomeIdx
                 break
             default:
                 error("SikErr: There needs to be an error here to make sure nothing else is passed through, other than allowed aligners")

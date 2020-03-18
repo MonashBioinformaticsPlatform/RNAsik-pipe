@@ -1,0 +1,94 @@
+        //string bwaAllowedKeysFn = configOriginFn + "/sikAllowedKeys/bwaMem.txt"
+        //assert(bwaAllowedKeysFn.exists())
+        //string[] bwaAllowedKeys = bwaAllowedKeysFn.readLines()
+
+        //string featureCountsAllowedKeysFn = configOriginFn + "/sikAllowedKeys/featureCounts.txt"
+        //assert(featureCountsAllowedKeysFn.exists())
+        //string[] featureCountsAllowedKeys = featureCountsAllowedKeysFn.readLines()
+
+include "sikConfigClass.bds"
+include "sikBWAutils.bds"
+
+class SikBWAidxConfig extends SikResourcesConfig {
+
+    string{} idxRes
+    string[] idxCmdOpts
+
+    string{} _sikBWAidxConf // private to this class
+
+    void SikBWAidxConfig(string{} usrResConf, string{} usrToolsConf) {
+
+        SikResourcesConfig(usrResConf)
+
+        string{} usrBWAidxOpts
+
+        if(usrToolsConf.hasKey("bwaIdx")) {
+            usrBWAidxOpts = parseUsrToolsOpts("bwaIdx", usrToolsConf{"bwaIdx"})
+        }
+
+        //TODO instead of creating dummy/empty files, I should just check here if the file exists
+        string sikBWAidxConfigFn = this._configOriginFn + "/sikCmdOptions/bwaIdx.config"
+        assert(sikBWAidxConfigFn.exists())
+        this._sikBWAidxConf = config(sikBWAidxConfigFn)
+
+        string[] keys = this._sikBWAidxConf.keys()
+        keys += usrBWAidxOpts.keys()
+        keys = unique(keys)
+
+        for(string k : keys) {
+            if(usrBWAidxOpts.hasKey(k)) {
+                idxCmdOpts.add([k, usrBWAidxOpts{k}].join(" "))
+            } else {
+                idxCmdOpts.add([k, this._sikBWAidxConf{k}].join(" "))
+            }
+        }
+
+        string[] sanityChk = ["bwaIdxCpu", \
+                              "bwaIdxMem", \
+                              "bwaExe"]
+
+        for(string k : sanityChk) {
+            if(!this._sikResConf.hasKey(k)) {
+                error "\n\
+                       \n\
+                       SikErr: Key not found -> $k. Check you configuration files \
+                       \n"
+            }
+        }
+
+        idxRes{"idxCpu"} = this._sikResConf{"bwaIdxCpu"}
+        idxRes{"idxMem"} = this._sikResConf{"bwaIdxMem"}
+        idxRes{"bwaExe"} = this._sikResConf{"bwaExe"}
+    }
+}
+
+class BWAindex {
+
+    string genomeIdx
+
+    void BWAindex(SikBWAidxConfig sikBWAidxConf, string fasta, string refDir, string genomeIdx) {
+
+        string extn = fasta.extName()
+        string bwaIdxDir
+
+        //TODO would be useful to stick aligner version to the suffix as well in future
+        if(extn == "gz") {
+            bwaIdxDir = refDir + "/" + fasta.baseName().removeExt().removeExt()+".bwaIdx"
+        } else {
+            bwaIdxDir = refDir + "/" + fasta.baseName().removeExt()+".bwaIdx"
+        }
+
+        log("MSG: Making BWA genomic index directory $bwaIdxDir")
+        if(!bwaIdxDir.exists()) {
+            bwaIdxDir.mkdir()
+        }
+
+        if(genomeIdx == "NULL" || genomeIdx.isEmpty()) {
+            this.genomeIdx = mkBWAidx(sikBWAidxConf, fasta, refDir, bwaIdxDir)
+        } else {
+            assert(genomeIdx.exists())
+            this.genomeIdx = genomeIdx
+        }
+    }
+}
+

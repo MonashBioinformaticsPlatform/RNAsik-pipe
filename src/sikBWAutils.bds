@@ -1,0 +1,108 @@
+
+string mkBWAidx(SikBWAidxConfig sikBWAidxConf, string fasta, string refDir, string bwaIdxDir) {
+
+    string{} resources = sikBWAidxConf.idxRes
+    string x = resources{"bwaExe"}
+    int xCpu = resources{"idxCpu"}.parseInt()
+    int xMem = resources{"idxMem"}.parseInt()
+
+    string bwaCmdOpts = sikBWAidxConf.idxCmdOpts.join(" ")
+
+    string bwaIdx = bwaIdxDir+"/"+fasta.baseName()
+
+    string[] idxExts = [".amb", ".ann", ".bwt", ".pac", ".sa"]
+    string[] idxDeps
+    for(string idxExt : idxExts) {
+        idxDeps.add(bwaIdx+idxExt)
+    }
+
+    string logFn = refDir + "/" + "." + bwaIdxDir.baseName() + ".siklog"
+
+    log("MSG: Beginng BWA indexing")
+    task(idxDeps <- fasta, cpus := xCpu, mem := xMem, taskName := "Making bwa index") {
+        sys $x index -p $bwaIdx \
+                     $fasta \
+		     $bwaCmdOpts > $logFn 2>&1
+    }
+
+    return bwaIdx
+}
+
+//string{} mapBWA(string{} cmdExe, string bamFiles, string{} samplesMap, string pairIds, bool paired, string bwaOpts, string genomeIdx, string fastaRef) {
+//
+//    string{} resource = getResource(cmdExe, "bwa", "Align")
+//    string bwaExe = resource{"toolsExe"}
+//    int alignMem = resource{"toolsMem"}.parseInt()
+//    int alignCpu = resource{"toolsCpu"}.parseInt()
+//
+//    string[] bamsList
+//    string{} bamsMap
+//
+//    string bwaIdx
+//
+//    string[] idxs = genomeIdx.dirPath()
+//
+//    if(!fastaRef.isEmpty() && idxs.isEmpty()) {
+//    	bwaIdx = genomeIdx+"/"+fastaRef.baseName()
+//    }
+//    else if(!idxs.isEmpty()) {
+//        string bwaIdxBase = idxs[0].removeExt()
+//        bwaIdx = genomeIdx+"/"+bwaIdxBase.baseName()
+//    }
+//
+//    string[] idxExts = [".amb", ".ann", ".bwt", ".pac", ".sa"]
+//    string[] bwaIdxFiles
+//    for(string idxExt : idxExts) {
+//        bwaIdxFiles.add(bwaIdx+idxExt)
+//    }
+//
+//    for(string rootName : samplesMap.keys()) {
+//        string[] readsList = alignerReads(samplesMap{rootName}, pairIds)
+//        string[] deps
+//        //NOTE for more information on the for loop below refere to
+//        //sikSTAR.bds file line 62
+//        for(string fq : readsList) {
+//            int chk = fq.indexOf(",")
+//            if(chk != -1) {
+//                string[] reads = fq.split(",")
+//                deps += reads
+//            }
+//        }
+//
+//        deps += bwaIdxFiles
+//
+//        string rootBase = rootName.baseName()
+//        string bamOut = bamFiles+"/"+rootBase+"_bwaMem.bam"
+//
+//        string reads
+//
+//        if(paired) {
+//	    string readOne = readsList[0].replace("," , " ")
+//	    string readTwo = readsList[1].replace("," , " ")
+//
+//            string subReadOne = "<(zcat "+readOne+")"
+//            string subReadTwo = "<(zcat "+readTwo+")"
+//
+//            reads = [subReadOne, subReadTwo].join()
+//
+//        }
+//        else {
+//	    string readOne = readsList[0].replace("," , " ")
+//            reads = "<(zcat "+readOne+")"
+//        }
+//
+//        dep(!fqDir.isEmpty(), bamOut <- deps, cpus := alignCpu, mem := alignMem, taskName := "bwa mem aligning "+rootBase) {
+//            sys $bwaExe mem -t $alignCpu \
+//                            $bwaOpts \
+//                            $bwaIdx \
+//                            $reads | samtools view -S -b - > $bamOut
+//        }
+//        bamsList.add(bamOut)
+//
+//        if(bamsMap.hasKey(rootBase)) {
+//            error "This should happened, please report this issue, sikBWAalinger.bds file"
+//        }
+//        bamsMap{rootBase} = bamOut
+//    }
+//    return bamsMap
+//}
