@@ -4,7 +4,7 @@ Abstracting away references
 
 include "sikRefUtils.bds"
 include "sikUtils.bds"
-include "sikSTARutils.bds"
+include "sikSTARaligner.bds"
 include "sikConfigClass.bds"
 
  /*
@@ -173,8 +173,9 @@ class References extends ReferenceFiles {
 
         switch(aligner) {
             case 'star':
-                sikStarConf := new SikStarConfig(sikConf.usrResConf, sikConf.usrStarConf)
-                StarIndex starIdx = new StarIndex(sikStarConf, this.fasta, this.refDir, this.genomeIdx)
+                //SikStarAlingerConfig sikStarAlignerConf = new SikStarAlignerConfig(sikConf.usrResConf, sikConf.usrToolsConf)
+                SikStarIdxConfig sikStarIdxConf = new SikStarIdxConfig(sikConf.usrResConf, sikConf.usrToolsConf)
+                StarIndex starIdx = new StarIndex(sikStarIdxConf, this.fasta, this.refDir, this.genomeIdx)
                 this.genomeIdx = starIdx.genomeIdx
                 break
             case 'hisat2':

@@ -32,38 +32,36 @@ class SikConfig {
        TODO each additional tool should have its own slot in this class e.g string{} usrFlagstatConf
     */
 
+    string _configOriginFn = programPath.pathName()+"/../configs"
+
     string{} _unassigned   //note sure what to do with these yet, error out for now
-    string{} sikCmdFlags   // user resources
+
+    string{} sikCmdFlags
     string{} usrResConf
-    string{} usrStarConf
-    string{} usrCntsConf
+    string{} usrToolsConf
 
     void SikConfig(string sikConfigFn) {
 
-        string configOriginFn = programPath.pathName()+"/../configs"
-        string resourcesAllowedKeysFn = configOriginFn + "/sikAllowedKeys/resources.txt"
+
+        /*
+            DOCS: User specified sikConfig can hold keys from:
+
+                - sikCmdOpts.txt   keys to pass certain values to RNAsik
+                - tools.txt        additional keys to custom configure individual tools
+                - resources.txt    custom resources requirements by user
+        */
+
+        string sikCmdKeysFn = this._configOriginFn + "/sikAllowedKeys/sikCmdOpts.txt"
+        assert(sikCmdKeysFn.exists())
+        string[] sikCmdKeys = sikCmdKeysFn.readLines()
+
+        string toolsAllowedKeysFn = this._configOriginFn + "/sikAllowedKeys/tools.txt"
+        assert(toolsAllowedKeysFn.exists())
+        string[] toolsAllowedKeys = toolsAllowedKeysFn.readLines()
+
+        string resourcesAllowedKeysFn = this._configOriginFn + "/sikAllowedKeys/resources.txt"
         assert(resourcesAllowedKeysFn.exists())
         string[] resourcesAllowedKeys = resourcesAllowedKeysFn.readLines()
-
-        string starAllowedKeysFn = configOriginFn + "/sikAllowedKeys/star.txt"
-        assert(starAllowedKeysFn.exists())
-        string[] starAllowedKeys = starAllowedKeysFn.readLines()
-
-        string featureCountsAllowedKeysFn = configOriginFn + "/sikAllowedKeys/featureCounts.txt"
-        assert(featureCountsAllowedKeysFn.exists())
-        string[] featureCountsAllowedKeys = featureCountsAllowedKeysFn.readLines()
-
-        string[] sikCmdKeys = ["metadata", \
-                               "aligner", \
-                               "refFiles", \
-                               "paired", \
-                               "geneModels", \
-                               "genomeIdx", \
-                               "fasta", \
-                               "counts", \
-                               "mdups", \
-                               "qc", \
-                               "outDir"]
 
         assert(sikConfigFn.exists())
         string{} sikConfig = config(sikConfigFn)
@@ -72,27 +70,21 @@ class SikConfig {
 
             if(resourcesAllowedKeys.has(k)) {
                 this.usrResConf{k} = sikConfig{k}
-                continue
-            } else if(starAllowedKeys.has(k)) {
-                this.usrStarConf{k} = sikConfig{k}
-                continue
-            } else if(featureCountsAllowedKeys.has(k)) {
-                this.usrCntsConf{k} = sikConfig{k}
-                continue
+            } else if(toolsAllowedKeys.has(k)) {
+                this.usrToolsConf{k} = sikConfig{k}
             } else if(sikCmdKeys.has(k)) {
                 this.sikCmdFlags{k} = sikConfig{k}
-                continue
             } else {
                 this._unassigned{k} = sikConfig{k}
             }
         }
 
-        if(_unassigned.size() > 0) {
+        if(this._unassigned.size() > 0) {
             error "\n\
                    \n\
                    SikErr: Too many _unassigned keys in the config file\
                    \n\
-                   $_unassigned\
+                   $this._unassigned\
                    \n"
         }
     }
@@ -101,11 +93,11 @@ class SikConfig {
 class SikResourcesConfig {
 
     string{} _sikResConf
+    string _configOriginFn = programPath.pathName()+"/../configs"
 
     void SikResourcesConfig(string{} usrResConf) {
 
-        string configOriginFn = programPath.pathName()+"/../configs"
-        string sikRefConfFn = configOriginFn + "/sikResources.config"
+        string sikRefConfFn = this._configOriginFn + "/sikResources.config"
         assert(sikRefConfFn.exists())
 
         this._sikResConf = config(sikRefConfFn)
@@ -129,8 +121,60 @@ class SikResourcesConfig {
 // - mkIdxMem
 // - toolArgs
 
-class SikStarConfig extends SikResourcesConfig {
+class SikStarIdxConfig extends SikResourcesConfig {
 
+    string{} idxRes
+    string[] idxCmdOpts
+
+    string{} _sikStarIdxConf // private to this class
+
+    void SikStarIdxConfig(string{} usrResConf, string{} usrToolsConf) {
+
+        SikResourcesConfig(usrResConf)
+
+        string{} usrStarIdxOpts
+
+        if(usrToolsConf.hasKey("starIdx")) {
+            usrStarIdxOpts = parseUsrToolsOpts("starIdx", usrToolsConf{"starIdx"})
+        }
+
+        string sikStarIdxConfigFn = this._configOriginFn + "/sikCmdOptions/starIdx.config"
+        assert(sikStarIdxConfigFn.exists())
+        this._sikStarIdxConf = config(sikStarIdxConfigFn)
+
+        string[] keys = this._sikStarIdxConf.keys()
+        keys += usrStarIdxOpts.keys()
+        keys = unique(keys)
+
+        for(string k : keys) {
+            if(usrStarIdxOpts.hasKey(k)) {
+                idxCmdOpts.add([k, usrStarIdxOpts{k}].join(" "))
+            } else {
+                idxCmdOpts.add([k, this._sikStarIdxConf{k}].join(" "))
+            }
+        }
+
+        string[] sanityChk = ["starIdxCpu", \
+                              "starIdxMem", \
+                              "starExe"]
+
+        for(string k : sanityChk) {
+            if(!this._sikResConf.hasKey(k)) {
+                error "\n\
+                       \n\
+                       SikErr: Key not found -> $k. Check you configuration files \
+                       \n"
+            }
+        }
+
+        idxRes{"idxCpu"} = this._sikResConf{"starIdxCpu"}
+        idxRes{"idxMem"} = this._sikResConf{"starIdxMem"}
+        idxRes{"starExe"} = this._sikResConf{"starExe"}
+
+    }
+}
+
+class SikStarAlignerConfig extends SikResourcesConfig {
 /*
 
 DOCS: This class takes, takes global sikRefConf that holds information about all required resources and usrStarConf information which is anything that
@@ -144,90 +188,55 @@ AND
 - idxRes
 - idxCmdOpts
 
-*/
-
-
-/*
 FYI:
 The following keys are removed from allowed keys
+
 --runMode: is special and set internally only
 --runThread and --runThreadN: are resource keys, they set through different avenue via sik.config starAlingerCpu and starAlignerMem
 --outFileNamePrefix: this is sample specific and is set via samples sheet
 --genomeDir: this is set internally in RNAsik, no need to set it externally
 --genomeFastaFiles: as per --genomeDir
 
-*/
-
-/*
-
 NOTE
 As far as index specific keys goes, I think there is only --genomeSAindexNbases and --genomeChrBinNbits
-all other keys can be included either at the mapping or indexing step
-I guess it would be important to know how the reference was made
-
-I'm not sure what to do if I find --sjdbSTFfile key in the user (sik.config) config file, do I pass it at indexing step
-or do I pass to mapping step? I guess doing at index step would mean that it happened once, whereas if I'm passing it at
-the alignment step I would have to pass it every time, N samples.
-
-I guess for now I'll will only pass those to indexing, ah.. actually if the index directory and already exists and/or user passing it in directly
-then I should pass those to the alignment step
-
-This config class needs to know whether user has passed in refFiles with pre-existing indecies
-
+all other keys can be included either at the mapping or indexing step. I guess it would be important to know how the reference was made
 */
     string{} alignerRes
     string[] alignerCmdOpts
 
-    string{} idxRes
-    string[] idxCmdOpts
+    string{} _sikStarAlignerConf // private to this class
 
-    string{} _sikStarConf // private to this class
-
-    void SikStarConfig(string{} usrResConf, string{} usrStarConf) {
+    void SikStarAlignerConfig(string{} usrResConf, string{} usrToolsConf) {
 
         SikResourcesConfig(usrResConf)
 
-        string[] idxKeys = ["--sjdbGTFfile", \
-                            "--sjdbOverhang", \
-                            "--sjdbGTFtagExonParentTranscript", \
-                            "--sjdbGTFfeatureExon", \
-                            "--sjdbGTFtagExonParentTranscript", \
-                            "--sjdbFileChrStartEnd", \
-                            "--genomeSAindexNbases", \
-                            "--genomeChrBinNbits"]
+        string{} usrStarAlignerOpts
 
-        string configOriginFn = programPath.pathName()+"/../configs"
-        string sikStarConfigFn = configOriginFn + "/sikCmdOptions/star.config"
-        assert(sikStarConfigFn.exists())
+        if(usrToolsConf.hasKey("starAligner")) {
+            usrStarAlignerOpts = parseUsrToolsOpts("starAligner", usrToolsConf{"starAligner"})
+        }
 
-        this._sikStarConf = config(sikStarConfigFn)
+        string sikStarAlignerConfigFn = this._configOriginFn + "/sikCmdOptions/starAligner.config"
+        assert(sikStarAlignerConfigFn.exists())
+        this._sikStarAlignerConf = config(sikStarAlignerConfigFn)
 
-        string[] keys = this._sikStarConf.keys()
-        keys += usrStarConf.keys()
+        string[] keys = this._sikStarAlignerConf.keys()
+        keys += usrStarAlignerOpts.keys()
         keys = unique(keys)
 
         for(string k : keys) {
 
-            if(usrStarConf.hasKey(k)) {
-                /*
-                  TODO this is hasn't been properly implemented. At this stage I'm simply assuming that the user can't pass
-                */
-                if(idxKeys.has(k)) {
-                    idxCmdOpts.add([k, usrStarConf{k}].join(" "))
-                } else {
-                    alignerCmdOpts.add([k, usrStarConf{k}].join(" "))
-                }
-
+            //TODO should check for aberant characters in the opts string e.g : or - or _ or ,
+            // something that user might have passed in accidently that causes downstream error
+            if(usrStarAlignerOpts.hasKey(k)) {
+                alignerCmdOpts.add([k, usrStarAlignerOpts{k}].join(" "))
             } else {
-                alignerCmdOpts.add([k, this._sikStarConf{k}].join(" "))
+                alignerCmdOpts.add([k, this._sikStarAlignerConf{k}].join(" "))
             }
         }
 
-        //TODO sanity check for all keys are found in the
         string[] sanityChk = ["starAlignerCpu", \
                               "starAlignerMem", \
-                              "starIdxCpu", \
-                              "starIdxMem", \
                               "starExe"]
 
         for(string k : sanityChk) {
@@ -242,11 +251,6 @@ This config class needs to know whether user has passed in refFiles with pre-exi
         alignerRes{"alignerCpu"} = this._sikResConf{"starAlignerCpu"}
         alignerRes{"alignerMem"} = this._sikResConf{"starAlignerMem"}
         alignerRes{"starExe"} = this._sikResConf{"starExe"}
-
-        idxRes{"idxCpu"} = this._sikResConf{"starIdxCpu"}
-        idxRes{"idxMem"} = this._sikResConf{"starIdxMem"}
-        idxRes{"starExe"} = this._sikResConf{"starExe"}
-
     }
 }
 

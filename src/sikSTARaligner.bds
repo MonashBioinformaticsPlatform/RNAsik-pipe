@@ -6,7 +6,7 @@ class StarIndex {
 
     string genomeIdx
 
-    void StarIndex(SikStarConfig sikStarConf, string fasta, string refDir, string genomeIdx) {
+    void StarIndex(SikStarIdxConfig sikStarIdxConf, string fasta, string refDir, string genomeIdx) {
 
         string extn = fasta.extName()
         string starIdxDir
@@ -35,7 +35,7 @@ class StarIndex {
             that way they key will either be present of empty and I can always check with .isEmpty() call
         */
         if(genomeIdx == "NULL" || genomeIdx.isEmpty()) {
-            this.genomeIdx = mkSTARidx(sikStarConf, fasta, refDir, starIdxDir)
+            this.genomeIdx = mkSTARidx(sikStarIdxConf, fasta, refDir, starIdxDir)
         } else {
             assert(genomeIdx.exists())
             this.genomeIdx = genomeIdx
@@ -43,14 +43,14 @@ class StarIndex {
     }
 }
 
-string mkSTARidx(SikStarConfig sikStarConf, string fasta, string refDir, string starIdxDir) {
+string mkSTARidx(SikStarIdxConfig sikStarIdxConf, string fasta, string refDir, string starIdxDir) {
 
-    string{} resources = sikStarConf.idxRes
+    string{} resources = sikStarIdxConf.idxRes
     string x = resources{"starExe"}
     int xCpu = resources{"idxCpu"}.parseInt()
     int xMem = resources{"idxMem"}.parseInt()
 
-    string starCmdOpts = sikStarConf.idxCmdOpts.join(" ")
+    string starCmdOpts = sikStarIdxConf.idxCmdOpts.join(" ")
 
     string[] idxFiles = ["chrLength.txt", "chrNameLength.txt", "chrName.txt", "chrStart.txt", "Genome", "genomeParameters.txt", "SA", "SAindex"]
     string[] idxDeps

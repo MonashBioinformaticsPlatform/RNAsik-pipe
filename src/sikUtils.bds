@@ -1,169 +1,235 @@
-include "sikDeprecated.bds"
 
-string mkMultiqcIgnores(string strandInfo, string[] cntsFiles) {
+string getVal(string{} map, string key) {
 
-    string multiqcIgnore 
+    string value = "NULL"
 
-    if(counts && strandInfo.exists()) {
-        string strandType
-        string strandValue
-        string strandExitCode
-        (strandType, strandValue, strandExitCode) = strandInfo.read().split(",")
-        string strandFile = strandType+".txt"
-
-        for(string cntsFile : cntsFiles) {
-            if(!cntsFile.baseName().startsWith(strandFile)) {
-                string ignore = cntsFile.baseName(".txt")
-                //NOTE cntsFiles are actual .txt files from featureCounts output
-                //however we want to ignore .summary files
-                multiqcIgnore += " --ignore $ignore* " 
-            }
-        }
+    if(map.hasKey(key)) {
+        value = map{key}
     }
-    else {
-        multiqcIgnore = ""
-    }
-    return multiqcIgnore
+
+    return value
 }
 
-string{} getResource(string{} cmdExe, string toolsName, string subName) {
-    //NOTE that toolsName and subName is case sensetive and is meant to be camelCased !
-    string toolsExe = toolsName+"Exe"
-    string toolsMem
-    string toolsCpu
+string[] unique(string[] l) {
 
-    if(!subName.isEmpty()) {
-        toolsMem = toolsName+subName+"Mem"
-        toolsCpu = toolsName+subName+"Cpu"
-    }
-    else {
-        toolsMem = toolsName+"Mem"
-        toolsCpu = toolsName+"Cpu"
-    }
+    string[] res
 
-    if(!cmdExe.hasKey(toolsExe)) {
-        error "Can't get $toolsName executable, check your config file $configFile"
-    }
-    string exePath = cmdExe{toolsExe}
-
-    if(!cmdExe.hasKey(toolsMem)) {
-        error "Can't get memory settings for $toolsName, check your config file $configFile"
-    }
-    string qcMem = cmdExe{toolsMem}
-
-    if(!cmdExe.hasKey(toolsCpu)) {
-        error "Can't get cpu settings for $toolsName, check your config file $configFile"
-    }
-    string qcCpu = cmdExe{toolsCpu}
-
-    return {"toolsExe" => exePath, "toolsMem" => qcMem, "toolsCpu" => qcCpu}
-}
-
-// this functions checks if all arguments on the cmd are right
-string chkCmdArgs() {
-    // list of allowed command line options
-    string[] sikArgs = ["-align", \
-                        "-fqDir", \
-                        "-refFiles", \
-                        "-paired", \
-                        "-counts", \
-                        "-all", \
-                        "-gtfFile", \
-                        "-fastaRef", \
-                        "-genomeIdx", \
-                        "-mdups", \
-                        "-qc", \
-                        "-exonicRate", \
-                        "-multiqc", \
-                        "-trim", \
-                        "-cov", \
-                        "-umi", \
-                        "-samplesSheet", \
-                        "-outDir", \
-                        "-extn", \
-                        "-pairIds", \
-                        "-extraOpts", \
-                        "-configFile", \
-                        "-strand", \
-                        "-bamsDir" \
-                       ]
-    // list of options specified by user
-    string[] getCmdArgs = args 
-    // check for duplicates
-    string[] suspects
-    for(string cmdItem : args) {
-        if(cmdItem.startsWith("-")) {
-            bool deprecArg = chkDeprecCmdArgs(cmdItem)
-
-            if(!deprecArg) {
-
-                if(!sikArgs.has(cmdItem)) {
-                    error "This flag $cmdItem isn't a valid options, check your spelling"
-                }
-                if(suspects.has(cmdItem)) {
-                    error "This flag $cmdItem is duplicated in your command, remove duplicate"
-                }
-                suspects.add(cmdItem)
-            }
-
+    for(string i : l) {
+        if(!res.has(i)) {
+            res.add(i)
         }
     }
-    return "thumbs up"
+
+    return res
 }
 
-string{} getConfigFile(string usrConfigFile) {
+string{} parseUsrToolsOpts(string tool, string opts) {
 
-    string sikProgPath = programPath.pathName()
-    string{} sikConfig = config(sikProgPath+"/../configs/sik.config")
+    string configOriginFn = programPath.pathName()+"/../configs"
 
-    if(!usrConfigFile.isEmpty()) {
-        string{} usrConfig = config(usrConfigFile)
-        for(string k : usrConfig.keys() ) {
-            if(!sikConfig.hasKey(k)) {
-                error "This shouldn't happened :-|"
-            }
-            sikConfig{k} = usrConfig{k}
+    string toolsAllowedKeysFn = configOriginFn + "/sikAllowedKeys/" + tool + ".txt"
+    assert(toolsAllowedKeysFn.exists())
+    string[] toolsAllowedKeys = toolsAllowedKeysFn.readLines()
+
+    string[] optsList = opts.split(",")
+
+    string{} args
+
+    for(string o : optsList) {
+
+        string tmp1 = o.trim()
+        string[] tmp2 = tmp1.split(" ")
+
+        int l = tmp2.size()
+
+        string k
+        string v
+
+        if(l < 2) {
+            k = tmp2[0]
+            v = ""
+        } else if(l > 2) {
+            k = tmp2.removeIdx(0)
+            v = tmp2.join(" ")
+        } else {
+            k = tmp2[0]
+            v = tmp2[1]
         }
+
+        if(args.hasKey(k)) {
+            error "SikErr: User specified a duplicated key $k"
+        }
+
+        args{k.trim()} = v.trim()
     }
-    if(sikConfig.size() < 0) {
-        error "This definitely shouldn't happend :o| $sikConfig" 
-    }
-    return sikConfig
+    return args
 }
+//include "sikDeprecated.bds"
 
-string[] bubbleSort(string[] arr) {
-
-   int len = arr.size()
-
-   for(int i = len-1; i>=0; i--) {
-     for(int j = 1; j<=i; j++) {
-
-       if(arr[j-1].length() > arr[j].length()) {
-           //don't know what that variable will be
-           // let bds cast whatever
-           temp := arr[j-1]
-           arr[j-1] = arr[j]
-           arr[j] = temp
-        }
-     }
-   }
-   return arr
-}
-
-bool chkUniform(string{} fqMap) {
-
-    int prevLen = -1
-
-    for(string v : fqMap) {
-        string[] items = v.split(",")
-        int currLen = items.size()
-        if(prevLen < 0) {
-            prevLen = currLen
-            continue
-        }
-        if(prevLen != currLen) {
-            return false
-        }
-    }
-    return true
-}
+//string mkMultiqcIgnores(string strandInfo, string[] cntsFiles) {
+//
+//    string multiqcIgnore
+//
+//    if(counts && strandInfo.exists()) {
+//        string strandType
+//        string strandValue
+//        string strandExitCode
+//        (strandType, strandValue, strandExitCode) = strandInfo.read().split(",")
+//        string strandFile = strandType+".txt"
+//
+//        for(string cntsFile : cntsFiles) {
+//            if(!cntsFile.baseName().startsWith(strandFile)) {
+//                string ignore = cntsFile.baseName(".txt")
+//                //NOTE cntsFiles are actual .txt files from featureCounts output
+//                //however we want to ignore .summary files
+//                multiqcIgnore += " --ignore $ignore* "
+//            }
+//        }
+//    }
+//    else {
+//        multiqcIgnore = ""
+//    }
+//    return multiqcIgnore
+//}
+//
+//string{} getResource(string{} cmdExe, string toolsName, string subName) {
+//    //NOTE that toolsName and subName is case sensetive and is meant to be camelCased !
+//    string toolsExe = toolsName+"Exe"
+//    string toolsMem
+//    string toolsCpu
+//
+//    if(!subName.isEmpty()) {
+//        toolsMem = toolsName+subName+"Mem"
+//        toolsCpu = toolsName+subName+"Cpu"
+//    }
+//    else {
+//        toolsMem = toolsName+"Mem"
+//        toolsCpu = toolsName+"Cpu"
+//    }
+//
+//    if(!cmdExe.hasKey(toolsExe)) {
+//        error "Can't get $toolsName executable, check your config file $configFile"
+//    }
+//    string exePath = cmdExe{toolsExe}
+//
+//    if(!cmdExe.hasKey(toolsMem)) {
+//        error "Can't get memory settings for $toolsName, check your config file $configFile"
+//    }
+//    string qcMem = cmdExe{toolsMem}
+//
+//    if(!cmdExe.hasKey(toolsCpu)) {
+//        error "Can't get cpu settings for $toolsName, check your config file $configFile"
+//    }
+//    string qcCpu = cmdExe{toolsCpu}
+//
+//    return {"toolsExe" => exePath, "toolsMem" => qcMem, "toolsCpu" => qcCpu}
+//}
+//
+//// this functions checks if all arguments on the cmd are right
+//string chkCmdArgs() {
+//    // list of allowed command line options
+//    string[] sikArgs = ["-align", \
+//                        "-fqDir", \
+//                        "-refFiles", \
+//                        "-paired", \
+//                        "-counts", \
+//                        "-all", \
+//                        "-gtfFile", \
+//                        "-fastaRef", \
+//                        "-genomeIdx", \
+//                        "-mdups", \
+//                        "-qc", \
+//                        "-exonicRate", \
+//                        "-multiqc", \
+//                        "-trim", \
+//                        "-cov", \
+//                        "-umi", \
+//                        "-samplesSheet", \
+//                        "-outDir", \
+//                        "-extn", \
+//                        "-pairIds", \
+//                        "-extraOpts", \
+//                        "-configFile", \
+//                        "-strand", \
+//                        "-bamsDir" \
+//                       ]
+//    // list of options specified by user
+//    string[] getCmdArgs = args
+//    // check for duplicates
+//    string[] suspects
+//    for(string cmdItem : args) {
+//        if(cmdItem.startsWith("-")) {
+//            bool deprecArg = chkDeprecCmdArgs(cmdItem)
+//
+//            if(!deprecArg) {
+//
+//                if(!sikArgs.has(cmdItem)) {
+//                    error "This flag $cmdItem isn't a valid options, check your spelling"
+//                }
+//                if(suspects.has(cmdItem)) {
+//                    error "This flag $cmdItem is duplicated in your command, remove duplicate"
+//                }
+//                suspects.add(cmdItem)
+//            }
+//
+//        }
+//    }
+//    return "thumbs up"
+//}
+//
+//string{} getConfigFile(string usrConfigFile) {
+//
+//    string sikProgPath = programPath.pathName()
+//    string{} sikConfig = config(sikProgPath+"/../configs/sik.config")
+//
+//    if(!usrConfigFile.isEmpty()) {
+//        string{} usrConfig = config(usrConfigFile)
+//        for(string k : usrConfig.keys() ) {
+//            if(!sikConfig.hasKey(k)) {
+//                error "This shouldn't happened :-|"
+//            }
+//            sikConfig{k} = usrConfig{k}
+//        }
+//    }
+//    if(sikConfig.size() < 0) {
+//        error "This definitely shouldn't happend :o| $sikConfig"
+//    }
+//    return sikConfig
+//}
+//
+//string[] bubbleSort(string[] arr) {
+//
+//   int len = arr.size()
+//
+//   for(int i = len-1; i>=0; i--) {
+//     for(int j = 1; j<=i; j++) {
+//
+//       if(arr[j-1].length() > arr[j].length()) {
+//           //don't know what that variable will be
+//           // let bds cast whatever
+//           temp := arr[j-1]
+//           arr[j-1] = arr[j]
+//           arr[j] = temp
+//        }
+//     }
+//   }
+//   return arr
+//}
+//
+//bool chkUniform(string{} fqMap) {
+//
+//    int prevLen = -1
+//
+//    for(string v : fqMap) {
+//        string[] items = v.split(",")
+//        int currLen = items.size()
+//        if(prevLen < 0) {
+//            prevLen = currLen
+//            continue
+//        }
+//        if(prevLen != currLen) {
+//            return false
+//        }
+//    }
+//    return true
+//}
