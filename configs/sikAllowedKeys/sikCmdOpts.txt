@@ -1,0 +1,13 @@
+metadata
+aligner
+geneModels
+fasta
+genomeIdx
+refFiles
+paired
+counts
+qc
+mdups
+trim
+cov
+outDir

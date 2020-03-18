@@ -1,0 +1,8 @@
+--sjdbGTFfile
+--sjdbOverhang
+--sjdbGTFtagExonParentTranscript
+--sjdbGTFfeatureExon
+--sjdbGTFtagExonParentTranscript
+--sjdbFileChrStartEnd
+--genomeSAindexNbases
+--genomeChrBinNbits
