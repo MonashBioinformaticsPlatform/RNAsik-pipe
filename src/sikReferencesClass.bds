@@ -166,6 +166,8 @@ class ReferenceFiles {
 
 class References extends ReferenceFiles {
 
+    string[] idxDeps
+
     void References(SikConfig sikConf, SikReferencesConfig sikRefConf) {
 
         ReferenceFiles(sikConf.sikCmdFlags, sikRefConf)
@@ -178,6 +180,7 @@ class References extends ReferenceFiles {
                 SikStarIdxConfig sikStarIdxConf = new SikStarIdxConfig(sikConf.usrResConf, sikConf.usrToolsConf)
                 StarIndex starIdx = new StarIndex(sikStarIdxConf, this.fasta, this.refDir, this.genomeIdx)
                 this.genomeIdx = starIdx.genomeIdx
+                this.idxDeps = starIdx.idxDeps
                 break
             case 'hisat2':
                 error("SikErr: Haven't been implemented yet")
@@ -186,6 +189,7 @@ class References extends ReferenceFiles {
                 SikBWAidxConfig sikBWAidxConf = new SikBWAidxConfig(sikConf.usrResConf, sikConf.usrToolsConf)
                 BWAindex bwaIdx = new BWAindex(sikBWAidxConf, this.fasta, this.refDir, this.genomeIdx)
                 this.genomeIdx = bwaIdx.genomeIdx
+                this.idxDeps = bwaIdx.idxDeps
                 break
             default:
                 error("SikErr: There needs to be an error here to make sure nothing else is passed through, other than allowed aligners")

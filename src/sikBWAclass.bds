@@ -62,20 +62,137 @@ class SikBWAidxConfig extends SikResourcesConfig {
     }
 }
 
+class SikBWAalignerConfig extends SikResourcesConfig {
+
+    string{} alignerRes
+    string[] alignerCmdOpts
+
+    string{} _sikBWAalignerConf // private to this class
+
+    void SikBWAalignerConfig(string{} usrResConf, string{} usrToolsConf) {
+
+        SikResourcesConfig(usrResConf)
+
+        string{} usrBWAalignerOpts
+
+        if(usrToolsConf.hasKey("bwaMemAligner")) {
+            usrBWAalignerOpts = parseUsrToolsOpts("bwaMemAligner", usrToolsConf{"bwaMemAligner"})
+        }
+
+        string sikBWAalignerConfigFn = this._configOriginFn + "/sikCmdOptions/bwaMemAligner.config"
+        assert(sikBWAalignerConfigFn.exists())
+        this._sikBWAalignerConf = config(sikBWAalignerConfigFn)
+
+        string[] keys = this._sikBWAalignerConf.keys()
+        keys += usrBWAalignerOpts.keys()
+        keys = unique(keys)
+
+        for(string k : keys) {
+
+            //TODO should check for aberant characters in the opts string e.g : or - or _ or ,
+            // something that user might have passed in accidently that causes downstream error
+            if(usrBWAalignerOpts.hasKey(k)) {
+                alignerCmdOpts.add([k, usrBWAalignerOpts{k}].join(" "))
+            } else {
+                alignerCmdOpts.add([k, this._sikBWAalignerConf{k}].join(" "))
+            }
+        }
+
+        string[] sanityChk = ["bwaMemAlignerCpu", \
+                              "bwaMemAlignerMem", \
+                              "bwaExe"]
+
+        for(string k : sanityChk) {
+            if(!this._sikResConf.hasKey(k)) {
+                error "\n\
+                       \n\
+                       SikErr: Key not found -> $k. Check you configuration files \
+                       \n"
+            }
+        }
+
+        alignerRes{"alignerCpu"} = this._sikResConf{"bwaMemAlignerCpu"}
+        alignerRes{"alignerMem"} = this._sikResConf{"bwaMemAlignerMem"}
+        alignerRes{"bwaExe"} = this._sikResConf{"bwaExe"}
+    }
+}
+
+class StarIndex {
+
+    string genomeIdx
+    string[] idxDeps
+
+    void StarIndex(SikStarIdxConfig sikStarIdxConf, string fasta, string refDir, string genomeIdx) {
+
+        string extn = fasta.extName()
+        string starIdxDir
+        string logFn
+
+        //TODO would be useful to stick aligner version to the suffix as well in future
+        if(extn == "gz") {
+            starIdxDir = refDir + "/" + fasta.baseName().removeExt().removeExt() + ".starIdx"
+            logFn = refDir + "/" + "." + fasta.baseName().removeExt().removeExt() + ".starIdx.siklog"
+        } else {
+            starIdxDir = refDir + "/" + fasta.baseName().removeExt()+".starIdx"
+            logFn = refDir + "/" + "." + fasta.baseName().removeExt() + ".starIdx.siklog"
+        }
+
+        log("MSG: Making STAR genomic index directory $starIdxDir")
+        if(!starIdxDir.exists()) {
+            starIdxDir.mkdir()
+        }
+
+        string[] idxFiles = ["chrLength.txt", "chrNameLength.txt", "chrName.txt", "chrStart.txt", "Genome", "genomeParameters.txt", "SA", "SAindex"]
+        for(string idxFile : idxFiles) {
+            string idxDep = starIdxDir + "/" + idxFile
+            this.idxDeps.add(idxDep)
+        }
+
+        /*
+            TODO this isn't ideal, but in my ReferenceFiles class I'm attempting to set genomeIdx variable
+            which can come about in three different ways:
+                - via refFiles variable, in which case RNAsik will pick it up and set genomeIdx
+                - direct user input, via genomeIdx = /path/to/index
+                - in the last resort RNAsik will simply make genomeIdx as per specified aligner
+            unfortunatelly BDS doesn't seem to have a way to set a variable to NULL. So if user didn't specify genomeIdx in they config
+            then I cope an error when trying to check for that key.
+            I think I know what the right solution should be - my SikConfig class should check for all missing keys and set them accordingly,
+            that way they key will either be present of empty and I can always check with .isEmpty() call
+        */
+        if(genomeIdx == "NULL" || genomeIdx.isEmpty()) {
+            this.genomeIdx = mkSTARidx(sikStarIdxConf, fasta, refDir, starIdxDir, idxDeps, logFn)
+        } else {
+            assert(genomeIdx.exists())
+            this.genomeIdx = genomeIdx
+        }
+    }
+}
+
 class BWAindex {
 
     string genomeIdx
+    string[] idxDeps
 
     void BWAindex(SikBWAidxConfig sikBWAidxConf, string fasta, string refDir, string genomeIdx) {
 
         string extn = fasta.extName()
         string bwaIdxDir
+        string logFn
 
         //TODO would be useful to stick aligner version to the suffix as well in future
         if(extn == "gz") {
             bwaIdxDir = refDir + "/" + fasta.baseName().removeExt().removeExt()+".bwaIdx"
+            logFn = refDir + "/" + "." + fasta.baseName().removeExt().removeExt() + ".bwaIdx.siklog"
         } else {
             bwaIdxDir = refDir + "/" + fasta.baseName().removeExt()+".bwaIdx"
+            logFn = refDir + "/" + "." + fasta.baseName().removeExt() + ".bwaIdx.siklog"
+        }
+
+        string bwaIdx = bwaIdxDir+"/"+fasta.baseName()
+
+        string[] idxExts = [".amb", ".ann", ".bwt", ".pac", ".sa"]
+        for(string idxExt : idxExts) {
+            this.idxDeps.add(bwaIdx+idxExt)
         }
 
         log("MSG: Making BWA genomic index directory $bwaIdxDir")
@@ -84,7 +201,7 @@ class BWAindex {
         }
 
         if(genomeIdx == "NULL" || genomeIdx.isEmpty()) {
-            this.genomeIdx = mkBWAidx(sikBWAidxConf, fasta, refDir, bwaIdxDir)
+            this.genomeIdx = mkBWAidx(sikBWAidxConf, fasta, bwaIdx, this.idxDeps, logFn)
         } else {
             assert(genomeIdx.exists())
             this.genomeIdx = genomeIdx

@@ -1,0 +1,33 @@
+
+class AlignerResults {
+
+    Metadata[] results
+
+    void AlignerResults(SikConfig sikConf, SikBWAalignerConfig sikBWAalignerConf, string genomeIdx, string[] idxDeps) {
+
+        string metadataFn = sikConf.sikCmdFlags{"metadata"}
+        string aligner = sikConf.sikCmdFlags{"aligner"}
+        string sikDir = sikConf.sikCmdFlags{"outDir"}
+
+        Samples samples = new Samples(metadataFn, sikDir, aligner)
+
+        for(Metadata m : samples.samples) {
+            switch(aligner) {
+                case 'star':
+                    error("SikErr: Haven't been implemented yet")
+                    break
+                case 'hisat2':
+                    error("SikErr: Haven't been implemented yet")
+                    break
+                case 'bwaMem':
+                    Metadata result = mapBWA(sikBWAalignerConf, m, genomeIdx, idxDeps)
+                    this.results.add(result)
+                    break
+                default:
+                    error("SikErr: There needs to be an error here to make sure nothing else is passed through, other than allowed aligners")
+            }
+        }
+    }
+}
+
+

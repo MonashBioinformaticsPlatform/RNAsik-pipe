@@ -2,73 +2,89 @@
 Class to represent a sample input and output
 */
 
-class Metadata {
+class MetadataSample {
 
     string sampleName
     string sampleGroup
-    string[] fqFilesR1
-    string[] fqFilesR2
+    string[] fq1
+    string[] fq2
     bool paired
 
-    void Metadata(string line, bool paired) {
+    void MetadataSample(string line) {
 
         assert(!(line.startsWith("#")) | !(line.isEmpty()))
 
-        this.paired = paired
+        //TODO check if the sample is paired end and set paired flag accordingly
+        //Potentially can process paired and single end data together in the future
+        //this.paired = paired
 
+        string _path
         string[] samplesList = line.split("\t")
 
-        int nItems = samplesList.size()
+        int nCoreFields = 3
 
-        if(nItems < 4) {
-            error("There needs to be at least four columns in your samples sheet: SampleName, SampleGroup, R1 and R2")
-        } else if(nItems == 4) {
-            log("MSG: Detected four columns in the samples sheet file")
-            this.sampleName = samplesList[0]
-            this.sampleGroup = samplesList[1]
-            this.fqFilesR1.add(samplesList[2])
-            this.fqFilesR2.add(samplesList[3])
+        int tot = samplesList.size()
 
-        } else if(nItems > 4) {
+        if(tot < nCoreFields+1) {
+            error("There needs to be at least five columns in your samples sheet: SampleName, SampleGroup, Path, R1 and R2")
+        }
 
-            int nFqs = nItems-2
-            bool chk = (nFqs % 2 == 0)
-            assert(chk)
+        this.sampleName = samplesList[0]
+        this.sampleGroup = samplesList[1]
+        _path = samplesList[2]
 
-            this.sampleName = samplesList[0]
-            this.sampleGroup = samplesList[1]
+        int nItems = tot - nCoreFields
+        this.paired = (nItems % 2 == 0)
 
-            for(int i : range(1, nFqs/2)) {
-                int idx = i+3
-                this.fqFilesR1.add(samplesList[idx])
-                this.fqFilesR2.add(samplesList[idx+1])
+        if(paired) {
+            for(int i : range(1, nItems)) {
+                bool chk = (i % 2 != 0)
+                int idx = i+nCoreFields-1
+
+                if(chk) {
+                    this.fq1.add(_path + "/" + samplesList[idx])
+                } else {
+                    this.fq2.add(_path + "/" + samplesList[idx])
+                }
+            }
+        } else {
+            for(int i : range(1, nItems)) {
+                bool chk = (i % 2 != 0)
+                int idx = i+nCoreFields
+                this.fq1.add(_path + "/" + samplesList[idx])
             }
         }
     }
 }
 
-class Results extends Metadata {
+class MetadataAligner extends MetadataSample {
 
     string bamOut
     string bamLog
 
-    void Results(string sikDir, string line, bool paired) {
+    void MetadataAligner(string line, string sikDir) {
+
         log("MSG: Output directory $sikDir")
 
-        Metadata(line, paired)
+        MetadataSample(line)
 
-        this.bamOut = sikDir + "/" + this.sampleName + ".bam"
-        this.bamLog = sikDir + "/" + this.sampleName + ".siklog"
+        string alignDir = sikDir+"/"+"alignerFiles"
+        log("MSG: Making directory for alignment files $alignDir")
+        if(!alignDir.exists()) {
+            alignDir.mkdir()
+        }
+
+        this.bamOut = alignDir + "/" + this.sampleName + ".bam"
+        this.bamLog = alignDir + "/" + "." + this.sampleName + ".siklog"
     }
-
 }
 
-class AlignerResults extends Results {
+class Metadata extends MetadataAligner {
 
-    void AlignerResults(string sikDir, string aligner, string line, bool paired) {
+    void Metadata(string line, string sikDir, string aligner) {
         log("MSG: Aligner type $aligner")
 
-        Results(sikDir, line, paired)
+        MetadataAligner(line, sikDir)
 
         switch(aligner) {
             case 'star':
@@ -81,8 +97,8 @@ class AlignerResults extends Results {
                 break
 
             case 'bwaMem':
-                this.bamOut = this.bamOut.replace(".bam", "bwaMem.bam")
-                this.bamLog = this.bamLog.replace(".siklog", "bwaMem.log")
+                this.bamOut = this.bamOut.replace(".bam", "_bwaMem.bam")
+                this.bamLog = this.bamLog.replace(".siklog", "_bwaMem.log")
                 break
             default:
                 error("SikErr: There needs to be an error here to make sure nothing else is passed through, other than allowed aligners")
@@ -90,24 +106,24 @@ class AlignerResults extends Results {
     }
 }
 
-class Sample extends AlignerResults {
+class Samples {
 
-    void Sample(string sikDir, string aligner, string line, bool paired) {
-        AlignerResults(sikDir, aligner, line, paired)
+    Metadata[] samples
+
+    void Samples(string metadataFn, string sikDir, string aligner) {
+
+        assert(metadataFn.exists())
+        string[] metadata = metadataFn.readLines()
+
+        for(string line : metadata) {
+
+            if(line.startsWith("#") || line.isEmpty())  {
+                continue
+            }
+
+            Metadata sample = new Metadata(line, sikDir, aligner)
+            this.samples.add(sample)
+        }
     }
-
 }
 
-//string sikDir = "check"
-//string[] samples = "samples_file.txt".readLines()
-//
-//for(string s : samples) {
-//    //TODO think about the header line - first line, maybe juts skip or use the comment
-//    if(s.startsWith("#") || s.isEmpty()) {
-//        continue
-//    }
-//
-//    sample := new Sample(sikDir, "star", s)
-//    //sample := new Metadata(s)
-//    println(sample)
-//}

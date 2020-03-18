@@ -152,22 +152,32 @@ all other keys can be included either at the mapping or indexing step. I guess i
 class StarIndex {
 
     string genomeIdx
+    string[] idxDeps
 
     void StarIndex(SikStarIdxConfig sikStarIdxConf, string fasta, string refDir, string genomeIdx) {
 
         string extn = fasta.extName()
         string starIdxDir
+        string logFn
 
         //TODO would be useful to stick aligner version to the suffix as well in future
         if(extn == "gz") {
-            starIdxDir = refDir + "/" + fasta.baseName().removeExt().removeExt()+".starIdx"
+            starIdxDir = refDir + "/" + fasta.baseName().removeExt().removeExt() + ".starIdx"
+            logFn = refDir + "/" + "." + fasta.baseName().removeExt().removeExt() + ".starIdx.siklog"
         } else {
             starIdxDir = refDir + "/" + fasta.baseName().removeExt()+".starIdx"
+            logFn = refDir + "/" + "." + fasta.baseName().removeExt() + ".starIdx.siklog"
         }
 
         log("MSG: Making STAR genomic index directory $starIdxDir")
         if(!starIdxDir.exists()) {
             starIdxDir.mkdir()
+        }
+
+        string[] idxFiles = ["chrLength.txt", "chrNameLength.txt", "chrName.txt", "chrStart.txt", "Genome", "genomeParameters.txt", "SA", "SAindex"]
+        for(string idxFile : idxFiles) {
+            string idxDep = starIdxDir + "/" + idxFile
+            this.idxDeps.add(idxDep)
         }
 
         /*
@@ -182,7 +192,7 @@ class StarIndex {
             that way they key will either be present of empty and I can always check with .isEmpty() call
         */
         if(genomeIdx == "NULL" || genomeIdx.isEmpty()) {
-            this.genomeIdx = mkSTARidx(sikStarIdxConf, fasta, refDir, starIdxDir)
+            this.genomeIdx = mkSTARidx(sikStarIdxConf, fasta, refDir, starIdxDir, idxDeps, logFn)
         } else {
             assert(genomeIdx.exists())
             this.genomeIdx = genomeIdx

@@ -2,7 +2,7 @@
 STAR aligner utils
 */
 
-string mkSTARidx(SikStarIdxConfig sikStarIdxConf, string fasta, string refDir, string starIdxDir) {
+string mkSTARidx(SikStarIdxConfig sikStarIdxConf, string fasta, string refDir, string starIdxDir, string[] idxDeps, string logFn) {
 
     string{} resources = sikStarIdxConf.idxRes
     string x = resources{"starExe"}
@@ -10,16 +10,6 @@ string mkSTARidx(SikStarIdxConfig sikStarIdxConf, string fasta, string refDir, s
     int xMem = resources{"idxMem"}.parseInt()
 
     string starCmdOpts = sikStarIdxConf.idxCmdOpts.join(" ")
-
-    string[] idxFiles = ["chrLength.txt", "chrNameLength.txt", "chrName.txt", "chrStart.txt", "Genome", "genomeParameters.txt", "SA", "SAindex"]
-    string[] idxDeps
-
-    for(string idxFile : idxFiles) {
-        string idxDep = starIdxDir + "/" + idxFile
-        idxDeps.add(idxDep)
-    }
-
-    string logFn = refDir + "/" + "." + fasta.baseName().removeExt() + ".starIdx.siklog"
     refDir = refDir + "/"
 
     //int chkGTF = starOpts.indexOf("--sjdbGTFfile")
@@ -42,48 +32,51 @@ string mkSTARidx(SikStarIdxConfig sikStarIdxConf, string fasta, string refDir, s
     return starIdxDir
 }
 
-//string{} mapSTAR(string{} resources, string{} sample, string genomeIdx) {
-//
-//    string starExe = resource.toolsExe
-//    int alignMem = resource.toolsMem
-//    int alignCpu = resource.toolsCpu
-//    string starCmdOpts = resources.sikCmdOpts
-//
-//    string indexFiles = reference.indexFile
-//
-//
-//    string[] fqFilesR1 = sample.fqFilesR1
-//    string[] fqFilesR2 = sample.fqFilesR2
-//    string sampleName = sample.sampleName
-//    sampleName += "_" // STAR picularity
-//    string bamOut = sample.bamOut
-//    string bamLog = sample.bamLog
-//
-//    string[] deps
-//    deps += fqFilesR1
-//    deps += fqFilesR2
-//    deps += indexFiles
-//
-//    string fqR1 = fqFilesR1.join(",")
-//    string fqR2 = fqFilesR2.join(",")
-//    string fqStr = [fqR1, fqR2].join(" ")
-//
-//    string logMsg = "STAR aligning " + sampleName
-//
-//    //TODO should make this information to come from metadata config file, default to empty string
-//
-//    task([bamOut, bamLog] <- deps, cpus := alignCpu, mem := alignMem, taskName := logMsg) {
-//
-//        sys $starExe --runThreadN $alignCpu \
-//                     --runMode alignReads \
-//                     --genomeDir $genomeIdx \
-//                     --outSAMattrRGline ID:001 CN:Unknown DS:RNAseq PL:ILLUMINA PM:ILLUMINA SM:$sampleName \
-//                     --readFilesIn $fqStr \
-//                     --outFileNamePrefix $sampleName \
-//                     $starCmdOpts
-//    }
-//
-//    return "place holder"
-//}
+//TODO I think I want to make mapSTAR a Metadata class instead, however I think I now
+// understand what Dave meant by object oriented "encoraging mutability"
 
+//Metadata mapSTAR(SikStarAlignerConfig sikStarAlignerConf, Metadata sample, string genomeIdx) {
+string mapSTAR(SikStarAlignerConfig sikStarAlignerConf, Metadata sample, string genomeIdx) {
 
+    string{} resources = sikStarAlignerConf.alignerRes
+    string x = resources{"starExe"}
+    int xCpu = resources{"alignerCpu"}.parseInt()
+    int xMem = resources{"alignerMem"}.parseInt()
+
+    string starCmdOpts = sikStarAlignerConf.alignerCmdOpts.join(" ")
+
+    string sampleName = sample.sampleName
+    //string group =  sample.sampleGroup
+    string bamOut = sample.bamOut
+    string bamLog = sample.bamLog
+
+    string[] fq1 = sample.fq1
+    string[] fq2 = sample.fq2
+
+    string fqs = [fq1.join(","), fq2.join(",")].join(" ")
+
+    sampleName += "_" // STAR picularity
+
+    string[] deps
+    deps += fq1
+    deps += fq2
+    deps += genomeIdx
+
+    string logMsg = "STAR aligning " + sampleName
+
+    //TODO should make this information to come from metadata config file, default to empty string
+
+    task([bamOut, bamLog] <- deps, cpus := xCpu, mem := xMem, taskName := logMsg) {
+
+        sys $x --runThreadN $xCpu \
+               --runMode alignReads \
+               --genomeDir $genomeIdx \
+               --outSAMattrRGline ID:001 CN:Unknown DS:RNAseq PL:ILLUMINA PM:ILLUMINA SM:$sampleName \
+               --readFilesIn $fqs \
+               --outFileNamePrefix $sampleName \
+               $starCmdOpts > $bamLog 2>&1
+    }
+
+    //return sample
+    return bamOut
+}

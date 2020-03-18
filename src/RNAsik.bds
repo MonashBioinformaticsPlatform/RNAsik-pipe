@@ -1,327 +1,41 @@
-#-----------------------------------------------------------------------------------------------
-# title: RNAsik is a fully sick way to get from FASTQ to list of counts and more. Degust ready !
-# author: kizza
-#-----------------------------------------------------------------------------------------------
-include "sikDeprecated.bds"
+
 include "sikHeader.bds"
-include "sikSanityCheck.bds"
-include "sikRefFiles.bds"
-include "sikLog.bds"
-include "sikFqFiles.bds"
-include "sikMapping.bds"
-include "sikIndexing.bds"
-include "sikCounts.bds"
-include "sikProcBam.bds"
-include "sikQC.bds"
-include "sikExonicRate.bds"
-include "sikCoverage.bds"
-include "sikTrim.bds"
-include "sikUtils.bds"
-// set main directory
-string sikDir = "sikRun"
-if(!outDir.isEmpty()) {
-    sikDir = outDir
-}
-if(!sikDir.exists()) {
-    sikDir.mkdir()
-}
+include "sikConfigClass.bds"
+include "sikReferencesClass.bds"
+include "sikSampleClass.bds"
+include "sikResultsClass.bds"
 
-string{} totRefFiles
-if(!refFiles.isEmpty()) {
-    totRefFiles = chkRefFiles(refFiles, align)
-}
+sikConf := new SikConfig(sikConfig)
+sikRefConf := new SikReferencesConfig(sikConf.usrResConf)
 
-//TODO these mkdir calls need to be moved inside
-// individual function
-string refFilesDir = sikDir+"/"+"refFiles"
-if(!refFilesDir.exists() && refFiles.isEmpty()) {
-    refFilesDir.mkdir()
-}
+ref := new References(sikConf, sikRefConf)
 
-string logsDir = sikDir+"/logs"
-if(!logsDir.exists()) {
-    logsDir.mkdir()
-}
+SikBWAalignerConfig sikBWAalignerConf = new SikBWAalignerConfig(sikConf.usrResConf, sikConf.usrToolsConf)
+res := new AlignerResults(sikConf, sikBWAalignerConf, ref.genomeIdx, ref.idxDeps)
 
-string bamFiles = sikDir+"/"+"alignerFiles"
-if(!bamFiles.exists() && !fqDir.isEmpty()) {
-    bamFiles.mkdir()
-}
+println(res)
 
-string countFiles = sikDir+"/"+"countFiles"
-if(!countFiles.exists() && counts) {
-    countFiles.mkdir()
-}
+//string[] keys = samples.keys
 
-string sikProgPath = programPath.pathName()
-string{} cmdExe = getConfigFile(configFile)
-// log versions of tools used
-string toolsVersions = getToolsVersions(cmdExe, logsDir)
-
-string{} usrOpts = getUsrOpts(extraOpts)
-
-string[] fqFiles
-if(!fqDir.isEmpty()) {
-    fqFiles = getFqFiles(cmdExe, fqDir, extn, sikDir)
-    mkLog("fqFiles", parseList(fqFiles), "samples", logsDir)
-
-    if(trim) {
-        string{} trimedOpts = { "--mode" => "any",  \
-                                "--min" => 20, \
-                                "--mean-quality" => 23, \
-                                "--compress" => "", \
-                                "-x" => adapterFileSe}
-
-        if(paired) {
-            trimedOpts{"-y"} = adapterFilePe
-            trimedOpts{"--mode"} = "pe"
-            pairIds = "-pair1,-pair2"
-        }
-
-        string allTrimedOpts = getExtrOpts("skewer", trimedOpts, usrOpts)
-        mkLog("skewer", allTrimedOpts, "toolsOpts", logsDir)
-
-        string[] trimedFqs = getTrimedFqs(cmdExe, fqFiles, sikDir, allTrimedOpts, extn, pairIds, paired)
-        mkLog("fqTrimed", parseList(trimedFqs), "samples", logsDir)
-        //TODO I should be able to assign to fqFiles straight away, but just to be safe..
-        // clean up once you are sure
-        fqFiles = trimedFqs
-    }
-}
+//println(samples.sample.sampleName)
+//string[] metadata = metadataFn.readLines()
 //
-if(samplesSheet.isEmpty()) {
-    samplesSheet = makeSamplesSheet(fqFiles, fqRgxs, paired, pairIds, extn, sikDir)
-}
-mkLog("samplesSheet", parseMap(config(samplesSheet)), "samples", logsDir)
+// for(string line : metadata) {
+//
+//     if(line.startsWith("#") || line.isEmpty())  {
+//         continue
+//     }
+//
+//     Metadata sample = new Metadata(line)
+//     println(sample)
+//     //samples.add(sample)
+// }
+//println(ref)
 
-// set path to fasta file
-string localFastaRef
-if(!refFiles.isEmpty()) {
-    localFastaRef = totRefFiles{"fa"}
-}
-else {
-    localFastaRef = makeLocalRef(cmdExe, fastaRef, refFilesDir, "fasta")
-}
-mkLog("fastaRef", localFastaRef, "refFiles", logsDir)
+//ref := new ReferenceFiles(sikConf.sikCmdFlags, sikRefConf.sikRefConf)
+//println(ref)
 
-// set path to gtf file string localGTF
-string localGTF
-if(!refFiles.isEmpty()) {
-    localGTF = totRefFiles{"gtf"}
-}
-else {
-    localGTF = makeLocalRef(cmdExe, gtfFile, refFilesDir, "gtf")
-}
-mkLog("gtfFile", localGTF, "refFiles", logsDir)
+/*
+Aiming to have references here as a main object that we can than pass around
+*/
 
-// checking annoation file type
-string modelType
-if(localGTF.extName() == "gff" || localGTF.extName() == "gff3") {
-    modelType = "gff"
-}
-else if(localGTF.extName() == "saf") {
-    modelType = "saf"
-}
-else {
-    modelType = "gtf"
-}
-mkLog("annotation type", modelType, "other", logsDir)
-
-string fastaDictFile
-if(totRefFiles) {
-    fastaDictFile = totRefFiles{"dict"}
-}
-else {
-    fastaDictFile = makeDictFile(cmdExe, localFastaRef)
-}
-mkLog("picardDictFile", fastaDictFile, "refFiles", logsDir)
-
-string chromSizes
-if(totRefFiles) {
-    chromSizes = totRefFiles{"chromSizes"}
-}
-else {
-    chromSizes = makeChromSizes(localFastaRef)
-}
-mkLog("chromSizes", chromSizes, "refFiles", logsDir)
-
-string faIdx
-if(totRefFiles) {
-    faIdx = totRefFiles{"fai"}
-}
-else {
-    faIdx = makeFaiFile(cmdExe, localFastaRef)
-}
-mkLog("fai", faIdx, "refFiles", logsDir)
-// get genomeIdx
-if(!align.isEmpty()) {
-    //if(totRefFiles) {
-    if(!totRefFiles && genomeIdx.isEmpty()) {
-        genomeIdx = getIdx(cmdExe, align, modelType, refFilesDir, localFastaRef, localGTF, usrOpts, logsDir)
-    }
-    if(totRefFiles && genomeIdx.isEmpty()) {
-        genomeIdx = totRefFiles{"idx"}
-        string chkExtn = genomeIdx.extName()
-        if(!chkExtn.startsWith(align)) {
-            error "Index ($genomeIdx) doesn't seem to correspond to aligner ($align) of choice"
-        }
-    }
-}
-//mkLog(align, genomeIdx, "refFiles", logsDir)
-
-
-// map of FASTQ to unique name i.e gathering FASTQ that are split across different lanes
-string{} samplesMap
-if(!fqDir.isEmpty()) {
-    samplesMap = getSamplesMap(fqFiles, samplesSheet)
-}
-bool isUniform = chkUniform(samplesMap)
-if(!isUniform) {
-    warning " This is wiered, samples have uneven FASTQ files distribution\n I'd expect all samples to have the same
-number of FASTQ files "
-}
-mkLog("fqMap", parseFqMap(samplesMap), "samples", logsDir)
-
-// BAM files
-string{} bamsMap
-// If user wants to use other parts of the pipeline without generating BAM files
-if(!bamsDir.isEmpty()) {
-    bamsMap = mkBamsMap(bamsDir, samplesSheet)
-}
-else {
-   bamsMap = getBams(cmdExe, align, bamFiles, samplesMap, pairIds, paired, usrOpts, genomeIdx, localFastaRef, logsDir)
-}
-
-mkLog("bams", parseMap(bamsMap), "data", logsDir)
-
-string{} theBams
-// sorted, reorted and marking duplicates in BAM files
-string{} sortedBamsMap = getSortedBams(cmdExe, sikDir, bamsMap)
-mkLog("mdupsBams", parseMap(sortedBamsMap), "data", logsDir)
-string{} markedBamsMap = getMarkedBams(cmdExe, sortedBamsMap)
-mkLog("mdupsBams", parseMap(markedBamsMap), "data", logsDir)
-
-// should also be able to pass in any other bam files here for mdups processing
-// that is from command line
-if(mdups) {
-    theBams = markedBamsMap
-}
-else if(sortedBamsMap) {
-    theBams = sortedBamsMap
-}
-goal theBams.values()
-mkLog("theBams", parseMap(theBams), "data", logsDir)
-
-// get additional RNAseq metrics
-string[] samMetrics = getSamMetrics(cmdExe, theBams, localFastaRef)
-mkLog("addMetrics", parseList(samMetrics), "data", logsDir)
-
-string[] addMetrics = getAddMetrics(cmdExe, theBams, localFastaRef, fastaDictFile, paired)
-mkLog("addMetrics", parseList(addMetrics), "data", logsDir)
-// coverage files
-//NOTE this is for future implementation of strand specific coverage
-//string[] strands = ["for", "rev"]
-//for(string strand : strands) {
-string[] covFiles = getCovFiles(cmdExe, theBams, sikDir, localFastaRef, chromSizes)
-mkLog("covFiles", parseList(covFiles), "data", logsDir)
-//}
-// featureCounts cmd options
-string{} countsOpts = { "-a" => localGTF }
-if(paired) countsOpts{"-p"} = ""
-if(modelType == "gff") {
-    countsOpts{"-t"} = "CDS"
-    countsOpts{"-g"} = "Parent"
-}
-else if(modelType == "saf") {
-    countsOpts{"-F"} = "SAF"
-}
-string allCountOpts = getExtrOpts("featureCounts", countsOpts, usrOpts)
-mkLog("featureCounts", allCountOpts, "toolsOpts", logsDir)
-// get counts
-string[] featureCounts = getReadsCount(cmdExe, countFiles, theBams, allCountOpts, localGTF)
-mkLog("featureCounts", parseList(featureCounts), "data", logsDir)
-// get strand info
-string strandInfo = getStrandInfo(cmdExe, featureCounts, samplesSheet)
-if(strandInfo.isFile()) {
-    mkLog("strandInfo", strandInfo.read().trim(), "data", logsDir)
-}
-mkLog("pairedBool", paired, "other", logsDir)
-if(exonicRate) {
-    //TODO maybe error is to strong. Have a think of a way to including warning instead.
-    if(!counts && strand.isEmpty()) error "No strand information found. Use -counts flag to get it. Alternatively use -strand flag with appropriate strand type."
-    if(!counts && !strand.isEmpty()) strandInfo = strand
-}
-string[] degustFiles = getDegustFile(cmdExe, featureCounts, samplesSheet, localGTF, modelType)
-mkLog("degust", parseList(degustFiles), "data", logsDir)
-string{} exonicOpts = { "-gtf" => localGTF }
-if(paired) {
-    // flag for paired end data
-    exonicOpts{"--paired"} = ""
-    // bams need to be sorted by name, which is default output from STAR
-    //TODO need to reinforce this! If user will output SortedByCoordinates from STAR
-    // then this will no longer be true
-    exonicOpts{"--sorted"} = ""
-}
-string allExonicOpts = getExtrOpts("qualimap", exonicOpts, usrOpts)
-mkLog("qualiMap", allExonicOpts, "refFiles", logsDir)
-
-// get Int(ra|er)genic rates
-string[] exonicRates = getExonicRates(cmdExe, sikDir, theBams, allExonicOpts, strandInfo, localGTF)
-mkLog("qualiMap", parseList(exonicRates), "data", logsDir)
-// FastQC report
-string{} fastqcOpts = { "--format" => "fastq", \
-                        "--quiet" => ""}
-
-string fqQcOpts = getExtrOpts("fastqc", fastqcOpts, usrOpts)
-mkLog("fastqc", fqQcOpts, "refFiles", logsDir)
-
-string[] fqQcReport = getFastqcReport(cmdExe, sikDir, fqFiles, fqQcOpts, extn)
-mkLog("fastqc", parseList(fqQcReport), "data", logsDir)
-
-// gather all files up for multiqc
-string[] multiqcDeps
-if(align.startsWith("star")) {
-    for(string bamName : bamsMap.keys() ) {
-        string postFix = "_Log.final.out"
-	string baseDir = bamsMap{bamName}.dirName()
-        string bamDep = baseDir+"/"+bamName+postFix
-        multiqcDeps += bamDep
-    }
-}
-if(mdups) {
-    multiqcDeps += theBams.values()
-}
-if(counts) {
-    multiqcDeps += featureCounts
-    multiqcDeps += degustFiles
-}
-if(qc) {
-    multiqcDeps += samMetrics
-    multiqcDeps += fqQcReport
-    //TODO is another hacky fix. basically certain tasks in addMetrics allowed to fail
-    // and one particular task always fails for single-end data, but addMetrics list still
-    // has that file entry - hence the removeIdx(). a better solution would be inside getAddMetrics()
-    // that would not add paired specific metrics into addMetrics list. Due to time constrain living this one out for later
-    if(paired) {
-        multiqcDeps += addMetrics
-    }
-    else {
-        string tmp = addMetrics.removeIdx(0)
-        string tmp2 = addMetrics.removeIdx(0)
-        multiqcDeps += addMetrics
-    }
-}
-if(exonicRate) {
-    multiqcDeps += exonicRates
-}
-//logit(logFile, "MultiQC dependency files", parseList(multiqcDeps))
-
-string{} multiqcOpts = {"--config" => sikProgPath+"/../configs/multiqc_conf.yml"}
-
-string allMultiqcOpts = getExtrOpts("multiqc", multiqcOpts, usrOpts)
-mkLog("multiqc", allMultiqcOpts, "toolsOpts", logsDir)
-string multiqcIgnore = mkMultiqcIgnores(strandInfo, featureCounts)
-string qcReport = getMultiqc(cmdExe, sikDir, multiqcIgnore, multiqcDeps, allMultiqcOpts)
-#----------------------------------------------------------------------------------------------------
-# End
-#----------------------------------------------------------------------------------------------------
