@@ -38,10 +38,10 @@ class MetadataSample {
 
         if(paired) {
             for(int i : range(1, nItems)) {
-                bool chk = (i % 2 != 0)
+                bool odd = (i % 2 != 0)
                 int idx = i+nCoreFields-1
 
-                if(chk) {
+                if(odd) {
                     this.fq1.add(_path + "/" + samplesList[idx])
                 } else {
                     this.fq2.add(_path + "/" + samplesList[idx])
@@ -57,12 +57,12 @@ class MetadataSample {
     }
 }
 
-class MetadataAligner extends MetadataSample {
+class MetadataAlignerGeneric extends MetadataSample {
 
     string bamOut
     string bamLog
 
-    void MetadataAligner(string line, string sikDir) {
+    void MetadataAlignerGeneric(string line, string sikDir) {
 
         log("MSG: Output directory $sikDir")
 
@@ -75,21 +75,42 @@ class MetadataAligner extends MetadataSample {
         }
 
         this.bamOut = alignDir + "/" + this.sampleName + ".bam"
-        this.bamLog = alignDir + "/" + "." + this.sampleName + ".siklog"
+        this.bamLog = alignDir + "/." + this.sampleName + ".siklog"
     }
 }
+//TODO this Aligner and AlignerGeneric class seems a bit pointless, I should probably just have a single Aligner class
+class MetadataAligner extends MetadataAlignerGeneric {
 
-class Metadata extends MetadataAligner {
+    string bamAlignerOut
+    string bamAlignerLog
 
-    void Metadata(string line, string sikDir, string aligner) {
-        log("MSG: Aligner type $aligner")
+    string bamSortedOut
+    string bamSortedLog
 
-        MetadataAligner(line, sikDir)
+    string bamSortedMdupsOut
+    string bamSortedMdupsLog
+
+    void MetadataAligner(string line, string sikDir, string aligner) {
+        //log("MSG: Aligner type $aligner") //too noisy
+
+        MetadataAlignerGeneric(line, sikDir)
+
+        string bamFilesDir = sikDir+"/"+"bamFiles"
+        if(!bamFilesDir.exists()) {
+            bamFilesDir.mkdir()
+        }
 
         switch(aligner) {
             case 'star':
-                this.bamOut = this.bamOut.replace(".bam", "_Aligned.out.bam")
-                this.bamLog = this.bamLog.replace(".siklog", "_Log.out.final")
+                this.bamAlignerOut = this.bamOut.replace(".bam", "_Aligned.out.bam")
+                this.bamAlignerLog = this.bamLog.replace(".siklog", "_Aligner.out.bam.siklog")
+
+                this.bamSortedOut = bamFilesDir + "/" + this.bamOut.baseName().replace("_Aligned.out.bam", "_sorted.bam")
+                this.bamSortedLog = bamFilesDir + "/." + this.bamLog.baseName().replace(".siklog", "_sorted.bam.siklog")
+
+                this.bamSortedMdupsOut = this.bamSortedOut.replace(".bam", "_mdups.bam")
+                this.bamSortedMdupsLog = this.bamSortedLog.replace(".bam.siklog", "_mdups.bam.siklog")
+
                 break
             case 'hisat2':
                 this.bamOut = this.bamOut.replace(".bam", "_aligned.bam")
@@ -97,12 +118,50 @@ class Metadata extends MetadataAligner {
                 break
 
             case 'bwaMem':
-                this.bamOut = this.bamOut.replace(".bam", "_bwaMem.bam")
-                this.bamLog = this.bamLog.replace(".siklog", "_bwaMem.log")
+                this.bamAlignerOut = this.bamOut.replace(".bam", "_bwaMem.bam")
+                this.bamAlignerLog = this.bamLog.replace(".siklog", "_bwaMem.siklog")
+
+                this.bamSortedOut = this.bamOut.replace("_bwaMem.bam", "_sorted.bam")
+                this.bamSortedLog = this.bamLog.replace(".siklog", "_sorted.bam.siklog")
+
+                this.bamSortedMdupsOut = this.bamSortedOut.replace(".bam", "_mdups.bam")
+                this.bamSortedMdupsLog = this.bamSortedLog.replace(".bam.siklog", "_mdups.bam.siklog")
+
                 break
             default:
                 error("SikErr: There needs to be an error here to make sure nothing else is passed through, other than allowed aligners")
         }
+    }
+}
+
+class Metadata extends MetadataAligner {
+
+    string cntsFwd
+    string cntsFwdLog
+
+    string cntsRev
+    string cntsRevLog
+
+    string cntsNon
+    string cntsNonLog
+
+    void Metadata(string line, string sikDir, string aligner) {
+
+        MetadataAligner(line, sikDir, aligner)
+
+        string countsDir = sikDir+"/"+"countFiles"
+        if(!countsDir.exists()) {
+            countsDir.mkdir()
+        }
+
+        this.cntsFwd = countsDir + "/" + this.sampleName + "_fwdCnts.txt"
+        this.cntsFwdLog = countsDir + "/." + this.sampleName + "_fwdCnts.siklog"
+
+        this.cntsRev = countsDir + "/" + this.sampleName + "_revCnts.txt"
+        this.cntsRevLog = countsDir + "/." + this.sampleName + "_revCnts.siklog"
+
+        this.cntsNon = countsDir + "/" + this.sampleName + "_nonCnts.txt"
+        this.cntsNonLog = countsDir + "/." + this.sampleName + "_nonCnts.siklog"
     }
 }
 

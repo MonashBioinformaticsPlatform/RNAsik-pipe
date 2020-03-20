@@ -8,12 +8,22 @@ include "sikResultsClass.bds"
 sikConf := new SikConfig(sikConfig)
 sikRefConf := new SikReferencesConfig(sikConf.usrResConf)
 
-ref := new References(sikConf, sikRefConf)
+ref := new References(sikConf, sikRefConf) // here ref class returns "generic" object that aligner config can take
+string aligner = sikConf.sikCmdFlags{"aligner"}
+//SikBWAalignerConfig sikBWAalignerConf = new SikBWAalignerConfig(sikConf.usrResConf, sikConf.usrToolsConf)
+AlignerConfig alignerConf = new AlignerConfig(sikConf.usrResConf, sikConf.usrToolsConf, aligner)
 
-SikBWAalignerConfig sikBWAalignerConf = new SikBWAalignerConfig(sikConf.usrResConf, sikConf.usrToolsConf)
-res := new AlignerResults(sikConf, sikBWAalignerConf, ref.genomeIdx, ref.idxDeps)
+alignerRes := new AlignerResults(sikConf, alignerConf, ref.genomeIdx, ref.idxDeps)
 
-println(res)
+SortConfig sortConf = new SortConfig(sikConf.usrResConf, sikConf.usrToolsConf, aligner)
+
+bamRes := new BamResults(alignerRes.results, sikConf, sortConf)
+
+//for(Metadata m : alignerRes.results) {
+//    println(m.sampleName)
+//}
+//println(bamRes)
+//println(alignerRes.results)
 
 //string[] keys = samples.keys
 

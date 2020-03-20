@@ -3,3 +3,5 @@ starIdx
 bwaIdx
 bwaMemAligner
 featureCounts
+samtoolsSort
+samtoolsIdx

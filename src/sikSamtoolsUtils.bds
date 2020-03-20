@@ -1,0 +1,38 @@
+
+Metadata doBamSort(Metadata sample, SikSamtoolsSortConfig sikSamtoolsSortConf, string sikDir) {
+
+    string{} resources = sikSamtoolsSortConf.sortRes
+    string x = resources{"samtoolsExe"}
+    int xCpu = resources{"idxCpu"}.parseInt()
+    int xMem = resources{"idxMem"}.parseInt()
+
+    string samtoolsSortCmdOpts = sikSamtoolsSortConf.sortCmdOpts.join(" ")
+
+    //NOTE sortMem from sik.cofig is per thread, so BDS total memory = xMem*xCpu
+    int bdsTotMem = xMem*xCpu
+
+    // need to scale down by 80 % because samtools can takes more RAM then given, more info in the samtools src
+    // bam_sort.c -> 2107 @param  max_mem  approxiate maximum memory (very inaccurate)
+    real scalFact = 0.65
+    string sortSamMem = round(scalFact * bdsTotMem/1000)+"K"   // converting to bytes
+
+    string sampleName = sample.sampleName
+    string bamIn = sample.bamOut
+    string bamOut = sample.bamSortedOut
+    string bamLog = sample.bamSortedLog
+
+    string logMsg = "sorting BAM file with samtools " + bamIn
+
+    task([bamOut, bamLog] <- bamIn , cpus := xCpu, mem := bdsTotMem, taskName := logMsg) {
+        sys $x sort --threads $xCpu \
+                    -m $sortSamMem \
+                    -o $bamOut \
+                    $bamIn > $bamLog 2>&1
+
+        sys $x index $bamOut
+        sys rm $bamIn
+    }
+
+    sample.bamOut = bamOut
+    return sample
+}

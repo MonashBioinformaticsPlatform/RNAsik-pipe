@@ -2,8 +2,9 @@
 class AlignerResults {
 
     Metadata[] results
-
-    void AlignerResults(SikConfig sikConf, SikBWAalignerConfig sikBWAalignerConf, string genomeIdx, string[] idxDeps) {
+    //TODO this a bug, this class takes sikBWAalignerConfig class, however it needs to be generic since STAR aligner will give a different class
+    // rather a class should be AlignerConfig class, that returns appropriate config file
+    void AlignerResults(SikConfig sikConf, AlignerConfig alignerConf, string genomeIdx, string[] idxDeps) {
 
         string metadataFn = sikConf.sikCmdFlags{"metadata"}
         string aligner = sikConf.sikCmdFlags{"aligner"}
@@ -11,23 +12,61 @@ class AlignerResults {
 
         Samples samples = new Samples(metadataFn, sikDir, aligner)
 
-        for(Metadata m : samples.samples) {
-            switch(aligner) {
-                case 'star':
-                    error("SikErr: Haven't been implemented yet")
-                    break
-                case 'hisat2':
-                    error("SikErr: Haven't been implemented yet")
-                    break
-                case 'bwaMem':
-                    Metadata result = mapBWA(sikBWAalignerConf, m, genomeIdx, idxDeps)
+        switch(aligner) {
+            case 'star':
+                error("SikErr: Haven't been implemented yet")
+                break
+            case 'hisat2':
+                error("SikErr: Haven't been implemented yet")
+                break
+            case 'bwaMem':
+                for(Metadata m : samples.samples) {
+                    Metadata result = mapBWA(alignerConf.sikBWAalignerConf, m, genomeIdx, idxDeps)
                     this.results.add(result)
-                    break
-                default:
-                    error("SikErr: There needs to be an error here to make sure nothing else is passed through, other than allowed aligners")
-            }
+                }
+                break
+            default:
+                error("SikErr: There needs to be an error here to make sure nothing else is passed through, other than allowed aligners")
         }
     }
 }
 
+class BamResults {
+   //TODO Return bam files, sorted and if flaged mdups. These are the bams that moving forward for counting and the rest of the analysis
 
+    Metadata[] results
+
+    void BamResults(Metadata[] alignerResults, SikConfig sikConf, SortConfig sortConf) {
+
+        Metadata[] tmpRes
+
+        string sikDir = sikConf.sikCmdFlags{"outDir"}
+        bool mdups = sikConf.sikCmdFlags{"mdups"}
+        string sortingTool = "samtools" //TODO should really move this variable into sikConf
+
+        switch(sortingTool) {
+            case 'samtools':
+                for(Metadata m : alignerResults) {
+                    Metadata result = doBamSort(m, sortConf.samtoolsSortConf, sikDir)
+                    tmpRes.add(result)
+                }
+                break
+            case 'picard':
+                error("SikErr: Haven't been implemented yet")
+                break
+            default:
+                error("SikErr: There needs to be an error here to make sure nothing else is passed through, other than allowed aligners")
+        }
+
+        //NOTE this should allow me later to loop over tmpRes and pass it to mdups processing, tool agnostic
+        // and in the second switch I'd do this.results.add(results)
+        //This is kinder of ugly.. will think of a better solution
+        if(!mdups && results.isEmpty()) {
+           this.results = tmpRes
+        }
+
+        //TODO I guess will add a second switch statement later to do mdups, once again allowing for multiple tools selection
+
+        //string mdupsTool = "samtools" or "picard"
+    }
+}

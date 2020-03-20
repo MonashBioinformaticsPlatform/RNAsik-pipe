@@ -2,6 +2,10 @@
 Abstracting away config files interface
 */
 
+include "sikSTARclass.bds"
+include "sikBWAclass.bds"
+include "sikSamtoolsClass.bds"
+
 /*
 
 DOCS:
@@ -110,7 +114,6 @@ class SikResourcesConfig {
     }
 }
 
-
 class SikReferencesConfig extends SikResourcesConfig {
 
     string{} sikRefConf
@@ -136,5 +139,53 @@ class SikReferencesConfig extends SikResourcesConfig {
         sikRefConf{"dictExe"} = this._sikResConf{"picardExe"} + " CreateSequenceDictionary"
         sikRefConf{"dictCpu"} = this._sikResConf{"picardDictCpu"}
         sikRefConf{"dictMem"} = this._sikResConf{"picardDictMem"}
+    }
+}
+
+class AlignerConfig {
+
+    SikBWAalignerConfig sikBWAalignerConf
+    SikStarAlignerConfig sikStarAlignerConf
+
+    void AlignerConfig(string{} usrResConf, string{} usrToolsConf, string aligner) {
+
+        switch(aligner) {
+            case 'star':
+                //SikStarAlignerConfig sikStarAlingerConf = new SikStarAlingerConfig(usrResConf, usrToolsConf)
+                break
+            case 'hisat2':
+                error("SikErr: Haven't been implemented yet")
+                break
+            case 'bwaMem':
+                //SikBWAalignerConfig sikBWAalignerConf = new SikBWAalignerConfig(usrResConf, usrToolsConf)
+                sikBWAalignerConf = new SikBWAalignerConfig(usrResConf, usrToolsConf)
+                break
+            default:
+                error("SikErr: There needs to be an error here to make sure nothing else is passed through, other than allowed aligners")
+
+        }
+    }
+}
+
+class SortConfig {
+    //TODO can have another class here with a switch to support different sorting tools e.g picard vs samtools, or could even have STAR, will leave it out for now
+    SikSamtoolsSortConfig samtoolsSortConf
+    //SikPicardSortConfig picardSortConf //TODO hasn't been implemented
+
+    void SortConfig(string{} usrResConf, string{} usrToolsConf, string aligner) {
+
+        string sortingTool = "samtools"
+
+        switch(sortingTool) {
+            case 'samtools':
+                samtoolsSortConf = new SikSamtoolsSortConfig(usrResConf, usrToolsConf)
+                break
+            case 'picard':
+                error("SikErr: Haven't been implemented yet")
+                break
+            default:
+                error("SikErr: There needs to be an error here to make sure nothing else is passed through, other than allowed aligners")
+
+        }
     }
 }

@@ -29,16 +29,28 @@ Metadata mapBWA(SikBWAalignerConfig sikBWAalignerConf, Metadata sample, string g
 
     string sampleName = sample.sampleName
     //string group =  sample.sampleGroup
-    string bamOut = sample.bamOut
-    string bamLog = sample.bamLog
+    string bamOut = sample.bamAlignerOut
+    string bamLog = sample.bamAlignerLog
 
     string[] fq1 = sample.fq1
     string[] fq2 = sample.fq2
 
-    string fq1Sub = "<(zcat "+fq1.join(" ")+")"
-    string fq2Sub = "<(zcat "+fq2.join(" ")+")"
+    int chk1 = fq1.size()
+    int chk2 = fq2.size()
 
-    string fqs = [fq1.join(","), fq2.join(",")].join(" ")
+    assert(chk1 == chk2)
+
+    string fq1Sub
+    string fq2Sub
+
+    if(chk1 == 1) {
+        fq1Sub = fq1[0]
+        fq2Sub = fq2[0]
+    } else {
+        fq1Sub = "<(zcat " + fq1.join(" ") + ")"
+        fq2Sub = "<(zcat " + fq2.join(" ") + ")"
+
+    }
 
     string[] deps
     deps += fq1
@@ -53,5 +65,6 @@ Metadata mapBWA(SikBWAalignerConfig sikBWAalignerConf, Metadata sample, string g
                    $fq1Sub $fq2Sub 2> $bamLog | samtools view -S -b - > $bamOut
     }
 
+    sample.bamOut = bamOut
     return sample
 }
