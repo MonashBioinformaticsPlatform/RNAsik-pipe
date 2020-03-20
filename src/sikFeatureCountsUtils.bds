@@ -1,0 +1,137 @@
+
+// runs python script `strand_guessing.py` that guess strandness of the data
+//string getStrandInfo(string{} cmdExe, string[] readCounts, string samplesSheet) {
+//    if(!cmdExe.hasKey("pythonExe")) error "Can't get python executable, check your config file $configFile"
+//    string pythonExe = cmdExe{"pythonExe"}
+//
+//    string getProgPath = programPath.pathName()
+//    string pyScript = getProgPath+"/../scripts/strand_guessing.py"
+//    string countsDir = readCounts[0].dirName()
+//    string strandInfoAll = countsDir+"/"+"strandInfoAll.txt"
+//    string strandInfoGuess = countsDir+"/"+"strandInfoGuess.txt"
+//
+//    task(counts, [strandInfoAll, strandInfoGuess] <- readCounts, taskName := "getting strand info") {
+//        sys $pythonExe $pyScript --logs_dir $countsDir \
+//                                 --samples_sheet $samplesSheet \
+//                                 --outdir $countsDir
+//    }
+//    // need to wait here, because later on some other tasks will try to read from that file
+//    // so it really need to be made
+//    wait
+//    return strandInfoGuess
+//}
+
+Metadata doReadsCount(Metadata sample, SikCountsConfig sikCntsConf, string geneModels, string sikDir) {
+
+    string{} resources = sikCntsConf.sortRes
+    string x = resources{"featureCountsExe"}
+    int xCpu = resources{"countsCpu"}.parseInt()
+    int xMem = resources{"countsCpu"}.parseInt()
+
+    string samtoolsSortCmdOpts = sikCntsConf.sortCmdOpts.join(" ")
+
+    string sampleName = sample.sampleName
+    string bamIn = sample.bamOut // this bam files needs to be the one that featureCounts make a.k.a fixed
+
+    string cntsFwd = sample.cntsFwd
+    string cntsFwdLog = sample.cntsFwdLog
+
+    string cntsRev = sample.cntsRev
+    string cntsRevLog = sample.cntsRevLog
+
+    string cntsNon = sample.cntsNon
+    string cntsNonLog = sample.cntsNonLog
+
+    int chkPaired = extraOpts.indexOf("-p")
+    if(chkPaired != -1 && !paired) {
+        error "featureCounts had been set for paired end data but -paired is unset $paired"
+    }
+    if(chkPaired == -1 && paired) {
+        error "featureCounts hadn't been set for paired end data but -paired is set $paired"
+    }
+
+    //NOTE added -Q 10 to featureCounts. This is important filtering step that filters
+    //multi-mappers out using MAPQ field in bam file i.e 5th column. Not many (onle one?) alingers
+    //follow string definition of MAPQ filed as per sam specs. Most splice-aware aligners tophat, hisat2 and STAR
+    //have discrete number of MAPQs. This doesn't matter too much in this case and MAPQ of 10 will filter out
+    //correct - "uniquelly mapped" reads. For STAR, tophat2 and hisat2 MAPQ > 10 essentially means MAPQ = 50/255 depending on the alinger
+
+    task(cntsNon <- [bamIn, geneModels], cpus := xCpu, mem := xMem, taskName := "Counting features against both strands $sampleName") {
+        sys $countsExe -T $xCpu \
+                       -s 0 \
+                       -Q 10 \
+                       -o $cntsNon \
+                       $extraOpts \
+                       $bamIn > $cntsNonLog 2>&1
+    }
+
+    task(cntsFwd <- [bamIn, geneModels], cpus := xCpu, mem := xMem, taskName := "Counting features against foward strand $sampleName") {
+        sys $countsExe -T $xCpu \
+                       -s 1 \
+                       -Q 10 \
+                       -o $cntsFwd \
+                       $extraOpts \
+                       $bamIn > $cntsFwdLog 2>&1
+    }
+
+    task(cntsRev <- [bamIn, geneModels], cpus := xCpu, mem := xMem, taskName := "Counting features against reverse strand $sampleName") {
+        sys $countsExe -T $xCpu \
+                       -s 2 \
+                       -Q 10 \
+                       -o $cntsRev \
+                       $extraOpts \
+                       $bamIn > $cntsRevLog 2>&1
+    }
+
+    return sample
+}
+//
+string getGeneIds(string pythonExe, string countFilesDir, string gtfFile, string modelType){
+
+    string pyScript = programPath.pathName()+"/../scripts/get_geneids.py"
+    string opts = "--file_type $modelType --in_file $gtfFile"
+    string geneIds = countFilesDir+"/"+"geneIds.txt"
+
+    task(counts, geneIds <- gtfFile, canFail := true, taskName := "getting geneIds.txt file") {
+        sys $pythonExe $pyScript $opts > $geneIds
+    }
+    return geneIds
+}
+//TODO make mkCntsFile to accept args from extraOpts file, in particular --biotype, not every annotation file will have that info
+string[] getDegustFile(string{} cmdExe, string[] cntFiles, string samplesSheet, string gtfFile, string modelType) {
+    // sanity check
+    if(!cmdExe.hasKey("pythonExe")) {
+        error "Can't get python executable, check your config file $configFile"
+    }
+
+    string[] res
+
+    string cntsDir = cntFiles[0].dirName()
+
+    string pythonExe = cmdExe{"pythonExe"}
+    string geneIdsFile = getGeneIds(pythonExe, cntsDir, gtfFile, modelType)
+    string mkCntsFile = programPath.pathName()+"/../scripts/mk_cnts_file.py"
+
+    for(string cntFile : cntFiles) {
+        string degustFileAll = cntFile.swapExt(".txt", "-withNames.txt")
+        string degustFileProteinCoding = cntFile.swapExt(".txt", "-withNames-proteinCoding.txt")
+
+        res.add(degustFileAll)
+
+        dep(counts, degustFileAll <- [cntFile, geneIdsFile, samplesSheet], canFail := true, taskName := "making degust file with all features") {
+            sys $pythonExe $mkCntsFile --counts_file $cntFile \
+                                       --gene_ids $geneIdsFile \
+                                       --samples_sheet $samplesSheet \
+                                       --biotype "all" > $degustFileAll
+        }
+        dep(counts, degustFileProteinCoding <- [cntFile, geneIdsFile, samplesSheet], canFail := true, taskName := "making degust file with protein coding features") {
+            sys $pythonExe $mkCntsFile --counts_file $cntFile \
+                                       --gene_ids $geneIdsFile \
+                                       --samples_sheet $samplesSheet \
+                                       --biotype "protein_coding" > $degustFileProteinCoding
+        }
+    }
+
+    goal res
+    return res
+}
