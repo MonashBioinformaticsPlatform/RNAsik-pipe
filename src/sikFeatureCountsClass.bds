@@ -1,0 +1,64 @@
+
+include "sikConfigClass.bds"
+include "sikFeatureCountsUtils.bds"
+
+class SikCountsConfig extends SikResourcesConfig {
+
+    string{} cntsRes
+    string[] cntsCmdOpts
+
+    string{} _sikCntsConf // private to this class
+
+    void SikCountsConfig(string{} usrResConf, string{} usrToolsConf) {
+
+        SikResourcesConfig(usrResConf)
+
+        string{} usrCntsOpts
+
+        if(usrToolsConf.hasKey("featureCounts")) {
+            usrCntsOpts = parseUsrToolsOpts("featureCounts", usrToolsConf{"featureCounts"})
+        }
+
+        //TODO instead of creating dummy/empty files, I should just check here if the file exists
+        string sikCntsConfigFn = this._configOriginFn + "/sikCmdOptions/featureCounts.config"
+        assert(sikCntsConfigFn.exists())
+        this._sikCntsConf = config(sikCntsConfigFn)
+
+        string[] keys = this._sikCntsConf.keys()
+        keys += usrCntsOpts.keys()
+        keys = unique(keys)
+
+        for(string k : keys) {
+            if(usrCntsOpts.hasKey(k)) {
+                this.cntsCmdOpts.add([k, usrCntsOpts{k}].join(" "))
+            } else {
+                this.cntsCmdOpts.add([k, this._sikCntsConf{k}].join(" "))
+            }
+        }
+
+        string[] sanityChk = ["countsExe", \
+                              "countsCpu", \
+                              "countsMem", \
+                              "repairExe", \
+                              "repairCpu", \
+                              "repairMem"]
+
+        for(string k : sanityChk) {
+            if(!this._sikResConf.hasKey(k)) {
+                error "\n\
+                       \n\
+                       SikErr: Key not found -> $k. Check you configuration files \
+                       \n"
+            }
+        }
+
+        cntsRes{"repairCpu"} = this._sikResConf{"repairCpu"}
+        cntsRes{"repairMem"} = this._sikResConf{"repairMem"}
+        cntsRes{"repairExe"} = this._sikResConf{"repairExe"}
+
+        cntsRes{"countsCpu"} = this._sikResConf{"countsCpu"}
+        cntsRes{"countsMem"} = this._sikResConf{"countsMem"}
+        cntsRes{"countsExe"} = this._sikResConf{"countsExe"}
+    }
+}
+

@@ -70,3 +70,19 @@ class BamResults {
         //string mdupsTool = "samtools" or "picard"
     }
 }
+
+class ReadsCount {
+
+    Metadata[] counts
+
+    void ReadsCount(Metadata[] bamResults, SikConfig sikConf, SikCountsConfig sikCntsConf) {
+
+        string geneModels = sikConf.sikCmdFlags{"geneModels"}
+        string sikDir = sikConf.sikCmdFlags{"outDir"}
+
+        for(Metadata m : bamResults) {
+            Metadata count =  doReadsCount(m, sikCntsConf, geneModels, sikDir)
+            counts.add(count)
+        }
+    }
+}

@@ -4,48 +4,19 @@ include "sikConfigClass.bds"
 include "sikReferencesClass.bds"
 include "sikSampleClass.bds"
 include "sikResultsClass.bds"
+include "sikFeatureCountsClass.bds"
 
 sikConf := new SikConfig(sikConfig)
 sikRefConf := new SikReferencesConfig(sikConf.usrResConf)
 
 ref := new References(sikConf, sikRefConf) // here ref class returns "generic" object that aligner config can take
 string aligner = sikConf.sikCmdFlags{"aligner"}
-//SikBWAalignerConfig sikBWAalignerConf = new SikBWAalignerConfig(sikConf.usrResConf, sikConf.usrToolsConf)
-AlignerConfig alignerConf = new AlignerConfig(sikConf.usrResConf, sikConf.usrToolsConf, aligner)
 
+AlignerConfig alignerConf = new AlignerConfig(sikConf.usrResConf, sikConf.usrToolsConf, aligner)
 alignerRes := new AlignerResults(sikConf, alignerConf, ref.genomeIdx, ref.idxDeps)
 
 SortConfig sortConf = new SortConfig(sikConf.usrResConf, sikConf.usrToolsConf, aligner)
-
 bamRes := new BamResults(alignerRes.results, sikConf, sortConf)
 
-//for(Metadata m : alignerRes.results) {
-//    println(m.sampleName)
-//}
-//println(bamRes)
-//println(alignerRes.results)
-
-//string[] keys = samples.keys
-
-//println(samples.sample.sampleName)
-//string[] metadata = metadataFn.readLines()
-//
-// for(string line : metadata) {
-//
-//     if(line.startsWith("#") || line.isEmpty())  {
-//         continue
-//     }
-//
-//     Metadata sample = new Metadata(line)
-//     println(sample)
-//     //samples.add(sample)
-// }
-//println(ref)
-
-//ref := new ReferenceFiles(sikConf.sikCmdFlags, sikRefConf.sikRefConf)
-//println(ref)
-
-/*
-Aiming to have references here as a main object that we can than pass around
-*/
-
+SikCountsConfig sikCntsConf = new SikCountsConfig(sikConf.usrResConf, sikConf.usrToolsConf)
+countsRes := new ReadsCount(bamRes.results, sikConf, sikCntsConf)

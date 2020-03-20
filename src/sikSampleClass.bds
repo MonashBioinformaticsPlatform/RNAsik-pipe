@@ -36,7 +36,7 @@ class MetadataSample {
         int nItems = tot - nCoreFields
         this.paired = (nItems % 2 == 0)
 
-        if(paired) {
+        if(this.paired) {
             for(int i : range(1, nItems)) {
                 bool odd = (i % 2 != 0)
                 int idx = i+nCoreFields-1
@@ -121,8 +121,8 @@ class MetadataAligner extends MetadataAlignerGeneric {
                 this.bamAlignerOut = this.bamOut.replace(".bam", "_bwaMem.bam")
                 this.bamAlignerLog = this.bamLog.replace(".siklog", "_bwaMem.siklog")
 
-                this.bamSortedOut = this.bamOut.replace("_bwaMem.bam", "_sorted.bam")
-                this.bamSortedLog = this.bamLog.replace(".siklog", "_sorted.bam.siklog")
+                this.bamSortedOut = this.bamAlignerOut.replace("_bwaMem.bam", "_sorted.bam")
+                this.bamSortedLog = this.bamAlignerLog.replace(".siklog", "_sorted.bam.siklog")
 
                 this.bamSortedMdupsOut = this.bamSortedOut.replace(".bam", "_mdups.bam")
                 this.bamSortedMdupsLog = this.bamSortedLog.replace(".bam.siklog", "_mdups.bam.siklog")
