@@ -18,7 +18,10 @@ string mkBWAidx(SikBWAidxConfig sikBWAidxConf, string fasta, string bwaIdx, stri
     return bwaIdx
 }
 
-Metadata mapBWA(SikBWAalignerConfig sikBWAalignerConf, Metadata sample, string genomeIdx, string[] idxDeps) {
+Sample mapBWA(SikBWAalignerConfig sikBWAalignerConf, Sample sample, string genomeIdx, string[] idxDeps) {
+
+    Metadata metadata = sample.metadata
+    Bams bams = sample.bams
 
     string{} resources = sikBWAalignerConf.alignerRes
     string x = resources{"bwaExe"}
@@ -27,13 +30,12 @@ Metadata mapBWA(SikBWAalignerConfig sikBWAalignerConf, Metadata sample, string g
 
     string bwaCmdOpts = sikBWAalignerConf.alignerCmdOpts.join(" ")
 
-    string sampleName = sample.sampleName
-    //string group =  sample.sampleGroup
-    string bamOut = sample.bamAlignerOut
-    string bamLog = sample.bamAlignerLog
+    string sampleName = metadata.sampleName
+    string[] fq1 = metadata.fq1
+    string[] fq2 = metadata.fq2
 
-    string[] fq1 = sample.fq1
-    string[] fq2 = sample.fq2
+    string bamOut = bams.bamAlignerOut
+    string bamLog = bams.bamAlignerLog
 
     int chk1 = fq1.size()
     int chk2 = fq2.size()
@@ -65,6 +67,6 @@ Metadata mapBWA(SikBWAalignerConfig sikBWAalignerConf, Metadata sample, string g
                    $fq1Sub $fq2Sub 2> $bamLog | samtools view -S -b - > $bamOut
     }
 
-    sample.bamOut = bamOut
+    bams.bamOut = bamOut
     return sample
 }

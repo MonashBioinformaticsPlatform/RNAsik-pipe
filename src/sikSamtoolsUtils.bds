@@ -1,5 +1,8 @@
 
-Metadata doBamSort(Metadata sample, SikSamtoolsSortConfig sikSamtoolsSortConf, string sikDir) {
+Sample doBamSort(Sample sample, SikSamtoolsSortConfig sikSamtoolsSortConf, string sikDir) {
+
+    Metadata metadata = sample.metadata
+    Bams bams = sample.bams
 
     string{} resources = sikSamtoolsSortConf.sortRes
     string x = resources{"samtoolsExe"}
@@ -16,11 +19,11 @@ Metadata doBamSort(Metadata sample, SikSamtoolsSortConfig sikSamtoolsSortConf, s
     real scalFact = 0.65
     string sortSamMem = round(scalFact * bdsTotMem/1000)+"K"   // converting to bytes
 
-    string sampleName = sample.sampleName
-    string bamIn = sample.bamOut
-    string bamOut = sample.bamSortedOut
+    string sampleName = metadata.sampleName
+    string bamIn = bams.bamOut
+    string bamOut = bams.bamSortedOut
     string bamIdx = bamOut + ".bai"
-    string bamLog = sample.bamSortedLog
+    string bamLog = bams.bamSortedLog
 
     string logMsg = "sorting BAM file with samtools " + bamIn
 
@@ -34,7 +37,7 @@ Metadata doBamSort(Metadata sample, SikSamtoolsSortConfig sikSamtoolsSortConf, s
         sys rm $bamIn
     }
 
-    sample.bamOut = bamOut
+    bams.bamOut = bamOut
     goal bamOut
     return sample
 }

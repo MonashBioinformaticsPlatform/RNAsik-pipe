@@ -32,11 +32,7 @@ string mkSTARidx(SikStarIdxConfig sikStarIdxConf, string fasta, string refDir, s
     return starIdxDir
 }
 
-//TODO I think I want to make mapSTAR a Metadata class instead, however I think I now
-// understand what Dave meant by object oriented "encoraging mutability"
-
-//Metadata mapSTAR(SikStarAlignerConfig sikStarAlignerConf, Metadata sample, string genomeIdx) {
-string mapSTAR(SikStarAlignerConfig sikStarAlignerConf, Metadata sample, string genomeIdx) {
+Sample mapSTAR(SikStarAlignerConfig sikStarAlignerConf, Sample sample, string genomeIdx) {
 
     string{} resources = sikStarAlignerConf.alignerRes
     string x = resources{"starExe"}
@@ -45,13 +41,12 @@ string mapSTAR(SikStarAlignerConfig sikStarAlignerConf, Metadata sample, string 
 
     string starCmdOpts = sikStarAlignerConf.alignerCmdOpts.join(" ")
 
-    string sampleName = sample.sampleName
-    //string group =  sample.sampleGroup
-    string bamOut = sample.bamOut
-    string bamLog = sample.bamLog
+    string sampleName = sample.metadata.sampleName
+    string[] fq1 = sample.metadata.fq1
+    string[] fq2 = sample.metadata.fq2
 
-    string[] fq1 = sample.fq1
-    string[] fq2 = sample.fq2
+    string bamOut = sample.bams.bamOut
+    string bamLog = sample.bams.bamLog
 
     string fqs = [fq1.join(","), fq2.join(",")].join(" ")
 
@@ -77,6 +72,5 @@ string mapSTAR(SikStarAlignerConfig sikStarAlignerConf, Metadata sample, string 
                $starCmdOpts > $bamLog 2>&1
     }
 
-    //return sample
-    return bamOut
+    return sample
 }

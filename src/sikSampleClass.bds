@@ -1,8 +1,4 @@
-/*
-Class to represent a sample input and output
-*/
-
-class MetadataSample {
+class Metadata {
 
     string sampleName
     string sampleGroup
@@ -10,7 +6,7 @@ class MetadataSample {
     string[] fq2
     bool paired
 
-    void MetadataSample(string line) {
+    void Metadata(string line) {
 
         assert(!(line.startsWith("#")) | !(line.isEmpty()))
 
@@ -57,16 +53,14 @@ class MetadataSample {
     }
 }
 
-class MetadataAlignerGeneric extends MetadataSample {
+class BamsGeneric {
 
     string bamOut
     string bamLog
 
-    void MetadataAlignerGeneric(string line, string sikDir) {
+    void BamsGeneric(string sampleName, string sikDir) {
 
         log("MSG: Output directory $sikDir")
-
-        MetadataSample(line)
 
         string alignDir = sikDir+"/"+"alignerFiles"
         //log("MSG: Making directory for alignment files $alignDir") //too noisy
@@ -74,12 +68,12 @@ class MetadataAlignerGeneric extends MetadataSample {
             alignDir.mkdir()
         }
 
-        this.bamOut = alignDir + "/" + this.sampleName + ".bam"
-        this.bamLog = alignDir + "/." + this.sampleName + ".siklog"
+        this.bamOut = alignDir + "/" + sampleName + ".bam"
+        this.bamLog = alignDir + "/." + sampleName + ".siklog"
     }
 }
-//TODO this Aligner and AlignerGeneric class seems a bit pointless, I should probably just have a single Aligner class
-class MetadataAligner extends MetadataAlignerGeneric {
+
+class Bams extends BamsGeneric {
 
     string bamAlignerOut
     string bamAlignerLog
@@ -90,10 +84,10 @@ class MetadataAligner extends MetadataAlignerGeneric {
     string bamSortedMdupsOut
     string bamSortedMdupsLog
 
-    void MetadataAligner(string line, string sikDir, string aligner) {
+    void Bams(string sampleName, string sikDir, string aligner) {
         //log("MSG: Aligner type $aligner") //too noisy
 
-        MetadataAlignerGeneric(line, sikDir)
+        BamsGeneric(sampleName, sikDir)
 
         string bamFilesDir = sikDir+"/"+"bamFiles"
         if(!bamFilesDir.exists()) {
@@ -134,7 +128,7 @@ class MetadataAligner extends MetadataAlignerGeneric {
     }
 }
 
-class Metadata extends MetadataAligner {
+class Counts {
 
     string cntsFwd
     string cntsFwdLog
@@ -145,29 +139,57 @@ class Metadata extends MetadataAligner {
     string cntsNon
     string cntsNonLog
 
-    void Metadata(string line, string sikDir, string aligner) {
-
-        MetadataAligner(line, sikDir, aligner)
+    void Counts(string sampleName, string sikDir) {
 
         string countsDir = sikDir+"/"+"countFiles"
         if(!countsDir.exists()) {
             countsDir.mkdir()
         }
 
-        this.cntsFwd = countsDir + "/" + this.sampleName + "_fwdCnts.txt"
-        this.cntsFwdLog = countsDir + "/." + this.sampleName + "_fwdCnts.siklog"
+        this.cntsFwd = countsDir + "/" + sampleName + "_fwdCnts.txt"
+        this.cntsFwdLog = countsDir + "/." + sampleName + "_fwdCnts.siklog"
 
-        this.cntsRev = countsDir + "/" + this.sampleName + "_revCnts.txt"
-        this.cntsRevLog = countsDir + "/." + this.sampleName + "_revCnts.siklog"
+        this.cntsRev = countsDir + "/" + sampleName + "_revCnts.txt"
+        this.cntsRevLog = countsDir + "/." + sampleName + "_revCnts.siklog"
 
-        this.cntsNon = countsDir + "/" + this.sampleName + "_nonCnts.txt"
-        this.cntsNonLog = countsDir + "/." + this.sampleName + "_nonCnts.siklog"
+        this.cntsNon = countsDir + "/" + sampleName + "_nonCnts.txt"
+        this.cntsNonLog = countsDir + "/." + sampleName + "_nonCnts.siklog"
+    }
+}
+
+class Qc {
+
+    string fastqc
+    string flagstat
+    string alignerStats
+    string countsStats
+    string multiqc
+
+    void Qc() {
+
+    }
+
+}
+
+class Sample {
+
+    Metadata metadata
+    Bams bams
+    Counts counts
+    Qc qc
+
+    void Sample(string line, string sikDir, string aligner) {
+
+        this.metadata = new Metadata(line)
+        this.bams = new Bams(metadata.sampleName, sikDir, aligner)
+        this.counts = new Counts(metadata.sampleName, sikDir)
+
     }
 }
 
 class Samples {
 
-    Metadata[] samples
+    Sample[] samples
 
     void Samples(string metadataFn, string sikDir, string aligner) {
 
@@ -180,7 +202,7 @@ class Samples {
                 continue
             }
 
-            Metadata sample = new Metadata(line, sikDir, aligner)
+            Sample sample = new Sample(line, sikDir, aligner)
             this.samples.add(sample)
         }
     }

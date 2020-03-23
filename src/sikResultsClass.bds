@@ -1,7 +1,7 @@
 
 class AlignerResults {
 
-    Metadata[] results
+    Sample[] results
     //TODO this a bug, this class takes sikBWAalignerConfig class, however it needs to be generic since STAR aligner will give a different class
     // rather a class should be AlignerConfig class, that returns appropriate config file
     void AlignerResults(SikConfig sikConf, AlignerConfig alignerConf, string genomeIdx, string[] idxDeps) {
@@ -10,6 +10,7 @@ class AlignerResults {
         string aligner = sikConf.sikCmdFlags{"aligner"}
         string sikDir = sikConf.sikCmdFlags{"outDir"}
 
+        println("HERE:?")
         Samples samples = new Samples(metadataFn, sikDir, aligner)
 
         switch(aligner) {
@@ -20,8 +21,8 @@ class AlignerResults {
                 error("SikErr: Haven't been implemented yet")
                 break
             case 'bwaMem':
-                for(Metadata m : samples.samples) {
-                    Metadata result = mapBWA(alignerConf.sikBWAalignerConf, m, genomeIdx, idxDeps)
+                for(Sample s : samples.samples) {
+                    Sample result = mapBWA(alignerConf.sikBWAalignerConf, s, genomeIdx, idxDeps)
                     this.results.add(result)
                 }
                 break
@@ -34,11 +35,11 @@ class AlignerResults {
 class BamResults {
    //TODO Return bam files, sorted and if flaged mdups. These are the bams that moving forward for counting and the rest of the analysis
 
-    Metadata[] results
+    Sample[] results
 
-    void BamResults(Metadata[] alignerResults, SikConfig sikConf, SortConfig sortConf) {
+    void BamResults(Sample[] alignerResults, SikConfig sikConf, SortConfig sortConf) {
 
-        Metadata[] tmpRes
+        Sample[] tmpRes
 
         string sikDir = sikConf.sikCmdFlags{"outDir"}
         bool mdups = sikConf.sikCmdFlags{"mdups"}.parseBool()
@@ -46,8 +47,8 @@ class BamResults {
 
         switch(sortingTool) {
             case 'samtools':
-                for(Metadata m : alignerResults) {
-                    Metadata result = doBamSort(m, sortConf.samtoolsSortConf, sikDir)
+                for(Sample s : alignerResults) {
+                    Sample result = doBamSort(s, sortConf.samtoolsSortConf, sikDir)
                     tmpRes.add(result)
                 }
                 break
@@ -73,15 +74,15 @@ class BamResults {
 
 class ReadsCount {
 
-    Metadata[] counts
+    Sample[] counts
 
-    void ReadsCount(Metadata[] bamResults, SikConfig sikConf, SikCountsConfig sikCntsConf) {
+    void ReadsCount(Sample[] bamResults, SikConfig sikConf, SikCountsConfig sikCntsConf) {
 
         string geneModels = sikConf.sikCmdFlags{"geneModels"}
         string sikDir = sikConf.sikCmdFlags{"outDir"}
 
-        for(Metadata m : bamResults) {
-            Metadata count = doReadsCount(m, sikCntsConf, geneModels, sikDir)
+        for(Sample s : bamResults) {
+            Sample count = doReadsCount(s, sikCntsConf, geneModels, sikDir)
             counts.add(count)
         }
     }

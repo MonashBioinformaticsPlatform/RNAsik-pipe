@@ -21,7 +21,7 @@
 //    return strandInfoGuess
 //}
 
-Metadata doReadsCount(Metadata sample, SikCountsConfig sikCntsConf, string geneModels, string sikDir) {
+Sample doReadsCount(Sample sample, SikCountsConfig sikCntsConf, string geneModels, string sikDir) {
 
     string{} resources = sikCntsConf.cntsRes
     string x = resources{"featureCountsExe"}
@@ -34,24 +34,25 @@ Metadata doReadsCount(Metadata sample, SikCountsConfig sikCntsConf, string geneM
 
     string[] cntsCmdOptsList = sikCntsConf.cntsCmdOpts.reverse().reverse() // need to create new list, not a pointer into an object
 
-    string sampleName = sample.sampleName
-    bool paired = sample.paired
-    string bam = sample.bamOut // this bam files needs to be the one that featureCounts make a.k.a fixed
-    //TODO need to capture repair log
+    string sampleName = sample.metadata.sampleName
+    bool paired = sample.metadata.paired
+
+    string bam = sample.bams.bamOut
+    string bamLog = sample.bams.bamOut
+
     string bamTmp = bam.replace(".bam", ".repaired")
-    string bamLog = sample.bamOut // this bam files needs to be the one that featureCounts make a.k.a fixed
 
-    string cntsFwd = sample.cntsFwd
+    string cntsFwd = sample.counts.cntsFwd
     string cntsFwdSummary = cntsFwd + ".summary"
-    string cntsFwdLog = sample.cntsFwdLog
+    string cntsFwdLog = sample.counts.cntsFwdLog
 
-    string cntsRev = sample.cntsRev
+    string cntsRev = sample.counts.cntsRev
     string cntsRevSummary = cntsRev + ".summary"
-    string cntsRevLog = sample.cntsRevLog
+    string cntsRevLog = sample.counts.cntsRevLog
 
-    string cntsNon = sample.cntsNon
+    string cntsNon = sample.counts.cntsNon
     string cntsNonSummary = cntsNon + ".summary"
-    string cntsNonLog = sample.cntsNonLog
+    string cntsNonLog = sample.counts.cntsNonLog
 
     //NOTE added -Q 10 to featureCounts. This is important filtering step that filters
     //multi-mappers out using MAPQ field in bam file i.e 5th column. Not many (onle one?) alingers
