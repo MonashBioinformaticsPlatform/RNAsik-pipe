@@ -36,9 +36,9 @@ class SikCountsConfig extends SikResourcesConfig {
             }
         }
 
-        string[] sanityChk = ["countsExe", \
-                              "countsCpu", \
-                              "countsMem", \
+        string[] sanityChk = ["featureCountsExe", \
+                              "featureCountsCpu", \
+                              "featureCountsMem", \
                               "repairExe", \
                               "repairCpu", \
                               "repairMem"]
@@ -56,9 +56,9 @@ class SikCountsConfig extends SikResourcesConfig {
         cntsRes{"repairMem"} = this._sikResConf{"repairMem"}
         cntsRes{"repairExe"} = this._sikResConf{"repairExe"}
 
-        cntsRes{"countsCpu"} = this._sikResConf{"countsCpu"}
-        cntsRes{"countsMem"} = this._sikResConf{"countsMem"}
-        cntsRes{"countsExe"} = this._sikResConf{"countsExe"}
+        cntsRes{"featureCountsCpu"} = this._sikResConf{"featureCountsCpu"}
+        cntsRes{"featureCountsMem"} = this._sikResConf{"featureCountsMem"}
+        cntsRes{"featureCountsExe"} = this._sikResConf{"featureCountsExe"}
     }
 }
 

@@ -69,7 +69,7 @@ class MetadataAlignerGeneric extends MetadataSample {
         MetadataSample(line)
 
         string alignDir = sikDir+"/"+"alignerFiles"
-        log("MSG: Making directory for alignment files $alignDir")
+        //log("MSG: Making directory for alignment files $alignDir") //too noisy
         if(!alignDir.exists()) {
             alignDir.mkdir()
         }
@@ -121,8 +121,8 @@ class MetadataAligner extends MetadataAlignerGeneric {
                 this.bamAlignerOut = this.bamOut.replace(".bam", "_bwaMem.bam")
                 this.bamAlignerLog = this.bamLog.replace(".siklog", "_bwaMem.siklog")
 
-                this.bamSortedOut = this.bamAlignerOut.replace("_bwaMem.bam", "_sorted.bam")
-                this.bamSortedLog = this.bamAlignerLog.replace(".siklog", "_sorted.bam.siklog")
+                this.bamSortedOut = bamFilesDir + "/" + this.bamOut.baseName().replace(".bam", "_sorted.bam")
+                this.bamSortedLog = bamFilesDir + "/." + this.bamLog.baseName().replace(".siklog", "_sorted.bam.siklog")
 
                 this.bamSortedMdupsOut = this.bamSortedOut.replace(".bam", "_mdups.bam")
                 this.bamSortedMdupsLog = this.bamSortedLog.replace(".bam.siklog", "_mdups.bam.siklog")

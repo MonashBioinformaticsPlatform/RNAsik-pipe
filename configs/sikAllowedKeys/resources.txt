@@ -3,7 +3,9 @@ hisat2Exe
 bwaExe
 samtoolsExe
 bedtoolsExe
-countsExe
+featureCountsExe
+featureCountsCpu
+featureCountsMem
 fastqcExe
 pythonExe
 picardExe
@@ -25,7 +27,6 @@ picardQcMem
 jeMem
 picardQcMem
 picardCreateDictMem
-countsMem
 bedtoolsMem
 fastqcMem
 multiqcMem
@@ -44,7 +45,6 @@ jeCpu
 picardQcCpu
 picardCreateDictCpu
 bedtoolsCpu
-countsCpu
 fastqcCpu
 multiqcCpu
 skewerCpu

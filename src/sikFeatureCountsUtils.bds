@@ -25,8 +25,8 @@ Metadata doReadsCount(Metadata sample, SikCountsConfig sikCntsConf, string geneM
 
     string{} resources = sikCntsConf.cntsRes
     string x = resources{"featureCountsExe"}
-    int xCpu = resources{"countsCpu"}.parseInt()
-    int xMem = resources{"countsMem"}.parseInt()
+    int xCpu = resources{"featureCountsCpu"}.parseInt()
+    int xMem = resources{"featureCountsMem"}.parseInt()
 
     string repairExe = resources{"repairExe"}
     int repairCpu = resources{"repairCpu"}.parseInt()
@@ -37,15 +37,20 @@ Metadata doReadsCount(Metadata sample, SikCountsConfig sikCntsConf, string geneM
     string sampleName = sample.sampleName
     bool paired = sample.paired
     string bam = sample.bamOut // this bam files needs to be the one that featureCounts make a.k.a fixed
+    //TODO need to capture repair log
     string bamTmp = bam.replace(".bam", ".repaired")
+    string bamLog = sample.bamOut // this bam files needs to be the one that featureCounts make a.k.a fixed
 
     string cntsFwd = sample.cntsFwd
+    string cntsFwdSummary = cntsFwd + ".summary"
     string cntsFwdLog = sample.cntsFwdLog
 
     string cntsRev = sample.cntsRev
+    string cntsRevSummary = cntsRev + ".summary"
     string cntsRevLog = sample.cntsRevLog
 
     string cntsNon = sample.cntsNon
+    string cntsNonSummary = cntsNon + ".summary"
     string cntsNonLog = sample.cntsNonLog
 
     //NOTE added -Q 10 to featureCounts. This is important filtering step that filters
@@ -55,7 +60,7 @@ Metadata doReadsCount(Metadata sample, SikCountsConfig sikCntsConf, string geneM
     //correct - "uniquelly mapped" reads. For STAR, tophat2 and hisat2 MAPQ > 10 essentially means MAPQ = 50/255 depending on the alinger
 
     string repairMsg = "Preparing bam file for featureCounts " + sampleName
-    task(paired, bamTmp <- bam, cpus := repairCpu, mem := repairMem, taskName := repairMsg) {
+    dep(paired, bamTmp <- bam, cpus := repairCpu, mem := repairMem, taskName := repairMsg) {
         sys $repairExe -T $repairCpu -t -i $bam -o $bamTmp
     }
 
@@ -67,8 +72,9 @@ Metadata doReadsCount(Metadata sample, SikCountsConfig sikCntsConf, string geneM
 
     string cntsCmdOpts = cntsCmdOptsList.join(" ")
 
-    task(cntsNon <- [bamIn, geneModels], cpus := xCpu, mem := xMem, taskName := "Counting features against both strands $sampleName") {
+    dep([cntsNon, cntsNonSummary] <- [bamIn, geneModels], cpus := xCpu, mem := xMem, taskName := "Counting features against both strands $sampleName") {
         sys $x -T $xCpu \
+               -a $geneModels \
                -s 0 \
                -Q 10 \
                -o $cntsNon \
@@ -76,8 +82,9 @@ Metadata doReadsCount(Metadata sample, SikCountsConfig sikCntsConf, string geneM
                $bamIn > $cntsNonLog 2>&1
     }
 
-    task(cntsFwd <- [bamIn, geneModels], cpus := xCpu, mem := xMem, taskName := "Counting features against foward strand $sampleName") {
+    dep([cntsFwd, cntsFwdSummary] <- [bamIn, geneModels], cpus := xCpu, mem := xMem, taskName := "Counting features against foward strand $sampleName") {
         sys $x -T $xCpu \
+               -a $geneModels \
                -s 1 \
                -Q 10 \
                -o $cntsFwd \
@@ -85,8 +92,9 @@ Metadata doReadsCount(Metadata sample, SikCountsConfig sikCntsConf, string geneM
                $bamIn > $cntsFwdLog 2>&1
     }
 
-    task(cntsRev <- [bamIn, geneModels], cpus := xCpu, mem := xMem, taskName := "Counting features against reverse strand $sampleName") {
+    dep([cntsRev, cntsRevSummary] <- [bamIn, geneModels], cpus := xCpu, mem := xMem, taskName := "Counting features against reverse strand $sampleName") {
         sys $x -T $xCpu \
+               -a $geneModels \
                -s 2 \
                -Q 10 \
                -o $cntsRev \
@@ -94,10 +102,16 @@ Metadata doReadsCount(Metadata sample, SikCountsConfig sikCntsConf, string geneM
                $bamIn > $cntsRevLog 2>&1
     }
 
-    task([cntsNon, cntsFwd, cntsRev] <- bam, taskName := "Cleaning up") {
-        sys rm $bamTmp
-    }
+    string[] res
+    res += [cntsNon, cntsNonSummary]
+    res += [cntsFwd, cntsFwdSummary]
+    res += [cntsRev, cntsRevSummary]
 
+    //dep(paired, res <- bamIn, taskName := "Cleaning up") {
+    //    sys rm $bamTmp
+    //}
+
+    goal res
     return sample
 }
 //

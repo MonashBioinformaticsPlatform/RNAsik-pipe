@@ -58,7 +58,7 @@ Metadata mapBWA(SikBWAalignerConfig sikBWAalignerConf, Metadata sample, string g
     deps += idxDeps
 
     string logMsg = "BWA mem aligning " + sampleName
-    task([bamOut, bamLog] <- deps, cpus := xCpu, mem := xMem, taskName := logMsg) {
+    dep([bamOut, bamLog] <- deps, cpus := xCpu, mem := xMem, taskName := logMsg) {
         sys $x mem -t $xCpu \
                    $bwaCmdOpts \
                    $genomeIdx \

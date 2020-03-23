@@ -19,11 +19,12 @@ Metadata doBamSort(Metadata sample, SikSamtoolsSortConfig sikSamtoolsSortConf, s
     string sampleName = sample.sampleName
     string bamIn = sample.bamOut
     string bamOut = sample.bamSortedOut
+    string bamIdx = bamOut + ".bai"
     string bamLog = sample.bamSortedLog
 
     string logMsg = "sorting BAM file with samtools " + bamIn
 
-    task([bamOut, bamLog] <- bamIn , cpus := xCpu, mem := bdsTotMem, taskName := logMsg) {
+    dep([bamOut, bamIdx, bamLog] <- bamIn , cpus := xCpu, mem := bdsTotMem, taskName := logMsg) {
         sys $x sort --threads $xCpu \
                     -m $sortSamMem \
                     -o $bamOut \
@@ -34,5 +35,6 @@ Metadata doBamSort(Metadata sample, SikSamtoolsSortConfig sikSamtoolsSortConf, s
     }
 
     sample.bamOut = bamOut
+    goal bamOut
     return sample
 }

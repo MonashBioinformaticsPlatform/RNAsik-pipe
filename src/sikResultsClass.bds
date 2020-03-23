@@ -41,7 +41,7 @@ class BamResults {
         Metadata[] tmpRes
 
         string sikDir = sikConf.sikCmdFlags{"outDir"}
-        bool mdups = sikConf.sikCmdFlags{"mdups"}
+        bool mdups = sikConf.sikCmdFlags{"mdups"}.parseBool()
         string sortingTool = "samtools" //TODO should really move this variable into sikConf
 
         switch(sortingTool) {
@@ -61,7 +61,7 @@ class BamResults {
         //NOTE this should allow me later to loop over tmpRes and pass it to mdups processing, tool agnostic
         // and in the second switch I'd do this.results.add(results)
         //This is kinder of ugly.. will think of a better solution
-        if(!mdups && results.isEmpty()) {
+        if(!mdups && this.results.isEmpty()) {
            this.results = tmpRes
         }
 
@@ -81,7 +81,7 @@ class ReadsCount {
         string sikDir = sikConf.sikCmdFlags{"outDir"}
 
         for(Metadata m : bamResults) {
-            Metadata count =  doReadsCount(m, sikCntsConf, geneModels, sikDir)
+            Metadata count = doReadsCount(m, sikCntsConf, geneModels, sikDir)
             counts.add(count)
         }
     }
