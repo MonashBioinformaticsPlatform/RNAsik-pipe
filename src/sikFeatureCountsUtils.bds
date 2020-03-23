@@ -32,7 +32,7 @@ Metadata doReadsCount(Metadata sample, SikCountsConfig sikCntsConf, string geneM
     int repairCpu = resources{"repairCpu"}.parseInt()
     int repairMem = resources{"repairMem"}.parseInt()
 
-    string[] cntsCmdOptsList = sikCntsConf.cntsCmdOpts
+    string[] cntsCmdOptsList = sikCntsConf.cntsCmdOpts.reverse().reverse() // need to create new list, not a pointer into an object
 
     string sampleName = sample.sampleName
     bool paired = sample.paired
