@@ -43,3 +43,64 @@ RNA_1_C6HCPANXX_TGACCAAT_L004_R2.fastq.gz
 ## Useful links to other pipelines
 
 - http://gkno.me/
+
+---
+author: serine
+timestamp: 2020.03.03_10:32:35_AEDT
+---
+
+https://docs.oracle.com/en/java/javase/11/
+
+## 09.03.2020
+
+It takes a while to kick into gear, especially after a few days of sick leave .. :/
+Im thining out loud trying to figure out what was I thinking.
+
+- I want ability to pass on custom command line options to any cmd tool
+- I also want to have default cmd tools options stored in a separate config, without a need to hard code anything.
+- ideally (and this should work) I want my parameters to be stored in a config file as well, such that I can pretty much re-write entire command via the config file
+
+- level of configuration files:
+
+    - command line options configuration
+
+        - global config or system config, RNAsik comes with it
+        - user specified config
+
+    - resources configuration
+
+        - global config or system config, RNAsik comes with it
+        - user specified config
+
+    - main config that: Purpose is for user to
+
+
+##
+
+I think I just want to allow user to pass a single config file a.k.a sik.config where it can pass any keys he/she wants.
+And Ill simply build internal a massive map of all allowed keys and error out if the key isnt know, add more keys over time.
+
+
+
+make allowed
+
+cat configs/sikResources.config | grep -v "#" | grep -v "^$" | cut -f1 -d" " > configs/supplementary/sikResourcesConfigAllowed.txt
+
+bwa mem |& sed 's/^\s*//' | grep --colo=none "^-" | cut -f1 -d" " > t
+
+## comment 18.03.2020
+
+Cmnt1:
+I'm not sure what to do if I find --sjdbSTFfile key in the user (sik.config) config file, do I pass it at indexing step
+or do I pass to mapping step? I guess doing at index step would mean that it happened once, whereas if I'm passing it at
+the alignment step I would have to pass it every time, N samples.
+
+I guess for now I'll will only pass those to indexing, ah.. actually if the index directory and already exists and/or user passing it in directly
+then I should pass those to the alignment step
+
+This config class needs to know whether user has passed in refFiles with pre-existing indecies
+
+Cmnt2:
+Because I'm specifically moved to starAligner and starIdx options, previous comment is not of a huge conern, however I should include all of those GTF one into allowed keys for both aligner and indexing
+
+
