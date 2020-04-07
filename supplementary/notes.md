@@ -103,4 +103,5 @@ This config class needs to know whether user has passed in refFiles with pre-exi
 Cmnt2:
 Because I'm specifically moved to starAligner and starIdx options, previous comment is not of a huge conern, however I should include all of those GTF one into allowed keys for both aligner and indexing
 
+https://hbctraining.github.io/Training-modules/DGE-functional-analysis/lessons/Genomic_annotations.html
 
