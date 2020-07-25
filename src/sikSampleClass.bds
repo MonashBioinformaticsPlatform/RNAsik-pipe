@@ -6,50 +6,23 @@ class Metadata {
     string[] fq2
     bool paired
 
-    void Metadata(string line) {
-
-        assert(!(line.startsWith("#")) | !(line.isEmpty()))
+    void Metadata(string[] sampleData) {
 
         //TODO check if the sample is paired end and set paired flag accordingly
         //Potentially can process paired and single end data together in the future
         //this.paired = paired
 
-        string _path
-        string[] samplesList = line.split("\t")
+        assert(sampleData.size() == 4)
 
-        int nCoreFields = 3
+        this.sampleName = sampleData[0]
+        this.sampleGroup = sampleData[1]
+        this.fq1 = sampleData[2].split(",")
+        this.fq2 = sampleData[3].split(",")
 
-        int tot = samplesList.size()
-
-        if(tot < nCoreFields+1) {
-            error("There needs to be at least five columns in your samples sheet: SampleName, SampleGroup, Path, R1 and R2")
+        if(fq1.size() == fq2.size() && fq2.size() > 0) {
+            this.paired = true
         }
 
-        this.sampleName = samplesList[0]
-        this.sampleGroup = samplesList[1]
-        _path = samplesList[2]
-
-        int nItems = tot - nCoreFields
-        this.paired = (nItems % 2 == 0)
-
-        if(this.paired) {
-            for(int i : range(1, nItems)) {
-                bool odd = (i % 2 != 0)
-                int idx = i+nCoreFields-1
-
-                if(odd) {
-                    this.fq1.add(_path + "/" + samplesList[idx])
-                } else {
-                    this.fq2.add(_path + "/" + samplesList[idx])
-                }
-            }
-        } else {
-            for(int i : range(1, nItems)) {
-                bool chk = (i % 2 != 0)
-                int idx = i+nCoreFields
-                this.fq1.add(_path + "/" + samplesList[idx])
-            }
-        }
     }
 }
 
@@ -178,9 +151,9 @@ class Sample {
     Counts counts
     Qc qc
 
-    void Sample(string line, string sikDir, string aligner) {
+    void Sample(string[] sampleData, string sikDir, string aligner) {
 
-        this.metadata = new Metadata(line)
+        this.metadata = new Metadata(sampleData)
         this.bams = new Bams(metadata.sampleName, sikDir, aligner)
         this.counts = new Counts(metadata.sampleName, sikDir)
 
@@ -191,20 +164,71 @@ class Samples {
 
     Sample[] samples
 
+    //TODO it feels like there is weak error catching in parsing metadata file
+    // for example if user forgot or misspelled on of the keys, this won't be catched,
+    // the assertion in the Sample class should pick up the fact that list isn't 4 elements, not sure if this is good enought?
     void Samples(string metadataFn, string sikDir, string aligner) {
 
         assert(metadataFn.exists())
         string[] metadata = metadataFn.readLines()
 
+        string prevName
+
+        string[] sampleData
+        string[] ones
+        string[] twos
+
         for(string line : metadata) {
+
+            line = line.trim()
 
             if(line.startsWith("#") || line.isEmpty())  {
                 continue
             }
 
-            Sample sample = new Sample(line, sikDir, aligner)
-            this.samples.add(sample)
+            string[] tokens = line.split(":")
+
+            string k = tokens[0].trim()
+            string v = tokens[1].trim()
+
+            assert(tokens.size() == 2)
+
+            if(k == "name") {
+
+                if(!prevName.isEmpty() && prevName != k) {
+
+                    sampleData.add(ones.join(","))
+                    sampleData.add(twos.join(","))
+                    Sample sample = new Sample(sampleData, sikDir, aligner)
+                    this.samples.add(sample)
+
+                    sampleData = []
+                    ones = []
+                    twos = []
+
+                }
+
+                prevName = k
+                sampleData.add(0, v)
+
+            } else if(k == "group") {
+                sampleData.add(1, v)
+            } else if(k == "r1") {
+                assert(v.exists())
+                ones.add(v)
+            } else if(k == "r2") {
+                assert(v.exists())
+                twos.add(v)
+            }
+
         }
+        //TODO ugly code... is there a nicer way?
+        if(!sampleData.isEmpty()) {
+            sampleData.add(ones.join(","))
+            sampleData.add(twos.join(","))
+            Sample sample = new Sample(sampleData, sikDir, aligner)
+            this.samples.add(sample)
+       }
     }
 }
 
