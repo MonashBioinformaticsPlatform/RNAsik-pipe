@@ -1,6 +1,18 @@
 #!/bin/bash
 
-sik_origin=`dirname "${BASH_SOURCE[0]}"`
+#NOTE that $BASH_SOURCE variable doesn't exist on MacOS apparently
+sik_origin=$(dirname "${BASH_SOURCE[0]}")
 default_bds_config="$(which bds).config"
 bds_config="${RNASIK_BDS_CONFIG:-$default_bds_config}"
-bds -c ${bds_config} -log -reportHtml -reportYaml "${sik_origin}"/../src/RNAsik.bds "$@"
+
+bds_args=""
+n_args=${#@}
+
+if [[ ${@} =~ "VERBOSE" ]]
+then
+  bds_args="-log -reportHtml -reportYaml"
+fi
+
+sik_args=${@:2:${n_args}}
+
+bds -c ${bds_config} ${bds_args} ${sik_origin}/../src/RNAsik.bds ${sik_args}
