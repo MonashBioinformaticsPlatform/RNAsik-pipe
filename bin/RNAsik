@@ -7,12 +7,16 @@ bds_config="${RNASIK_BDS_CONFIG:-$default_bds_config}"
 
 bds_args=""
 n_args=${#@}
+sik_args=${@}
 
 if [[ ${@} =~ "VERBOSE" ]]
 then
   bds_args="-log -reportHtml -reportYaml"
+  sik_args=${@:2:${n_args}}
+elif [[ ${@} =~ "DEBUG" ]]
+then
+  bds_args="-debug"
+  sik_args=${@:2:${n_args}}
 fi
-
-sik_args=${@:2:${n_args}}
 
 bds -c ${bds_config} ${bds_args} ${sik_origin}/../src/RNAsik.bds ${sik_args}
