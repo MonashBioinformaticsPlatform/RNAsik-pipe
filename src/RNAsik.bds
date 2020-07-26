@@ -19,4 +19,4 @@ SortConfig sortConf = new SortConfig(sikConf.usrResConf, sikConf.usrToolsConf, a
 bamRes := new BamResults(alignerRes.results, sikConf, sortConf)
 
 SikCountsConfig sikCntsConf = new SikCountsConfig(sikConf.usrResConf, sikConf.usrToolsConf)
-countsRes := new ReadsCount(bamRes.results, sikConf, sikCntsConf)
+countsRes := new ReadsCount(bamRes.results, ref.geneModels, sikConf.sikCmdFlags{"outDir"}, sikCntsConf)

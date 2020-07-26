@@ -5,6 +5,7 @@ class Metadata {
     string[] fq1
     string[] fq2
     bool paired
+    //string readGroup TODO future implementation
 
     void Metadata(string[] sampleData) {
 
@@ -12,7 +13,7 @@ class Metadata {
         //Potentially can process paired and single end data together in the future
         //this.paired = paired
 
-        assert(sampleData.size() == 4)
+        assert("SikErr: Unexpected number of items ->\n" + sampleData.join("\n"), sampleData.size() == 4)
 
         this.sampleName = sampleData[0]
         this.sampleGroup = sampleData[1]
@@ -33,7 +34,7 @@ class BamsGeneric {
 
     void BamsGeneric(string sampleName, string sikDir) {
 
-        log("MSG: Output directory $sikDir")
+        //log("MSG: Output directory $sikDir") //too noise
 
         string alignDir = sikDir+"/"+"alignerFiles"
         //log("MSG: Making directory for alignment files $alignDir") //too noisy
@@ -191,11 +192,11 @@ class Samples {
             string k = tokens[0].trim()
             string v = tokens[1].trim()
 
-            assert(tokens.size() == 2)
+            assert("SikErr: Line in metadata file doesn't have a valid key value pair -> " + line, tokens.size() == 2)
 
             if(k == "name") {
 
-                if(!prevName.isEmpty() && prevName != k) {
+                if(!prevName.isEmpty() && prevName != v) {
 
                     sampleData.add(ones.join(","))
                     sampleData.add(twos.join(","))
@@ -208,16 +209,17 @@ class Samples {
 
                 }
 
-                prevName = k
+                prevName = v
                 sampleData.add(0, v)
 
             } else if(k == "group") {
                 sampleData.add(1, v)
             } else if(k == "r1") {
-                assert(v.exists())
+                assert("SikErr: R1 file doesn't exist -> " + v, v.exists())
                 ones.add(v)
             } else if(k == "r2") {
                 assert(v.exists())
+                assert("SikErr: R2 file doesn't exist -> " + v, v.exists())
                 twos.add(v)
             }
 

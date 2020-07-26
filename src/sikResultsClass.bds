@@ -10,12 +10,14 @@ class AlignerResults {
         string aligner = sikConf.sikCmdFlags{"aligner"}
         string sikDir = sikConf.sikCmdFlags{"outDir"}
 
-        println("HERE:?")
         Samples samples = new Samples(metadataFn, sikDir, aligner)
 
         switch(aligner) {
             case 'star':
-                error("SikErr: Haven't been implemented yet")
+                for(Sample s : samples.samples) {
+                    Sample result = mapSTAR(alignerConf.sikStarAlignerConf, s, genomeIdx)
+                    this.results.add(result)
+                }
                 break
             case 'hisat2':
                 error("SikErr: Haven't been implemented yet")
@@ -76,10 +78,7 @@ class ReadsCount {
 
     Sample[] counts
 
-    void ReadsCount(Sample[] bamResults, SikConfig sikConf, SikCountsConfig sikCntsConf) {
-
-        string geneModels = sikConf.sikCmdFlags{"geneModels"}
-        string sikDir = sikConf.sikCmdFlags{"outDir"}
+    void ReadsCount(Sample[] bamResults, string geneModels, string sikDir, SikCountsConfig sikCntsConf) {
 
         for(Sample s : bamResults) {
             Sample count = doReadsCount(s, sikCntsConf, geneModels, sikDir)

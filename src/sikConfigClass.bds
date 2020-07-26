@@ -151,13 +151,12 @@ class AlignerConfig {
 
         switch(aligner) {
             case 'star':
-                //SikStarAlignerConfig sikStarAlingerConf = new SikStarAlingerConfig(usrResConf, usrToolsConf)
+                sikStarAlignerConf = new SikStarAlignerConfig(usrResConf, usrToolsConf)
                 break
             case 'hisat2':
                 error("SikErr: Haven't been implemented yet")
                 break
             case 'bwaMem':
-                //SikBWAalignerConfig sikBWAalignerConf = new SikBWAalignerConfig(usrResConf, usrToolsConf)
                 sikBWAalignerConf = new SikBWAalignerConfig(usrResConf, usrToolsConf)
                 break
             default:

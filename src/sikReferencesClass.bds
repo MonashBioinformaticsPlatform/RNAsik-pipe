@@ -2,7 +2,7 @@
 Abstracting away references
 */
 
-include "sikRefUtils.bds"
+include "sikReferencesUtils.bds"
 include "sikUtils.bds"
 include "sikSTARclass.bds"
 include "sikBWAclass.bds"
@@ -94,10 +94,12 @@ class ReferenceFiles {
 
                 if(allowedFasta.has(extn)) {
                     this.fasta = refFile
+                    log("MGS: FASTA -> " + this.fasta)
                 }
 
                 if(allowedGeneModels.has(extn)) {
                     this.geneModels = refFile
+                    log("MGS: Gene Models -> " + this.geneModels)
                 }
 
                 if(allowedOtherRef.has(extn)) {
@@ -105,12 +107,15 @@ class ReferenceFiles {
                     switch(extn) {
                         case "fai":
                             this.faIdx = refFile
+                            log("MGS: FASTA index -> " + this.faIdx)
                             break
                         case "dict":
                             this.faDict = refFile
+                            log("MGS: FASTA dictionary -> " + this.faDict)
                             break
                         case "chromSizes":
                             chromSizes = refFile
+                            log("MGS: FASTA chromosmoe sizes -> " + this.chromSizes)
                             break
                     }
 
@@ -123,8 +128,9 @@ class ReferenceFiles {
                                  SikWarn: User specified both refFiles and genomeIdx, only one is sufficient. RNAsik will proceed with this genomeIdx $refFile
                                  \n"
                     }
-                    assert(allowedIdx{aligner} == extn)
+                    assert("SikErr: Unrecognised aligner index directory -> " + extn, allowedIdx{aligner} == extn)
                     this.genomeIdx = refFile
+                    log("MGS: Alinger index -> " + this.genomeIdx)
                 }
             }
 
@@ -148,7 +154,7 @@ class ReferenceFiles {
 
             if(aligner == "star") {
                 /*
-                DOCS: this seems stupid but STAR aligner can handle gzipped FASTA reference, has to unzipped
+                DOCS: this seems stupid but STAR aligner can't handle gzipped FASTA reference, has to unzipped
                 */
                 this.fasta = localFa
             }
@@ -176,7 +182,6 @@ class References extends ReferenceFiles {
 
         switch(aligner) {
             case 'star':
-                //SikStarAlingerConfig sikStarAlignerConf = new SikStarAlignerConfig(sikConf.usrResConf, sikConf.usrToolsConf)
                 SikStarIdxConfig sikStarIdxConf = new SikStarIdxConfig(sikConf.usrResConf, sikConf.usrToolsConf)
                 StarIndex starIdx = new StarIndex(sikStarIdxConf, this.fasta, this.refDir, this.genomeIdx)
                 this.genomeIdx = starIdx.genomeIdx
