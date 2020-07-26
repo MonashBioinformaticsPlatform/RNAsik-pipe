@@ -199,7 +199,7 @@ class StarIndex {
             this.genomeIdx = mkSTARidx(sikStarIdxConf, fasta, refDir, starIdxDir, idxDeps, logFn)
 
         } else {
-            assert("SikErr: Genome index directory doesn't exist -> " + geomeIdx, genomeIdx.exists())
+            assert("SikErr: Genome index directory doesn't exist -> " + genomeIdx, genomeIdx.exists())
             this.genomeIdx = genomeIdx
         }
     }

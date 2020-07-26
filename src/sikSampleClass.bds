@@ -170,7 +170,7 @@ class Samples {
     // the assertion in the Sample class should pick up the fact that list isn't 4 elements, not sure if this is good enought?
     void Samples(string metadataFn, string sikDir, string aligner) {
 
-        assert(metadataFn.exists())
+        assert("SikErr: Metadata file doesn't exist -> " + metadataFn, metadataFn.exists())
         string[] metadata = metadataFn.readLines()
 
         string prevName
@@ -218,7 +218,6 @@ class Samples {
                 assert("SikErr: R1 file doesn't exist -> " + v, v.exists())
                 ones.add(v)
             } else if(k == "r2") {
-                assert(v.exists())
                 assert("SikErr: R2 file doesn't exist -> " + v, v.exists())
                 twos.add(v)
             }
