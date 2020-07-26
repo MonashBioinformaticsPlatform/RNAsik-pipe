@@ -156,50 +156,51 @@ class StarIndex {
 
     void StarIndex(SikStarIdxConfig sikStarIdxConf, string fasta, string refDir, string genomeIdx) {
 
-        string extn = fasta.extName()
-        string starIdxDir
-        string logFn
-
-        //TODO would be useful to stick aligner version to the suffix as well in future
-        if(extn == "gz") {
-            starIdxDir = refDir + "/" + fasta.baseName().removeExt().removeExt() + ".starIdx"
-            logFn = refDir + "/" + "." + fasta.baseName().removeExt().removeExt() + ".starIdx.siklog"
-        } else {
-            starIdxDir = refDir + "/" + fasta.baseName().removeExt()+".starIdx"
-            logFn = refDir + "/" + "." + fasta.baseName().removeExt() + ".starIdx.siklog"
-        }
-
-        log("MSG: Making STAR genomic index directory $starIdxDir")
-        if(!starIdxDir.exists()) {
-            starIdxDir.mkdir()
-        }
-
-        string[] idxFiles = ["chrLength.txt", "chrNameLength.txt", "chrName.txt", "chrStart.txt", "Genome", "genomeParameters.txt", "SA", "SAindex"]
-        for(string idxFile : idxFiles) {
-            string idxDep = starIdxDir + "/" + idxFile
-            this.idxDeps.add(idxDep)
-        }
-
         /*
             TODO this isn't ideal, but in my ReferenceFiles class I'm attempting to set genomeIdx variable
             which can come about in three different ways:
-                - via refFiles variable, in which case RNAsik will pick it up and set genomeIdx
-                - direct user input, via genomeIdx = /path/to/index
-                - in the last resort RNAsik will simply make genomeIdx as per specified aligner
+
+                - via refFiles variable, in which case RNAsik will pick it up and set genomeIdx accordingly
+                - directly from the user input, via genomeIdx = /path/to/index
+                - last resort RNAsik will simply make genomeIdx as per specified aligner
+
             unfortunatelly BDS doesn't seem to have a way to set a variable to NULL. So if user didn't specify genomeIdx in they config
             then I cope an error when trying to check for that key.
             I think I know what the right solution should be - my SikConfig class should check for all missing keys and set them accordingly,
             that way they key will either be present of empty and I can always check with .isEmpty() call
         */
+
         if(genomeIdx == "NULL" || genomeIdx.isEmpty()) {
+
+            string extn = fasta.extName()
+            string starIdxDir
+            string logFn
+
+            //TODO would be useful to stick aligner version to the suffix as well in future
+            if(extn == "gz") {
+                starIdxDir = refDir + "/" + fasta.baseName().removeExt().removeExt() + ".starIdx"
+                logFn = refDir + "/" + "." + fasta.baseName().removeExt().removeExt() + ".starIdx.siklog"
+            } else {
+                starIdxDir = refDir + "/" + fasta.baseName().removeExt()+".starIdx"
+                logFn = refDir + "/" + "." + fasta.baseName().removeExt() + ".starIdx.siklog"
+            }
+
+            log("MSG: Making STAR genomic index directory $starIdxDir")
+            if(!starIdxDir.exists()) {
+                starIdxDir.mkdir()
+            }
+
+            string[] idxFiles = ["chrLength.txt", "chrNameLength.txt", "chrName.txt", "chrStart.txt", "Genome", "genomeParameters.txt", "SA", "SAindex"]
+            for(string idxFile : idxFiles) {
+                string idxDep = starIdxDir + "/" + idxFile
+                this.idxDeps.add(idxDep)
+            }
+
             this.genomeIdx = mkSTARidx(sikStarIdxConf, fasta, refDir, starIdxDir, idxDeps, logFn)
+
         } else {
-            assert(genomeIdx.exists())
+            assert("SikErr: Genome index directory doesn't exist -> " + geomeIdx, genomeIdx.exists())
             this.genomeIdx = genomeIdx
         }
     }
 }
-
-//class StarAlinment {
-//   // NOTE this will yeild bamFiles
-//}

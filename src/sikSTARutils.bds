@@ -34,6 +34,9 @@ string mkSTARidx(SikStarIdxConfig sikStarIdxConf, string fasta, string refDir, s
 
 Sample mapSTAR(SikStarAlignerConfig sikStarAlignerConf, Sample sample, string genomeIdx) {
 
+    Metadata metadata = sample.metadata
+    Bams bams = sample.bams
+
     string{} resources = sikStarAlignerConf.alignerRes
     string x = resources{"starExe"}
     int xCpu = resources{"alignerCpu"}.parseInt()
@@ -41,16 +44,16 @@ Sample mapSTAR(SikStarAlignerConfig sikStarAlignerConf, Sample sample, string ge
 
     string starCmdOpts = sikStarAlignerConf.alignerCmdOpts.join(" ")
 
-    string sampleName = sample.metadata.sampleName
-    string[] fq1 = sample.metadata.fq1
-    string[] fq2 = sample.metadata.fq2
+    string sampleName = metadata.sampleName
+    string[] fq1 = metadata.fq1
+    string[] fq2 = metadata.fq2
 
-    string bamOut = sample.bams.bamOut
-    string bamLog = sample.bams.bamLog
+    string bamOut = bams.bamAlignerOut
+    string bamLog = bams.bamAlignerLog
 
     string fqs = [fq1.join(","), fq2.join(",")].join(" ")
 
-    sampleName += "_" // STAR picularity
+    string outPrefix = bamOut.replace("Aligned.out.bam", "")
 
     string[] deps
     deps += fq1
@@ -59,18 +62,21 @@ Sample mapSTAR(SikStarAlignerConfig sikStarAlignerConf, Sample sample, string ge
 
     string logMsg = "STAR aligning " + sampleName
 
-    //TODO should make this information to come from metadata config file, default to empty string
+    //TODO should make read group (RG) string to come from metadata config file, key "read_group:", otherwise this is misleading and non specific
+    // these are some of the essential fields CN:Unknown PL:ILLUMINA PM:ILLUMINA
+    // note sure what to do about ID field, maybe just sequential incriment ?
 
     task([bamOut, bamLog] <- deps, cpus := xCpu, mem := xMem, taskName := logMsg) {
 
         sys $x --runThreadN $xCpu \
                --runMode alignReads \
                --genomeDir $genomeIdx \
-               --outSAMattrRGline ID:001 CN:Unknown DS:RNAseq PL:ILLUMINA PM:ILLUMINA SM:$sampleName \
+               --outSAMattrRGline ID:001 DS:RNAseq SM:$sampleName \
                --readFilesIn $fqs \
-               --outFileNamePrefix $sampleName \
+               --outFileNamePrefix $outPrefix \
                $starCmdOpts > $bamLog 2>&1
     }
 
+    bams.bamOut = bamOut
     return sample
 }
