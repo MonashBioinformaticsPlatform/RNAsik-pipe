@@ -40,7 +40,7 @@ Sample mapBWA(SikBWAalignerConfig sikBWAalignerConf, Sample sample, string genom
     int chk1 = fq1.size()
     int chk2 = fq2.size()
 
-    assert(chk1 == chk2)
+    assert("SikErr: Number of R1 and R2 reads is different -> " + sampleName , chk1 == chk2)
 
     string fq1Sub
     string fq2Sub
