@@ -89,7 +89,6 @@ ss = ss[::-1]
 list_of_files = os.listdir(logs_dir)
 data_dict = {}
 
-
 # def sign(x):
 #    if x >= 0:
 #        return 1
@@ -100,7 +99,7 @@ def which_strand(strnd_val):
     # confidence test
     # non_strnd_test = (20-1)/float(20+1) #0.904
     # strnd_test = (55-45)/float(55+45)   #0.1
-    strnd_test = float(20 - 1) / float(20 + 1)  # 0.904
+    strnd_test = float(19 - 1) / float(20 + 1)  # 0.857
     non_strnd_test = float(55 - 45) / float(55 + 45)  # 0.1
 
     if abs(strnd_val) > strnd_test:
@@ -125,6 +124,8 @@ def which_strand(strnd_val):
         # return "NonStrandedCounts,1"
 
 def get_name(raw_name, ss):
+    #TODO this can be buggy when column name contains forward slash (/)
+    # this function returns None when this is the case. Forward slash should be allowed in the column name
     base_name = os.path.basename(raw_name)
     for name in ss:
         if base_name.startswith(name):
@@ -137,7 +138,7 @@ def get_name(raw_name, ss):
 def get_df(f, name):
     df = pd.read_csv(f, sep = "\t")
     df2 = df.rename(columns=lambda x: get_name(x, ss), inplace=False)
-    tmp = df2.ix[0].to_frame().reset_index()
+    tmp = df2.iloc[0].to_frame().reset_index()
     df3 = tmp.rename(columns={tmp.columns[0]: "sample", tmp.columns[1]: name})
     # dropping second line, not too sure why, fucking pandas
     df3.drop(df3.index[:1], inplace=True)
