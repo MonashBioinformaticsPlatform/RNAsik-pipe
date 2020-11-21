@@ -54,19 +54,16 @@
                                 <a href="docs/">Docs</a>
                             </li>
                             <li >
-                                <a href="tutorials/">Tutes</a>
+                                <a href="checklist/">Checklist</a>
                             </li>
                             <li >
-                                <a href="help/">Help</a>
-                            </li>
-                            <li >
-                                <a href="contrib/">Contributing</a>
+                                <a href="resources/">Resources</a>
                             </li>
                             <li >
                                 <a href="roadmap/">Roadmap</a>
                             </li>
                             <li >
-                                <a href="checklist/">Checklist</a>
+                                <a href="contrib/">Contributing</a>
                             </li>
                         </ul>
 
@@ -102,6 +99,7 @@
             <li><a href="#how-to-cite">How to cite</a></li>
             <li><a href="#methods">Methods</a></li>
             <li><a href="#mbp-team-photo">MBP team photo</a></li>
+            <li><a href="#getting-help">Getting help</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
@@ -114,7 +112,7 @@
 <h2 id="about">About</h2>
 <p><a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe">RNAsik</a> pipeline was build in house for processing <a href="https://rnaseq.uoregon.edu/">RNA-seq(uencing)</a> data.
 It is written in <a href="http://pcingola.github.io/BigDataScript/download.html">BigDataScript (bds)</a>, which is <a href="https://en.wikipedia.org/wiki/Domain-specific_language">domain specific language (DSL)</a>, that makes writing pipelines easy as well as making them robust. To get a bit more technical, bds runs on <a href="https://en.wikipedia.org/wiki/Java_virtual_machine">java virtual machine (JVM)</a> and therefore requires <a href="https://www.java.com/en/">Java</a>.</p>
-<p>In simple terms any pipeline is a wrapper of several tools that makes it easier and arguably faster to get to the end goal. The three core parts to any <a href="https://rnaseq.uoregon.edu/">RNA-seq analysis</a> are: </p>
+<p>In simple terms any pipeline is a wrapper of several tools that makes it easier and arguably faster to get to the end goal. The three core parts to any <a href="https://rnaseq.uoregon.edu/">RNA-seq analysis</a> are:</p>
 <ul>
 <li>mapping to the reference genome</li>
 <li>counting reads mapped into features e.g genes</li>
@@ -134,7 +132,7 @@ It is written in <a href="http://pcingola.github.io/BigDataScript/download.html"
 <li>What is multi-mapping rate?</li>
 <li>What is intragenic and interagenic rates?</li>
 </ul>
-<p>As mentioned above <a href="http://multiqc.info">multiqc</a> report is a great first step in the attempt to answer those questions. A lot of the time everything looks fairly good and consistent allowing downstream analysis. Sometimes user can tweak certain individual parameters which can improve results, other times it comes down to experimental design and/or library preparation and sequencing issues. Either way one need to make this "first iteration" in order to see room for improvement. </p>
+<p>As mentioned above <a href="http://multiqc.info">multiqc</a> report is a great first step in the attempt to answer those questions. A lot of the time everything looks fairly good and consistent allowing downstream analysis. Sometimes user can tweak certain individual parameters which can improve results, other times it comes down to experimental design and/or library preparation and sequencing issues. Either way one need to make this "first iteration" in order to see room for improvement.</p>
 <h2 id="how-to-cite">How to cite</h2>
 <p><a href="https://doi.org/10.5281/zenodo.1403976"><img alt="DOI" src="https://zenodo.org/badge/DOI/10.5281/zenodo.1403976.svg" /></a></p>
 <hr />
@@ -169,6 +167,8 @@ It is written in <a href="http://pcingola.github.io/BigDataScript/download.html"
 
 <h2 id="mbp-team-photo">MBP team photo</h2>
 <p><img alt="team_photo_2017" src="images/team_photo_2017.jpg" /></p>
+<h2 id="getting-help">Getting help</h2>
+<p>Please submit all of you questions, comments and any other issues to <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/issues">GitHub issues</a></p>
 <p><a href="https://twitter.com/intent/tweet?screen_name=kizza_a" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @kizza_a</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> </p>
 
 <p class="twitter-btn">
@@ -185,7 +185,7 @@ Share</a>
         </footer>
         <script>
             var base_url = ".",
-                shortcuts = {"search": 83, "next": 78, "previous": 80, "help": 191};
+                shortcuts = {"search": 83, "help": 191, "previous": 80, "next": 78};
         </script>
         <script src="js/base.js" defer></script>
         <script src="search/main.js" defer></script>
@@ -259,5 +259,5 @@ Share</a>
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2020-11-21 02:00:08
+Build Date UTC : 2020-11-21 02:41:35
 -->
