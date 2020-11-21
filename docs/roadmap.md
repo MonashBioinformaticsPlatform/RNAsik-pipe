@@ -3,6 +3,8 @@
 
 # Roadmap
 
+> [RNAsik GitHub Project](https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/projects/1)
+
 ## Going forward
 
 ### 1.x.x

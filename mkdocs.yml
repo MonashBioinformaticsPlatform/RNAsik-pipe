@@ -7,11 +7,10 @@ edit_uri: ""
 nav:
   - About: index.md
   - Docs: docs.md
-  - Tutes: tutorials.md
-  - Help: help.md
-  - Contributing: contrib.md
-  - Roadmap: roadmap.md
   - Checklist: checklist.md
+  - Resources: resources.md
+  - Roadmap: roadmap.md
+  - Contributing: contrib.md
 
 extra_css:
   - css/style.css
