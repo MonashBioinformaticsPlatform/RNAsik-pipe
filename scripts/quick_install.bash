@@ -1,22 +1,16 @@
 #!/bin/bash
 
-version="1.5.4"
-config="${version}.yaml"
+version="1.5.5"
+build=1
 
-name="rnasik-${version}"
-conda_env="${name}.yaml"
+miniconda_fn="miniconda.sh"
+miniconda_dir="miniconda"
 
-if [[ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]]
+if ! [[ -d ${miniconda_dir} ]]
 then
-  wget http://repo.continuum.io/miniconda/Miniconda-2.0.0-Linux-x86_64.sh -O miniconda.sh
-else
-  wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-fi
-
-if ! [[ -d miniconda ]]
-then
-  bash miniconda.sh -b -p miniconda
-elif ! [[ -d miniconda/bin ]]
+  wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ${miniconda_fn}
+  bash ${miniconda_fn} -b -p ${miniconda_dir}
+elif ! [[ -d "${miniconda_dir}/bin" ]]
 then
   echo "ERROR: This can't happend, bin/ directory must exist inside miniconda directory"
 fi
@@ -24,15 +18,11 @@ fi
 conda_sh=$(realpath miniconda/etc/profile.d/conda.sh)
 source ${conda_sh}
 
-conda update --name base --channel defaults conda
+conda update --name base \
+             --channel defaults \
+             conda \
 
-wget -O ${conda_env} "https://raw.githubusercontent.com/MonashBioinformaticsPlatform/RNAsik-pipe/master/supplementary/conda_envs/${config}"
-conda env create --name ${name} --file ${conda_env}
-
-echo ""
-echo "MSG: Run this command to source conda"
-echo "     source ${conda_sh}"
-echo ""
-echo "MSG: And run this command to activate RNAsik environment"
-echo "     conda activate ${name}"
-echo ""
+conda create --name rnasik-1.5.5 \
+             --channel serine \
+             --yes \
+             "rnasik=${version}=${build}"
