@@ -7,15 +7,17 @@
 
 ### Install
 
-This will install conda and then create (install) RNAsik environment
+RNAsik has been packaged with `conda`. The `conda` package currently leaves at [this anaconda channel](https://anaconda.org/serine/rnasik)
 
-- [Download and run `quick_install.bash` script](https://raw.githubusercontent.com/MonashBioinformaticsPlatform/RNAsik-pipe/master/scripts/quick_install.bash)
-- source $(readlink -f miniconda/etc/profile.d/conda.sh)
-- conda activate rnasik-1.5.4
+```bash
+conda create --name rnasik-1.5.5 --channel serine --yes rnasik=1.5.5=1
+```
 
-Alternativelly if you have conda installed and know about conda environments, grab [yaml config file here](https://raw.githubusercontent.com/MonashBioinformaticsPlatform/RNAsik-pipe/master/supplementary/conda_envs/1.5.4.yaml) and create RNAsik env with the following command
+```bash
+conda activate rnasik-1.5.5
+```
 
-- `conda env create --name rnasik-1.5.4 --file rnasik-1.5.4.yaml`
+The build number zero (`rnasik=1.5.5=0`) does not include external tools such as STAR aligner, subread, etc. The main purpose to instal `RNAsik` quickly. Full install with all of the dependencies can get upto 30 minutes. It appears that the slowest part is resolving python dependencies while installing MultiQC package.
 
 ### Align raw reads
 
