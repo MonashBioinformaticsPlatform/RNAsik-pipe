@@ -14,7 +14,7 @@ if (length(args) == 0 ) {
 
 counts_dir = gsub("/$", "", args[1])
 
-if(!file.exists(counts_dir)) {
+if(!dir.exists(counts_dir)) {
   msg <- paste0("Directory doesn't exist -> ", counts_dir, "\n")
   stop(msg)
 }
@@ -42,3 +42,13 @@ names(res3) %>% map(function(n) {
                       fn_out <- paste0(counts_dir, "/", n, ".tsv")
                       write_tsv(res3[[n]], fn_out)
                     })
+
+archive_dir <- paste0(counts_dir, "/.archive/")
+
+if(!dir.exists(archive_dir)) {
+  msg <- paste0("Archiving individual count files -> ", archive_dir, "\n")
+  cat(msg)
+  dir.create(archive_dir, recursive = TRUE)
+}
+
+fns1 %>% map(function(n) file.rename(n, paste0(archive_dir, basename(n))))
