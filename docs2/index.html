@@ -8,7 +8,7 @@
         <meta name="author" content="serine">
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Help - RNAsik pipeline</title>
+        <title>Docs2 - RNAsik pipeline</title>
         <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -56,8 +56,8 @@
                             <li >
                                 <a href="../tutorials/">Tutes</a>
                             </li>
-                            <li class="active">
-                                <a href="./">Help</a>
+                            <li >
+                                <a href="../help/">Help</a>
                             </li>
                             <li >
                                 <a href="../contrib/">Contributing</a>
@@ -76,16 +76,6 @@
                                 <i class="fa fa-search"></i> Search
                             </a>
                         </li>
-                            <li >
-                                <a rel="next" href="../tutorials/">
-                                    <i class="fa fa-arrow-left"></i> Previous
-                                </a>
-                            </li>
-                            <li >
-                                <a rel="prev" href="../contrib/">
-                                    Next <i class="fa fa-arrow-right"></i>
-                                </a>
-                            </li>
                             <li>
                                 <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe"><i class="fa fa-github"></i> GitHub</a>
                             </li>
@@ -97,30 +87,21 @@
         <div class="container">
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="main active"><a href="#rnasik-yep">RNAsik? yep!</a></li>
-            <li><a href="#getting-help">Getting help</a></li>
-            <li><a href="#bug-reports">Bug reports</a></li>
+        <li class="main active"><a href="#documentation">Documentation</a></li>
+            <li><a href="#samples-sheet">Samples sheet</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
 <p><img alt="mbp-banner" src="../images/mbp_banner.png" /></p>
-<h1 id="rnasik-yep">RNAsik? yep!</h1>
-<h2 id="getting-help">Getting help</h2>
-<p>There is an open <a href="https://groups.google.com/forum/#!forum/rnasik">RNAsik user's google group</a> any can ask and answer
-questions there. I will try my best to respond to any questions there, but bear in mind that I could get saturated with work
-and might not be able to respond straight away.</p>
-<p>Also couple of house keeping things:</p>
+<h1 id="documentation">Documentation</h1>
+<h2 id="samples-sheet">Samples sheet</h2>
+<p>Every RNAsik run should start with generating a metadata file (sometime also can be refered by as samples sheet). This is a tab separated file that can be generated in any spreadsheet software such as Microsoft excel or Google sheets and exported as tsv (tab separated variables). The columns order is important and should be this:</p>
 <ul>
-<li>be polite (in general) and considerate of others.</li>
-<li>Include as much information about your problem as you can.
-The problem needs to be reproducible, otherwise I might not be able to help you.</li>
-</ul>
-<p>p.s any feedback and suggestions are also welcomed there</p>
-<h2 id="bug-reports">Bug reports</h2>
-<p>Best place to submit bugs is with <a href="https://github.com/MonashBioinformaticsPlatform/RNAsik-pipe/issues">GitHub issues</a>
-Try to include as much information as you can and again problem needs to be reproducible. Sometimes problem could be 
-BigDataScript specific so also try looking at <a href="https://groups.google.com/forum/#!forum/bigdatascript-users">BigDataScrip user's group</a></p></div>
+<li>sample name</li>
+<li>group name</li>
+<li>R1 file</li>
+</ul></div>
         </div>
 
         <footer class="col-md-12">

@@ -118,16 +118,14 @@
 <h1 id="documentation">Documentation</h1>
 <h2 id="quick-start">Quick start</h2>
 <h3 id="install">Install</h3>
-<p>This will install conda and then create (install) RNAsik environment</p>
-<ul>
-<li><a href="https://raw.githubusercontent.com/MonashBioinformaticsPlatform/RNAsik-pipe/master/scripts/quick_install.bash">Download and run <code>quick_install.bash</code> script</a></li>
-<li>source $(readlink -f miniconda/etc/profile.d/conda.sh)</li>
-<li>conda activate rnasik-1.5.4</li>
-</ul>
-<p>Alternativelly if you have conda installed and know about conda environments, grab <a href="https://raw.githubusercontent.com/MonashBioinformaticsPlatform/RNAsik-pipe/master/supplementary/conda_envs/1.5.4.yaml">yaml config file here</a> and create RNAsik env with the following command</p>
-<ul>
-<li><code>conda env create --name rnasik-1.5.4 --file rnasik-1.5.4.yaml</code></li>
-</ul>
+<p>RNAsik has been packaged with <code>conda</code>. The <code>conda</code> package currently leaves at <a href="https://anaconda.org/serine/rnasik">this anaconda channel</a></p>
+<pre><code class="bash">conda create --name rnasik-1.5.5 --channel serine --yes rnasik=1.5.5=1
+</code></pre>
+
+<pre><code class="bash">conda activate rnasik-1.5.5
+</code></pre>
+
+<p>The build number zero (<code>rnasik=1.5.5=0</code>) does not include external tools such as STAR aligner, subread, etc. The main purpose to instal <code>RNAsik</code> quickly. Full install with all of the dependencies can get upto 30 minutes. It appears that the slowest part is resolving python dependencies while installing MultiQC package.</p>
 <h3 id="align-raw-reads">Align raw reads</h3>
 <pre><code class="BASH">RNAsik -align star \
        -fastaRef /path/to/reference.fasta \
@@ -575,7 +573,7 @@ Share</a>
         </footer>
         <script>
             var base_url = "..",
-                shortcuts = {"next": 78, "search": 83, "help": 191, "previous": 80};
+                shortcuts = {"search": 83, "next": 78, "previous": 80, "help": 191};
         </script>
         <script src="../js/base.js" defer></script>
         <script src="../search/main.js" defer></script>
