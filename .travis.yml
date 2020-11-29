@@ -8,7 +8,7 @@ install:
 
   - bash scripts/quick_install.bash
   - export PATH=$(readlink -f miniconda)/bin:$PATH
-  
+
 script:
 
   - ./test/get_geneids.bash
