@@ -21,7 +21,8 @@ string{} getSortedBams(string{} cmdExe, string sikDir, string{} bamsMap) {
     // 2107   @param  max_mem  approxiate maximum memory (very inaccurate)
     real scalFact = 0.65
     // also need to covert to bytes as samtools sort needs that way
-    string sortSamMem = round(scalFact * sortMem/1000)+"K"
+    real sortMemK = sortMem/1000
+    string sortSamMem = round(scalFact * sortMemK)+"K"
 
     string[] sortedBams
     string{} sortedBamsMap
