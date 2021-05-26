@@ -15,7 +15,7 @@ class AlignerResults {
         switch(aligner) {
             case 'star':
                 for(Sample s : samples.samples) {
-                    Sample result = mapSTAR(alignerConf.sikStarAlignerConf, s, genomeIdx)
+                    Sample result = mapSTAR(alignerConf.sikStarAlignerConf, s, genomeIdx, idxDeps)
                     this.results.add(result)
                 }
                 break

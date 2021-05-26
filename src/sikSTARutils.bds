@@ -32,7 +32,7 @@ string mkSTARidx(SikStarIdxConfig sikStarIdxConf, string fasta, string refDir, s
     return starIdxDir
 }
 
-Sample mapSTAR(SikStarAlignerConfig sikStarAlignerConf, Sample sample, string genomeIdx) {
+Sample mapSTAR(SikStarAlignerConfig sikStarAlignerConf, Sample sample, string genomeIdx, string[] idxDeps) {
 
     Metadata metadata = sample.metadata
     Bams bams = sample.bams
@@ -58,7 +58,7 @@ Sample mapSTAR(SikStarAlignerConfig sikStarAlignerConf, Sample sample, string ge
     string[] deps
     deps += fq1
     deps += fq2
-    deps += genomeIdx
+    deps += idxDeps
 
     string logMsg = "STAR aligning " + sampleName
 
