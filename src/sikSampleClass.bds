@@ -30,6 +30,7 @@ class Metadata {
 class BamsGeneric {
 
     string bamOut
+    string bamIdx
     string bamLog
 
     void BamsGeneric(string sampleName, string sikDir) {
@@ -43,6 +44,7 @@ class BamsGeneric {
         }
 
         this.bamOut = alignDir + "/" + sampleName + ".bam"
+        this.bamIdx = alignDir + "/" + sampleName + ".bai"
         this.bamLog = alignDir + "/." + sampleName + ".siklog"
     }
 }
@@ -53,9 +55,11 @@ class Bams extends BamsGeneric {
     string bamAlignerLog
 
     string bamSortedOut
+    string bamSortedIdx
     string bamSortedLog
 
     string bamSortedMdupsOut
+    string bamSortedMdupsIdx
     string bamSortedMdupsLog
 
     void Bams(string sampleName, string sikDir, string aligner) {
@@ -73,10 +77,12 @@ class Bams extends BamsGeneric {
                 this.bamAlignerOut = this.bamOut.replace(".bam", "_Aligned.out.bam")
                 this.bamAlignerLog = this.bamLog.replace(".siklog", "_Aligner.out.bam.siklog")
 
-                this.bamSortedOut = bamFilesDir + "/" + this.bamOut.baseName().replace("_Aligned.out.bam", "_sorted.bam")
-                this.bamSortedLog = bamFilesDir + "/." + this.bamLog.baseName().replace(".siklog", "_sorted.bam.siklog")
+                this.bamSortedOut = bamFilesDir + "/" + this.bamOut.baseName().replace(".bam", "_sorted.bam")
+                this.bamSortedIdx = bamFilesDir + "/" + this.bamIdx.baseName().replace(".bai", "_sorted.bai")
+                this.bamSortedLog = bamFilesDir + "/" + this.bamLog.baseName().replace(".siklog", "_sorted.bam.siklog")
 
                 this.bamSortedMdupsOut = this.bamSortedOut.replace(".bam", "_mdups.bam")
+                this.bamSortedMdupsIdx = this.bamSortedIdx.replace(".bai", "_mdups.bai")
                 this.bamSortedMdupsLog = this.bamSortedLog.replace(".bam.siklog", "_mdups.bam.siklog")
 
                 break
@@ -90,7 +96,7 @@ class Bams extends BamsGeneric {
                 this.bamAlignerLog = this.bamLog.replace(".siklog", "_bwaMem.siklog")
 
                 this.bamSortedOut = bamFilesDir + "/" + this.bamOut.baseName().replace(".bam", "_sorted.bam")
-                this.bamSortedLog = bamFilesDir + "/." + this.bamLog.baseName().replace(".siklog", "_sorted.bam.siklog")
+                this.bamSortedLog = bamFilesDir + "/" + this.bamLog.baseName().replace(".siklog", "_sorted.bam.siklog")
 
                 this.bamSortedMdupsOut = this.bamSortedOut.replace(".bam", "_mdups.bam")
                 this.bamSortedMdupsLog = this.bamSortedLog.replace(".bam.siklog", "_mdups.bam.siklog")

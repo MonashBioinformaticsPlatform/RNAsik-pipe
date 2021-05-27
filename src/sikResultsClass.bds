@@ -69,7 +69,16 @@ class BamResults {
         }
 
         //TODO I guess will add a second switch statement later to do mdups, once again allowing for multiple tools selection
+        string[] bamGoals
 
+        for(Sample s : results) {
+            bamGoals.add(s.bams.bamAlignerLog)
+            bamGoals.add(s.bams.bamSortedLog)
+            bamGoals.add(s.bams.bamSortedOut)
+            bamGoals.add(s.bams.bamSortedIdx)
+        }
+
+        goal results
         //string mdupsTool = "samtools" or "picard"
     }
 }
@@ -84,5 +93,19 @@ class ReadsCount {
             Sample count = doReadsCount(s, sikCntsConf, geneModels, sikDir)
             counts.add(count)
         }
+
+        string[] readCntsGoals
+
+        for(Sample s : counts) {
+            readCntsGoals.add(s.counts.cntsNon)
+            readCntsGoals.add(s.counts.cntsNonLog)
+            readCntsGoals.add(s.counts.cntsFwd)
+            readCntsGoals.add(s.counts.cntsFwdLog)
+            readCntsGoals.add(s.counts.cntsRev)
+            readCntsGoals.add(s.counts.cntsRevLog)
+        }
+
+        goal readCntsGoals
+
     }
 }

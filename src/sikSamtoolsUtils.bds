@@ -38,6 +38,5 @@ Sample doBamSort(Sample sample, SikSamtoolsSortConfig sikSamtoolsSortConf, strin
     }
 
     bams.bamOut = bamOut
-    goal bamOut
     return sample
 }

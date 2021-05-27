@@ -103,16 +103,6 @@ Sample doReadsCount(Sample sample, SikCountsConfig sikCntsConf, string geneModel
                $bamIn > $cntsRevLog 2>&1
     }
 
-    string[] res
-    res += [cntsNon, cntsNonSummary]
-    res += [cntsFwd, cntsFwdSummary]
-    res += [cntsRev, cntsRevSummary]
-
-    //dep(paired, res <- bamIn, taskName := "Cleaning up") {
-    //    sys rm $bamTmp
-    //}
-
-    goal res
     return sample
 }
 //

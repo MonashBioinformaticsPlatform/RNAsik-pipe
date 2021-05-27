@@ -66,12 +66,15 @@ Sample mapSTAR(SikStarAlignerConfig sikStarAlignerConf, Sample sample, string ge
     // these are some of the essential fields CN:Unknown PL:ILLUMINA PM:ILLUMINA
     // note sure what to do about ID field, maybe just sequential incriment ?
 
-    task([bamOut, bamLog] <- deps, cpus := xCpu, mem := xMem, taskName := logMsg) {
+    //TODO propogate ID into sam attributes using configs e.g either generate sequencing 1 to N number or ask user to include ID field
+    string readGroupId = "001"
+
+    dep([bamOut, bamLog] <- deps, cpus := xCpu, mem := xMem, taskName := logMsg) {
 
         sys $x --runThreadN $xCpu \
                --runMode alignReads \
                --genomeDir $genomeIdx \
-               --outSAMattrRGline ID:001 DS:RNAseq SM:$sampleName \
+               --outSAMattrRGline ID:$readGroupId DS:RNAseq SM:$sampleName \
                --readFilesIn $fqs \
                --outFileNamePrefix $outPrefix \
                $starCmdOpts > $bamLog 2>&1
