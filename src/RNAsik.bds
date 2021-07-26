@@ -3,6 +3,7 @@ include "sikHeader.bds"
 include "sikConfigClass.bds"
 include "sikReferencesClass.bds"
 include "sikSampleClass.bds"
+include "sikPicardClass.bds"
 include "sikResultsClass.bds"
 include "sikFeatureCountsClass.bds"
 
@@ -12,11 +13,26 @@ sikRefConf := new SikReferencesConfig(sikConf.usrResConf)
 ref := new References(sikConf, sikRefConf) // here ref class returns "generic" object that aligner config can take
 string aligner = sikConf.sikCmdFlags{"aligner"}
 
+//NOTE remember that mdups can take any three values default | umi | none
+string mdups = sikConf.sikCmdFlags{"mdups"}
+
 AlignerConfig alignerConf = new AlignerConfig(sikConf.usrResConf, sikConf.usrToolsConf, aligner)
 alignerRes := new AlignerResults(sikConf, alignerConf, ref.genomeIdx, ref.idxDeps)
 
+//TODO SortConfig class doesn't need aligner, need to fix that
 SortConfig sortConf = new SortConfig(sikConf.usrResConf, sikConf.usrToolsConf, aligner)
-bamRes := new BamResults(alignerRes.results, sikConf, sortConf)
+sortedBamRes := new SortedBamResults(alignerRes.results, sikConf, sortConf)
+
+PicardMarkDupsConfig mdupsConf = new PicardMarkDupsConfig(sikConf.usrResConf, sikConf.usrToolsConf)
+markDupsBamRes := new MarkDupsBamResults(sortedBamRes.results, sikConf, mdupsConf)
+
+Sample[] bamRes
+
+if(mdups == "default" || mdups == "umi") {
+    bamRes = markDupsBamRes.results
+} else {
+    bamRes = sortedBamRes.results
+}
 
 SikCountsConfig sikCntsConf = new SikCountsConfig(sikConf.usrResConf, sikConf.usrToolsConf)
-countsRes := new ReadsCount(bamRes.results, ref.geneModels, sikConf.sikCmdFlags{"outDir"}, sikCntsConf)
+countsRes := new ReadsCount(bamRes, ref.geneModels, sikConf.sikCmdFlags{"outDir"}, sikCntsConf)
