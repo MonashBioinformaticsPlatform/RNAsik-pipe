@@ -24,7 +24,7 @@ samtoolsSortMem
 samtoolsQcMem
 picardMarkDupsMem
 picardQcMem
-jeMem
+jeMarkDupsMem
 picardQcMem
 picardCreateDictMem
 bedtoolsMem
@@ -41,7 +41,7 @@ hisat2AlignCpu
 samtoolsSortCpu
 samtoolsQcCpu
 picardMarkDupsCpu
-jeCpu
+jeMarkDupsCpu
 picardQcCpu
 picardCreateDictCpu
 bedtoolsCpu

@@ -1,0 +1,57 @@
+
+include "sikConfigClass.bds"
+include "sikJeUtils.bds"
+
+class JeMarkDupsConfig extends SikResourcesConfig {
+
+    string{} markDupsUmiRes
+    string[] markDupsUmiCmdOpts
+
+    string{} _sikMarkDupsConf // private to this class
+
+    void JeMarkDupsConfig(string{} usrResConf, string{} usrToolsConf) {
+
+        SikResourcesConfig(usrResConf)
+
+        string{} usrMarkDupsOpts
+
+        if(usrToolsConf.hasKey("jeMarkDups")) {
+            usrMarkDupsOpts = parseUsrToolsOpts("jeMarkDups", usrToolsConf{"jeMarkDups"})
+        }
+
+        //TODO instead of creating dummy/empty files, I should just check here if the file exists
+        string sikMarkDupsConfigFn = this._configOriginFn + "/sikCmdOptions/jeMarkDups.config"
+        assert(sikMarkDupsConfigFn.exists())
+        this._sikMarkDupsConf = config(sikMarkDupsConfigFn)
+
+        string[] keys = this._sikMarkDupsConf.keys()
+        keys += usrMarkDupsOpts.keys()
+        keys = unique(keys)
+
+        for(string k : keys) {
+            if(usrMarkDupsOpts.hasKey(k)) {
+                markDupsUmiCmdOpts.add([k, usrMarkDupsOpts{k}].join(" "))
+            } else {
+                markDupsUmiCmdOpts.add([k, this._sikMarkDupsConf{k}].join(" "))
+            }
+        }
+
+        string[] sanityChk = ["jeExe", \
+                              "jeMarkDupsMem", \
+                              "jeMarkDupsCpu"]
+
+        for(string k : sanityChk) {
+            if(!this._sikResConf.hasKey(k)) {
+                error "\n\
+                       \n\
+                       SikErr: Key not found -> $k. Check you configuration files \
+                       \n"
+            }
+        }
+
+        markDupsUmiRes{"idxCpu"} = this._sikResConf{"jeMarkDupsCpu"}
+        markDupsUmiRes{"idxMem"} = this._sikResConf{"jeMarkDupsMem"}
+        markDupsUmiRes{"jeExe"} = this._sikResConf{"jeExe"}
+        markDupsUmiRes{"tmpDir"} = this._sikResConf{"tmpDir"}
+    }
+}

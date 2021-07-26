@@ -63,6 +63,11 @@ class Bams extends BamsGeneric {
     string bamSortedMdupsLog
     string bamSortedMdupsMetrics
 
+    string bamSortedMdupsUmiOut
+    string bamSortedMdupsUmiIdx
+    string bamSortedMdupsUmiLog
+    string bamSortedMdupsUmiMetrics
+
     void Bams(string sampleName, string sikDir, string aligner) {
         //log("MSG: Aligner type $aligner") //too noisy
 
@@ -86,6 +91,11 @@ class Bams extends BamsGeneric {
                 this.bamSortedMdupsIdx = this.bamSortedIdx.replace(".bai", "_mdups.bai")
                 this.bamSortedMdupsLog = this.bamSortedLog.replace(".bam.siklog", "_mdups.bam.siklog")
                 this.bamSortedMdupsMetrics = this.bamSortedOut.replace(".bam", "_mdups.metrics")
+
+                this.bamSortedMdupsUmiOut = this.bamSortedOut.replace(".bam", "_mdups_umi.bam")
+                this.bamSortedMdupsUmiIdx = this.bamSortedIdx.replace(".bai", "_mdups_umi.bai")
+                this.bamSortedMdupsUmiLog = this.bamSortedLog.replace(".bam.siklog", "_mdups_umi.bam.siklog")
+                this.bamSortedMdupsUmiMetrics = this.bamSortedOut.replace(".bam", "_mdups_umi.metrics")
 
                 break
             case 'hisat2':
