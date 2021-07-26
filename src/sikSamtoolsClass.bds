@@ -2,14 +2,14 @@
 include "sikConfigClass.bds"
 include "sikSamtoolsUtils.bds"
 
-class SikSamtoolsSortConfig extends SikResourcesConfig {
+class SamtoolsSortConfig extends SikResourcesConfig {
 
     string{} sortRes
     string[] sortCmdOpts
 
     string{} _sikSortConf // private to this class
 
-    void SikSamtoolsSortConfig(string{} usrResConf, string{} usrToolsConf) {
+    void SamtoolsSortConfig(string{} usrResConf, string{} usrToolsConf) {
 
         SikResourcesConfig(usrResConf)
 

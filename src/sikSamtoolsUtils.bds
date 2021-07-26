@@ -1,15 +1,15 @@
 
-Sample doBamSort(Sample sample, SikSamtoolsSortConfig sikSamtoolsSortConf, string sikDir) {
+Sample doBamSort(Sample sample, SamtoolsSortConfig samtoolsSortConf, string sikDir) {
 
     Metadata metadata = sample.metadata
     Bams bams = sample.bams
 
-    string{} resources = sikSamtoolsSortConf.sortRes
+    string{} resources = samtoolsSortConf.sortRes
     string x = resources{"samtoolsExe"}
     int xCpu = resources{"idxCpu"}.parseInt()
     int xMem = resources{"idxMem"}.parseInt()
 
-    string samtoolsSortCmdOpts = sikSamtoolsSortConf.sortCmdOpts.join(" ")
+    string samtoolsSortCmdOpts = samtoolsSortConf.sortCmdOpts.join(" ")
 
     //NOTE sortMem from sik.cofig is per thread, so BDS total memory = xMem*xCpu
     int bdsTotMem = xMem*xCpu
@@ -22,10 +22,10 @@ Sample doBamSort(Sample sample, SikSamtoolsSortConfig sikSamtoolsSortConf, strin
     string sampleName = metadata.sampleName
     string bamIn = bams.bamOut
     string bamOut = bams.bamSortedOut
-    string bamIdx = bamOut + ".bai"
+    string bamIdx = bams.bamSortedIdx
     string bamLog = bams.bamSortedLog
 
-    string logMsg = "sorting BAM file with samtools " + bamIn
+    string logMsg = "sorting reads based on coordiantes with samtools, BAM file -> " + bamIn
 
     dep([bamOut, bamIdx, bamLog] <- bamIn , cpus := xCpu, mem := bdsTotMem, taskName := logMsg) {
         sys $x sort --threads $xCpu \
