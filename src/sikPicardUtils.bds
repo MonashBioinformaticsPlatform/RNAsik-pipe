@@ -20,7 +20,7 @@ Sample doBamMarkDups(Sample sample, PicardMarkDupsConfig picardMarkDupsConf, str
 
     string tmpDir = resources{"tmpDir"}
 
-    string logsMsg = "markding duplicated reads with picard, BAM file -> " + bamIn
+    string logsMsg = "marking duplicated reads with picard, BAM file -> " + bamIn
 
     dep([bamOut, bamIdx, bamLog, bamMetrics] <- bamIn, cpus := xCpu, mem := xMem, taskName := logsMsg) {
         sys $x MarkDuplicates TMP_DIR=$tmpDir \
