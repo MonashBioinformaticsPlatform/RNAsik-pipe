@@ -4,6 +4,9 @@ class AlignerResults {
     Sample[] results
     //TODO this a bug, this class takes sikBWAalignerConfig class, however it needs to be generic since STAR aligner will give a different class
     // rather a class should be AlignerConfig class, that returns appropriate config file
+
+    //TODO I shouldn't be instantiation new Samples class in here, instead as per sikSampleClass.bds line 171, I should pre-parse fastq file into Sample calss
+    // and AlingerResults should simply take Sample[] samples as an argument. That will be much cleaner
     void AlignerResults(SikConfig sikConf, AlignerConfig alignerConf, string genomeIdx, string[] idxDeps) {
 
         string metadataFn = sikConf.sikCmdFlags{"metadata"}
@@ -34,24 +37,21 @@ class AlignerResults {
     }
 }
 
-class BamResults {
+class SortedBamResults {
    //TODO Return bam files, sorted and if flaged mdups. These are the bams that moving forward for counting and the rest of the analysis
 
     Sample[] results
 
-    void BamResults(Sample[] alignerResults, SikConfig sikConf, SortConfig sortConf) {
-
-        Sample[] tmpRes
+    void SortedBamResults(Sample[] alignerResults, SikConfig sikConf, SortConfig sortConf) {
 
         string sikDir = sikConf.sikCmdFlags{"outDir"}
-        bool mdups = sikConf.sikCmdFlags{"mdups"}.parseBool()
         string sortingTool = "samtools" //TODO should really move this variable into sikConf
 
         switch(sortingTool) {
             case 'samtools':
                 for(Sample s : alignerResults) {
                     Sample result = doBamSort(s, sortConf.samtoolsSortConf, sikDir)
-                    tmpRes.add(result)
+                    results.add(result)
                 }
                 break
             case 'picard':
@@ -61,14 +61,6 @@ class BamResults {
                 error("SikErr: There needs to be an error here to make sure nothing else is passed through, other than allowed aligners")
         }
 
-        //NOTE this should allow me later to loop over tmpRes and pass it to mdups processing, tool agnostic
-        // and in the second switch I'd do this.results.add(results)
-        //This is kinder of ugly.. will think of a better solution
-        if(!mdups && this.results.isEmpty()) {
-           this.results = tmpRes
-        }
-
-        //TODO I guess will add a second switch statement later to do mdups, once again allowing for multiple tools selection
         string[] bamGoals
 
         for(Sample s : results) {
@@ -80,6 +72,54 @@ class BamResults {
 
         goal results
         //string mdupsTool = "samtools" or "picard"
+    }
+}
+
+class MarkDupsBamResults {
+
+    Sample[] results
+
+    void MarkDupsBamResults(Sample[] sortedBamResults, SikConfig sikConf, PicardMarkDupsConfig mdupsConf) {
+
+        string sikDir = sikConf.sikCmdFlags{"outDir"}
+        //TODO mdups should be a string either classic or umi based reads de-duplication
+        // maybe better to call "classic" default, since most of bulk RNAseq is default?
+        string mdups = sikConf.sikCmdFlags{"mdups"}.toLower()
+
+        switch(mdups) {
+            case 'default':
+                for(Sample s : sortedBamResults) {
+                    Sample result = doBamMarkDups(s, mdupsConf, sikDir)
+                    results.add(result)
+                }
+                break
+            case 'umi':
+                //for(Sample s : alignerResults) {
+                //    Sample result = doBamUmiMarkDups(s, sortConf.samtoolsSortConf, sikDir)
+                //    results.add(result)
+                //}
+                error("SikErr: Haven't been implemented yet")
+                break
+            case 'none':
+                warning("SikErr: No reads de-duplication will occur. If you want to de-deplicate your data use mdups = 'default'")
+                break
+            default:
+                //error("SikErr: There needs to be an error here to make sure nothing else is passed through, other than allowed aligners")
+                //TODO I think it's okay to silently pass through here, since I'm handling flow of bam files in the main RNAsik.bds file
+                // here I just want to make sure I do approptiate function call for de-duplication
+                break
+        }
+
+        string[] bamGoals
+
+        for(Sample s : results) {
+            bamGoals.add(s.bams.bamSortedMdupsOut)
+            bamGoals.add(s.bams.bamSortedMdupsIdx)
+            bamGoals.add(s.bams.bamSortedMdupsMetrics)
+        }
+
+        goal results
+
     }
 }
 

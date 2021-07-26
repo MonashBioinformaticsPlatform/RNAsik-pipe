@@ -52,3 +52,4 @@ cpFileCpu
 bgzipExe
 bgzipCpu
 bgzipMem
+tmpDir

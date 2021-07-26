@@ -1,0 +1,38 @@
+Sample doBamMarkDups(Sample sample, PicardMarkDupsConfig picardMarkDupsConf, string sikDir) {
+
+    Metadata metadata = sample.metadata
+    Bams bams = sample.bams
+
+    string{} resources = picardMarkDupsConf.markDupsRes
+    string x = resources{"picardExe"}
+    int xCpu = resources{"idxCpu"}.parseInt()
+    int xMem = resources{"idxMem"}.parseInt()
+
+    string picardMarkDupsCmdOpts = picardMarkDupsConf.markDupsCmdOpts.join(" ")
+
+    string sampleName = metadata.sampleName
+    string bamIn = bams.bamSortedOut
+    string bamOut = bams.bamSortedMdupsOut
+    string bamIdx = bams.bamSortedMdupsIdx
+    string bamOldIdx = bams.bamSortedIdx
+    string bamMetrics = bams.bamSortedMdupsMetrics
+    string bamLog = bams.bamSortedMdupsLog
+
+    string tmpDir = resources{"tmpDir"}
+
+    string logsMsg = "markding duplicated reads with picard, BAM file -> " + bamIn
+
+    dep([bamOut, bamIdx, bamLog, bamMetrics] <- bamIn, cpus := xCpu, mem := xMem, taskName := logsMsg) {
+        sys $x MarkDuplicates TMP_DIR=$tmpDir \
+                              VALIDATION_STRINGENCY=LENIENT \
+                              CREATE_INDEX=true \
+                              INPUT=$bamIn \
+                              OUTPUT=$bamOut \
+                              METRICS_FILE=$bamMetrics > $bamLog 2>&1
+
+        sys rm $bamIn $bamOldIdx $tmpDir
+    }
+
+    bams.bamOut = bamOut
+    return sample
+}

@@ -61,6 +61,7 @@ class Bams extends BamsGeneric {
     string bamSortedMdupsOut
     string bamSortedMdupsIdx
     string bamSortedMdupsLog
+    string bamSortedMdupsMetrics
 
     void Bams(string sampleName, string sikDir, string aligner) {
         //log("MSG: Aligner type $aligner") //too noisy
@@ -84,6 +85,7 @@ class Bams extends BamsGeneric {
                 this.bamSortedMdupsOut = this.bamSortedOut.replace(".bam", "_mdups.bam")
                 this.bamSortedMdupsIdx = this.bamSortedIdx.replace(".bai", "_mdups.bai")
                 this.bamSortedMdupsLog = this.bamSortedLog.replace(".bam.siklog", "_mdups.bam.siklog")
+                this.bamSortedMdupsMetrics = this.bamSortedOut.replace(".bam", "_mdups.metrics")
 
                 break
             case 'hisat2':
@@ -166,6 +168,11 @@ class Sample {
 
     }
 }
+
+//TODO I'm realising that this class seem ambigious / confusing with Sample class above it. The two are very different classes.
+// One meant to represent all of the computed data by RNAsik and the other simply abstracts away fastq file into samples
+//NOTE I'm also now thinking that Samples shouldn't be a class at all. Instead it should be FastqProcessing() function call
+// that in turn would populate Sample calss
 
 class Samples {
 
