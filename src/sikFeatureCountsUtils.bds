@@ -38,7 +38,6 @@ Sample doReadsCount(Sample sample, SikCountsConfig sikCntsConf, string geneModel
     bool paired = sample.metadata.paired
 
     string bam = sample.bams.bamOut
-    string bamLog = sample.bams.bamOut
 
     string bamTmp = bam.replace(".bam", ".repaired")
 

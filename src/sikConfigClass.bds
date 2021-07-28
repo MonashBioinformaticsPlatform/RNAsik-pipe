@@ -77,7 +77,7 @@ class SikConfig {
             } else if(toolsAllowedKeys.has(k)) {
                 this.usrToolsConf{k} = sikConfig{k}
             } else if(sikCmdKeys.has(k)) {
-                this.sikCmdFlags{k} = sikConfig{k}
+                this.sikCmdFlags{k} = sikConfig{k}.replace('"', '')
             } else {
                 this._unassigned{k} = sikConfig{k}
             }
