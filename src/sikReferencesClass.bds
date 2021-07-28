@@ -42,7 +42,7 @@ class ReferenceFiles {
         string genomeIdx = getVal(sikCmdFlags, "genomeIdx")
         string aligner = sikCmdFlags{"aligner"}
         string sikDir = sikCmdFlags{"outDir"}
-        bool mdups = sikCmdFlags{"mdups"}
+        string mdups = getVal(sikCmdFlags, "mdups")
 
         if(refFilesFn != "NULL") {
 

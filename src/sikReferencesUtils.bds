@@ -77,7 +77,7 @@ string mkFai(string{} sikRefConf, string fasta) {
     return fai
 }
 
-string mkDict(string{} sikRefConf, string fasta, bool mdups) {
+string mkDict(string{} sikRefConf, string fasta, string mdups) {
 
     string x = sikRefConf{"dictExe"}
     int xCpu = sikRefConf{"dictCpu"}.parseInt()
@@ -96,7 +96,7 @@ string mkDict(string{} sikRefConf, string fasta, bool mdups) {
     string tmp = dict.baseName()
     string logFn = dict.replace(tmp, "." + tmp + ".siklog")
 
-    task(mdups, dict <- fasta, cpus := xCpu, mem := xMem, taskName := "Making dictionary File") {
+    task(mdups != "NULL", dict <- fasta, cpus := xCpu, mem := xMem, taskName := "Making dictionary File") {
         sys $x REFERENCE=$fasta OUTPUT=$dict > $logFn 2>&1
     }
 
