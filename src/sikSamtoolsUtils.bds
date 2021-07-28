@@ -27,16 +27,18 @@ Sample doBamSort(Sample sample, SamtoolsSortConfig samtoolsSortConf, string sikD
 
     string logMsg = "sorting reads based on coordiantes with samtools, BAM file -> " + bamIn
 
-    dep([bamOut, bamIdx, bamLog] <- bamIn , cpus := xCpu, mem := bdsTotMem, taskName := logMsg) {
+    //NOTE don't pass bamLog as a dep, samtools sort doesn't provide any stdout/stderr
+    dep([bamOut, bamIdx] <- bamIn, cpus := xCpu, mem := bdsTotMem, taskName := logMsg) {
         sys $x sort --threads $xCpu \
                     -m $sortSamMem \
                     -o $bamOut \
-                    $bamIn > $bamLog 2>&1
+                    $bamIn
 
         sys $x index $bamOut
         sys rm $bamIn
     }
 
     bams.bamOut = bamOut
+    bams.bamIdx = bamIdx
     return sample
 }
