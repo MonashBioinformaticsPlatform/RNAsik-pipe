@@ -82,18 +82,19 @@ class Bams extends BamsGeneric {
             case 'star':
                 this.bamAlignerOut = this.bamOut.replace(".bam", "_Aligned.out.bam")
                 this.bamAlignerLog = this.bamLog.replace(".siklog", "_Aligner.out.bam.siklog")
-
+                //TODO all other bams can be moved to outside of the switch statement, to reduce code duplication
+                //once aligner specific bams have been caught
                 this.bamSortedOut = bamFilesDir + "/" + this.bamOut.baseName().replace(".bam", "_sorted.bam")
-                this.bamSortedIdx = bamFilesDir + "/" + this.bamIdx.baseName().replace(".bai", "_sorted.bai")
+                this.bamSortedIdx = bamFilesDir + "/" + this.bamIdx.baseName().replace(".bai", "_sorted.bam.bai")
                 this.bamSortedLog = bamFilesDir + "/" + this.bamLog.baseName().replace(".siklog", "_sorted.bam.siklog")
 
                 this.bamSortedMdupsOut = this.bamSortedOut.replace(".bam", "_mdups.bam")
-                this.bamSortedMdupsIdx = this.bamSortedIdx.replace(".bai", "_mdups.bai")
+                this.bamSortedMdupsIdx = this.bamSortedMdupsOut.replace(".bam", ".bam.bai")
                 this.bamSortedMdupsLog = this.bamSortedLog.replace(".bam.siklog", "_mdups.bam.siklog")
                 this.bamSortedMdupsMetrics = this.bamSortedOut.replace(".bam", "_mdups.metrics")
 
                 this.bamSortedMdupsUmiOut = this.bamSortedOut.replace(".bam", "_mdups_umi.bam")
-                this.bamSortedMdupsUmiIdx = this.bamSortedIdx.replace(".bai", "_mdups_umi.bai")
+                this.bamSortedMdupsUmiIdx = this.bamSortedMdupsUmiOut.replace(".bam", ".bam.bai")
                 this.bamSortedMdupsUmiLog = this.bamSortedLog.replace(".bam.siklog", "_mdups_umi.bam.siklog")
                 this.bamSortedMdupsUmiMetrics = this.bamSortedOut.replace(".bam", "_mdups_umi.metrics")
 

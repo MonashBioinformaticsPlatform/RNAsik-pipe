@@ -1,0 +1,88 @@
+Sample doBamMarkDups(Sample sample, MarkDupsConfig markDupsConf, string sikDir) {
+
+    Metadata metadata = sample.metadata
+    Bams bams = sample.bams
+
+    string{} resources = markDupsConf.markDupsRes
+    string x = resources{"picardExe"}
+    int xCpu = resources{"idxCpu"}.parseInt()
+    int xMem = resources{"idxMem"}.parseInt()
+
+    string picardMarkDupsCmdOpts = markDupsConf.markDupsCmdOpts.join(" ")
+
+    string sampleName = metadata.sampleName
+    string bamIn = bams.bamSortedOut
+    string bamOut = bams.bamSortedMdupsOut
+    string bamIdx = bams.bamSortedMdupsIdx
+    string bamOldIdx = bams.bamSortedIdx
+    string bamMetrics = bams.bamSortedMdupsMetrics
+    string bamLog = bams.bamSortedMdupsLog
+
+    string tmpDir = resources{"tmpDir"}
+
+    string logsMsg = "marking duplicated reads with picard, BAM file -> " + bamIn
+
+    dep([bamOut, bamIdx, bamLog, bamMetrics] <- bamIn, cpus := xCpu, mem := xMem, taskName := logsMsg) {
+        sys $x MarkDuplicates \
+                   --TMP_DIR $tmpDir \
+                   --CREATE_INDEX false \
+                   --INPUT $bamIn \
+                   --OUTPUT $bamOut \
+                   --METRICS_FILE $bamMetrics \
+                   $picardMarkDupsCmdOpts > $bamLog 2>&1
+
+        sys $x BuildBamIndex \
+                   --OUTPUT $bamIdx \
+                   --INPUT $bamOut
+
+        sys rm $bamIn $bamOldIdx
+
+        sys rm -r $tmpDir
+    }
+
+    bams.bamOut = bamOut
+    return sample
+}
+
+Sample doBamMarkDupsUmi(Sample sample, MarkDupsConfig markDupsConf, string sikDir) {
+
+    Metadata metadata = sample.metadata
+    Bams bams = sample.bams
+
+    string{} resources = markDupsConf.markDupsRes
+    string x = resources{"jeExe"}
+    string xx = resources{"picardExe"}
+    int xCpu = resources{"idxCpu"}.parseInt()
+    int xMem = resources{"idxMem"}.parseInt()
+
+    string jeMarkDupsCmdOpts = markDupsConf.markDupsCmdOpts.join(" ")
+
+    string sampleName = metadata.sampleName
+    string bamIn = bams.bamOut
+    string bamOut = bams.bamSortedMdupsUmiOut
+    string bamIdx = bams.bamSortedMdupsUmiIdx
+    string bamOldIdx = bams.bamSortedIdx
+    string bamMetrics = bams.bamSortedMdupsUmiMetrics
+    string bamLog = bams.bamSortedMdupsUmiLog
+
+    string logsMsg = "marking duplicated reads, using UMI tags with Je, BAM file -> " + bamIn
+
+    dep([bamOut, bamIdx, bamLog, bamMetrics] <- bamIn, cpus := xCpu, mem := xMem, taskName := logsMsg) {
+        sys $x markdupes \
+               INPUT=$bamIn \
+               OUTPUT=$bamOut \
+               METRICS_FILE=$bamMetrics \
+               REMOVE_DUPLICATES=true \
+               ASSUME_SORTED=true \
+               $jeMarkDupsCmdOpts > $bamLog 2>&1
+
+        sys $xx BuildBamIndex \
+                    --OUTPUT $bamIdx \
+                    --INPUT $bamOut
+
+        sys rm $bamIn $bamOldIdx
+    }
+
+    bams.bamOut = bamOut
+    return sample
+}

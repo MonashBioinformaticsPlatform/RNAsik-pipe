@@ -34,6 +34,14 @@ class AlignerResults {
             default:
                 error("SikErr: There needs to be an error here to make sure nothing else is passed through, other than allowed aligners")
         }
+
+        string[] starGoals
+
+        for(Sample s : results) {
+            starGoals.add(s.bams.bamAlignerLog)
+        }
+
+        goal starGoals
     }
 }
 
@@ -45,6 +53,7 @@ class SortedBamResults {
     void SortedBamResults(Sample[] alignerResults, SikConfig sikConf, SortConfig sortConf) {
 
         string sikDir = sikConf.sikCmdFlags{"outDir"}
+        string mdups = getVal(sikConf.sikCmdFlags, "mdups")
         string sortingTool = "samtools" //TODO should really move this variable into sikConf
 
         switch(sortingTool) {
@@ -63,15 +72,27 @@ class SortedBamResults {
 
         string[] bamGoals
 
-        for(Sample s : results) {
-            bamGoals.add(s.bams.bamAlignerLog)
-            bamGoals.add(s.bams.bamSortedLog)
-            bamGoals.add(s.bams.bamSortedOut)
-            bamGoals.add(s.bams.bamSortedIdx)
+        if(mdups == "default") {
+            for(Sample s : results) {
+                bamGoals.add(s.bams.bamSortedMdupsMetrics)
+                bamGoals.add(s.bams.bamSortedMdupsOut)
+                bamGoals.add(s.bams.bamSortedMdupsIdx)
+            }
+        } else if(mdups == "umi") {
+            for(Sample s : results) {
+                bamGoals.add(s.bams.bamSortedMdupsUmiMetrics)
+                bamGoals.add(s.bams.bamSortedMdupsUmiOut)
+                bamGoals.add(s.bams.bamSortedMdupsUmiIdx)
+            }
+        } else {
+            for(Sample s : results) {
+                bamGoals.add(s.bams.bamSortedLog)
+                bamGoals.add(s.bams.bamSortedOut)
+                bamGoals.add(s.bams.bamSortedIdx)
+            }
         }
 
-        goal results
-        //string mdupsTool = "samtools" or "picard"
+        goal bamGoals
     }
 }
 
@@ -79,12 +100,14 @@ class MarkDupsBamResults {
 
     Sample[] results
 
-    void MarkDupsBamResults(Sample[] sortedBamResults, SikConfig sikConf, PicardMarkDupsConfig mdupsConf) {
+    void MarkDupsBamResults(Sample[] sortedBamResults, SikConfig sikConf, MarkDupsConfig mdupsConf) {
 
         string sikDir = sikConf.sikCmdFlags{"outDir"}
         //TODO mdups should be a string either classic or umi based reads de-duplication
         // maybe better to call "classic" default, since most of bulk RNAseq is default?
-        string mdups = sikConf.sikCmdFlags{"mdups"}.toLower()
+        string mdups = getVal(sikConf.sikCmdFlags, "mdups")
+
+        if(mdups != "NULL") mdups = mdups.toLower()
 
         switch(mdups) {
             case 'default':
@@ -94,11 +117,10 @@ class MarkDupsBamResults {
                 }
                 break
             case 'umi':
-                //for(Sample s : alignerResults) {
-                //    Sample result = doBamUmiMarkDups(s, sortConf.samtoolsSortConf, sikDir)
-                //    results.add(result)
-                //}
-                error("SikErr: Haven't been implemented yet")
+                for(Sample s : sortedBamResults) {
+                    Sample result = doBamMarkDupsUmi(s, mdupsConf, sikDir)
+                    results.add(result)
+                }
                 break
             case 'none':
                 warning("SikErr: No reads de-duplication will occur. If you want to de-deplicate your data use mdups = 'default'")
@@ -112,14 +134,21 @@ class MarkDupsBamResults {
 
         string[] bamGoals
 
-        for(Sample s : results) {
-            bamGoals.add(s.bams.bamSortedMdupsOut)
-            bamGoals.add(s.bams.bamSortedMdupsIdx)
-            bamGoals.add(s.bams.bamSortedMdupsMetrics)
+        if(mdups == "default") {
+            for(Sample s : results) {
+                bamGoals.add(s.bams.bamSortedMdupsMetrics)
+                bamGoals.add(s.bams.bamSortedMdupsOut)
+                bamGoals.add(s.bams.bamSortedMdupsIdx)
+            }
+        } else if(mdups == "umi") {
+            for(Sample s : results) {
+                bamGoals.add(s.bams.bamSortedMdupsUmiMetrics)
+                bamGoals.add(s.bams.bamSortedMdupsUmiOut)
+                bamGoals.add(s.bams.bamSortedMdupsUmiIdx)
+            }
         }
 
-        goal results
-
+        goal bamGoals
     }
 }
 

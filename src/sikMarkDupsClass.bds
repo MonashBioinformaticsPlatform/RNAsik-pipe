@@ -1,0 +1,83 @@
+
+include "sikConfigClass.bds"
+include "sikMarkDupsUtils.bds"
+
+class MarkDupsConfig extends SikResourcesConfig {
+
+    string{} markDupsRes
+    string[] markDupsCmdOpts
+
+    string{} _sikMarkDupsConf // private to this class
+
+    void MarkDupsConfig(string{} usrResConf, string{} usrToolsConf, string toolName) {
+
+        SikResourcesConfig(usrResConf)
+
+        string{} usrMarkDupsOpts
+
+        if(usrToolsConf.hasKey(toolName)) {
+            usrMarkDupsOpts = parseUsrToolsOpts(toolName, usrToolsConf{toolName})
+        }
+
+        //TODO instead of creating dummy/empty files, I should just check here if the file exists
+        string sikMarkDupsConfigFn = this._configOriginFn + "/sikCmdOptions/" + toolName + ".config"
+        assert(sikMarkDupsConfigFn.exists())
+        this._sikMarkDupsConf = config(sikMarkDupsConfigFn)
+
+        string[] keys = this._sikMarkDupsConf.keys()
+        keys += usrMarkDupsOpts.keys()
+        keys = unique(keys)
+
+        //NOTE Originally picard with long argument names used = sign as a separator for args and values AND short args name used space
+        //Newer version of picads moved toward more "traditional" space separation of args and values, irrespective of whether arg name long or short.
+        //Je tool, however, is still uses an old picard style i.e arg=val
+        for(string k : keys) {
+            if(toolName == "jeMarkDups") {
+                if(usrMarkDupsOpts.hasKey(k)) {
+                    markDupsCmdOpts.add([k, usrMarkDupsOpts{k}].join("="))
+                } else {
+                    markDupsCmdOpts.add([k, this._sikMarkDupsConf{k}].join("="))
+                }
+            } else  {
+                if(usrMarkDupsOpts.hasKey(k)) {
+                    markDupsCmdOpts.add([k, usrMarkDupsOpts{k}].join(" "))
+                } else {
+                    markDupsCmdOpts.add([k, this._sikMarkDupsConf{k}].join(" "))
+                }
+            }
+        }
+
+        string[] sanityChk = ["picardExe", \
+                              "picardMarkDupsMem", \
+                              "picardMarkDupsCpu", \
+                              "jeExe", \
+                              "jeMarkDupsMem", \
+                              "jeMarkDupsCpu"]
+
+        for(string k : sanityChk) {
+            if(!this._sikResConf.hasKey(k)) {
+                error "\n\
+                       \n\
+                       SikErr: Key not found -> $k. Check you configuration files \
+                       \n"
+            }
+        }
+
+        switch(toolName) {
+            case 'picardMarkDups':
+                markDupsRes{"idxCpu"} = this._sikResConf{"picardMarkDupsCpu"}
+                markDupsRes{"idxMem"} = this._sikResConf{"picardMarkDupsMem"}
+                markDupsRes{"picardExe"} = this._sikResConf{"picardExe"}
+                markDupsRes{"tmpDir"} = this._sikResConf{"tmpDir"}
+                break
+            case 'jeMarkDups':
+                markDupsRes{"idxCpu"} = this._sikResConf{"jeMarkDupsCpu"}
+                markDupsRes{"idxMem"} = this._sikResConf{"jeMarkDupsMem"}
+                markDupsRes{"jeExe"} = this._sikResConf{"jeExe"}
+                markDupsRes{"picardExe"} = this._sikResConf{"picardExe"}
+                break
+            default:
+                error("SikErr: Wrong marking duplicated option")
+        }
+    }
+}
