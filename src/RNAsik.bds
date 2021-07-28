@@ -3,7 +3,7 @@ include "sikHeader.bds"
 include "sikConfigClass.bds"
 include "sikReferencesClass.bds"
 include "sikSampleClass.bds"
-include "sikPicardClass.bds"
+include "sikMarkDupsClass.bds"
 include "sikResultsClass.bds"
 include "sikFeatureCountsClass.bds"
 
@@ -14,7 +14,7 @@ ref := new References(sikConf, sikRefConf) // here ref class returns "generic" o
 string aligner = sikConf.sikCmdFlags{"aligner"}
 
 //NOTE remember that mdups can take any three values default | umi | none
-string mdups = sikConf.sikCmdFlags{"mdups"}
+string mdups = getVal(sikConf.sikCmdFlags, "mdups")
 
 AlignerConfig alignerConf = new AlignerConfig(sikConf.usrResConf, sikConf.usrToolsConf, aligner)
 alignerRes := new AlignerResults(sikConf, alignerConf, ref.genomeIdx, ref.idxDeps)
@@ -23,7 +23,10 @@ alignerRes := new AlignerResults(sikConf, alignerConf, ref.genomeIdx, ref.idxDep
 SortConfig sortConf = new SortConfig(sikConf.usrResConf, sikConf.usrToolsConf, aligner)
 sortedBamRes := new SortedBamResults(alignerRes.results, sikConf, sortConf)
 
-PicardMarkDupsConfig mdupsConf = new PicardMarkDupsConfig(sikConf.usrResConf, sikConf.usrToolsConf)
+string mdupsToolName = "picardMarkDups"
+if(mdups == "umi") mdupsToolName = "jeMarkDups"
+
+MarkDupsConfig mdupsConf = new MarkDupsConfig(sikConf.usrResConf, sikConf.usrToolsConf, mdupsToolName)
 markDupsBamRes := new MarkDupsBamResults(sortedBamRes.results, sikConf, mdupsConf)
 
 Sample[] bamRes
