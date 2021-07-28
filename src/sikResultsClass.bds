@@ -178,3 +178,28 @@ class ReadsCount {
 
     }
 }
+
+class FastQcResults {
+
+    Sample[] results
+
+    void FastQcResults(Sample[] sample, FastQcConfig fastqcConf, bool qc) {
+
+        for(Sample s : sample) {
+            Sample fastqc = doFastQc(s, fastqcConf, qc)
+            results.add(fastqc)
+        }
+
+        string[] fastqcGoals
+
+        for(Sample s : results) {
+            fastqcGoals.add(s.fastqc.fastqcHtmlR1)
+            fastqcGoals.add(s.fastqc.fastqcHtmlR2)
+            fastqcGoals.add(s.fastqc.fastqcZipR1)
+            fastqcGoals.add(s.fastqc.fastqcZipR2)
+        }
+
+        goal fastqcGoals
+
+    }
+}

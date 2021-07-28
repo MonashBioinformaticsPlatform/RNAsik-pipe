@@ -1,0 +1,42 @@
+
+Sample doFastQc(Sample sample, FastQcConfig fastqcConf, bool qc) {
+
+    Metadata metadata = sample.metadata
+    FastQc fastqc = sample.fastqc
+
+    string{} resources = fastqcConf.fastQcRes
+
+    string x = resources{"fastqcExe"}
+    int xCpu = resources{"idxCpu"}.parseInt()
+    int xMem = resources{"idxMem"}.parseInt()
+
+    string fastqcCmdOpts = fastqcConf.fastQcCmdOpts.join(" ")
+
+    string sampleName = metadata.sampleName
+    string[] fqsInList = metadata.fq1
+    fqsInList += metadata.fq2
+
+    string fqsInStr = fqsInList.join(" ")
+
+    string[] fastqcDeps = fastqc.fastqcHtmlR1
+    fastqcDeps += fastqc.fastqcHtmlR2
+    fastqcDeps += fastqc.fastqcZipR1
+    fastqcDeps += fastqc.fastqcZipR2
+
+    string fastqcLog = fastqc.fastqcLog
+
+    string fastqcDir = fastqc.fastqcDir
+
+    string logMsg = "doing fastq qc checks on the following sample -> " + sampleName
+
+    //NOTE fastqc doesn't really benifit from multiple threads on a single sample
+    //samples are spread to sample. Each samples requires two threads ? one extra for java's GC
+    dep(qc, fastqcDeps <- fqsInList, cpus := xCpu, mem := xMem, taskName := logMsg) {
+        sys $x --threads $xCpu \
+               --outdir $fastqcDir \
+               $fastqcCmdOpts \
+               $fqsInStr >> $fastqcLog 2>&1
+    }
+
+    return sample
+}

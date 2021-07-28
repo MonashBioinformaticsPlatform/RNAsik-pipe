@@ -164,11 +164,63 @@ class Qc {
 
 }
 
+class FastQc {
+
+    string fastqcDir
+
+    string[] fastqcHtmlR1
+    string[] fastqcZipR1
+
+    string[] fastqcHtmlR2
+    string[] fastqcZipR2
+
+    string fastqcLog
+
+    void FastQc(Metadata metadata, string sikDir) {
+
+        fastqcDir = sikDir + "/Qc" + "/fastqc"
+        if(!fastqcDir.exists()) {
+            fastqcDir.mkdir()
+        }
+
+        string[] fq1 = metadata.fq1
+        string[] fq2 = metadata.fq2
+
+        string sampleName = metadata.sampleName
+
+        string extn = fq1[0].extName()
+        //NOTE this is to check if the fastq file is zipped or not
+        if(extn == "gz") {
+            string tmp = fq1[0].removeExt().extName()
+            extn = "."+tmp+"."+extn
+        }
+
+        for(string f : fq1) {
+
+            string fastqBasename = f.removeExt(extn).baseName()
+
+            this.fastqcHtmlR1 += fastqcDir + "/" + fastqBasename + "_fastqc.html"
+            this.fastqcZipR1 += fastqcDir + "/" + fastqBasename + "_fastqc.zip"
+        }
+
+        for(string f : fq2) {
+
+            string fastqBasename = f.removeExt(extn).baseName()
+
+            this.fastqcHtmlR2 += fastqcDir + "/" + fastqBasename + "_fastqc.html"
+            this.fastqcZipR2 += fastqcDir + "/" + fastqBasename + "_fastqc.zip"
+        }
+
+        this.fastqcLog = fastqcDir + "/." + sampleName + ".siklog"
+    }
+}
+
 class Sample {
 
     Metadata metadata
     Bams bams
     Counts counts
+    FastQc fastqc
     Qc qc
 
     void Sample(string[] sampleData, string sikDir, string aligner) {
@@ -176,6 +228,7 @@ class Sample {
         this.metadata = new Metadata(sampleData)
         this.bams = new Bams(metadata.sampleName, sikDir, aligner)
         this.counts = new Counts(metadata.sampleName, sikDir)
+        this.fastqc = new FastQc(metadata, sikDir)
 
     }
 }

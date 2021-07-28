@@ -1,0 +1,51 @@
+include "sikConfigClass.bds"
+include "sikFastQcUtils.bds"
+
+class FastQcConfig extends SikResourcesConfig {
+
+    string{} fastQcRes
+    string[] fastQcCmdOpts
+
+    string{} _sikFastQcConf // private to this class
+
+    void FastQcConfig(string{} usrResConf, string{} usrToolsConf) {
+
+        SikResourcesConfig(usrResConf)
+
+        string{} usrFastQcOpts
+
+        string sikFastQcConfigFn = this._configOriginFn + "/sikCmdOptions/fastqc.config"
+        assert(sikFastQcConfigFn.exists())
+        this._sikFastQcConf = config(sikFastQcConfigFn)
+
+        string[] keys = this._sikFastQcConf.keys()
+        keys += usrFastQcOpts.keys()
+        keys = unique(keys)
+
+        for(string k : keys) {
+            if(usrFastQcOpts.hasKey(k)) {
+                fastQcCmdOpts.add([k, usrFastQcOpts{k}].join(" "))
+            } else {
+                fastQcCmdOpts.add([k, this._sikFastQcConf{k}].join(" "))
+            }
+        }
+
+        string[] sanityChk = ["fastqcExe", \
+                              "fastqcMem", \
+                              "fastqcCpu"]
+
+        for(string k : sanityChk) {
+            if(!this._sikResConf.hasKey(k)) {
+                error "\n\
+                       \n\
+                       SikErr: Key not found -> $k. Check you configuration files \
+                       \n"
+            }
+        }
+
+        fastQcRes{"idxCpu"} = this._sikResConf{"fastqcCpu"}
+        fastQcRes{"idxMem"} = this._sikResConf{"fastqcMem"}
+        fastQcRes{"fastqcExe"} = this._sikResConf{"fastqcExe"}
+    }
+
+}
