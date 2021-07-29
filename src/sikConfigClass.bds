@@ -171,7 +171,7 @@ class SortConfig {
     SamtoolsSortConfig samtoolsSortConf
     //SikPicardSortConfig picardSortConf //TODO hasn't been implemented
 
-    void SortConfig(string{} usrResConf, string{} usrToolsConf, string aligner) {
+    void SortConfig(string{} usrResConf, string{} usrToolsConf) {
 
         string sortingTool = "samtools"
 

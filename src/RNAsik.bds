@@ -38,8 +38,7 @@ alignerRes := new AlignerResults(samples, aligner, alignerConf, ref.genomeIdx, r
 FastQcConfig fastqcConf = new FastQcConfig(sikConf.usrResConf, sikConf.usrToolsConf)
 fastqcResults := new FastQcResults(alignerRes.results, fastqcConf, qc)
 
-//TODO SortConfig class doesn't need aligner, need to fix that
-SortConfig sortConf = new SortConfig(sikConf.usrResConf, sikConf.usrToolsConf, aligner)
+SortConfig sortConf = new SortConfig(sikConf.usrResConf, sikConf.usrToolsConf)
 sortedBamRes := new SortedBamResults(alignerRes.results, sikConf, sortConf)
 
 string mdupsToolName = "picardMarkDups"
