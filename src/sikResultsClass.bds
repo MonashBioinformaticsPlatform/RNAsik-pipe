@@ -146,29 +146,61 @@ class MarkDupsBamResults {
     }
 }
 
-class ReadsCount {
+class ReadCountsResults {
 
     Sample[] counts
 
-    void ReadsCount(Sample[] bamResults, string geneModels, string sikDir, SikCountsConfig sikCntsConf) {
+    void ReadCountsResults(Sample[] bamResults, string geneModels, string sikDir, SikCountsConfig sikCntsConf) {
 
         for(Sample s : bamResults) {
-            Sample count = doReadsCount(s, sikCntsConf, geneModels, sikDir)
+            Sample count = doReadCounts(s, sikCntsConf, geneModels, sikDir)
             counts.add(count)
         }
 
-        string[] readCntsGoals
+        string[] countFilesIn
+        string[] summaryFilesIn
+        string[] countFilesLogs
 
         for(Sample s : counts) {
-            readCntsGoals.add(s.counts.cntsNon)
-            readCntsGoals.add(s.counts.cntsNonLog)
-            readCntsGoals.add(s.counts.cntsFwd)
-            readCntsGoals.add(s.counts.cntsFwdLog)
-            readCntsGoals.add(s.counts.cntsRev)
-            readCntsGoals.add(s.counts.cntsRevLog)
+            countFilesIn.add(s.counts.cntsNon)
+            summaryFilesIn.add(s.counts.cntsNonSummary)
+            countFilesLogs.add(s.counts.cntsNonLog)
+
+            countFilesIn.add(s.counts.cntsFwd)
+            summaryFilesIn.add(s.counts.cntsFwdSummary)
+            countFilesLogs.add(s.counts.cntsFwdLog)
+
+            countFilesIn.add(s.counts.cntsRev)
+            summaryFilesIn.add(s.counts.cntsRevSummary)
+            countFilesLogs.add(s.counts.cntsRevLog)
         }
 
-        goal readCntsGoals
+        //string[] countsGoals
+
+        //countsGoals += countFilesIn
+        //countsGoals += summaryFilesIn
+        //countsGoals += countFilesLogs
+
+        //goal countsGoals
+        goal countFilesLogs
+
+        ReadCounts readCounts = new ReadCounts(counts[0].counts.countsDir, countFilesIn, summaryFilesIn)
+
+        string[] readCountFilesGoals
+
+        readCountFilesGoals.add(readCounts.cntsFwd)
+        readCountFilesGoals.add(readCounts.cntsRev)
+        readCountFilesGoals.add(readCounts.cntsNon)
+
+        goal readCountFilesGoals
+
+        string[] readCountSummaryGoals
+
+        readCountSummaryGoals.add(readCounts.cntsFwdSummary)
+        readCountSummaryGoals.add(readCounts.cntsRevSummary)
+        readCountSummaryGoals.add(readCounts.cntsNonSummary)
+
+        goal readCountSummaryGoals
 
     }
 }

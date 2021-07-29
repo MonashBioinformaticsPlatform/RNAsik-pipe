@@ -1,0 +1,42 @@
+
+include "sikReadCountsUtils.bds"
+
+class ReadCounts {
+
+    string cntsFwd = "/ForwardStrandedCounts.tsv"
+    string cntsFwdSummary = "/ForwardStrandedCounts.tsv.summary"
+
+    string cntsRev = "/ReverseStrandedCounts.tsv"
+    string cntsRevSummary = "/ReverseStrandedCounts.tsv.summary"
+
+    string cntsNon = "/NonStandedCounts.tsv"
+    string cntsNonSummary = "/NonStandedCounts.tsv.summary"
+
+    string strindInfoAll = "/strandInfoAll.tsv"
+    string strindInfoPerSample = "/strandInfoPerSample.tsv"
+    string strindInfoGuess = "/strandInfoGuess.tsv"
+
+    void ReadCounts(string countsDir, string[] countFilesIn, string[] summaryFilesIn)  {
+
+        this.cntsFwd = countsDir + cntsFwd
+        this.cntsFwdSummary = countsDir + cntsFwdSummary
+
+        this.cntsRev = countsDir + cntsRev
+        this.cntsRevSummary = countsDir + cntsRevSummary
+
+        this.cntsNon = countsDir + cntsNon
+        this.cntsNonSummary = countsDir + cntsNonSummary
+
+        string[] countFilesOut = [this.cntsFwd, \
+                                  this.cntsRev, \
+                                  this.cntsNon]
+
+        aggregateCountFiles(countsDir, countFilesIn, countFilesOut)
+
+        string[] summaryFilesOut = [this.cntsFwdSummary, \
+                                    this.cntsRevSummary, \
+                                    this.cntsNonSummary]
+
+        strandGuessing(countsDir, summaryFilesIn, summaryFilesOut)
+    }
+}

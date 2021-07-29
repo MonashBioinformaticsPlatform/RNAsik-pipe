@@ -5,6 +5,7 @@ include "sikReferencesClass.bds"
 include "sikFastqSamplesUtils.bds"
 include "sikSampleClass.bds"
 include "sikFastQcClass.bds"
+include "sikReadCountsClass.bds"
 include "sikMarkDupsClass.bds"
 include "sikResultsClass.bds"
 include "sikFeatureCountsClass.bds"
@@ -56,4 +57,4 @@ if(mdups == "default" || mdups == "umi") {
 }
 
 SikCountsConfig sikCntsConf = new SikCountsConfig(sikConf.usrResConf, sikConf.usrToolsConf)
-countsRes := new ReadsCount(bamRes, ref.geneModels, sikConf.sikCmdFlags{"outDir"}, sikCntsConf)
+countsRes := new ReadCountsResults(bamRes, ref.geneModels, sikConf.sikCmdFlags{"outDir"}, sikCntsConf)

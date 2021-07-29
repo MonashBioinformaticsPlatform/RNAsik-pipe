@@ -39,7 +39,7 @@ if(!dir.exists(counts_dir)) {
   stop(msg)
 }
 
-fns1 <- list.files(counts_dir, pattern = ".summary$", full.names = TRUE)
+fns1 <- list.files(counts_dir, pattern = "txt.summary$", full.names = TRUE)
 
 non_stranded_cnts <- fns1[grepl("_nonCnts.txt.summary", fns1)]
 fwd_stranded_cnts <- fns1[grepl("_fwdCnts.txt.summary", fns1)]
@@ -57,6 +57,16 @@ res3 <- res2 %>% map(function(dat) dat %>%
                                     gather(sample, stats, -Status) %>%
                                     mutate(sample = gsub("_sorted.(repaired|bam)$", "", basename(sample))))
 
+names(res3) %>% map(function(n) {
+                      fn_out <- paste0(counts_dir, "/", gsub("Stats", "Counts", n), ".tsv.summary")
+		      dat <- res3[[n]]
+		      ss <- unique(dat[["sample"]])
+		      #TODO should assert that ss is a length of one
+		      dat <- dat %>% select(-sample)
+		      colnames(dat) <- c("Status", ss)
+                      write_tsv(dat, fn_out)
+                    })
+
 res4 <- names(res3) %>% map(function(n) res3[[n]] %>% dplyr::rename(!!n := stats))
 
 res5 <- Reduce(function(x, y) left_join(x, y, by = c("Status", "sample")), res4)
@@ -69,8 +79,6 @@ res6 <- res5 %>%
 	  mutate(strand_score = cal_strand_score(ForwardStrandedStats, ReverseStrandedStats)) %>%
           arrange(Status, sample)
           #filter(abs(strand) > 0, !is.na(strand))
-
-res6
 
 out1_fn <- paste0(counts_dir, "/strandInfoAll.tsv")
 out2_fn <- paste0(counts_dir, "/strandInfoPerSample.tsv")

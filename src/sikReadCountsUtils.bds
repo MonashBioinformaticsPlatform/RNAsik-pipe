@@ -1,0 +1,34 @@
+
+string aggregateCountFiles(string countsDir, string[] countFilesIn, string[] countFilesOut) {
+
+    assert(countsDir.isDir())
+
+    //TODO need to properly pass through Rscript executable
+    //string Rexe = cmdExe{"Rexe"}
+    string x = programPath.pathName()+"/../scripts/aggregate_counts.R"
+
+    string logMsg = "Aggregating individual samples read counts into contingency table"
+
+    dep(countFilesOut <- countFilesIn, taskName := logMsg) {
+        sys Rscript --vanilla $x $countsDir
+    }
+
+    return countsDir
+}
+
+string strandGuessing(string countsDir, string[] summaryFilesIn, string[] summaryFilesOut) {
+
+    assert(countsDir.isDir())
+
+    //TODO need to properly pass through Rscript executable
+    //string Rexe = cmdExe{"Rexe"}
+    string x = programPath.pathName()+"/../scripts/strand_guessing.R"
+
+    string logMsg = "Aggregating individual summary files and guessing strand"
+
+    dep(summaryFilesOut <- summaryFilesIn, taskName := logMsg) {
+        sys Rscript --vanilla $x $countsDir
+    }
+
+    return countsDir
+}
