@@ -114,28 +114,36 @@ class Bams extends BamsGeneric {
 class Counts {
 
     string cntsFwd
+    string cntsFwdSummary
     string cntsFwdLog
 
     string cntsRev
+    string cntsRevSummary
     string cntsRevLog
 
     string cntsNon
+    string cntsNonSummary
     string cntsNonLog
+
+    string countsDir
 
     void Counts(string sampleName, string sikDir) {
 
-        string countsDir = sikDir+"/"+"countFiles"
+        countsDir = sikDir+"/"+"countFiles"
         if(!countsDir.exists()) {
             countsDir.mkdir()
         }
 
         this.cntsFwd = countsDir + "/" + sampleName + "_fwdCnts.txt"
+        this.cntsFwdSummary = this.cntsFwd + ".summary"
         this.cntsFwdLog = countsDir + "/." + sampleName + "_fwdCnts.siklog"
 
         this.cntsRev = countsDir + "/" + sampleName + "_revCnts.txt"
+        this.cntsRevSummary = this.cntsRev + ".summary"
         this.cntsRevLog = countsDir + "/." + sampleName + "_revCnts.siklog"
 
         this.cntsNon = countsDir + "/" + sampleName + "_nonCnts.txt"
+        this.cntsNonSummary = this.cntsNon + ".summary"
         this.cntsNonLog = countsDir + "/." + sampleName + "_nonCnts.siklog"
     }
 }

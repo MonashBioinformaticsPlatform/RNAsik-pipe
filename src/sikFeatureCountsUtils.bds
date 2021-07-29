@@ -21,7 +21,7 @@
 //    return strandInfoGuess
 //}
 
-Sample doReadsCount(Sample sample, SikCountsConfig sikCntsConf, string geneModels, string sikDir) {
+Sample doReadCounts(Sample sample, SikCountsConfig sikCntsConf, string geneModels, string sikDir) {
 
     string{} resources = sikCntsConf.cntsRes
     string x = resources{"featureCountsExe"}
@@ -42,15 +42,15 @@ Sample doReadsCount(Sample sample, SikCountsConfig sikCntsConf, string geneModel
     string bamTmp = bam.replace(".bam", ".repaired")
 
     string cntsFwd = sample.counts.cntsFwd
-    string cntsFwdSummary = cntsFwd + ".summary"
+    string cntsFwdSummary = sample.counts.cntsFwdSummary
     string cntsFwdLog = sample.counts.cntsFwdLog
 
     string cntsRev = sample.counts.cntsRev
-    string cntsRevSummary = cntsRev + ".summary"
+    string cntsRevSummary = sample.counts.cntsRevSummary
     string cntsRevLog = sample.counts.cntsRevLog
 
     string cntsNon = sample.counts.cntsNon
-    string cntsNonSummary = cntsNon + ".summary"
+    string cntsNonSummary = sample.counts.cntsNonSummary
     string cntsNonLog = sample.counts.cntsNonLog
 
     //NOTE added -Q 10 to featureCounts. This is important filtering step that filters
@@ -116,41 +116,4 @@ Sample doReadsCount(Sample sample, SikCountsConfig sikCntsConf, string geneModel
 //    }
 //    return geneIds
 //}
-//TODO make mkCntsFile to accept args from extraOpts file, in particular --biotype, not every annotation file will have that info
-//string[] getDegustFile(string{} cmdExe, string[] cntFiles, string samplesSheet, string gtfFile, string modelType) {
-//    // sanity check
-//    if(!cmdExe.hasKey("pythonExe")) {
-//        error "Can't get python executable, check your config file $configFile"
-//    }
-//
-//    string[] res
-//
-//    string cntsDir = cntFiles[0].dirName()
-//
-//    string pythonExe = cmdExe{"pythonExe"}
-//    string geneIdsFile = getGeneIds(pythonExe, cntsDir, gtfFile, modelType)
-//    string mkCntsFile = programPath.pathName()+"/../scripts/mk_cnts_file.py"
-//
-//    for(string cntFile : cntFiles) {
-//        string degustFileAll = cntFile.swapExt(".txt", "-withNames.txt")
-//        string degustFileProteinCoding = cntFile.swapExt(".txt", "-withNames-proteinCoding.txt")
-//
-//        res.add(degustFileAll)
-//
-//        dep(counts, degustFileAll <- [cntFile, geneIdsFile, samplesSheet], canFail := true, taskName := "making degust file with all features") {
-//            sys $pythonExe $mkCntsFile --counts_file $cntFile \
-//                                       --gene_ids $geneIdsFile \
-//                                       --samples_sheet $samplesSheet \
-//                                       --biotype "all" > $degustFileAll
-//        }
-//        dep(counts, degustFileProteinCoding <- [cntFile, geneIdsFile, samplesSheet], canFail := true, taskName := "making degust file with protein coding features") {
-//            sys $pythonExe $mkCntsFile --counts_file $cntFile \
-//                                       --gene_ids $geneIdsFile \
-//                                       --samples_sheet $samplesSheet \
-//                                       --biotype "protein_coding" > $degustFileProteinCoding
-//        }
-//    }
-//
-//    goal res
-//    return res
-//}
+
