@@ -1,0 +1,93 @@
+
+class FastqSample {
+    string sampleName
+    string[] fq1
+    string[] fq2
+    bool paired
+}
+
+FastqSample[] parseFastqSamples(string metadataFn) {
+
+    FastqSample[] fastqSamples
+
+    string[] sampleNameSeen
+
+    for(string line : metadataFn.readLines()) {
+
+        FastqSample fastqSample = new FastqSample()
+
+        line = line.trim()
+        if(line.startsWith("#") || line.isEmpty())  {
+            continue
+        }
+
+        string[] items = line.split(",")
+        assert("SikErr: Wrong file formating -> " + metadataFn, items.size() <= 3)
+
+        string sampleName = items[0]
+        string r1
+        string r2
+        bool paired = false
+
+
+        int itemsCheck
+        //TODO data is paired end cross check with user?
+        for(string i : items) {
+            if(i.isFile()) itemsCheck += 1
+            else itemsCheck += 0
+        }
+
+        if(itemsCheck == 1) {
+            //single end data
+            r1 = items[1]
+            if(!r1.exists()) {
+                error("SikErr: Fastq R1 doesn't exist -> " + r1)
+            }
+        } else if(itemsCheck == 2) {
+            //paired end data
+            r1 = items[1]
+            r2 = items[2]
+            if(!r1.exists() || !r2.exists()) {
+                error("SikErr: R1 and/or R2 fastq files don't exist -> " + r1 + ", " + r2)
+            }
+            paired = true
+        } else if(itemsCheck > 2) {
+            error("SikErr: Too many items in the metadata file -> " + metadataFn)
+        } else {
+            error("SikErr: something odd happened")
+        }
+
+        if(sampleNameSeen.has(sampleName)) {
+            int cntr = 0
+            //NOTE each sampleName should be unique per sample sheet, and therefore counter can't be bigger then 1
+            //This loop here is mainly for samples that have been split accross lanes and therefore will be represented by
+            //multiple lines in the samples sheet file
+            for(FastqSample s: fastqSamples) {
+                if(s.sampleName == sampleName) {
+                    cntr += 1
+                    s.fq1.add(r1)
+                    if(paired) s.fq2.add(r2)
+                }
+            }
+            //NOTE I should never hit this cntr if block, because of the "sampleNameSeen check.
+            //One the sampleName has been seen, all fastq files will be assigned to it.
+            //TODO instead I should have a separate check to see that fastqSamples list of object is balance/homogeneous i.e same number of fastq files
+            //Although it is certainly possible to have only some sample to be split accross multiple lanes.
+            //I think I should simply report that fastqSamples assignment to the user as I have been in previous versions of RNAsik
+            if(cntr > 1) {
+                error("SikErr: Something went wrong with parsing samples sheet file. Repeating sample name -> " + sampleName)
+            }
+        } else {
+            sampleNameSeen.add(sampleName)
+
+            fastqSample.sampleName = sampleName
+            fastqSample.fq1.add(r1)
+            if(paired) fastqSample.fq2.add(r2)
+            fastqSample.paired = paired
+
+            fastqSamples.add(fastqSample)
+        }
+    }
+
+    return(fastqSamples)
+}

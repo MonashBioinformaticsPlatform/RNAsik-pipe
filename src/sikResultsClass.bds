@@ -7,17 +7,11 @@ class AlignerResults {
 
     //TODO I shouldn't be instantiation new Samples class in here, instead as per sikSampleClass.bds line 171, I should pre-parse fastq file into Sample calss
     // and AlingerResults should simply take Sample[] samples as an argument. That will be much cleaner
-    void AlignerResults(SikConfig sikConf, AlignerConfig alignerConf, string genomeIdx, string[] idxDeps) {
-
-        string metadataFn = sikConf.sikCmdFlags{"metadata"}
-        string aligner = sikConf.sikCmdFlags{"aligner"}
-        string sikDir = sikConf.sikCmdFlags{"outDir"}
-
-        Samples samples = new Samples(metadataFn, sikDir, aligner)
+    void AlignerResults(Sample[] samples, string aligner, AlignerConfig alignerConf, string genomeIdx, string[] idxDeps) {
 
         switch(aligner) {
             case 'star':
-                for(Sample s : samples.samples) {
+                for(Sample s : samples) {
                     Sample result = mapSTAR(alignerConf.sikStarAlignerConf, s, genomeIdx, idxDeps)
                     this.results.add(result)
                 }
@@ -26,7 +20,7 @@ class AlignerResults {
                 error("SikErr: Haven't been implemented yet")
                 break
             case 'bwaMem':
-                for(Sample s : samples.samples) {
+                for(Sample s : samples) {
                     Sample result = mapBWA(alignerConf.sikBWAalignerConf, s, genomeIdx, idxDeps)
                     this.results.add(result)
                 }

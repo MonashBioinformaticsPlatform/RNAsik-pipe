@@ -2,7 +2,9 @@
 include "sikHeader.bds"
 include "sikConfigClass.bds"
 include "sikReferencesClass.bds"
+include "sikFastqSamplesUtils.bds"
 include "sikSampleClass.bds"
+include "sikFastQcClass.bds"
 include "sikMarkDupsClass.bds"
 include "sikResultsClass.bds"
 include "sikFeatureCountsClass.bds"
@@ -11,13 +13,30 @@ sikConf := new SikConfig(sikConfig)
 sikRefConf := new SikReferencesConfig(sikConf.usrResConf)
 
 ref := new References(sikConf, sikRefConf) // here ref class returns "generic" object that aligner config can take
-string aligner = sikConf.sikCmdFlags{"aligner"}
 
 //NOTE remember that mdups can take any three values default | umi | none
 string mdups = getVal(sikConf.sikCmdFlags, "mdups")
+string metadataFn = sikConf.sikCmdFlags{"metadata"}
+bool qc = sikConf.sikCmdFlags{"qc"}
+string aligner = sikConf.sikCmdFlags{"aligner"}
 
+//TODO need to write fastq to sample assignment for user
+FastqSample[] fastqSamples = parseFastqSamples(metadataFn)
+
+//NOTE this seem like redundant step, however
+Sample[] samples
+for(FastqSample fastqSample : fastqSamples) {
+    Sample sample = new Sample(fastqSample, sikConf)
+    samples.add(sample)
+}
+
+//NOTE just realised that aligner class initiates the whole sample cascade.. maybe that should be FastQc or Qc in general?
+//thinking about rare case when fastq file is broken, on potential issue zero read length for some reads will make STAR to fall over
 AlignerConfig alignerConf = new AlignerConfig(sikConf.usrResConf, sikConf.usrToolsConf, aligner)
-alignerRes := new AlignerResults(sikConf, alignerConf, ref.genomeIdx, ref.idxDeps)
+alignerRes := new AlignerResults(samples, aligner, alignerConf, ref.genomeIdx, ref.idxDeps)
+
+FastQcConfig fastqcConf = new FastQcConfig(sikConf.usrResConf, sikConf.usrToolsConf)
+fastqcResults := new FastQcResults(alignerRes.results, fastqcConf, qc)
 
 //TODO SortConfig class doesn't need aligner, need to fix that
 SortConfig sortConf = new SortConfig(sikConf.usrResConf, sikConf.usrToolsConf, aligner)

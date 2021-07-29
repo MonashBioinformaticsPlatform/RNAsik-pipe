@@ -1,28 +1,18 @@
+
 class Metadata {
 
     string sampleName
-    string sampleGroup
     string[] fq1
     string[] fq2
     bool paired
     //string readGroup TODO future implementation
 
-    void Metadata(string[] sampleData) {
+    void Metadata(FastqSample fastqSample) {
 
-        //TODO check if the sample is paired end and set paired flag accordingly
-        //Potentially can process paired and single end data together in the future
-        //this.paired = paired
-
-        assert("SikErr: Unexpected number of items ->\n" + sampleData.join("\n"), sampleData.size() == 4)
-
-        this.sampleName = sampleData[0]
-        this.sampleGroup = sampleData[1]
-        this.fq1 = sampleData[2].split(",")
-        this.fq2 = sampleData[3].split(",")
-
-        if(fq1.size() == fq2.size() && fq2.size() > 0) {
-            this.paired = true
-        }
+        this.sampleName = fastqSample.sampleName
+        this.fq1 = fastqSample.fq1
+        this.fq2 = fastqSample.fq2
+        this.paired = fastqSample.paired
 
     }
 }
@@ -223,90 +213,15 @@ class Sample {
     FastQc fastqc
     Qc qc
 
-    void Sample(string[] sampleData, string sikDir, string aligner) {
+    void Sample(FastqSample fastqSample, SikConfig sikConf) {
 
-        this.metadata = new Metadata(sampleData)
+        string aligner = sikConf.sikCmdFlags{"aligner"}
+        string sikDir = sikConf.sikCmdFlags{"outDir"}
+
+        this.metadata = new Metadata(fastqSample)
         this.bams = new Bams(metadata.sampleName, sikDir, aligner)
         this.counts = new Counts(metadata.sampleName, sikDir)
         this.fastqc = new FastQc(metadata, sikDir)
 
     }
 }
-
-//TODO I'm realising that this class seem ambigious / confusing with Sample class above it. The two are very different classes.
-// One meant to represent all of the computed data by RNAsik and the other simply abstracts away fastq file into samples
-//NOTE I'm also now thinking that Samples shouldn't be a class at all. Instead it should be FastqProcessing() function call
-// that in turn would populate Sample calss
-
-class Samples {
-
-    Sample[] samples
-
-    //TODO it feels like there is weak error catching in parsing metadata file
-    // for example if user forgot or misspelled on of the keys, this won't be catched,
-    // the assertion in the Sample class should pick up the fact that list isn't 4 elements, not sure if this is good enought?
-    void Samples(string metadataFn, string sikDir, string aligner) {
-
-        assert("SikErr: Metadata file doesn't exist -> " + metadataFn, metadataFn.exists())
-        string[] metadata = metadataFn.readLines()
-
-        string prevName
-
-        string[] sampleData
-        string[] ones
-        string[] twos
-
-        for(string line : metadata) {
-
-            line = line.trim()
-
-            if(line.startsWith("#") || line.isEmpty())  {
-                continue
-            }
-
-            string[] tokens = line.split(":")
-
-            string k = tokens[0].trim()
-            string v = tokens[1].trim()
-
-            assert("SikErr: Line in metadata file doesn't have a valid key value pair -> " + line, tokens.size() == 2)
-
-            if(k == "name") {
-
-                if(!prevName.isEmpty() && prevName != v) {
-
-                    sampleData.add(ones.join(","))
-                    sampleData.add(twos.join(","))
-                    Sample sample = new Sample(sampleData, sikDir, aligner)
-                    this.samples.add(sample)
-
-                    sampleData = []
-                    ones = []
-                    twos = []
-
-                }
-
-                prevName = v
-                sampleData.add(0, v)
-
-            } else if(k == "group") {
-                sampleData.add(1, v)
-            } else if(k == "r1") {
-                assert("SikErr: R1 file doesn't exist -> " + v, v.exists())
-                ones.add(v)
-            } else if(k == "r2") {
-                assert("SikErr: R2 file doesn't exist -> " + v, v.exists())
-                twos.add(v)
-            }
-
-        }
-        //TODO ugly code... is there a nicer way?
-        if(!sampleData.isEmpty()) {
-            sampleData.add(ones.join(","))
-            sampleData.add(twos.join(","))
-            Sample sample = new Sample(sampleData, sikDir, aligner)
-            this.samples.add(sample)
-       }
-    }
-}
-
