@@ -54,3 +54,57 @@ class SamtoolsSortConfig extends SikResourcesConfig {
         sortRes{"samtoolsExe"} = this._sikResConf{"samtoolsExe"}
     }
 }
+
+class SamtoolsQcConfig extends SikResourcesConfig {
+
+    string{} qcRes
+    string[] qcCmdOpts
+
+    string{} _sikQcConf // private to this class
+
+    void SamtoolsQcConfig(string{} usrResConf, string{} usrToolsConf) {
+
+        SikResourcesConfig(usrResConf)
+
+        string{} usrQcOpts
+
+        if(usrToolsConf.hasKey("samtoolsQc")) {
+            usrQcOpts = parseUsrToolsOpts("samtoolsQc", usrToolsConf{"samtoolsQc"})
+        }
+
+        //TODO instead of creating dummy/empty files, I should just check here if the file exists
+        string sikQcConfigFn = this._configOriginFn + "/sikCmdOptions/samtoolsQc.config"
+        assert(sikQcConfigFn.exists())
+        this._sikQcConf = config(sikQcConfigFn)
+
+        string[] keys = this._sikQcConf.keys()
+        keys += usrQcOpts.keys()
+        keys = unique(keys)
+
+        for(string k : keys) {
+            if(usrQcOpts.hasKey(k)) {
+                qcCmdOpts.add([k, usrQcOpts{k}].join(" "))
+            } else {
+                qcCmdOpts.add([k, this._sikQcConf{k}].join(" "))
+            }
+        }
+
+        string[] sanityChk = ["samtoolsExe", \
+                              "samtoolsQcMem", \
+                              "samtoolsQcCpu"]
+
+        for(string k : sanityChk) {
+            if(!this._sikResConf.hasKey(k)) {
+                error "\n\
+                       \n\
+                       SikErr: Key not found -> $k. Check you configuration files \
+                       \n"
+            }
+        }
+
+        qcRes{"idxCpu"} = this._sikResConf{"samtoolsQcCpu"}
+        qcRes{"idxMem"} = this._sikResConf{"samtoolsQcMem"}
+        qcRes{"samtoolsExe"} = this._sikResConf{"samtoolsExe"}
+
+   }
+}

@@ -36,9 +36,6 @@ for(FastqSample fastqSample : fastqSamples) {
 AlignerConfig alignerConf = new AlignerConfig(sikConf.usrResConf, sikConf.usrToolsConf, aligner)
 alignerRes := new AlignerResults(samples, aligner, alignerConf, ref.genomeIdx, ref.idxDeps)
 
-FastQcConfig fastqcConf = new FastQcConfig(sikConf.usrResConf, sikConf.usrToolsConf)
-fastqcResults := new FastQcResults(alignerRes.results, fastqcConf, qc)
-
 SortConfig sortConf = new SortConfig(sikConf.usrResConf, sikConf.usrToolsConf)
 sortedBamRes := new SortedBamResults(alignerRes.results, sikConf, sortConf)
 
@@ -47,6 +44,10 @@ if(mdups == "umi") mdupsToolName = "jeMarkDups"
 
 MarkDupsConfig mdupsConf = new MarkDupsConfig(sikConf.usrResConf, sikConf.usrToolsConf, mdupsToolName)
 markDupsBamRes := new MarkDupsBamResults(sortedBamRes.results, sikConf, mdupsConf)
+
+//NOTE position of Qc call matters, to get correct bamOut file
+QcConfig qcConf = new QcConfig(sikConf.usrResConf, sikConf.usrToolsConf)
+qcResults := new QcResults(alignerRes.results, qcConf)
 
 Sample[] bamRes
 

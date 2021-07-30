@@ -53,7 +53,7 @@ class SortedBamResults {
         switch(sortingTool) {
             case 'samtools':
                 for(Sample s : alignerResults) {
-                    Sample result = doBamSort(s, sortConf.samtoolsSortConf, sikDir)
+                    Sample result = doBamSort(s, sortConf.samtoolsSortConf)
                     results.add(result)
                 }
                 break
@@ -205,27 +205,39 @@ class ReadCountsResults {
     }
 }
 
-class FastQcResults {
+class QcResults {
 
-    Sample[] results
+    Sample[] fastqcRes
+    Sample[] samtoolsQcRes
 
-    void FastQcResults(Sample[] sample, FastQcConfig fastqcConf, bool qc) {
+    void QcResults(Sample[] sample, QcConfig qcConf) {
 
         for(Sample s : sample) {
-            Sample fastqc = doFastQc(s, fastqcConf, qc)
-            results.add(fastqc)
+            Sample fastqc = doFastQc(s, qcConf.fastqcConf)
+            fastqcRes.add(fastqc)
+
+            Sample samtoolsQc = doSamtoolsQc(s, qcConf.samtoolsQcConf)
+            samtoolsQcRes.add(samtoolsQc)
         }
 
         string[] fastqcGoals
 
-        for(Sample s : results) {
-            fastqcGoals.add(s.fastqc.fastqcHtmlR1)
-            fastqcGoals.add(s.fastqc.fastqcHtmlR2)
-            fastqcGoals.add(s.fastqc.fastqcZipR1)
-            fastqcGoals.add(s.fastqc.fastqcZipR2)
+        for(Sample s : fastqcRes) {
+            fastqcGoals.add(s.qc.fastqc.fastqcHtmlR1)
+            fastqcGoals.add(s.qc.fastqc.fastqcHtmlR2)
+            fastqcGoals.add(s.qc.fastqc.fastqcZipR1)
+            fastqcGoals.add(s.qc.fastqc.fastqcZipR2)
         }
 
         goal fastqcGoals
 
+        string[] samtoolsQcGoals
+
+        for(Sample s : samtoolsQcRes) {
+            samtoolsQcGoals.add(s.qc.samtoolsQc.flagstatFn)
+            samtoolsQcGoals.add(s.qc.samtoolsQc.idxstatsFn)
+        }
+
+        goal samtoolsQcGoals
     }
 }

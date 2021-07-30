@@ -1,5 +1,5 @@
 
-Sample doBamSort(Sample sample, SamtoolsSortConfig samtoolsSortConf, string sikDir) {
+Sample doBamSort(Sample sample, SamtoolsSortConfig samtoolsSortConf) {
 
     Metadata metadata = sample.metadata
     Bams bams = sample.bams
@@ -40,5 +40,41 @@ Sample doBamSort(Sample sample, SamtoolsSortConfig samtoolsSortConf, string sikD
 
     bams.bamOut = bamOut
     bams.bamIdx = bamIdx
+    return sample
+}
+
+Sample doSamtoolsQc(Sample sample, SamtoolsQcConfig samtoolsQcConf) {
+
+    SamtoolsQc samtoolsQc = sample.qc.samtoolsQc
+    Bams bams = sample.bams
+
+    string{} resources = samtoolsQcConf.qcRes
+    string x = resources{"samtoolsExe"}
+    int xCpu = resources{"idxCpu"}.parseInt()
+    int xMem = resources{"idxMem"}.parseInt()
+
+    string samtoolsQcCmdOpts = samtoolsQcConf.qcCmdOpts.join(" ")
+
+    string bamIn = bams.bamOut
+    string flagstatOut = samtoolsQc.flagstatFn
+    string idxstatsOut = samtoolsQc.idxstatsFn
+    bool qcFlag = sample.qc.usrQcFlag
+
+    string logMsg = "Running QC, samtools flagstat -> " + bamIn
+
+    dep(qcFlag, flagstatOut <- bamIn, cpus := xCpu, taskName := logMsg) {
+        sys $x flagstat $bamIn > $flagstatOut
+    }
+
+    logMsg = "Running QC, samtools idxstats -> " + bamIn
+
+    dep(qcFlag, idxstatsOut <- bamIn, cpus := xCpu, taskName := logMsg) {
+        sys $x idxstats $bamIn > $idxstatsOut
+    }
+
+    //dep(qcFlag, statsOut <- [bamFile, fastaRef], cpus := xCpu, taskName := lgsMsg) {
+    //    sys $samtoolsExe stats --reference $fastaRef $bamFile > $statsOut
+    //}
+
     return sample
 }

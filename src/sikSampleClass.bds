@@ -148,20 +148,6 @@ class Counts {
     }
 }
 
-class Qc {
-
-    string fastqc
-    string flagstat
-    string alignerStats
-    string countsStats
-    string multiqc
-
-    void Qc() {
-
-    }
-
-}
-
 class FastQc {
 
     string fastqcDir
@@ -213,12 +199,71 @@ class FastQc {
     }
 }
 
+class SamtoolsQc {
+    //TODO not sure if I need .siklog for any of these file/cmd. samtools usually doesn't produce much stderr
+    string flagstatFn
+    string idxstatsFn
+    string statsFn
+
+    string samtoolsQcDir
+
+    void SamtoolsQc(string bamFile, string sikDir) {
+
+        samtoolsQcDir = sikDir + "/Qc" + "/samtools"
+        if(!samtoolsQcDir.exists()) {
+            samtoolsQcDir.mkdir()
+        }
+
+        string bamName = bamFile.baseName()
+
+        this.flagstatFn = samtoolsQcDir + "/" + bamName.swapExt("bam", "flagstat")
+        this.idxstatsFn = samtoolsQcDir + "/" + bamName.swapExt("bam", "idxstats")
+        this.statsFn = samtoolsQcDir + "/" +  bamName.swapExt("bam", "stats")
+
+    }
+}
+
+class Qc {
+
+    FastQc fastqc
+    SamtoolsQc samtoolsQc
+    //string alignerStats
+    //string countsStats
+    //string multiqc
+
+    bool usrQcFlag = false
+
+    void Qc(Metadata metadata, Bams bams, string{} sikCmdFlags) {
+        //TODO maybe I want to do all of the processing in the Sample class and all other get exactly what they need?
+        //i.e don't pass sikCmdFlags to Qc constractor, instead extract sikDir and qc in the Sample class and pass those down
+        string sikDir = sikCmdFlags{"outDir"}
+        string qc = getVal(sikCmdFlags, "qc")
+        string mdups = getVal(sikCmdFlags, "mdups")
+
+        string bamFile
+
+        if(mdups == "default") {
+            bamFile = bams.bamSortedMdupsOut
+        } else if(mdups == "umi") {
+            bamFile = bams.bamSortedMdupsUmiOut
+        } else {
+            bamFile = bams.bamSortedOut
+        }
+
+        //TODO asssert() that usrQcFlag is bool
+        if(qc == "true" || qc == "false") this.usrQcFlag = qc.parseBool()
+
+        this.fastqc = new FastQc(metadata, sikDir)
+        this.samtoolsQc = new SamtoolsQc(bamFile, sikDir)
+
+    }
+}
+
 class Sample {
 
     Metadata metadata
     Bams bams
     Counts counts
-    FastQc fastqc
     Qc qc
 
     void Sample(FastqSample fastqSample, SikConfig sikConf) {
@@ -229,7 +274,7 @@ class Sample {
         this.metadata = new Metadata(fastqSample)
         this.bams = new Bams(metadata.sampleName, sikDir, aligner)
         this.counts = new Counts(metadata.sampleName, sikDir)
-        this.fastqc = new FastQc(metadata, sikDir)
+        this.qc = new Qc(metadata, bams, sikConf.sikCmdFlags)
 
     }
 }

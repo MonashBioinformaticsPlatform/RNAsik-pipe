@@ -5,6 +5,7 @@ Abstracting away config files interface
 include "sikSTARclass.bds"
 include "sikBWAclass.bds"
 include "sikSamtoolsClass.bds"
+include "sikFastQcClass.bds"
 
 /*
 
@@ -186,5 +187,18 @@ class SortConfig {
                 error("SikErr: There needs to be an error here to make sure nothing else is passed through, other than allowed aligners")
 
         }
+    }
+}
+
+class QcConfig {
+
+    FastQcConfig fastqcConf
+    SamtoolsQcConfig samtoolsQcConf
+
+    void QcConfig(string{} usrResConf, string{} usrToolsConf) {
+
+        this.fastqcConf = new FastQcConfig(usrResConf, usrToolsConf)
+        this.samtoolsQcConf = new SamtoolsQcConfig(usrResConf, usrToolsConf)
+
     }
 }
