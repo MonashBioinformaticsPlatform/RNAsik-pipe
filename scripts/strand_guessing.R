@@ -57,14 +57,13 @@ res3 <- res2 %>% map(function(dat) dat %>%
                                     gather(sample, stats, -Status) %>%
                                     mutate(sample = gsub("_sorted.(repaired|bam)$", "", basename(sample))))
 
+#TODO do a bam names clean up, i.e drop _sorted. Catch is, it can be _sorted.bam or _sorted_mdups.bam or _sorted_mdups_umi.bam
 names(res3) %>% map(function(n) {
                       fn_out <- paste0(counts_dir, "/", gsub("Stats", "Counts", n), ".tsv.summary")
-		      dat <- res3[[n]]
-		      ss <- unique(dat[["sample"]])
-		      #TODO should assert that ss is a length of one
-		      dat <- dat %>% select(-sample)
-		      colnames(dat) <- c("Status", ss)
-                      write_tsv(dat, fn_out)
+                      res3[[n]] %>%
+                          spread(sample, stats) %>%
+                          arrange(Status) %>%
+                          write_tsv(fn_out)
                     })
 
 res4 <- names(res3) %>% map(function(n) res3[[n]] %>% dplyr::rename(!!n := stats))
@@ -76,7 +75,7 @@ cal_strand_score <- function(fow, rev) {
 }
 
 res6 <- res5 %>%
-	  mutate(strand_score = cal_strand_score(ForwardStrandedStats, ReverseStrandedStats)) %>%
+          mutate(strand_score = cal_strand_score(ForwardStrandedStats, ReverseStrandedStats)) %>%
           arrange(Status, sample)
           #filter(abs(strand) > 0, !is.na(strand))
 
@@ -94,8 +93,8 @@ mean_strand_score <- res6 %>%
                        filter(Status == "Assigned") %>%
                        summarize(mean_strand_score = mean(strand_score)) %>%
                        select(mean_strand_score) %>%
-	               unlist() %>%
-	               unname()
+                       unlist() %>%
+                       unname()
 
 strnd_test = (19 - 1) / (20 + 1)  # 0.857
 non_strnd_test = (55 - 45) / (55 + 45)  # 0.1

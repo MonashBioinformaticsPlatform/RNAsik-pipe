@@ -8,6 +8,10 @@ class FastqSample {
 
 FastqSample[] parseFastqSamples(string metadataFn) {
 
+    if(!(metadataFn.isFile() && metadataFn.exists())) {
+        error("SikErr: Metadata file doesn't exists -> " + metadataFn)
+    }
+
     FastqSample[] fastqSamples
 
     string[] sampleNameSeen

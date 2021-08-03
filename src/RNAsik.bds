@@ -20,7 +20,7 @@ string mdups = getVal(sikConf.sikCmdFlags, "mdups")
 string metadataFn = sikConf.sikCmdFlags{"metadata"}
 bool qc = sikConf.sikCmdFlags{"qc"}
 string aligner = sikConf.sikCmdFlags{"aligner"}
-
+string sikDir = sikConf.sikCmdFlags{"outDir"}
 //TODO need to write fastq to sample assignment for user
 FastqSample[] fastqSamples = parseFastqSamples(metadataFn)
 
@@ -58,4 +58,4 @@ if(mdups == "default" || mdups == "umi") {
 }
 
 SikCountsConfig sikCntsConf = new SikCountsConfig(sikConf.usrResConf, sikConf.usrToolsConf)
-countsRes := new ReadCountsResults(bamRes, ref.geneModels, sikConf.sikCmdFlags{"outDir"}, sikCntsConf)
+countsRes := new ReadCountsResults(bamRes, ref.geneModels, sikDir, sikCntsConf)
