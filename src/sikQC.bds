@@ -36,7 +36,7 @@ string[] getFastqcReport(string{} cmdExe, string sikDir, string[] fqFiles, strin
         // Basically on 16 core machines I'm allowing 4 parallel task to runs, each taking 2G of heap memory
         // and I think this is ok.. However in parallel there probably be also running another (multiple?) java process
         // that will also take up heap memory unknown amount. 
-        dep(qc, fqHtml <- fq, cpus := fastqcCpu, taskName := "Running FastQC on $fq and logging to $logsFile") {
+        dep(qc, fqHtml <- fq, cpus := fastqcCpu, taskName := "fastqc ($rootName)") {
             sys $fastqcExe $fqQcOpts --threads $fastqcCpu --outdir $fastqcReport $fq > $logsFile 2>&1
         }
         fqHtmls.add(fqHtml)
