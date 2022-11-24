@@ -111,11 +111,15 @@ with open(counts_file) as handler:
                 sys.exit(
                     "ERROR: This shouldn't happened, check samples sheet "
                     "and/or counts file columns")
-            ids = "\t".join(("Gene.ID", "Chrom", "Gene.Name", "Biotype"))
+            if usr_biotype == "all":
+                ids = "\t".join(("Gene.ID", "Chrom", "Gene.Name"))
+            else:
+                ids = "\t".join(("Gene.ID", "Chrom", "Gene.Name", "Biotype"))
             print('\t'.join((ids, s_names)))
             header = False
 
         if usr_biotype == "all":
-            print('\t'.join((gene_id, chrom, gene_name, biotype, row_cnts)))
+            #print('\t'.join((gene_id, chrom, gene_name, biotype, row_cnts)))
+            print('\t'.join((gene_id, chrom, gene_name, row_cnts)))
         elif usr_biotype == biotype:
             print('\t'.join((gene_id, chrom, gene_name, biotype, row_cnts)))
