@@ -103,7 +103,7 @@ string[] getDegustFile(string{} cmdExe, string[] cntFiles, string samplesSheet, 
 
     for(string cntFile : cntFiles) {
         string degustFileAll = cntFile.swapExt(".txt", "-withNames.txt")
-        string degustFileProteinCoding = cntFile.swapExt(".txt", "-withNames-proteinCoding.txt")
+        //string degustFileProteinCoding = cntFile.swapExt(".txt", "-withNames-proteinCoding.txt")
 
         res.add(degustFileAll)
 
@@ -113,12 +113,12 @@ string[] getDegustFile(string{} cmdExe, string[] cntFiles, string samplesSheet, 
                                        --samples_sheet $samplesSheet \
                                        --biotype "all" > $degustFileAll
         }
-        dep(counts, degustFileProteinCoding <- [cntFile, geneIdsFile, samplesSheet], canFail := true, taskName := "making degust file with protein coding features") {
-            sys $pythonExe $mkCntsFile --counts_file $cntFile \
-                                       --gene_ids $geneIdsFile \
-                                       --samples_sheet $samplesSheet \
-                                       --biotype "protein_coding" > $degustFileProteinCoding
-        }
+        //dep(counts, degustFileProteinCoding <- [cntFile, geneIdsFile, samplesSheet], canFail := true, taskName := "making degust file with protein coding features") {
+        //    sys $pythonExe $mkCntsFile --counts_file $cntFile \
+        //                               --gene_ids $geneIdsFile \
+        //                               --samples_sheet $samplesSheet \
+        //                               --biotype "protein_coding" > $degustFileProteinCoding
+        //}
     }
 
     goal res
