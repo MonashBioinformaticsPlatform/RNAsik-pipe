@@ -1,0 +1,40 @@
+{% set version = "1.5.4.1" %}
+
+package:
+  name: rnasik
+  version: {{ version }}
+
+source:
+  fn: rnasik.tar.gz
+  url: https://codeload.github.com/MonashBioinformaticsPlatform/RNAsik-pipe/tar.gz/refs/tags/1.5.4.1
+  sha256: b47fefaf398253375c80310d6d0d47959a26d5e6c9a784d7ad60ba999f047d24
+
+build:
+  number: 0
+  skip: False
+
+requirements:
+  run:
+    - bigdatascript=v2.0rc10  # pansapiens/bigdatascript
+    - openjdk=11.0.8
+    - python=3.6.7
+    - star=2.7.2b
+    - bwa=0.7.17
+    - hisat2=2.2.1
+    - bedtools=2.25.0
+    - picard=2.18.9
+    - samtools=1.9
+    - subread=1.6.2
+    - qualimap=2.2.2d
+    - htslib=1.9
+    - fastqc=0.11.7
+    - multiqc=1.10.1
+
+test:
+  commands:
+    - "RNAsik 2>&1 | grep 'RNAsik version'"
+
+about:
+  home: "https://monashbioinformaticsplatform.github.io/RNAsik-pipe/"
+  license: Apache 2.0
+  summary: "Another RNAseq pipeline."
