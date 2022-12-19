@@ -14,4 +14,9 @@ conda build conda-build
 conda install -c conda-forge mamba boa
 
 conda mambabuild conda-build
+
+# The path of the generated package will be output.
+# Login to Anaconda Cloud and upload it
+anaconda login
+anaconda upload -l main <path_to_generated_package>/rnasik-${version}-${build}.tar.bz2
 ```
