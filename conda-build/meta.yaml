@@ -15,7 +15,7 @@ build:
 
 requirements:
   run:
-    - bigdatascript=v2.0rc10  # pansapiens/bigdatascript
+    - bigdatascript=v2.0rc10  # serine/bigdatascript
     - openjdk=11.0.8
     - python=3.6.7
     - star=2.7.2b
