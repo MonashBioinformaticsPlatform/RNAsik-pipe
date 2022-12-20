@@ -7,7 +7,7 @@ package:
 source:
   fn: rnasik.tar.gz
   url: https://codeload.github.com/MonashBioinformaticsPlatform/RNAsik-pipe/tar.gz/refs/tags/1.5.4.1
-  sha256: b47fefaf398253375c80310d6d0d47959a26d5e6c9a784d7ad60ba999f047d24
+  sha256: 37d489d61511414886d62618e33e9828318301164531a18fe9dd052f326bb6bb
 
 build:
   number: 0
