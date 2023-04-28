@@ -29,6 +29,7 @@ requirements:
     - htslib=1.9
     - fastqc=0.11.7
     - multiqc=1.10.1
+    - pandas=0.25.3
 
 test:
   commands:
