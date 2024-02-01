@@ -19,8 +19,7 @@ parser.add_argument('-d',
                     '--logs_dir',
                     metavar='FILE',
                     required=True,
-                    help="specify directory with your BAM files, which should also hold "
-                         "`*Log.final.out` files"
+                    help="specify directory with your featureCounts output (.summary) files"
                     )
 parser.add_argument('-s',
                     '--samples_sheet',
@@ -135,15 +134,21 @@ def get_name(raw_name, ss):
     # it didn't exit in the for loop.
     #raise NoNameError: "Can't happen"
 
-def get_df(f, name):
-    df = pd.read_csv(f, sep = "\t")
-    df2 = df.rename(columns=lambda x: get_name(x, ss), inplace=False)
-    tmp = df2.iloc[0].to_frame().reset_index()
-    df3 = tmp.rename(columns={tmp.columns[0]: "sample", tmp.columns[1]: name})
-    # dropping second line, not too sure why, fucking pandas
-    df3.drop(df3.index[:1], inplace=True)
+def get_df(file_path: str, name: str, ss: list) -> pd.DataFrame:
+    try:
+        df = pd.read_csv(file_path, sep="\t")
+        df.rename(columns=lambda x: get_name(x, ss), inplace=True)
 
-    return df3
+        # Selecting the first row and resetting index
+        tmp = df.iloc[[0]].reset_index(drop=True)
+
+        # Renaming columns
+        df3 = tmp.rename(columns={tmp.columns[0]: "sample"})
+        df3.insert(1, name, tmp.iloc[0, 1])
+
+        return df3
+    except IOError:
+        sys.exit(f"ERROR: Unable to read {file_path}")
 
 dfs = []
 
@@ -152,7 +157,7 @@ for text_file in list_of_files:
         name = text_file.split('.')[0]
         full_path = os.path.join(logs_dir, text_file)
 
-        dfs.append(get_df(full_path, name))
+        dfs.append(get_df(full_path, name, ss))
 
 tmp = pd.merge(dfs[0], dfs[1], how = "left", on = 'sample')
 df = pd.merge(tmp, dfs[2], how = "left", on = 'sample')
