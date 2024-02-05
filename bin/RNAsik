@@ -3,4 +3,10 @@
 sik_origin=`dirname "${BASH_SOURCE[0]}"`
 default_bds_config="$(which bds).config"
 bds_config="${RNASIK_BDS_CONFIG:-$default_bds_config}"
-bds -c ${bds_config} -log -reportHtml -reportYaml "${sik_origin}"/../src/RNAsik.bds "$@"
+
+_checkpoint=""
+if [[ -z ${RNASIK_BDS_CHECKPOINT} ]]; then
+	  _checkpoint=" -restore ${RNASIK_BDS_CHECKPOINT} "
+fi
+
+bds -c ${bds_config} ${_checkpoint}  -log -reportHtml -reportYaml "${sik_origin}"/../src/RNAsik.bds "$@"
