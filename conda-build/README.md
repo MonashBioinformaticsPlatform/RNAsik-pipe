@@ -13,10 +13,10 @@ conda build conda-build
 ```bash
 conda install -c conda-forge mamba boa
 
-conda mambabuild conda-build
+conda mambabuild -c defaults -c conda-forge -c bioconda -c serine conda-build 
 
 # The path of the generated package will be output.
 # Login to Anaconda Cloud and upload it
 anaconda login
-anaconda upload -l main <path_to_generated_package>/rnasik-${version}-${build}.tar.bz2
+anaconda upload -l main "${CONDA_PREFIX}"/conda-bld/linux-64/rnasik-${version}-${build}.tar.bz2
 ```
