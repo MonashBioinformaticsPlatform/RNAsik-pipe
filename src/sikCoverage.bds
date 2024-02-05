@@ -44,9 +44,11 @@ string[] getCovFiles(string{} cmdExe, string{} sortedBamsMap, string sikDir, str
                                            -ibam $bamFile \
                                            -g $fastaRef > $tmpBedGraph
 
-                sys LC_COLLATE=C sort --buffer-size=$sortMem \
-                                      -k1,1 \
-                                      -k2,2n $tmpBedGraph > $bedGraphFile
+                //sys LC_COLLATE=C sort --buffer-size=$sortMem \
+                //                      -k1,1 \
+                //                      -k2,2n $tmpBedGraph > $bedGraphFile
+
+                sys bedSort $tmpBedGraph $bedGraphFile
 
                 sys $bedGraphToBigWig $bedGraphFile $chromSizes $bigWigFile
                 sys rm $bedGraphFile $tmpBedGraph
