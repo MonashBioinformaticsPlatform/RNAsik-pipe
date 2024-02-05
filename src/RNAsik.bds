@@ -194,35 +194,58 @@ else {
 
 mkLog("bams", parseMap(bamsMap), "data", logsDir)
 
-string{} theBams
+
 // sorted, reorted and marking duplicates in BAM files
 string{} sortedBamsMap = getSortedBams(cmdExe, sikDir, bamsMap)
 mkLog("mdupsBams", parseMap(sortedBamsMap), "data", logsDir)
 string{} markedBamsMap = getMarkedBams(cmdExe, sortedBamsMap)
 mkLog("mdupsBams", parseMap(markedBamsMap), "data", logsDir)
 
+/*
+string{} nameSortedBamsMap = getNameSortedBams(cmdExe, sikDir, markedBamsMap)
+mkLog("nameSortedBamsMap", parseMap(nameSortedBamsMap), "data", logsDir)
+*/
+
+string{} primaryBamsMap = getPrimaryOnlyBams(cmdExe, markedBamsMap)
+mkLog("primaryOnlyBams", parseMap(primaryBamsMap), "data", logsDir)
+
 // should also be able to pass in any other bam files here for mdups processing
 // that is from command line
+string{} qcBams
+string{} countBams
 if(mdups) {
-    theBams = markedBamsMap
+    qcBams = markedBamsMap
+    countBams = markedBamsMap
 }
-else if(sortedBamsMap) {
-    theBams = sortedBamsMap
+if(sortedBamsMap) {
+    qcBams = sortedBamsMap
+    countBams = sortedBamsMap
 }
-goal theBams.values()
-mkLog("theBams", parseMap(theBams), "data", logsDir)
+
+if(primaryBamsMap) {
+    countBams = primaryBamsMap
+}
+
+/*
+if(nameSortedBamsMap) {
+    countBams = nameSortedBamsMap
+}
+*/
+
+goal qcBams.values()
+mkLog("qcBams", parseMap(qcBams), "data", logsDir)
 
 // get additional RNAseq metrics
-string[] samMetrics = getSamMetrics(cmdExe, theBams, localFastaRef)
+string[] samMetrics = getSamMetrics(cmdExe, qcBams, localFastaRef)
 mkLog("addMetrics", parseList(samMetrics), "data", logsDir)
 
-string[] addMetrics = getAddMetrics(cmdExe, theBams, localFastaRef, fastaDictFile, paired)
+string[] addMetrics = getAddMetrics(cmdExe, qcBams, localFastaRef, fastaDictFile, paired)
 mkLog("addMetrics", parseList(addMetrics), "data", logsDir)
 // coverage files
 //NOTE this is for future implementation of strand specific coverage
 //string[] strands = ["for", "rev"]
 //for(string strand : strands) {
-string[] covFiles = getCovFiles(cmdExe, theBams, sikDir, localFastaRef, chromSizes)
+string[] covFiles = getCovFiles(cmdExe, qcBams, sikDir, localFastaRef, chromSizes)
 mkLog("covFiles", parseList(covFiles), "data", logsDir)
 //}
 // featureCounts cmd options
@@ -238,7 +261,7 @@ else if(modelType == "saf") {
 string allCountOpts = getExtrOpts("featureCounts", countsOpts, usrOpts)
 mkLog("featureCounts", allCountOpts, "toolsOpts", logsDir)
 // get counts
-string[] featureCounts = getReadsCount(cmdExe, countFiles, theBams, allCountOpts, localGTF)
+string[] featureCounts = getReadsCount(cmdExe, countFiles, countBams, allCountOpts, localGTF)
 mkLog("featureCounts", parseList(featureCounts), "data", logsDir)
 // get strand info
 string strandInfo = getStrandInfo(cmdExe, featureCounts, samplesSheet)
@@ -266,7 +289,7 @@ string allExonicOpts = getExtrOpts("qualimap", exonicOpts, usrOpts)
 mkLog("qualiMap", allExonicOpts, "refFiles", logsDir)
 
 // get Int(ra|er)genic rates
-string[] exonicRates = getExonicRates(cmdExe, sikDir, theBams, allExonicOpts, strandInfo, localGTF)
+string[] exonicRates = getExonicRates(cmdExe, sikDir, qcBams, allExonicOpts, strandInfo, localGTF)
 mkLog("qualiMap", parseList(exonicRates), "data", logsDir)
 // FastQC report
 string{} fastqcOpts = { "--format" => "fastq", \
@@ -289,7 +312,7 @@ if(align.startsWith("star")) {
     }
 }
 if(mdups) {
-    multiqcDeps += theBams.values()
+    multiqcDeps += qcBams.values()
 }
 if(counts) {
     multiqcDeps += featureCounts

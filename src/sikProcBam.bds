@@ -45,7 +45,7 @@ string{} getSortedBams(string{} cmdExe, string sikDir, string{} bamsMap) {
         }
         sortedBams.add(sortedBam)
         if(sortedBamsMap.hasKey(bamKey)) {
-            error "This should happened, please report this issue, sikPrePro.bds function"
+            error "This should happened, please report this issue, sikProcBam:getSortedBams function"
         }
         sortedBamsMap{bamKey} = sortedBam
        
@@ -54,6 +54,7 @@ string{} getSortedBams(string{} cmdExe, string sikDir, string{} bamsMap) {
     //if(!mdups) {
     //    goal sortedBams
     //}
+    goal sortedBams
     return sortedBamsMap
 }
 
@@ -87,11 +88,11 @@ string{} getDeDupedBams(string{} cmdExe, string{} bamsMap) {
         }
         markedBams.add(mdupsName)
         if(markedBamsMap.hasKey(bamKey)) {
-            error "This should happened, please report this issue, sikPrePro.bds function"
+            error "This should happened, please report this issue, sikProcBam:getDeDupedBams function"
         }
         markedBamsMap{bamKey} = mdupsName
     }
-    //goal markedBams
+    goal markedBams
     return markedBamsMap
 }
 
@@ -132,12 +133,12 @@ string{} getDeDupedBamsUmi(string{} cmdExe, string{} bamsMap) {
         }
         markedBams.add(mdupsName)
         if(markedBamsMap.hasKey(bamKey)) {
-            error "This should happened, please report this issue, sikProcBam.bds function"
+            error "This should happened, please report this issue, sikProcBam:getDeDupedBamsUmi function"
         }
         markedBamsMap{bamKey} = mdupsName
        
     }
-    //goal markedBams
+    goal markedBams
     return markedBamsMap
 }
 
@@ -150,3 +151,96 @@ string{} getMarkedBams(string{} cmdExe, string{} bamsMap) {
     }
 }
 
+
+string{} getPrimaryOnlyBams(string{} cmdExe, string{} bamsMap) {
+    string{} resource = getResource(cmdExe, "samtools", "Sort")
+    string samtoolsExe = resource{"toolsExe"}
+    int samtoolsExeMem = resource{"toolsMem"}.parseInt()
+    int samtoolsExeCpu = resource{"toolsCpu"}.parseInt()
+
+    string{} primaryOnlyBamsMap
+    string[] primaryOnlyBams
+    
+    // check if executable is there
+    //if(!cmdExe.hasKey("samtoolsExe")) error "Can't get samtools executable, check your config file $configFile"
+    //string samtoolsExe = cmdExe{"samtoolsExe"}
+    
+    for(string bamKey : bamsMap.keys()) {
+        string bamFile = bamsMap{bamKey}
+        string filteredBam = bamFile.swapExt(".bam", "_primary.bam")
+        
+        dep(filteredBam <- bamFile, cpus := samtoolsExeCpu, mem := samtoolsExeMem, taskName := "samtools filter primary only "+bamFile) {
+            sys $samtoolsExe view -@ $cpus -F 2304 -b $bamFile >$filteredBam
+        }   
+
+        primaryOnlyBams.add(filteredBam)
+        if(primaryOnlyBamsMap.hasKey(bamKey)) {
+            error "This should happened (duplicate primary-only filtered BAM key), please report this issue, sikProcBam:getPrimaryOnlyBams function"
+        }   
+        primaryOnlyBamsMap{bamKey} = filteredBam
+    }
+    goal primaryOnlyBams
+    return primaryOnlyBamsMap
+}   
+
+string{} getNameSortedBams(string{} cmdExe, string sikDir, string{} bamsMap) {
+
+    string bamFiles = sikDir+"/"+"bamFiles"
+    if( !bamFiles.exists() && (mdups || !align.isEmpty()) ) {
+        bamFiles.mkdir()
+    }
+
+    string{} resource = getResource(cmdExe, "samtools", "Sort")
+    string samtoolsExe = resource{"toolsExe"}
+    int sortMem = resource{"toolsMem"}.parseInt()
+    int sortCpu = resource{"toolsCpu"}.parseInt()
+
+    //NOTE we want samtools sort to recieve sortMem memory from sik.cofig
+    //However this is per thread and therefore samtools sort task should be set
+    // at sortMem*sortCpu
+    int sortBdsMem = sortMem*sortCpu
+    // need to scale down by 80 % because sam takes a bit more RAM then actually given
+    //NOTE turns out that previous scalling factor of 0.85 wasn't good enough in some cases
+    //also found this line in bam_sort.c 
+    // 2107   @param  max_mem  approxiate maximum memory (very inaccurate)
+    real scalFact = 0.65
+    // also need to covert to bytes as samtools sort needs that way
+    string sortSamMem = round(scalFact * sortMem/1000)+"K"
+
+    string[] sortedBams
+    string{} sortedBamsMap
+
+    for(string bamKey : bamsMap.keys()) {
+
+        string bamFile = bamsMap{bamKey}
+        string tmpPrefix = bamFiles+"/tmp/"+bamKey+"_"+randInt(10000000)
+        string sortedBam = bamFiles+"/"+bamKey+"_namesorted.bam"
+        string sortedLog = bamFiles+"/."+bamKey+"_namesorted.siklog"
+
+        dep(mdups || !align.isEmpty(), sortedBam <- bamFile, cpus := sortCpu, mem := sortBdsMem, taskName := "sorting by read name with samtools "+bamFile) {
+            sys mkdir -p $bamFiles/tmp
+
+            sys $samtoolsExe sort --threads $sortCpu \
+                                  -m $sortSamMem \
+                                  -o $sortedBam \
+                                  -T $tmpPrefix \
+                                  -n \
+                                  $bamFile > $sortedLog 2>&1
+            # We can't index read name sorted BAMs
+            #sys $samtoolsExe index $sortedBam
+            sys rm $bamFile
+        }
+        sortedBams.add(sortedBam)
+        if(sortedBamsMap.hasKey(bamKey)) {
+            error "This should happened, please report this issue, sikProcBam:getSortedBams function"
+        }
+        sortedBamsMap{bamKey} = sortedBam
+       
+    }
+    // for more infor refer to sikSTARaligner.bds line 129 comment
+    //if(!mdups) {
+    //    goal sortedBams
+    //}
+    goal sortedBams
+    return sortedBamsMap
+}
