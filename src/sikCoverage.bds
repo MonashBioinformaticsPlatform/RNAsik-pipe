@@ -15,7 +15,7 @@ string[] getCovFiles(string{} cmdExe, string{} sortedBamsMap, string sikDir, str
 
     string sortMem = covMem+"K"
 
-    string bedGraphToBigWig = programPath.pathName()+"/../scripts/ucsc_bin/bedGraphToBigWig"
+    string bedGraphToBigWig = "bedGraphToBigWig"
 
     string[] bigWigFiles
 

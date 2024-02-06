@@ -1,4 +1,4 @@
-{% set version = "1.5.6" %}
+{% set version = "1.5.7-alpha" %}
 
 package:
   name: rnasik
@@ -6,7 +6,7 @@ package:
 
 source:
   fn: rnasik.tar.gz
-  url: https://codeload.github.com/MonashBioinformaticsPlatform/RNAsik-pipe/tar.gz/refs/heads/1.5.6
+  url: https://codeload.github.com/MonashBioinformaticsPlatform/RNAsik-pipe/tar.gz/refs/tags/1.5.7
   # sha256: 9cdb221501f97d5319bfe9eda451c421873f3a460d0a2bab147bf4e646b4cfe4
 
 build:
@@ -31,6 +31,8 @@ requirements:
     - multiqc=1.10.1
     - pandas<2
     - ucsc-bedsort=377
+    - ucsc-fasize=377
+    - ucsc-bedgraphtobigwig=377
 
 test:
   commands:
