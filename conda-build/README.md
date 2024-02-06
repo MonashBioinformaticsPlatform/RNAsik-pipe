@@ -11,7 +11,7 @@ conda build conda-build
 ... or build with [boa](https://github.com/mamba-org/boa) instead and it will probably be faster.
 
 ```bash
-conda install -c conda-forge mamba boa
+conda install -c conda-forge mamba boa conda-verify
 
 conda mambabuild -c defaults -c conda-forge -c bioconda -c serine conda-build 
 
