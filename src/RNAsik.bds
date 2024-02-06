@@ -213,15 +213,14 @@ mkLog("primaryOnlyBams", parseMap(primaryBamsMap), "data", logsDir)
 // that is from command line
 string{} qcBams
 string{} countBams
-if(mdups) {
-    qcBams = markedBamsMap
-    countBams = markedBamsMap
-}
 if(sortedBamsMap) {
     qcBams = sortedBamsMap
     countBams = sortedBamsMap
 }
-
+if(mdups) {
+    qcBams = markedBamsMap
+    countBams = markedBamsMap
+}
 if(primaryBamsMap) {
     countBams = primaryBamsMap
 }
