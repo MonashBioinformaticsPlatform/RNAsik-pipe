@@ -5,7 +5,7 @@ default_bds_config="$(which bds).config"
 bds_config="${RNASIK_BDS_CONFIG:-$default_bds_config}"
 
 _checkpoint=""
-if [[ -z ${RNASIK_BDS_CHECKPOINT} ]]; then
+if [[ -n ${RNASIK_BDS_CHECKPOINT} ]]; then
 	  _checkpoint=" -restore ${RNASIK_BDS_CHECKPOINT} "
 fi
 
